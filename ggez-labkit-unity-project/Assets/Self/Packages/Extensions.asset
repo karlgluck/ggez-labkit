@@ -12,10 +12,4 @@ MonoBehaviour:
   m_Name: Extensions
   m_EditorClassIdentifier: 
   Assets:
-  - {fileID: 11500000, guid: 49faa0390841cb54f9ad588d7da52342, type: 3}
-  - {fileID: 11500000, guid: 8a49e59b1a610544588abd7b61236f71, type: 3}
-  - {fileID: 11500000, guid: b026b520b4882cc43b18210991601d55, type: 3}
-  - {fileID: 11500000, guid: 67f814a05530ee849bb253aa56bbf0d5, type: 3}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 11500000, guid: 81e781ef4ca997b42bfcdc4cfb5bcd3d, type: 3}
+  - {fileID: 102900000, guid: a26e79a374d9a8c4498638ee286fc22e, type: 3}
