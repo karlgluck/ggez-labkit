@@ -10,6 +10,7 @@ public class AssetPackageConfigEditor : Editor
 {
 public override void OnInspectorGUI()
 	{
+	GUI.changed = false;
 	var t = this.target as AssetPackageConfig;
 	t.AssetPackageName = EditorGUILayout.TextField ("Name", t.AssetPackageName);
 	EditorGUILayout.Space ();
@@ -66,7 +67,10 @@ public override void OnInspectorGUI()
 		System.Array.Resize (ref t.Assets, oldLength + newAssets.Length);
 		newAssets.CopyTo (t.Assets, oldLength);
 		}
-
+	if (GUI.changed)
+		{
+		EditorUtility.SetDirty (this.target);
+		}
 	}
 
 
