@@ -57,7 +57,7 @@ public void Build ()
 		AssetDatabase.ExportPackage (
 				this.CollectAssetPaths (),
 				packagePath,
-				ExportPackageOptions.Default
+				ExportPackageOptions.Recurse
 				);
 		Debug.LogFormat ("Built {0}", System.IO.Path.GetFullPath (packagePath));
 		}

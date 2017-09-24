@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 public static partial class ListExt
 {
+    
 public static T Last<T> (this List<T> self)
     {
     return self.Count > 0 ? self[self.Count - 1] : default(T);
