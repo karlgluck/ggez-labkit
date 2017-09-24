@@ -50,4 +50,35 @@ public static Vector2 NormalizedOrZero (this Vector3 self, float minimumMagnitud
             ? Vector3.zero
             : self / Mathf.Sqrt (sqrMagnitude);
     }
+
+public static float MagnitudeFast (this Vector3 self)
+    {
+    float min = Mathf.Abs (self.x);
+    float med = Mathf.Abs (self.y);
+    float max = Mathf.Abs (self.z);
+
+    if (min > max)
+        {
+        float t = max;
+        max = min;
+        min = t;
+        }
+    if (min > med)
+        {
+        float t = min;
+        min = med;
+        med = t;
+        }
+    if (med > max)
+        {
+        float t = med;
+        med = max;
+        max = t;
+        }
+
+    const float alpha = 0.29870618761437979596f;
+    const float beta  = 0.38928148272372526647f;
+    const float gamma = 0.93980863517232523127f;
+    return alpha * min + beta * med + gamma * max;
+    }
 }

@@ -53,4 +53,114 @@ public static Vector2 NormalizedOrZero (this Vector2 self, float minimumMagnitud
             ? Vector2.zero
             : self / Mathf.Sqrt (sqrMagnitude);
     }
+
+public static Vector2 Clamp (this Vector2 self, Vector2 min, Vector2 max)
+    {
+    return new Vector2 (
+            Mathf.Min (max.x, Mathf.Max (min.x, self.x)),
+            Mathf.Min (max.y, Mathf.Max (min.y, self.y))
+            );
+    }
+
+public static float MagnitudeFast (this Vector2 self)
+    {
+    float dx = Mathf.Abs (self.x);
+    float dy = Mathf.Abs (self.y);
+    float max = Mathf.Max (dx, dy);
+    float min = Mathf.Min (dx, dy);
+    const float alpha = 0.96043387010f;
+    const float beta = 0.39782473476f;
+    return alpha * max + beta * min;
+    }
+
+public static float DistanceSquared (this Vector2 self, Vector2 v)
+    {
+    return (v - self).sqrMagnitude;
+    }
+
+public static float DistanceExact (this Vector2 self, Vector2 v)
+    {
+    return (v - self).magnitude;
+    }
+
+public static float DistanceFast (this Vector2 self, Vector2 v)
+    {
+    return (v - self).MagnitudeFast ();
+    }
+
+public static Vector2 DeltaTo (this Vector2 self, Vector2 v)
+    {
+    return v - self;
+    }
+
+public static bool DeltaToLineSegmentPerpendicular (this Vector2 self, Vector2 a, Vector2 b, ref Vector2 delta)
+    {
+    var lengthSquared = a.DistanceSquared (b);
+    if (0 == lengthSquared)
+        {
+        return false;
+        }
+    float t = Vector2.Dot (a.DeltaTo (self), a.DeltaTo (b)) / (float)lengthSquared;
+    if (t < 0.0f || t > 1.0f)
+        {
+        return false;
+        }
+    else
+        {
+        var projection = Vector2.Lerp (a, b, t);
+        delta = self.DeltaTo (projection);
+        return true;
+        }
+    }
+
+public static float DistanceToLineSegmentFast (this Vector2 self, Vector2 a, Vector2 b)
+    {
+    var lengthSquared = a.DistanceSquared(b);
+    if (Mathf.Approximately (0f, lengthSquared))
+        {
+        return self.DistanceFast (a);
+        }
+    float t = Vector2.Dot(a.DeltaTo (self), a.DeltaTo (b)) / (float)lengthSquared;
+    if (t < 0.0f)
+        {
+        return self.DistanceFast (a);
+        }
+    else if (t > 1.0f)
+        {
+        return self.DistanceFast (b);
+        }
+    else
+        {
+        var projection = Vector2.Lerp (a, b, t);
+        return self.DistanceFast (projection);
+        }
+    }
+
+public static float DistanceToLineSegmentSquared (this Vector2 self, Vector2 a, Vector2 b)
+    {
+    var lengthSquared = a.DistanceSquared(b);
+    if (0 == lengthSquared)
+        {
+        return self.DistanceSquared (a);
+        }
+    float t = Vector2.Dot(a.DeltaTo(self), a.DeltaTo(b)) / (float)lengthSquared;
+    if (t < 0.0f)
+        {
+        return self.DistanceSquared (a);
+        }
+    else if (t > 1.0f)
+        {
+        return self.DistanceSquared (b);
+        }
+    else
+        {
+        var projection = Vector2.Lerp(a, b, t);
+        return self.DistanceSquared(projection);
+        }
+    }
+
+public static float DistanceToLineSegmentExact (this Vector2 self, Vector2 a, Vector2 b)
+    {
+    return (float)Mathf.Sqrt (self.DistanceToLineSegmentSquared (a, b));
+    }
 }

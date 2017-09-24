@@ -35,7 +35,7 @@ public static void Shuffle (this ArrayList self)
     {
         for (int i = self.Count - 1; i > 0; --i)
         {
-            int j = Random.Range (0, i);
+            int j = UnityEngine.Random.Range (0, i);
             var temp = self[i];
             self[i] = self[j];
             self[j] = temp;
@@ -177,14 +177,14 @@ public static int BinaryInsert (this ArrayList self, System.Func<object, int> co
     return min;
     }
 
-public static void BinaryInsert (this ArrayList self, IComparable element)
+public static void BinaryInsert (this ArrayList self, System.IComparable element)
     {
     int min = 0;
     int max = self.Count - 1;
     while (min <= max)
         {
         int mid = (min + max) / 2;
-        int comparison = element.CompareTo ((IComparable)self[mid]);
+        int comparison = element.CompareTo ((System.IComparable)self[mid]);
         if (comparison < 0)
             {
             max = mid - 1;
