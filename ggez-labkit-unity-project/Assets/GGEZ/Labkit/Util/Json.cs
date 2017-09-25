@@ -29,7 +29,7 @@ public static partial class Util
 {
 private static readonly fsSerializer _serializer = new fsSerializer();
 
-public static object DeepCopy(object originalObject)
+public static object DeepCopy (object originalObject)
     {
     fsData data;
     _serializer.TrySerialize (originalObject.GetType (), originalObject, out data).AssertSuccessWithoutWarnings ();
@@ -38,14 +38,14 @@ public static object DeepCopy(object originalObject)
     return deserialized;
     }
 
-public static string ObjectToJson(object originalObject)
+public static string ObjectToJson (object originalObject)
     {
     fsData data;
     _serializer.TrySerialize (originalObject.GetType (), originalObject, out data).AssertSuccessWithoutWarnings ();
     return fsJsonPrinter.CompressedJson (data);
     }
 
-public static string ObjectToJsonPretty(object originalObject)
+public static string ObjectToJsonPretty (object originalObject)
     {
     fsData data;
     _serializer.TrySerialize (originalObject.GetType (), originalObject, out data).AssertSuccessWithoutWarnings ();

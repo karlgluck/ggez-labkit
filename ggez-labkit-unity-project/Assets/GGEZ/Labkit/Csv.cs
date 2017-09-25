@@ -36,7 +36,8 @@ static string LINE_SPLIT_RE = @"\r\n|\n\r|\n|\r";
 static char[] TRIM_CHARS = { '\"' };
 
 public delegate string GetCsvCell(int index, string label);
-public static GetCsvCell ReadCsvTransposed(string text, out int length)
+
+public static GetCsvCell ReadCsvTransposed (string text, out int length)
     {
     return _readCsv (text, out length, true);
     }
@@ -46,20 +47,20 @@ public static GetCsvCell ReadCsv(string text, out int length)
     return _readCsv (text, out length, false);
     }
 
-private static GetCsvCell _readCsv(string text, out int length, bool transpose)
+private static GetCsvCell _readCsv (string text, out int length, bool transpose)
     {
-    var lines = Regex.Split(text, LINE_SPLIT_RE);
+    var lines = Regex.Split (text, LINE_SPLIT_RE);
 
     if (lines.Length <= 1)
         {
         length = 0;
         return delegate (int row, string column)
             {
-            throw new System.ArgumentOutOfRangeException("No data in this CSV");
+            throw new System.ArgumentOutOfRangeException ("No data in this CSV");
             };
         }
 
-    var firstLine = Regex.Split(lines[0], SPLIT_RE);
+    var firstLine = Regex.Split (lines[0], SPLIT_RE);
 
     var labelToIndex = new Dictionary<string, int>();
     string[,] data;
@@ -96,7 +97,7 @@ private static GetCsvCell _readCsv(string text, out int length, bool transpose)
                 labelToIndex[value] = i;
                 continue;
                 }
-            value = value.Trim(TRIM_CHARS).Replace("\\", "");
+            value = value.Trim (TRIM_CHARS).Replace ("\\", "");
             if (transpose)
                 {
                 data[j-1, i] = value;
@@ -124,12 +125,12 @@ private static GetCsvCell _readCsv(string text, out int length, bool transpose)
         {
         if (index < 0 || index >= lengthCaptured)
             {
-            throw new System.ArgumentOutOfRangeException("Index out of range");
+            throw new System.ArgumentOutOfRangeException ("Index out of range");
             }
         int labelIndex;
-        if (!labelToIndex.TryGetValue(label, out labelIndex))
+        if (!labelToIndex.TryGetValue (label, out labelIndex))
             {
-            throw new System.ArgumentException("Unknown label: " + label);
+            throw new System.ArgumentException ("Unknown label: " + label);
             }
         return data[index, labelIndex];
         };
@@ -140,12 +141,12 @@ private static GetCsvCell _readCsv(string text, out int length, bool transpose)
 public static object CsvEntryToObject (int index, GetCsvCell getCsvCell, Type type)
     {
     var retval = Activator.CreateInstance (type);
-    var fields = type.GetFields(BindingFlags.Public | BindingFlags.SetField | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+    var fields = type.GetFields (BindingFlags.Public | BindingFlags.SetField | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
     foreach (FieldInfo field in fields)
         {
         if (field.FieldType.IsArray)
             {
-            ArrayList arrayContents = new ArrayList();
+            ArrayList arrayContents = new ArrayList ();
             try
                 {
                 int i = 0;
@@ -162,7 +163,7 @@ public static object CsvEntryToObject (int index, GetCsvCell getCsvCell, Type ty
                 {
                 continue;
                 }
-            Type elementType = field.FieldType.GetElementType();
+            Type elementType = field.FieldType.GetElementType ();
             var array = (Array)Array.CreateInstance (elementType, arrayContents.Count);
             for (int i = 0; i < arrayContents.Count; ++i)
                 {
