@@ -23,9 +23,11 @@
 // 
 // For more information, please refer to <http://unlicense.org/>
 
-using UnityEngine;
+using System;
 using System.Collections;
 
+namespace GGEZ
+{
 public static partial class ArrayListExt
 {
 public static void RemoveByReference (this ArrayList self, object toRemove)
@@ -66,15 +68,15 @@ public static object SafeIndex (this ArrayList self, int i)
         }
     return null;
     }
-    
-public static void Shuffle (this ArrayList self)
+
+public static void Shuffle (this ArrayList self, Random rng)
     {
-        for (int i = self.Count - 1; i > 0; --i)
+    for (int i = self.Count - 1; i > 0; --i)
         {
-            int j = UnityEngine.Random.Range (0, i);
-            var temp = self[i];
-            self[i] = self[j];
-            self[j] = temp;
+        int j = rng.Next (0, i);
+        var temp = self[i];
+        self[i] = self[j];
+        self[j] = temp;
         }
     }
 
@@ -232,4 +234,5 @@ public static void BinaryInsert (this ArrayList self, System.IComparable element
         }
     self.Insert (min, element);
     }
+}
 }

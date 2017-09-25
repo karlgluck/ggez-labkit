@@ -25,6 +25,8 @@
 
 using UnityEngine;
 
+namespace GGEZ
+{
 public static partial class Vector2Ext
 {
 public static Vector3 ToVector3 (this Vector2 self)
@@ -188,4 +190,5 @@ public static float DistanceToLineSegmentExact (this Vector2 self, Vector2 a, Ve
     {
     return (float)Mathf.Sqrt (self.DistanceToLineSegmentSquared (a, b));
     }
+}
 }

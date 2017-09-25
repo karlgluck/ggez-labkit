@@ -23,30 +23,24 @@
 // 
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
 using UnityEngine;
+using System.Collections;
 
-public static partial class GameObjectExt
+namespace GGEZ
 {
-public static Component GetOrAddComponent (this GameObject self, Type type)
-    {
-    var component = self.GetComponent (type);
-    if (component == null)
-        {
-        component = self.AddComponent (type);
-        }
-    return component;
-    }
 
-// public static GameObject FindGameObjectNamed (this GameObject[] self, string name)
-// 	{
-//     for (int i = 0; i < self.Length; ++i)
-//         {
-//         if (self[i].name.Equals (name))
-//             {
-//             return self[i];
-//             }
-//         }
-//     return null;
-//     }
+public static partial class ArrayExt
+{
+public static void Shuffle<T> (this T[] self)
+    {
+    for (int i = self.Length - 1; i > 0; --i)
+        {
+        int j = Random.Range (0, i);
+        var temp = self[i];
+        self[i] = self[j];
+        self[j] = temp;
+        }
+    }
+    
+}
 }

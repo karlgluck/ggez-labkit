@@ -1,4 +1,4 @@
-﻿// This is free and unencumbered software released into the public domain.
+// This is free and unencumbered software released into the public domain.
 // 
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -24,27 +24,26 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using UnityEngine;
-using UnityEditor;
-using UnityEngine.TestTools;
-using NUnit.Framework;
-using System.Collections;
-using GGEZ;
 
-public class TestVector2Ext
+namespace GGEZ
 {
-[Test]
-public void TestMagnitudeFast ()
-	{
-	float maxError = 0f;
-	for (int i = 0; i < 100000; ++i )
-		{
-		var v = Random.onUnitSphere.ToVector2 ();
-		var errorMagnitude = Mathf.Abs (v.magnitude - v.MagnitudeFast ());
-		if (errorMagnitude > maxError)
-			{
-			maxError = errorMagnitude;
-			}
-		}
-	Assert.Less (maxError, 0.05f);
-	}
+public static partial class Vector2iExt
+{
+
+public static Vector2 ToVector2 (this Vector2i self)
+    {
+    return new Vector2 (self.x, self.y);
+    }
+
+public static Vector2 ToTileCenterVector2 (this Vector2i self)
+    {
+    return new Vector2 (0.5f + self.x, 0.5f + self.y);
+    }
+
+public static Vector2i ToVector2i (this Vector2 self)
+    {
+    return new Vector2i (Mathf.FloorToInt (self.x), Mathf.FloorToInt (self.y));
+    }
+
+}
 }

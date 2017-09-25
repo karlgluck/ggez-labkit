@@ -1,4 +1,4 @@
-// This is free and unencumbered software released into the public domain.
+﻿// This is free and unencumbered software released into the public domain.
 // 
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -24,18 +24,47 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using UnityEngine;
+using UnityEditor;
+using UnityEngine.TestTools;
+using NUnit.Framework;
+using System.Collections;
+using GGEZ;
 
-public static partial class ObjectExt
+public class TestVector2i
 {
-public static Object FindByName (this Object[] self, string name)
+[Test]
+public void TestMagnitude ()
 	{
-    for (int i = 0; i < self.Length; ++i)
-        {
-        if (self[i].name.Equals (name))
-            {
-            return self[i];
-            }
-        }
-    return null;
-    }
+	float maxError = 0f;
+	for (int i = 0; i < 100000; ++i)
+		{
+        const float scalar = 1000f;
+		var v2f = Random.onUnitSphere.ToVector2 () * scalar;
+        var v = v2f.ToVector2i ();
+		var errorMagnitude = Mathf.Abs (v2f.magnitude - v.MagnitudeExact ()) / scalar;
+		if (errorMagnitude > maxError)
+			{
+			maxError = errorMagnitude;
+			}
+		}
+    Assert.Less (maxError, 0.0015f);
+	}
+
+[Test]
+public void TestMagnitudeFast ()
+	{
+	float maxError = 0f;
+	for (int i = 0; i < 100000; ++i)
+		{
+        const float scalar = 1000f;
+		var v2f = Random.onUnitSphere.ToVector2 () * scalar;
+        var v = v2f.ToVector2i ();
+		var errorMagnitude = Mathf.Abs (v2f.magnitude - v.MagnitudeFast ()) / scalar;
+		if (errorMagnitude > maxError)
+			{
+			maxError = errorMagnitude;
+			}
+		}
+    Assert.Less (maxError, 0.0015f);
+	}
 }

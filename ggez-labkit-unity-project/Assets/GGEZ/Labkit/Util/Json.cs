@@ -25,9 +25,11 @@
 
 using FullSerializer;
 
+namespace GGEZ
+{
 public static partial class Util
 {
-private static readonly fsSerializer _serializer = new fsSerializer();
+private static readonly fsSerializer _serializer = new fsSerializer ();
 
 public static object DeepCopy (object originalObject)
     {
@@ -67,4 +69,5 @@ public static object JsonToObjectIgnoreErrors (string jsonString, System.Type ty
     _serializer.TryDeserialize (data, type, ref deserialized);
     return deserialized;
     }
+}
 }

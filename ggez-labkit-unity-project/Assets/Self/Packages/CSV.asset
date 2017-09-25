@@ -9,9 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c433aa5a1f9a944cbb3418d7da0b383, type: 3}
-  m_Name: FullSerialier
+  m_Name: CSV
   m_EditorClassIdentifier: 
   Assets:
-  - {fileID: 4900000, guid: 30ace4d11762f47c5a7cb9b29ebdb1c1, type: 3}
-  - {fileID: 102900000, guid: b19e619cfbd39433685ace7d1b0e0cba, type: 3}
-  - {fileID: 11500000, guid: 0f1f9dc36108f40b19155c186bed59a6, type: 3}
+  - {fileID: 11500000, guid: fd5d3a1e876f9456aa0ef38f87e38426, type: 3}

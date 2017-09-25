@@ -23,6 +23,8 @@
 // 
 // For more information, please refer to <http://unlicense.org/>
 
+namespace GGEZ
+{
 public static partial class IntExt
 {
 public static string ToOrdinalString (this int num)
@@ -50,4 +52,5 @@ public static string ToOrdinalString (this int num)
         default: return num + "th";
         }
     }
+}
 }

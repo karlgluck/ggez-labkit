@@ -23,18 +23,22 @@
 // 
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
 using UnityEngine;
+using System.Collections;
 
-public static partial class MonoBehaviourExt
+namespace GGEZ
 {
-public static Component GetOrAddComponent (this MonoBehaviour self, Type type)
+public static partial class ArrayListExt
+{
+public static void Shuffle (this ArrayList self)
     {
-    var component = self.GetComponent (type);
-    if (component == null)
+    for (int i = self.Count - 1; i > 0; --i)
         {
-        component = self.gameObject.AddComponent (type);
+        int j = Random.Range (0, i);
+        var temp = self[i];
+        self[i] = self[j];
+        self[j] = temp;
         }
-    return component;
     }
+}
 }

@@ -27,6 +27,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+namespace GGEZ
+{
 public static partial class RectExt
 {
 public static Vector2[] GetVertices (this Rect self)
@@ -38,4 +40,5 @@ public static Vector2[] GetVertices (this Rect self)
 			new Vector2 (self.xMax, self.yMin),
 	    	};
 	}
+}
 }

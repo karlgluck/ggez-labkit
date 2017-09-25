@@ -23,13 +23,13 @@
 // 
 // For more information, please refer to <http://unlicense.org/>
 
-using System.Text.RegularExpressions;
+using System;
+using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
-using System;
+using System.Text.RegularExpressions;
 
-public static partial class Util
+public static class Csv
 {
 static string SPLIT_RE = @",(?=(?:[^""]*""[^""]*"")*(?![^""]*""))";
 static string LINE_SPLIT_RE = @"\r\n|\n\r|\n|\r";
@@ -47,7 +47,7 @@ public static GetCsvCell ReadCsv(string text, out int length)
     return _readCsv (text, out length, false);
     }
 
-private static GetCsvCell _readCsv (string text, out int length, bool transpose)
+internal static GetCsvCell _readCsv (string text, out int length, bool transpose)
     {
     var lines = Regex.Split (text, LINE_SPLIT_RE);
 
@@ -150,7 +150,8 @@ public static object CsvEntryToObject (int index, GetCsvCell getCsvCell, Type ty
             try
                 {
                 int i = 0;
-                while (i < 9999)
+                const int ArrayMaxLength = 9999;
+                while (i < ArrayMaxLength)
                     {
                     arrayContents.Add (getCsvCell (index, field.Name + "[" + i + "]"));
                     ++i;

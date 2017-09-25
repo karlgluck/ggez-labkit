@@ -26,6 +26,8 @@
 using UnityEngine;
 using System.Collections;
 
+namespace GGEZ
+{
 public static partial class Vector3Ext
 {
 public static Vector3 WithX (this Vector3 self, float x)
@@ -106,4 +108,5 @@ public static float MagnitudeFast (this Vector3 self)
     const float gamma = 0.93980863517232523127f;
     return alpha * min + beta * med + gamma * max;
     }
+}
 }

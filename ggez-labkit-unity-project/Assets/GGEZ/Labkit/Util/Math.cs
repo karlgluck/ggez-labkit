@@ -23,6 +23,8 @@
 // 
 // For more information, please refer to <http://unlicense.org/>
 
+namespace GGEZ
+{
 public static partial class Util
 {
 static readonly char[] base62Alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
@@ -39,4 +41,5 @@ public static string ToBase62String (ulong number)
         }
     return ret;
     }
+}
 }

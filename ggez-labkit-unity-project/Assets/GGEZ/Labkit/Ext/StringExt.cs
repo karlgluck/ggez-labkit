@@ -23,6 +23,8 @@
 // 
 // For more information, please refer to <http://unlicense.org/>
 
+namespace GGEZ
+{
 public static partial class StringExt
 {
 public static uint GetJenkinsHash (this string str)
@@ -41,4 +43,5 @@ public static uint GetJenkinsHash (this string str)
     hash += (hash << 15);
     return hash;
     }
+}
 }

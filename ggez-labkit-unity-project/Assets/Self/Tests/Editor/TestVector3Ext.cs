@@ -28,6 +28,7 @@ using UnityEditor;
 using UnityEngine.TestTools;
 using NUnit.Framework;
 using System.Collections;
+using GGEZ;
 
 public class TestVector3Ext
 {
@@ -44,6 +45,6 @@ public void TestMagnitudeFast ()
 			maxError = errorMagnitude;
 			}
 		}
-	Assert.IsTrue (maxError < 0.0602f);
+	Assert.Less (maxError, 0.0602f);
 	}
 }
