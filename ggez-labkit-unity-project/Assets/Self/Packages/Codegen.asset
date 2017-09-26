@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c433aa5a1f9a944cbb3418d7da0b383, type: 3}
+  m_Name: Codegen
+  m_EditorClassIdentifier: 
+  Assets:
+  - {fileID: 4900000, guid: d5ab523156fc843efad8e095750f1f52, type: 3}
+  - {fileID: 4900000, guid: 8690088fff52d474d8acf731a5b49fb9, type: 3}
+  - {fileID: 4900000, guid: 59bf6c6c3cce04d4b846bf058da56c68, type: 3}
+  - {fileID: 4900000, guid: f47ac7bf98cd040899e7bcf0507c2fcd, type: 3}
+  - {fileID: 4900000, guid: bbfb3c175bb734277b6db8e8db4da86f, type: 3}
+  - {fileID: 4900000, guid: 4859b4003d3fc4a9f98a4bb8f0f1bdc2, type: 3}
+  - {fileID: 11500000, guid: 86c70ab7861284852b8dce9759536fd1, type: 3}

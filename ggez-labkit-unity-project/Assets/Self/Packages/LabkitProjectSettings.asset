@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c433aa5a1f9a944cbb3418d7da0b383, type: 3}
+  m_Name: LabkitProjectSettings
+  m_EditorClassIdentifier: 
+  Assets:
+  - {fileID: 11500000, guid: 642214c48eb1e4cda881ef88d05d26ba, type: 3}
+  - {fileID: 11500000, guid: 2325439440fb04a22b0c499f56f36149, type: 3}
+  - {fileID: 11500000, guid: 806d5104953fe4b71b3140407671d840, type: 3}
