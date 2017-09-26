@@ -11,6 +11,7 @@ namespace Labkit
 [CustomEditor (typeof(LabkitProjectSettings))]
 public class LabkitProjectSettingsEditor : Editor
 {
+// TODO: add menu item to write a default .GITIGNORE file
 
 void OnDisable ()
     {
