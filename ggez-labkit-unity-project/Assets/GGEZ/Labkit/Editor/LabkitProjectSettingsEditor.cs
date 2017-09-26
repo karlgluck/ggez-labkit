@@ -50,6 +50,14 @@ public override void OnInspectorGUI ()
     anythingChanged = anythingChanged || GUI.changed;
     GUI.changed = false;
 
+	GUILayout.Label ("Rendering", EditorStyles.boldLabel);
+    UnityEditor.PlayerSettings.colorSpace = (ColorSpace)EditorGUILayout.EnumPopup ("Color Space", UnityEditor.PlayerSettings.colorSpace);
+    if (UnityEditor.PlayerSettings.colorSpace == ColorSpace.Linear)
+        {
+        GUILayout.Label ("Careful! Linear is better but breaks older mobile devices.", EditorStyles.miniLabel);
+        EditorGUILayout.Space ();
+        }
+
 	GUILayout.Label ("Development", EditorStyles.boldLabel);
     EditorGUILayout.PropertyField (serializedObject.FindProperty ("BreakNonPowerOfTwoTextures"));
     if (inPixelPerfect2DMode && !t.BreakNonPowerOfTwoTextures)
