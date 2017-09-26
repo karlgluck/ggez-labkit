@@ -23,23 +23,17 @@
 // 
 // For more information, please refer to <http://unlicense.org/>
 
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 namespace GGEZ
 {
-public static partial class RectExt
+public static partial class CameraExt
 {
-public static Vector2[] GetVertices (this Rect self)
-	{
-    return new Vector2[] {
-			new Vector2 (self.xMin, self.yMin),
-			new Vector2 (self.xMin, self.yMax),
-			new Vector2 (self.xMax, self.yMax),
-			new Vector2 (self.xMax, self.yMin),
-	    	};
-	}
-
+public static Rect ScreenRect (this Camera self)
+    {
+    var screenSize = self.ViewportToScreenPoint (Vector3.one);
+    return new Rect (0f, 0f, screenSize.x, screenSize.y);
+    }
 }
 }

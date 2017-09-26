@@ -1,0 +1,35 @@
+
+using UnityEngine;
+using UnityEditor;
+using GGEZ;
+
+[CustomEditor (typeof(%NEWASSETNAME%Settings))]
+public class %NEWASSETNAME%SettingsEditor : Editor
+{
+public override void OnInspectorGUI ()
+	{
+    %NEWASSETNAME%Settings t = this.target as %NEWASSETNAME%Settings;
+    if (t == null)
+        {
+        return;
+        }
+	GUI.changed = false;
+
+	GUILayout.Label ("%NEWASSETNAME% Settings", EditorStyles.boldLabel);
+    this.DrawDefaultInspector ();
+
+    if (GUI.changed)
+        {
+        EditorUtility.SetDirty (this.target);
+        }
+    }
+
+public void OnSceneGUI ()
+    {
+    %NEWASSETNAME%Settings t = this.target as %NEWASSETNAME%Settings;
+    if (t == null)
+        {
+        return;
+        }
+    }
+}

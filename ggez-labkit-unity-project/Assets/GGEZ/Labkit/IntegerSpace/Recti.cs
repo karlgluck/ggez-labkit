@@ -33,6 +33,7 @@ namespace GGEZ
 public struct Recti
 {
 public static Recti invalid = new Recti () { xMin = 1, xMax = -1, yMin = 1, yMax = -1 };
+public static Recti zero = new Recti () { xMin = 0, xMax = 0, yMin = 0, yMax = 0 };
 
 public int xMin, xMax, yMin, yMax;
 

@@ -1,0 +1,31 @@
+
+using UnityEngine;
+using GGEZ;
+
+public class %NEWASSETNAME% : MonoBehaviour
+{
+#region Settings
+[Header ("Settings")]
+public %NEWASSETNAME%Settings Settings;
+#endregion
+
+#region References
+// [Header ("References")]
+#endregion
+
+#region Runtime Data
+// [Header ("Runtime Data")]
+#endregion
+
+void Start ()
+    {
+    }
+
+void Update ()
+    {
+    }
+
+void OnDrawGizmos ()
+    {
+    }
+}

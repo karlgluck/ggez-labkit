@@ -23,23 +23,36 @@
 // 
 // For more information, please refer to <http://unlicense.org/>
 
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
+using System.IO;
 
 namespace GGEZ
 {
-public static partial class RectExt
+public static partial class Labkit
 {
-public static Vector2[] GetVertices (this Rect self)
-	{
-    return new Vector2[] {
-			new Vector2 (self.xMin, self.yMin),
-			new Vector2 (self.xMin, self.yMax),
-			new Vector2 (self.xMax, self.yMax),
-			new Vector2 (self.xMax, self.yMin),
-	    	};
-	}
+[MenuItem ("Asset Store/Go to Store")]
+static void AssetStore_GoToStore ()
+    {
+    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma");
+    }
 
+[MenuItem ("Asset Store/Free Essentials/Post-Processing Stack")]
+static void EssentialAssetsFreePostProcessingStack ()
+    {
+    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/83912");
+    }
+
+[MenuItem ("Asset Store/Free Essentials/TextMeshPro")]
+static void EssentialAssetsFreeTextMeshPro ()
+    {
+    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/84126");
+    }
+
+[MenuItem ("Asset Store/GGEZ/Perfect Pixel Camera ($0.99)")]
+static void AssetStore_GGEZ_PerfectPixelCamera ()
+    {
+    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/299412");
+    }
 }
 }

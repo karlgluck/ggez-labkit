@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 1
+  m_Script: {fileID: 11500000, guid: 642214c48eb1e4cda881ef88d05d26ba, type: 3}
+  m_Name: Labkit Settings
+  m_EditorClassIdentifier: 
+  TextureDefaults: 1
+  PixelsPerUnit: 16
+  BreakNonPowerOfTwoTextures: 1
+  DisableAccelerometer: 1
+  PurpleEditorInPlayMode: 1
+  MetaFilesInVersionControl: 1
+  DontAutoSimulate2DPhysics: 1
+  DontAutoSimulate3DPhysics: 1

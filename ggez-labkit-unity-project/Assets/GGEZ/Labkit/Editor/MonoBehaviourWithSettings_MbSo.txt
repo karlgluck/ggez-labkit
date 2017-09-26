@@ -1,0 +1,8 @@
+
+using UnityEngine;
+using GGEZ;
+
+[CreateAssetMenu (fileName = "New %NEWASSETNAME% Settings.asset", menuName="%NEWASSETNAME% Settings")]
+public class %NEWASSETNAME%Settings : ScriptableObject
+{
+}

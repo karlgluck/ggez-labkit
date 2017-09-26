@@ -23,23 +23,32 @@
 // 
 // For more information, please refer to <http://unlicense.org/>
 
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
+using System.IO;
 
 namespace GGEZ
 {
-public static partial class RectExt
+public static partial class Labkit
 {
-public static Vector2[] GetVertices (this Rect self)
-	{
-    return new Vector2[] {
-			new Vector2 (self.xMin, self.yMin),
-			new Vector2 (self.xMin, self.yMax),
-			new Vector2 (self.xMax, self.yMax),
-			new Vector2 (self.xMax, self.yMin),
-	    	};
-	}
+
+[MenuItem ("Labkit/Fix/Completely Disable Physics")]
+static void DisablePhysics ()
+    {
+    Time.fixedDeltaTime = 10f;
+    }
+
+[MenuItem ("Labkit/Color Space/Linear")]
+static void ColorSpaceLinear ()
+    {
+    UnityEditor.PlayerSettings.colorSpace = ColorSpace.Linear;
+    }
+
+[MenuItem ("Labkit/Color Space/Gamma")]
+static void ColorSpaceGamma ()
+    {
+    UnityEditor.PlayerSettings.colorSpace = ColorSpace.Gamma;
+    }
 
 }
 }
