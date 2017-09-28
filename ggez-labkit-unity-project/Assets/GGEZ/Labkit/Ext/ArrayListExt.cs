@@ -69,17 +69,6 @@ public static object SafeIndex (this ArrayList self, int i)
     return null;
     }
 
-public static void Shuffle (this ArrayList self, Random rng)
-    {
-    for (int i = self.Count - 1; i > 0; --i)
-        {
-        int j = rng.Next (0, i);
-        var temp = self[i];
-        self[i] = self[j];
-        self[j] = temp;
-        }
-    }
-
 public static void Swap (this ArrayList self, int i, int j)
     {
     object temp = self[i];

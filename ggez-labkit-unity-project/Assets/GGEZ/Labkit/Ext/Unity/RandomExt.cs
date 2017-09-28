@@ -23,29 +23,52 @@
 // 
 // For more information, please refer to <http://unlicense.org/>
 
-using UnityEngine;
-using System.Collections;
-
 namespace GGEZ
 {
-
-public static partial class ArrayExt
+public static partial class RandomExt
 {
-public static T Pick<T> (this T[] self)
+public static double Range (double min, double max)
     {
-    return self[Random.Range (0, self.Length-1)];
+    return UnityEngine.Random.value * (max - min) + min;
     }
 
-public static void Shuffle<T> (this T[] self)
+private class WrapUnityRandomAsSystemRandom : System.Random
+{
+public override int Next (int minValue, int maxValue)
     {
-    for (int i = self.Length - 1; i > 0; --i)
+    return UnityEngine.Random.Range (minValue, maxValue);
+    }
+
+public override int Next (int maxValue)
+    {
+    return UnityEngine.Random.Range (0, maxValue);
+    }
+
+public override int Next ()
+    {
+    return UnityEngine.Random.Range (0, int.MaxValue);
+    }
+
+public override void NextBytes (byte[] buffer)
+    {
+    for (int i = 0; i < buffer.Length; ++i)
         {
-        int j = Random.Range (0, i);
-        var temp = self[i];
-        self[i] = self[j];
-        self[j] = temp;
+        buffer[i] = (byte)UnityEngine.Random.Range (0, byte.MaxValue);
         }
     }
-    
+
+public override double NextDouble ()
+    {
+    return UnityEngine.Random.value;
+    }
+
+protected override double Sample ()
+    {
+    return UnityEngine.Random.value;
+    }
+}
+
+public static readonly System.Random UnityRandom = new WrapUnityRandomAsSystemRandom ();
+
 }
 }

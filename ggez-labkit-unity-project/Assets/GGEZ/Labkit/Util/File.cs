@@ -1,4 +1,4 @@
-// This is free and unencumbered software released into the public domain.
+﻿// This is free and unencumbered software released into the public domain.
 // 
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -24,28 +24,39 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using UnityEngine;
-using System.Collections;
+using System;
+
 
 namespace GGEZ
 {
 
-public static partial class ArrayExt
+public static partial class Util
 {
-public static T Pick<T> (this T[] self)
+private static string getPersistentFilePathFor (Type type)
     {
-    return self[Random.Range (0, self.Length-1)];
+    return Application.persistentDataPath + "/" + type.FullName + ".json";
     }
 
-public static void Shuffle<T> (this T[] self)
+public static void DataSingletonSave (object data)
     {
-    for (int i = self.Length - 1; i > 0; --i)
-        {
-        int j = Random.Range (0, i);
-        var temp = self[i];
-        self[i] = self[j];
-        self[j] = temp;
-        }
+    string file = getPersistentFilePathFor (data.GetType());
+    System.IO.File.WriteAllText (file, Util.ObjectToJsonPretty (data));
     }
-    
+
+public static object DataSingletonLoad (Type type)
+    {
+    string file = getPersistentFilePathFor (type);
+    if (!System.IO.File.Exists (file))
+        {
+        return null;
+        }
+    return Util.JsonToObject (System.IO.File.ReadAllText (file), type);
+    }
+
+public static void DataSingletonDelete (Type type)
+    {
+    string file = getPersistentFilePathFor (type);
+    System.IO.File.Delete (file);
+    }
 }
 }

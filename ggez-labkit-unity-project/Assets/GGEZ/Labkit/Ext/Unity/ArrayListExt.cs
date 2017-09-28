@@ -30,6 +30,11 @@ namespace GGEZ
 {
 public static partial class ArrayListExt
 {
+public static object Pick (this ArrayList self)
+    {
+    return self[Random.Range (0, self.Count-1)];
+    }
+
 public static void Shuffle (this ArrayList self)
     {
     for (int i = self.Count - 1; i > 0; --i)

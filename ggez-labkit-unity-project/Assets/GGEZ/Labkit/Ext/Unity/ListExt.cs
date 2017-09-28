@@ -30,6 +30,11 @@ namespace GGEZ
 {
 public static partial class ListExt
 {
+public static T Pick<T> (this List<T> self)
+    {
+    return self[Random.Range (0, self.Count-1)];
+    }
+
 public static void Shuffle<T> (this List<T> self)
     {
     for (int i = self.Count - 1; i > 0; --i)

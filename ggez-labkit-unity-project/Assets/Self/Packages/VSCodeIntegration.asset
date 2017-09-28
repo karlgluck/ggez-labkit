@@ -9,7 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c433aa5a1f9a944cbb3418d7da0b383, type: 3}
-  m_Name: Examples
+  m_Name: VSCodeIntegration
   m_EditorClassIdentifier: 
   Assets:
-  - {fileID: 102900000, guid: 9ddb007c147c94a6799be16bd7b17504, type: 3}
+  - {fileID: 11500000, guid: 26e4c80fc9f39724f99667044224b2e9, type: 3}

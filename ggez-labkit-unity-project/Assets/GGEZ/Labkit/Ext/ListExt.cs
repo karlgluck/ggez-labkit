@@ -75,16 +75,5 @@ public static bool HasNullGap<T> (this List<T> self) where T : class
         }
     return false;
     }
-
-public static void Shuffle<T> (this List<T> self, Random rng)
-    {
-    for (int i = self.Count - 1; i > 0; --i)
-        {
-            int j = rng.Next (0, i);
-            var temp = self[i];
-            self[i] = self[j];
-            self[j] = temp;
-        }
-    }
 }
 }
