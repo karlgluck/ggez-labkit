@@ -190,5 +190,25 @@ public static float DistanceToLineSegmentExact (this Vector2 self, Vector2 a, Ve
     {
     return (float)Mathf.Sqrt (self.DistanceToLineSegmentSquared (a, b));
     }
+
+public static bool IsInside (this Vector2 self, Vector2[] polygonBoundary)
+    {
+    int i = 0, j = 1;
+    int retval = 0;
+    while (j < polygonBoundary.Length)
+        {
+        var pointI = polygonBoundary[i];
+        var pointJ = polygonBoundary[j];
+        float side = (pointJ.x - pointI.x) * (self.y - pointI.y) - (self.x -  pointI.x) * (pointJ.y - pointI.y);
+        int upward   = ((side > 0) & (pointI.y <= self.y) & (pointJ.y >  self.y)) ? +1 : 0;
+        int downward = ((side < 0) & (pointI.y  > self.y) & (pointJ.y <= self.y)) ? -1 : 0;
+        ++i;
+        ++j;
+        retval += upward;
+        retval += downward;
+        }
+    return retval != 0;
+    }
+
 }
 }

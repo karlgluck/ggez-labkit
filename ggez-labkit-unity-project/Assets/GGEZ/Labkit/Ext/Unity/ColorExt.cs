@@ -1,4 +1,4 @@
-// This is free and unencumbered software released into the public domain.
+﻿// This is free and unencumbered software released into the public domain.
 // 
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -24,29 +24,22 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using UnityEngine;
+using System.Collections;
 
 namespace GGEZ
 {
-public static partial class Util
+public static partial class ColorblindSafeColors
 {
-static readonly char[] base62Alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
-public static string ToBase62String (ulong number)
-    {
-    var n = number;
-    ulong basis = 62;
-    var ret = "";
-    while (n > 0)
-        {
-        var temp = n % basis;
-        ret = base62Alphabet[(int)temp] + ret;
-        n = (n / basis);
-        }
-    return ret;
-    }
 
-public static float Repeat2 (float number, float range)
-    {
-    return Mathf.Repeat (range + Mathf.Repeat (number, range), range);
-    }
+public static readonly Color Orange = new Color(230/255f, 159/255f, 0f/255f);
+public static readonly Color Black = new Color(0f/255f, 0f/255f, 0f/255f);
+public static readonly Color SkyBlue = new Color(86f/255f, 180f/255f, 233f/255f);
+public static readonly Color BluishGreen = new Color(0f/255f, 158f/255f, 115/255f);
+public static readonly Color Yellow = new Color(240f/255f, 228f/255f, 66f/255f);
+public static readonly Color Blue = new Color(0/255f, 114/255f, 178/255f);
+public static readonly Color Vermillion = new Color(213/255f, 94/255f, 0f/255f);
+public static readonly Color ReddishPurple = new Color(204/255f, 121/255f, 167/255f);
+public static readonly Color White = new Color(255f/255f, 255f/255f, 255f/255f);
+public static readonly Color[] WithPigment = new Color[] { Vermillion, Blue, Orange, ReddishPurple, SkyBlue, Yellow, BluishGreen, };
 }
 }
