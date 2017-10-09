@@ -29,7 +29,9 @@ using System.IO;
 
 namespace GGEZ
 {
-public static partial class Labkit
+namespace Labkit
+{
+public static class AssetStoreLinks
 {
 [MenuItem ("Asset Store/Go to Store")]
 static void AssetStore_GoToStore ()
@@ -54,5 +56,6 @@ static void AssetStore_GGEZ_PerfectPixelCamera ()
     {
     UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/299412");
     }
+}
 }
 }

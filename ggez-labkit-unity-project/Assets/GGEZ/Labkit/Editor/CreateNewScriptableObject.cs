@@ -29,7 +29,10 @@ using System.IO;
 
 namespace GGEZ
 {
-public static partial class Labkit
+namespace Labkit
+{
+
+public static class CreateNewScriptableObject
 {
 static void WriteFileUsingTemplate (string templateAssetName, string path, params string[] args)
     {
@@ -127,5 +130,6 @@ static void LabkitNewControllerClass ()
             );
     }
 
+}
 }
 }
