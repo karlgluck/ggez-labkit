@@ -28,11 +28,10 @@ using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using System;
 using GGEZ;
 
 namespace GGEZ
-{
-namespace Labkit
 {
 
 public enum LabkitProjectSettings_TextureDefaults
@@ -73,7 +72,7 @@ static void OnLoad ()
         }
     if (LabkitProjectSettings._instance != null)
         {
-        LabkitProjectSettings._instance.applySettingsToProject ();
+        LabkitProjectSettings._instance.ApplySettingsToProject ();
         }
     EditorApplication.update -= OnLoad;
     }
@@ -88,8 +87,12 @@ public bool PurpleEditorInPlayMode = true;
 public bool MetaFilesInVersionControl = true;
 public bool DontAutoSimulate2DPhysics = false;
 public bool DontAutoSimulate3DPhysics = false;
+public bool UseVisualStudioCode = false;
 
-private void applySettingsToProject ()
+
+
+
+public void ApplySettingsToProject ()
     {
     if (this.DisableAccelerometer)
         {
@@ -106,25 +109,47 @@ private void applySettingsToProject ()
         }
     Physics2D.autoSimulation = !this.DontAutoSimulate2DPhysics;
     Physics.autoSimulation = !this.DontAutoSimulate3DPhysics;
+    if (this.UseVisualStudioCode)
+        {
+        var vsCodePath = findVisualStudioCode ();
+        if (vsCodePath != null)
+            {
+            EditorPrefs.SetString ("kScriptsDefaultApp", vsCodePath);
+            EditorPrefs.SetString ("kScriptEditorArgs", "$(File)");
+            }
+        }
     }
 
 
-[MenuItem ("Edit/Project Settings/Labkit Settings"), MenuItem ("Labkit/Labkit Settings")]
+
+
+
+[
+    MenuItem ("Edit/Project Settings/Labkit Settings"),
+    MenuItem ("Labkit/Labkit Settings")
+]
 static void SelectLabkitProjectSettings ()
     {
     Selection.SetActiveObjectWithContext (LabkitProjectSettings.Instance, null);
     }
     
+
+
+
 const string projectSettingsAssetPath = "Assets/GGEZ/Labkit/LabkitSettings.asset";
+
+
+
 
 static void scanForInstance ()
     {
     var allAssets = AssetDatabase.LoadAllAssetsAtPath (projectSettingsAssetPath);
     LabkitProjectSettings settings = null;
-    if (allAssets.Length == 0)
+    bool newSettings = allAssets.Length == 0;
+    if (newSettings)
         {
         string tempAssetPath = AssetDatabase.GenerateUniqueAssetPath ("Assets/Labkit Settings.asset");
-        AssetDatabase.CreateAsset (new LabkitProjectSettings (), tempAssetPath);
+        AssetDatabase.CreateAsset (ScriptableObject.CreateInstance (typeof(LabkitProjectSettings)), tempAssetPath);
         if (File.Exists (projectSettingsAssetPath))
             {
             File.Delete (projectSettingsAssetPath);
@@ -138,9 +163,68 @@ static void scanForInstance ()
         throw new System.InvalidOperationException ("Couldn't load or create settings asset");
         }
     settings = allAssets[0] as LabkitProjectSettings;
+    if (newSettings)
+        {
+        initializeNewSettings (settings);
+        }
     LabkitProjectSettings._instance = settings;
     }
 
+
+
+static void initializeNewSettings (LabkitProjectSettings settings)
+    {
+    var vsCodePath = findVisualStudioCode ();
+    if (vsCodePath != null)
+        {
+        settings.UseVisualStudioCode = true;
+        }
+    }
+
+public static bool CanFindVisualStudioCode ()
+    {
+    return findVisualStudioCode () != null;
+    }
+
+
+#if UNITY_EDITOR_WIN
+static string findVisualStudioCode ()
+    {
+    var possiblePaths = new string[] {
+            (Environment.GetEnvironmentVariable("ProgramFiles") ?? "") + @"\Microsoft VS Code\Code.exe",
+            (Environment.GetEnvironmentVariable("ProgramFiles") ?? "") + @"\Microsoft VS Code Insiders\Code.exe",
+            (Environment.GetEnvironmentVariable("ProgramFiles(x86)") ?? "") + @"\Microsoft VS Code\Code.exe",
+            (Environment.GetEnvironmentVariable("ProgramFiles(x86)") ?? "") + @"\Microsoft VS Code Insiders\Code.exe",
+            };
+    foreach (var path in possiblePaths)
+        {
+        if (System.IO.File.Exists (path))
+            {
+            return path;
+            }
+        }
+    return null;
+    }
+
+#elif UNITY_EDITOR_OSX
+
+static string findVisualStudioCode ()
+    {
+    var possiblePaths = new string[] {
+            "/Applications/Visual Studio Code.app",
+            "/Applications/Visual Studio Code - Insiders.app",
+            };
+    foreach (var path in possiblePaths)
+        {
+        if (System.IO.Directory.Exists (path))
+            {
+            return path;
+            }
+        }
+    return null;
+    }
+#endif
+
 }
 }
-}
+

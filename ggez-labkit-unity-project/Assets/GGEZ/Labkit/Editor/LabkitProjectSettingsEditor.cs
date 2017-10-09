@@ -59,8 +59,7 @@ public override void OnInspectorGUI ()
 	GUILayout.Label ("Asset Processing", EditorStyles.boldLabel);
 
     t.TextureDefaults = (LabkitProjectSettings_TextureDefaults)EditorGUILayout.EnumPopup ("Texture Defaults", t.TextureDefaults);
-    anythingChanged = anythingChanged || GUI.changed;
-    GUI.changed = false;
+
 
     bool inPixelPerfect2DMode = t.TextureDefaults == LabkitProjectSettings_TextureDefaults.PixelPerfect2D;
 
@@ -72,8 +71,7 @@ public override void OnInspectorGUI ()
     pixelsPerUnit = EditorGUILayout.IntField (pixelsPerUnit, GUILayout.Width (50f), GUILayout.ExpandWidth (false));
     GUILayout.EndHorizontal ();
     t.PixelsPerUnit = pixelsPerUnit;
-    anythingChanged = anythingChanged || GUI.changed;
-    GUI.changed = false;
+
 
 	GUILayout.Label ("Rendering", EditorStyles.boldLabel);
     UnityEditor.PlayerSettings.colorSpace = (ColorSpace)EditorGUILayout.EnumPopup ("Color Space", UnityEditor.PlayerSettings.colorSpace);
@@ -87,47 +85,39 @@ public override void OnInspectorGUI ()
     EditorGUILayout.PropertyField (serializedObject.FindProperty ("BreakNonPowerOfTwoTextures"));
     if (inPixelPerfect2DMode && !t.BreakNonPowerOfTwoTextures)
         {
-        GUILayout.Label ("Turn this on for pixel-perfect 2d", EditorStyles.miniLabel);
+        GUILayout.Label ("Turn this on to easily spot NPOT textures", EditorStyles.miniLabel);
         EditorGUILayout.Space ();
         }
 
-    anythingChanged = anythingChanged || GUI.changed;
-    GUI.changed = false;
     EditorGUILayout.PropertyField (serializedObject.FindProperty ("PurpleEditorInPlayMode"));
-    if (GUI.changed)
-        {
-        bool purple = serializedObject.FindProperty ("PurpleEditorInPlayMode").boolValue;
-        EditorPrefs.SetString ("Playmode tint", purple ? "Playmode tint;1;0.4;1;1" : "Playmode tint;1;1;1;1");
-        }
 
-    anythingChanged = anythingChanged || GUI.changed;
-    GUI.changed = false;
     t.MetaFilesInVersionControl = EditorGUILayout.Toggle ("Meta Files in Version Control", t.MetaFilesInVersionControl);
-    if (GUI.changed && t.MetaFilesInVersionControl)
-        {
-        UnityEditor.EditorSettings.serializationMode = SerializationMode.ForceText;
-        UnityEditor.EditorSettings.externalVersionControl = "Visible Meta Files";
-        }
 
 	GUILayout.Label ("Optimization", EditorStyles.boldLabel);
 
     anythingChanged = anythingChanged || GUI.changed;
     GUI.changed = false;
     t.DisableAccelerometer = EditorGUILayout.Toggle ("Disable Accelerometer", t.DisableAccelerometer);
-    if (GUI.changed)
+    if (GUI.changed && !t.DisableAccelerometer)
         {
-        UnityEditor.PlayerSettings.accelerometerFrequency = t.DisableAccelerometer ? 0 : 60;
+        UnityEditor.PlayerSettings.accelerometerFrequency = 60;
         }
-
     anythingChanged = anythingChanged || GUI.changed;
     GUI.changed = false;
 
     t.DontAutoSimulate2DPhysics = EditorGUILayout.Toggle ("Disable 2D Physics", t.DontAutoSimulate2DPhysics);
     t.DontAutoSimulate3DPhysics = EditorGUILayout.Toggle ("Disable 3D Physics", t.DontAutoSimulate3DPhysics);
-    
+
+    t.UseVisualStudioCode = EditorGUILayout.Toggle ("Use Visual Studio Code", t.UseVisualStudioCode);
+    if (!LabkitProjectSettings.CanFindVisualStudioCode ())
+        {
+        GUILayout.Label ("Can't find VS Code; is it installed?", EditorStyles.miniLabel);
+        }
+
 
     if (GUI.changed || anythingChanged)
         {
+        t.ApplySettingsToProject ();
         serializedObject.ApplyModifiedProperties ();
         EditorUtility.SetDirty (this.target);
         }

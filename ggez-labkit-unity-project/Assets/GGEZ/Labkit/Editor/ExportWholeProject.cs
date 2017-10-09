@@ -72,8 +72,7 @@ public static void BuildAssetPackage ()
     File.WriteAllText (
             Path.Combine (Path.GetDirectoryName (path), "macOS_package_cleanup"),
             string.Format (
-                    @"# Usage (from terminal):
-                    # $  source ./macOS_package_cleanup
+                    @"# Usage (from terminal): $  source ./macOS_package_cleanup
 
                     tar xopf '{0}'
                     grep --include=pathname -rnl '.' -e '/Applications/Unity/Unity.app/' -e 'Library/BuildPlayer.prefs' | xargs -n1 dirname | xargs rm -rf
