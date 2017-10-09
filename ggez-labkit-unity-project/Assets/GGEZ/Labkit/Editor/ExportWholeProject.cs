@@ -30,7 +30,9 @@ using System.IO;
 
 namespace GGEZ
 {
-public static partial class EditorExt
+namespace Labkit
+{
+public static class ExportWholeProject
 {
 
 [MenuItem("Labkit/Export/Project as .unitypackage...")]
@@ -85,5 +87,6 @@ public static void BuildAssetPackage ()
             );
 #endif
     }
+}
 }
 }

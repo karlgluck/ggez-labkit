@@ -29,7 +29,7 @@ using System.Collections.Generic;
 
 namespace System.Linq
 {
-public static partial class LabkitLinqExt
+public static partial class LinqExt
 {
 public static IEnumerable<TFirst> PickWeighted <TFirst> (
 		this IEnumerable<TFirst> first,

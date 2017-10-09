@@ -56,22 +56,44 @@ private enum DownloadCacheUsage
     ReadCacheOrDownload,
     }
 
-public static IEnumerator DownloadAsync (string url, BytesBlob result)
+public static IEnumerator DownloadAsync (
+        string url,
+        BytesBlob result
+        )
     {
     return downloadImplementation (url, DownloadCacheUsage.DownloadAlways, result);
     }
 
-public static IEnumerator DownloadOrReadCacheAsync (string url, BytesBlob result)
+public static IEnumerator DownloadWithCacheAsync (
+        string url,
+        bool refreshCacheIfPossible,
+        BytesBlob result
+        )
+    {
+    return downloadImplementation(url, refreshCacheIfPossible ? DownloadCacheUsage.DownloadOrReadCache : DownloadCacheUsage.ReadCacheOrDownload, result);
+    }
+
+public static IEnumerator DownloadOrReadCacheAsync (
+        string url,
+        BytesBlob result
+        )
     {
     return downloadImplementation (url, DownloadCacheUsage.DownloadOrReadCache, result);
     }
 
-public static IEnumerator ReadCacheOrDownloadAsync (string url, BytesBlob result)
+public static IEnumerator ReadCacheOrDownloadAsync (
+        string url,
+        BytesBlob result
+        )
     {
     return downloadImplementation (url, DownloadCacheUsage.ReadCacheOrDownload, result);
     }
 
-private static IEnumerator downloadImplementation (string url, DownloadCacheUsage cacheUsage, BytesBlob result)
+private static IEnumerator downloadImplementation (
+        string url,
+        DownloadCacheUsage cacheUsage,
+        BytesBlob result
+        )
     {
     var filename = Application.persistentDataPath + "/dl" + Util.ToBase62String (url.GetJenkinsHash ());
     bool existsOnDisk = File.Exists (filename);
@@ -104,7 +126,11 @@ private static IEnumerator downloadImplementation (string url, DownloadCacheUsag
         }
     }
 
-private static IEnumerator DownloadSpriteAsync (string url, object objectWithSpriteField, string spriteFieldToSet)
+private static IEnumerator DownloadSpriteAsync (
+        string url,
+        object objectWithSpriteField,
+        string spriteFieldToSet
+        )
     {
     BytesBlob data = new BytesBlob ();
         {

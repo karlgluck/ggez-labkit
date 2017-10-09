@@ -1,3 +1,4 @@
+
 // This is free and unencumbered software released into the public domain.
 // 
 // Anyone is free to copy, modify, publish, use, compile, sell, or
@@ -23,39 +24,25 @@
 // 
 // For more information, please refer to <http://unlicense.org/>
 
+using System;
 using UnityEngine;
-using System.Collections;
+
+//----------------------------------------------------------------------
+// All your components should derive from ECSBaseComponent. To make it
+// easy, derive your own base component from ECSBaseComponent and have
+// each other component type derive from your own base class.
+//----------------------------------------------------------------------
 
 namespace GGEZ
 {
-public static partial class CameraExt
+public class ECSBaseComponent : MonoBehaviour, IComparable
 {
-public static Rect ScreenRect (this Camera self)
-    {
-    var screenSize = self.ViewportToScreenPoint (Vector3.one);
-    return new Rect (0f, 0f, screenSize.x, screenSize.y);
-    }
+[System.NonSerialized]
+public ECSEntity Entity;
 
-public static void GizmosDrawFrustum (Camera self)
+public int CompareTo (object other)
     {
-    GizmosDrawFrustum (self, self.farClipPlane);
-    }
-
-public static void GizmosDrawFrustum (this Camera self, float farPlane)
-    {
-    Matrix4x4 previous = Gizmos.matrix;
-    Gizmos.matrix = Matrix4x4.TRS (self.transform.position, self.transform.rotation, Vector3.one);
-    if (self.orthographic)
-        {
-        float spread = farPlane - self.nearClipPlane;
-        float center = (farPlane + self.nearClipPlane) * 0.5f;
-        Gizmos.DrawWireCube (new Vector3 (0,0,center), new Vector3 (self.orthographicSize * 2 * self.aspect, self.orthographicSize * 2, spread));
-        }
-    else
-        {
-        Gizmos.DrawFrustum (Vector3.zero, self.fieldOfView, farPlane, self.nearClipPlane, self.aspect);
-        }
-    Gizmos.matrix = previous;
+    return this.Entity.Id - ((ECSBaseComponent)other).Entity.Id;
     }
 }
 }

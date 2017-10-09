@@ -19,3 +19,4 @@ MonoBehaviour:
   MetaFilesInVersionControl: 1
   DontAutoSimulate2DPhysics: 0
   DontAutoSimulate3DPhysics: 0
+  UseVisualStudioCode: 1

@@ -23,39 +23,55 @@
 // 
 // For more information, please refer to <http://unlicense.org/>
 
+
 using UnityEngine;
-using System.Collections;
 
 namespace GGEZ
 {
-public static partial class CameraExt
+public static partial class Util
 {
-public static Rect ScreenRect (this Camera self)
-    {
-    var screenSize = self.ViewportToScreenPoint (Vector3.one);
-    return new Rect (0f, 0f, screenSize.x, screenSize.y);
-    }
 
-public static void GizmosDrawFrustum (Camera self)
+public static float EaseElasticOut (float time, float start, float end, float duration)
     {
-    GizmosDrawFrustum (self, self.farClipPlane);
-    }
-
-public static void GizmosDrawFrustum (this Camera self, float farPlane)
-    {
-    Matrix4x4 previous = Gizmos.matrix;
-    Gizmos.matrix = Matrix4x4.TRS (self.transform.position, self.transform.rotation, Vector3.one);
-    if (self.orthographic)
+    if ((time /= duration) == 1)
         {
-        float spread = farPlane - self.nearClipPlane;
-        float center = (farPlane + self.nearClipPlane) * 0.5f;
-        Gizmos.DrawWireCube (new Vector3 (0,0,center), new Vector3 (self.orthographicSize * 2 * self.aspect, self.orthographicSize * 2, spread));
+        return start + end;
+        }
+
+    float p = duration * .3f;
+    float s = p / 4;
+    return (end * Mathf.Pow (2, -10 * time) * Mathf.Sin((time * duration - s) * (2 * Mathf.PI) / p) + end + start);
+    }
+
+public static float EaseElasticOut2 (float t, float amplitude, float period)
+    {
+    var s = Mathf.Asin (1 / (amplitude = Mathf.Max (1, amplitude))) * (period /= (2 * Mathf.PI));
+    return 1 - amplitude * Mathf.Pow (2, -10 * t) * Mathf.Sin ((t + s) / period);
+    }
+
+public static float EaseJump (float t)
+    {
+    return 4 * t * (1 - t);
+    }
+
+public static float EaseJumpBounce (float t)
+    {
+    float s = 1f;
+    if (0 <= t && t < 4 / 8f)
+        {
+        t = Mathf.InverseLerp (0, 4 / 8f, t);
+        }
+    else if (t <= 6 / 8f)
+        {
+        s = 0.4f;
+        t = Mathf.InverseLerp (4 / 8f, 6 / 8f, t);
         }
     else
         {
-        Gizmos.DrawFrustum (Vector3.zero, self.fieldOfView, farPlane, self.nearClipPlane, self.aspect);
+        s = 0.4f * 0.4f;
+        t = Mathf.InverseLerp (6 / 8f, 1f, t);
         }
-    Gizmos.matrix = previous;
+    return s * 4 * t * (1 - t);
     }
 }
 }
