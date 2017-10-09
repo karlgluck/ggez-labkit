@@ -9,9 +9,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c433aa5a1f9a944cbb3418d7da0b383, type: 3}
-  m_Name: FullSerialier
+  m_Name: LabkitComplete
   m_EditorClassIdentifier: 
   Assets:
-  - {fileID: 4900000, guid: 30ace4d11762f47c5a7cb9b29ebdb1c1, type: 3}
-  - {fileID: 102900000, guid: b19e619cfbd39433685ace7d1b0e0cba, type: 3}
-  - {fileID: 11500000, guid: 0f1f9dc36108f40b19155c186bed59a6, type: 3}
+  - {fileID: 102900000, guid: bc37235c6900eee47b1f01ba312b9e31, type: 3}
+  - {fileID: 102900000, guid: cbde032c81b915c4fa80d4547eceda5b, type: 3}
