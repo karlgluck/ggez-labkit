@@ -110,5 +110,6 @@ private static IEnumerator waitForWWW (WWW www, int index, IEnumerator parent)
     coroutines[index] = parent;
     }
 
+
 }
 }

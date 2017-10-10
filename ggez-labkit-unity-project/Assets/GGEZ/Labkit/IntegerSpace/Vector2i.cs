@@ -65,6 +65,12 @@ public override bool Equals (object other)
     return false;
     }
 
+
+public bool Equals (Vector2i other)
+    {
+    return other.x == this.x && other.y == this.y;
+    }
+
 public override string ToString ()
     {
     return "{" + this.x + ", " + this.y + "}";
