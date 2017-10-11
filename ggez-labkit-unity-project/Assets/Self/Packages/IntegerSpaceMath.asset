@@ -9,7 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c433aa5a1f9a944cbb3418d7da0b383, type: 3}
-  m_Name: IntegerSpace
+  m_Name: IntegerSpaceMath
   m_EditorClassIdentifier: 
   Assets:
   - {fileID: 102900000, guid: 8d43c25a439544f16b0926d3e5adf984, type: 3}
