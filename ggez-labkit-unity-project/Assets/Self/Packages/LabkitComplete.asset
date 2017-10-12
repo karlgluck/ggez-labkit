@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Name: LabkitComplete
   m_EditorClassIdentifier: 
   Assets:
-  - {fileID: 102900000, guid: bc37235c6900eee47b1f01ba312b9e31, type: 3}
   - {fileID: 102900000, guid: cbde032c81b915c4fa80d4547eceda5b, type: 3}
+  - {fileID: 102900000, guid: bc37235c6900eee47b1f01ba312b9e31, type: 3}

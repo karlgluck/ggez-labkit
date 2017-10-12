@@ -24,26 +24,22 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using UnityEngine;
-using System.Collections.Generic;
+using UnityEditor;
 
 namespace GGEZ
 {
-public static partial class ListExt
+[CustomEditor(typeof (GoogleSpreadsheetDataSource))]
+public class DesignDataEditor : Editor
 {
-public static T Pick<T> (this List<T> self)
+public override void OnInspectorGUI ()
     {
-    return self[Random.Range (0, self.Count)];
-    }
-
-public static void Shuffle<T> (this List<T> self)
-    {
-    for (int i = self.Count - 1; i > 0; --i)
+    var designData = (GoogleSpreadsheetDataSource)target;
+    if (GUILayout.Button ("Load From Spreadsheet"))
         {
-        int j = Random.Range (0, i);
-        var temp = self[i];
-        self[i] = self[j];
-        self[j] = temp;
+        EditorCoroutineRunner.StartCoroutine (designData.LoadFromWebOrCache ());
         }
+
+    DrawDefaultInspector();
     }
 }
 }

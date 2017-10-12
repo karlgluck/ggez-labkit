@@ -29,6 +29,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
+namespace GGEZ
+{
 public static class Csv
 {
 static string SPLIT_RE = @",(?=(?:[^""]*""[^""]*"")*(?![^""]*""))";
@@ -37,14 +39,20 @@ static char[] TRIM_CHARS = { '\"' };
 
 public delegate string GetCsvCell(int index, string label);
 
+
+public static GetCsvCell ReadCsv(string text, out int length)
+    {
+    return _readCsv (text, out length, false);
+    }
+    
 public static GetCsvCell ReadCsvTransposed (string text, out int length)
     {
     return _readCsv (text, out length, true);
     }
 
-public static GetCsvCell ReadCsv(string text, out int length)
+public static GetCsvCell ReadCsv (string text, out int length, bool transposed)
     {
-    return _readCsv (text, out length, false);
+    return _readCsv (text, out length, transposed);
     }
 
 internal static GetCsvCell _readCsv (string text, out int length, bool transpose)
@@ -107,7 +115,6 @@ internal static GetCsvCell _readCsv (string text, out int length, bool transpose
                 data[currentRow, j] = value;
                 }
             }
-
         ++currentRow;
         }
 
@@ -194,4 +201,5 @@ public static object CsvEntryToObject (int index, GetCsvCell getCsvCell, Type ty
         }
     return retval;
     }
+}
 }

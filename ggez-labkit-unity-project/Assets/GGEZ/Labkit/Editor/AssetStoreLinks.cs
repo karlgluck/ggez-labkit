@@ -51,10 +51,16 @@ static void EssentialAssetsFreeTextMeshPro ()
     UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/84126");
     }
 
-[MenuItem ("Asset Store/GGEZ/Perfect Pixel Camera ($0.99)")]
+[MenuItem ("Asset Store/GGEZ/Perfect Pixel Camera")]
 static void AssetStore_GGEZ_PerfectPixelCamera ()
     {
-    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/299412");
+    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/100000");
+    }
+
+[MenuItem ("Asset Store/GGEZ/All Assets")]
+static void AssetStore_GGEZ_AllAssets ()
+    {
+    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:publisher/31538");
     }
 }
 }

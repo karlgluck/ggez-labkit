@@ -32,7 +32,7 @@ public static partial class ArrayListExt
 {
 public static object Pick (this ArrayList self)
     {
-    return self[Random.Range (0, self.Count-1)];
+    return self[Random.Range (0, self.Count)];
     }
 
 public static void Shuffle (this ArrayList self)

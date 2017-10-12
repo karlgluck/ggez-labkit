@@ -35,17 +35,17 @@ public static partial class RandomExt
 
 public static T Pick<T> (this Random self, T[] array)
     {
-    return array[self.Next (0, array.Length-1)];
+    return array[self.Next (0, array.Length)];
     }
     
 public static object Pick (this Random self, ArrayList arrayList)
     {
-    return arrayList[self.Next (0, arrayList.Count-1)];
+    return arrayList[self.Next (0, arrayList.Count)];
     }
     
 public static T Pick<T> (this Random self, List<T> list)
     {
-    return list[self.Next (0, list.Count-1)];
+    return list[self.Next (0, list.Count)];
     }
 
 public static void Shuffle (this Random self, Array array)

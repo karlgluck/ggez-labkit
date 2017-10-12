@@ -33,7 +33,7 @@ public static partial class ArrayExt
 {
 public static T Pick<T> (this T[] self)
     {
-    return self[Random.Range (0, self.Length-1)];
+    return self[Random.Range (0, self.Length)];
     }
 
 public static void Shuffle<T> (this T[] self)

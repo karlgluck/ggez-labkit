@@ -73,5 +73,29 @@ public static float EaseJumpBounce (float t)
         }
     return s * 4 * t * (1 - t);
     }
+
+
+private static float Approach (
+        float current,
+        float target,
+        float deltaPerSecond,
+        float feather
+        )
+    {
+    float maxDelta = Mathf.Max (0.1f, Mathf.InverseLerp (0f, feather, Mathf.Abs (current - target))) * deltaPerSecond;
+    return Mathf.MoveTowards (current, target, maxDelta * Time.smoothDeltaTime);
+    }
+
+private static float ApproachAngle (
+        float currentDegrees,
+        float targetDegrees,
+        float deltaPerSecond,
+        float feather
+        )
+    {
+    float maxDelta = Mathf.Max (0.1f, Mathf.InverseLerp (0f, feather, Mathf.Abs (Mathf.DeltaAngle (currentDegrees, targetDegrees)))) * deltaPerSecond;
+    return Mathf.MoveTowardsAngle (currentDegrees, targetDegrees, maxDelta * Time.smoothDeltaTime);
+    }
+
 }
 }
