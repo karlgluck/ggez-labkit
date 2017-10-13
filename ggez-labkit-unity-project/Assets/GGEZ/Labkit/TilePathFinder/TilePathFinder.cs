@@ -662,8 +662,8 @@ private void planTilePath(Vector2i start, Vector2i end)
                             }
                         }
 
-                    var distanceCost = positionOfNeighbor.DistanceFast(endNode);
-                    var distanceToLineToTargetCost = positionOfNeighbor.GetDistanceToLineSegmentFast (startNode, endNode);
+                    var distanceCost = positionOfNeighbor.Distance (endNode);
+                    var distanceToLineToTargetCost = positionOfNeighbor.GetDistanceToLineSegment (startNode, endNode);
                     var heuristic = (continuesStraightFromLastNode ? NoCornerWeight : 1.0f) * distanceCost
                             + DistanceToLineToTargetWeight * distanceToLineToTargetCost;
                     this.nodes[indexOfNeighbor].costOfHeuristic = heuristic;

@@ -65,7 +65,6 @@ public override bool Equals (object other)
     return false;
     }
 
-
 public bool Equals (Vector2i other)
     {
     return other.x == this.x && other.y == this.y;
@@ -103,14 +102,9 @@ public int DistanceManhattan (Vector2i v)
     return dx + dy;
     }
 
-public float DistanceFast (Vector2i v)
+public float Distance (Vector2i v)
     {
-    return (v - this).MagnitudeFast ();
-    }
-
-public float DistanceExact (Vector2i v)
-    {
-    return (v - this).MagnitudeExact ();
+    return (v - this).magnitude;
     }
 
 public static IEnumerator<Vector2i> FindPointsBetween (Vector2i start, Vector2i end, int stepSize)
@@ -173,28 +167,26 @@ public int DistanceSquared (Vector2i other)
     return dx * dx + dy * dy;
     }
 
-public int MagnitudeSquared ()
+
+public float magnitude
     {
-    return this.x * this.x + this.y * this.y;
+    get
+        {
+        double xAbsAsDouble = Math.Abs ((double)this.x);
+        double yOverX = this.y / xAbsAsDouble;
+        return (float) (xAbsAsDouble * Math.Sqrt (1.0 + yOverX * yOverX));
+        }
     }
 
-public float MagnitudeExact ()
+
+public int sqrMagnitude
     {
-    double xAbsAsDouble = Math.Abs ((double)this.x);
-    double yOverX = this.y / xAbsAsDouble;
-    return (float) (xAbsAsDouble * Math.Sqrt (1.0 + yOverX * yOverX));
+    get
+        {
+        return this.x * this.x + this.y * this.y;
+        }
     }
 
-public float MagnitudeFast ()
-    {
-    float dx = Math.Abs (this.x);
-    float dy = Math.Abs (this.y);
-    float max = Math.Max (dx, dy);
-    float min = Math.Min (dx, dy);
-    const float alpha = 0.96043387010f;
-    const float beta = 0.39782473476f;
-    return alpha * max + beta * min;
-    }
 
 public bool GetPerpendicularDeltaFromLineSegment (Vector2i a, Vector2i b, ref Vector2i delta)
     {
@@ -215,6 +207,7 @@ public bool GetPerpendicularDeltaFromLineSegment (Vector2i a, Vector2i b, ref Ve
         return true;
         }
     }
+
 
 public int GetDistanceToLineSegmentSquared (Vector2i a, Vector2i b)
     {
@@ -239,50 +232,30 @@ public int GetDistanceToLineSegmentSquared (Vector2i a, Vector2i b)
         }
     }
 
-public float GetDistanceToLineSegmentExact (Vector2i a, Vector2i b)
+
+public float GetDistanceToLineSegment (Vector2i a, Vector2i b)
     {
-    var lengthSquared = a.DistanceSquared (b);
+    var lengthSquared = a.Distance (b);
     if (0 == lengthSquared)
         {
-        return this.DistanceExact (a);
+        return this.Distance (a);
         }
     float t = Vector2i.Dot (a.DeltaTo (this), a.DeltaTo (b)) / (float)lengthSquared;
     if (t < 0.0f)
         {
-        return this.DistanceExact (a);
+        return this.Distance (a);
         }
     else if (t > 1.0f)
         {
-        return this.DistanceExact (b);
+        return this.Distance (b);
         }
     else
         {
         var projection = Vector2i.Lerp (a, b, t);
-        return this.DistanceExact (projection);
+        return this.Distance (projection);
         }
     }
 
-public float GetDistanceToLineSegmentFast (Vector2i a, Vector2i b)
-    {
-    var lengthSquared = a.DistanceSquared (b);
-    if (0 == lengthSquared)
-        {
-        return this.DistanceFast (a);
-        }
-    float t = Vector2i.Dot (a.DeltaTo (this), a.DeltaTo (b)) / (float)lengthSquared;
-    if (t < 0.0f)
-        {
-        return this.DistanceFast (a);
-        }
-    else if (t > 1.0f)
-        {
-        return this.DistanceFast (b);
-        }
-    else
-        {
-        var projection = Vector2i.Lerp (a, b, t);
-        return this.DistanceFast (projection);
-        }
-    }
+
 }
 }

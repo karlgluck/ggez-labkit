@@ -91,10 +91,8 @@ public static Vector2 InDirection (float z)
 
 public static Vector2 NormalizedOrZero (this Vector2 self, float minimumMagnitude)
     {
-    float sqrMagnitude = self.sqrMagnitude;
-    return (sqrMagnitude <= minimumMagnitude * minimumMagnitude)
-            ? Vector2.zero
-            : self / Mathf.Sqrt (sqrMagnitude);
+    float magnitude = self.magnitude;
+    return (magnitude <= minimumMagnitude) ? Vector2.zero : self / magnitude;
     }
 
 
@@ -107,6 +105,10 @@ public static Vector2 Clamp (this Vector2 self, Vector2 min, Vector2 max)
             );
     }
 
+public static Vector2 Midpoint (Vector2 a, Vector2 b)
+    {
+    return new Vector2() { x = (a.x + b.x) / 2, y = (a.y + b.y) / 2 };
+    }
 
 
 public static float MagnitudeFast (this Vector2 self)
@@ -129,16 +131,9 @@ public static float DistanceSquared (this Vector2 self, Vector2 v)
 
 
 
-public static float DistanceExact (this Vector2 self, Vector2 v)
+public static float Distance (this Vector2 self, Vector2 v)
     {
     return (v - self).magnitude;
-    }
-
-
-
-public static float DistanceFast (this Vector2 self, Vector2 v)
-    {
-    return (v - self).MagnitudeFast ();
     }
 
 
@@ -172,27 +167,10 @@ public static bool DeltaToLineSegmentPerpendicular (this Vector2 self, Vector2 a
 
 
 
-public static float DistanceToLineSegmentFast (this Vector2 self, Vector2 a, Vector2 b)
+
+public static float DistanceToLineSegment (this Vector2 self, Vector2 a, Vector2 b)
     {
-    var lengthSquared = a.DistanceSquared(b);
-    if (Mathf.Approximately (0f, lengthSquared))
-        {
-        return self.DistanceFast (a);
-        }
-    float t = Vector2.Dot(a.DeltaTo (self), a.DeltaTo (b)) / (float)lengthSquared;
-    if (t < 0.0f)
-        {
-        return self.DistanceFast (a);
-        }
-    else if (t > 1.0f)
-        {
-        return self.DistanceFast (b);
-        }
-    else
-        {
-        var projection = Vector2.Lerp (a, b, t);
-        return self.DistanceFast (projection);
-        }
+    return (float)Mathf.Sqrt (self.DistanceToLineSegmentSquared (a, b));
     }
 
 
@@ -221,11 +199,6 @@ public static float DistanceToLineSegmentSquared (this Vector2 self, Vector2 a, 
     }
 
 
-
-public static float DistanceToLineSegmentExact (this Vector2 self, Vector2 a, Vector2 b)
-    {
-    return (float)Mathf.Sqrt (self.DistanceToLineSegmentSquared (a, b));
-    }
 
 
 
