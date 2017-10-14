@@ -45,5 +45,13 @@ public static Vector2i ToVector2i (this Vector2 self)
     return new Vector2i (Mathf.FloorToInt (self.x), Mathf.FloorToInt (self.y));
     }
 
+public static Vector2 Lerpf (Vector2i a, Vector2i b, float t)
+    {
+    return new Vector2 () {
+            x = (b.x - a.x) * t + a.x,
+            y = (b.y - a.y) * t + a.y,
+            };
+    }
+
 }
 }

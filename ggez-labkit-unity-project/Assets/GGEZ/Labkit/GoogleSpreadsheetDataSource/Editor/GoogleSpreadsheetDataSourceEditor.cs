@@ -34,7 +34,7 @@ public class DesignDataEditor : Editor
 public override void OnInspectorGUI ()
     {
     var designData = (GoogleSpreadsheetDataSource)target;
-    if (GUILayout.Button ("Load From Spreadsheet"))
+    if (GUILayout.Button ("Download from Web"))
         {
         EditorCoroutineRunner.StartCoroutine (designData.LoadFromWebOrCache ());
         }

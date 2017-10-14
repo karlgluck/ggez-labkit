@@ -26,6 +26,8 @@
 using System;
 using System.Collections;
 using UnityEngine;
+namespace GGEZ
+{
 
 //---------------------------------------------------------------------------------------
 // You don't need to explicitly use this class.
@@ -33,9 +35,6 @@ using UnityEngine;
 // ECSEntityPool manages pooling of entity game objects via the ECSController's Acquire
 // and Release methods.
 //---------------------------------------------------------------------------------------
-
-namespace GGEZ
-{
 public class ECSEntityPool : MonoBehaviour
 {
 private GameObject prefab;

@@ -111,16 +111,12 @@ public static Vector2 Midpoint (Vector2 a, Vector2 b)
     }
 
 
-public static float MagnitudeFast (this Vector2 self)
+
+public static float Distance (this Vector2 self, Vector2 v)
     {
-    float dx = Mathf.Abs (self.x);
-    float dy = Mathf.Abs (self.y);
-    float max = Mathf.Max (dx, dy);
-    float min = Mathf.Min (dx, dy);
-    const float alpha = 0.96043387010f;
-    const float beta = 0.39782473476f;
-    return alpha * max + beta * min;
+    return (v - self).magnitude;
     }
+
 
 
 
@@ -129,12 +125,6 @@ public static float DistanceSquared (this Vector2 self, Vector2 v)
     return (v - self).sqrMagnitude;
     }
 
-
-
-public static float Distance (this Vector2 self, Vector2 v)
-    {
-    return (v - self).magnitude;
-    }
 
 
 
@@ -170,7 +160,25 @@ public static bool DeltaToLineSegmentPerpendicular (this Vector2 self, Vector2 a
 
 public static float DistanceToLineSegment (this Vector2 self, Vector2 a, Vector2 b)
     {
-    return (float)Mathf.Sqrt (self.DistanceToLineSegmentSquared (a, b));
+    var lengthSquared = a.Distance (b);
+    if (0 == lengthSquared)
+        {
+        return self.Distance (a);
+        }
+    float t = Vector2.Dot (a.DeltaTo (self), a.DeltaTo (b)) / (float)lengthSquared;
+    if (t < 0.0f)
+        {
+        return self.Distance (a);
+        }
+    else if (t > 1.0f)
+        {
+        return self.Distance (b);
+        }
+    else
+        {
+        var projection = Vector2.Lerp(a, b, t);
+        return self.Distance (projection);
+        }
     }
 
 

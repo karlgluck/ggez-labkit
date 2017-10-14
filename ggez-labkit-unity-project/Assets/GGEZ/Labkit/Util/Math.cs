@@ -44,9 +44,37 @@ public static string ToBase62String (ulong number)
     return ret;
     }
 
-public static float Repeat2 (float number, float range)
+
+//----------------------------------------------------------------------
+// RepeatUniform doesn't mirror when crossing from positive to negative.
+//
+// Normally:
+//       [4 .. -4] % 3 ==> [1, 0, 2, 1, 0, -1, -2, 0, -1]
+//
+// Instead:
+//       RepeatUniform ([4 .. -4], 3) ==> [1, 0, 2, 1, 0, 2, 1, 0, 2]
+//
+// Using RepeatUniform makes the zero-boundary disappear. This is
+// useful for things like camera controls.
+//----------------------------------------------------------------------
+public static int RepeatUniform (int number, int range)
     {
-    return Mathf.Repeat (range + Mathf.Repeat (number, range), range);
+    var retval = number % range;
+    if (retval < 0)
+        {
+        retval += range; 
+        }
+    return retval;
+    }
+
+public static float RepeatUniform (float number, float range)
+    {
+    var retval = number - ((int)(number/range))*range;
+    if (retval < 0)
+        {
+        retval += range;
+        }
+    return retval;
     }
 }
 }

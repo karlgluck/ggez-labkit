@@ -39,9 +39,6 @@ public string Url;
 public bool DataIsColumns = false;
 
 [HideInInspector]
-public string LocalAssetLastDownloaded;
-
-[HideInInspector]
 public string LocalAssetCsvText;
 
 

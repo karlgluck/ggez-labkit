@@ -28,6 +28,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+namespace GGEZ
+{
 
 //---------------------------------------------------------------------------------------
 // ECSController is the worker class for the Entity Component System. You need exactly
@@ -71,8 +73,6 @@ void Awake ()
 // being iterated.
 //---------------------------------------------------------------------------------------
 
-namespace GGEZ
-{
 public class ECSController : MonoBehaviour
 {
 private ArrayList entities = new ArrayList ();

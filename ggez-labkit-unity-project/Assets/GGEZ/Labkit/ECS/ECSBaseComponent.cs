@@ -26,6 +26,8 @@
 
 using System;
 using UnityEngine;
+namespace GGEZ
+{
 
 //----------------------------------------------------------------------
 // All your components should derive from ECSBaseComponent. To make it
@@ -33,8 +35,6 @@ using UnityEngine;
 // each other component type derive from your own base class.
 //----------------------------------------------------------------------
 
-namespace GGEZ
-{
 public class ECSBaseComponent : MonoBehaviour, IComparable
 {
 [System.NonSerialized]

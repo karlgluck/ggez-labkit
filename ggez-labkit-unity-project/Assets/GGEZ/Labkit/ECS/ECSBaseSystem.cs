@@ -25,7 +25,8 @@
 
 using System;
 using UnityEngine;
-
+namespace GGEZ
+{
 
 //---------------------------------------------------------------------------------------
 // Derive your own base system from ECSBaseSystem. Set up by initializing the Controller
@@ -39,8 +40,6 @@ using UnityEngine;
 // Acquire & Release are used to acquire & release entity prefabs
 // AcquireComponent & ReleaseComponent are used to add/remove components from an entity
 //---------------------------------------------------------------------------------------
-namespace GGEZ
-{
 public class ECSBaseSystem : MonoBehaviour
 {
 [System.NonSerialized]

@@ -27,6 +27,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+namespace GGEZ
+{
 
 //---------------------------------------------------------------------------------------
 // Component attached to all game objects used to represent ECS entities.
@@ -36,9 +38,6 @@ using UnityEngine;
 // be unique among active objects in the current execution. However, it can be recycled
 // when objects are released and re-acquired.
 //---------------------------------------------------------------------------------------
-
-namespace GGEZ
-{
 public class ECSEntity : MonoBehaviour
 {
 public int Id;

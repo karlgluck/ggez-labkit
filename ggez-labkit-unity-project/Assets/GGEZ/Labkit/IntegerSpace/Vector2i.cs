@@ -155,6 +155,7 @@ public static Vector2i Lerp (Vector2i a, Vector2i b, float t)
             };
     }
 
+
 public static int Dot (Vector2i a, Vector2i b)
     {
     return a.x * b.x + a.y * b.y;
