@@ -9,7 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 1
   m_Script: {fileID: 11500000, guid: 642214c48eb1e4cda881ef88d05d26ba, type: 3}
-  m_Name: LabkitSettings
+  m_Name: Labkit Settings
   m_EditorClassIdentifier: 
   TextureDefaults: 0
   PixelsPerUnit: 16

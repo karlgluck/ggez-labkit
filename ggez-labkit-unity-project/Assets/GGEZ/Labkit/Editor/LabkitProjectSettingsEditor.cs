@@ -26,6 +26,8 @@
 using UnityEngine;
 using UnityEditor;
 using GGEZ;
+using System.IO;
+
 
 namespace GGEZ
 {
@@ -56,14 +58,18 @@ public override void OnInspectorGUI ()
 	GUI.changed = false;
     bool anythingChanged = false;
 
+    //-----------------------------------------------------------------------------------
 	GUILayout.Label ("Asset Processing", EditorStyles.boldLabel);
+    //-----------------------------------------------------------------------------------
 
     t.TextureDefaults = (LabkitProjectSettings_TextureDefaults)EditorGUILayout.EnumPopup ("Texture Defaults", t.TextureDefaults);
 
 
     bool inPixelPerfect2DMode = t.TextureDefaults == LabkitProjectSettings_TextureDefaults.PixelPerfect2D;
 
+    //-----------------------------------------------------------------------------------
 	GUILayout.Label ("2D", EditorStyles.boldLabel, GUILayout.MinWidth (100f));
+    //-----------------------------------------------------------------------------------
     GUILayout.BeginHorizontal ();
     GUILayout.Label ("Pixels Per Unit", GUILayout.ExpandWidth (true));
     float powerOfTwo = GUILayout.HorizontalSlider (Mathf.Log (t.PixelsPerUnit) / Mathf.Log (2), 0, 8, GUILayout.ExpandWidth (true), GUILayout.MinWidth (50f));
@@ -73,7 +79,9 @@ public override void OnInspectorGUI ()
     t.PixelsPerUnit = pixelsPerUnit;
 
 
+    //-----------------------------------------------------------------------------------
 	GUILayout.Label ("Rendering", EditorStyles.boldLabel);
+    //-----------------------------------------------------------------------------------
     UnityEditor.PlayerSettings.colorSpace = (ColorSpace)EditorGUILayout.EnumPopup ("Color Space", UnityEditor.PlayerSettings.colorSpace);
     if (UnityEditor.PlayerSettings.colorSpace == ColorSpace.Linear)
         {
@@ -81,7 +89,9 @@ public override void OnInspectorGUI ()
         EditorGUILayout.Space ();
         }
 
+    //-----------------------------------------------------------------------------------
 	GUILayout.Label ("Development", EditorStyles.boldLabel);
+    //-----------------------------------------------------------------------------------
     EditorGUILayout.PropertyField (serializedObject.FindProperty ("BreakNonPowerOfTwoTextures"));
     if (inPixelPerfect2DMode && !t.BreakNonPowerOfTwoTextures)
         {
@@ -93,8 +103,9 @@ public override void OnInspectorGUI ()
 
     t.MetaFilesInVersionControl = EditorGUILayout.Toggle ("Meta Files in Version Control", t.MetaFilesInVersionControl);
 
+    //-----------------------------------------------------------------------------------
 	GUILayout.Label ("Optimization", EditorStyles.boldLabel);
-
+    //-----------------------------------------------------------------------------------
     anythingChanged = anythingChanged || GUI.changed;
     GUI.changed = false;
     t.DisableAccelerometer = EditorGUILayout.Toggle ("Disable Accelerometer", t.DisableAccelerometer);
@@ -113,6 +124,50 @@ public override void OnInspectorGUI ()
         {
         GUILayout.Label ("Can't find VS Code; is it installed?", EditorStyles.miniLabel);
         }
+    EditorGUILayout.Space ();
+
+
+    //-----------------------------------------------------------------------------------
+    GUILayout.Label ("Fixes", EditorStyles.boldLabel);
+    //-----------------------------------------------------------------------------------
+    anythingChanged = anythingChanged || GUI.changed;
+    EditorGUILayout.BeginHorizontal ();
+    string gitignorePath = Path.Combine (Directory.GetParent (Application.dataPath).FullName, ".gitignore");
+    bool gitignoreExists = File.Exists (gitignorePath);
+    GUILayout.Label (".gitignore" + (gitignoreExists ? " (exists)" : ""));
+    GUILayout.FlexibleSpace ();
+    if (GUILayout.Button ("Write"))
+        {
+        bool shouldWriteFile = true;
+        if (gitignoreExists)
+            {
+            shouldWriteFile = EditorUtility.DisplayDialog (
+                    "Overwrite?",
+                    "Overwrite project .gitignore file?",
+                    "Overwrite",
+                    "Keep Existing"
+                    );
+            }
+        if (shouldWriteFile)
+            {
+            LabkitEditorUtility.WriteFileUsingTemplate (
+                    "gitignore",
+                    gitignorePath
+                    );
+            }
+        }
+    EditorGUI.BeginDisabledGroup (!gitignoreExists);
+    if (GUILayout.Button ("Open"))
+        {
+        UnityEditorInternal.InternalEditorUtility.OpenFileAtLineExternal (
+                gitignorePath,
+                1
+                );
+        }
+    EditorGUI.EndDisabledGroup ();
+    EditorGUILayout.EndHorizontal ();
+    anythingChanged = anythingChanged || GUI.changed;
+    GUI.changed = false;
 
 
     if (GUI.changed || anythingChanged)

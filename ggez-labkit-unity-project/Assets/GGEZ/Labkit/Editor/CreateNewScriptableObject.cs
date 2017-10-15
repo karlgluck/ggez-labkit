@@ -32,9 +32,9 @@ namespace GGEZ
 namespace Labkit
 {
 
-public static class CreateNewScriptableObject
+public static partial class LabkitEditorUtility
 {
-static void WriteFileUsingTemplate (string templateAssetName, string path, params string[] args)
+public static void WriteFileUsingTemplate (string templateAssetName, string path, params string[] args)
     {
     string[] assets;
     TextAsset template;
@@ -59,6 +59,10 @@ static void WriteFileUsingTemplate (string templateAssetName, string path, param
     File.WriteAllText (path, contents);
     AssetDatabase.Refresh (ImportAssetOptions.Default);
     }
+}
+
+public static class CreateNewScriptableObject
+{
 
 [MenuItem ("Labkit/Create/ScriptableObject")]
 static void LabkitNewScriptableObject ()
@@ -75,7 +79,7 @@ static void LabkitNewScriptableObject ()
         }
 
     string newAssetName = System.IO.Path.GetFileNameWithoutExtension (path);
-    WriteFileUsingTemplate (
+    LabkitEditorUtility.WriteFileUsingTemplate (
             "ScriptableObject_So",
             path,
             "%NEWASSETNAME% " + newAssetName
@@ -83,7 +87,7 @@ static void LabkitNewScriptableObject ()
 
     string editorPath = Path.Combine (Path.GetDirectoryName (path), "Editor");
     Directory.CreateDirectory (editorPath);
-    WriteFileUsingTemplate (
+    LabkitEditorUtility.WriteFileUsingTemplate (
             "ScriptableObject_SoEditor",
             Path.Combine (editorPath, newAssetName + "Editor.cs"),
             "%NEWASSETNAME% " + newAssetName
@@ -105,12 +109,12 @@ static void LabkitNewControllerClass ()
         }
 
     string newAssetName = System.IO.Path.GetFileNameWithoutExtension (path);
-    WriteFileUsingTemplate (
+    LabkitEditorUtility.WriteFileUsingTemplate (
             "MonoBehaviourWithSettings_Mb",
             path,
             "%NEWASSETNAME% " + newAssetName
             );
-    WriteFileUsingTemplate (
+    LabkitEditorUtility.WriteFileUsingTemplate (
             "MonoBehaviourWithSettings_MbSo",
             Path.Combine (Path.GetDirectoryName (path), newAssetName + "Settings.cs"),
             "%NEWASSETNAME% " + newAssetName
@@ -118,12 +122,12 @@ static void LabkitNewControllerClass ()
 
     string editorPath = Path.Combine (Path.GetDirectoryName (path), "Editor");
     Directory.CreateDirectory (editorPath);
-    WriteFileUsingTemplate (
+    LabkitEditorUtility.WriteFileUsingTemplate (
             "MonoBehaviourWithSettings_MbEditor",
             Path.Combine (editorPath, newAssetName + "Editor.cs"),
             "%NEWASSETNAME% " + newAssetName
             );
-    WriteFileUsingTemplate (
+    LabkitEditorUtility.WriteFileUsingTemplate (
             "MonoBehaviourWithSettings_MbSoEditor",
             Path.Combine (editorPath, newAssetName + "SettingsEditor.cs"),
             "%NEWASSETNAME% " + newAssetName
