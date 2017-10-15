@@ -11,4 +11,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c433aa5a1f9a944cbb3418d7da0b383, type: 3}
   m_Name: GoogleSpreadsheetDataSource
   m_EditorClassIdentifier: 
-  Assets: []
+  Assets:
+  - {fileID: 102900000, guid: 4b58965c516634266bc5e95fd7e4da6c, type: 3}
