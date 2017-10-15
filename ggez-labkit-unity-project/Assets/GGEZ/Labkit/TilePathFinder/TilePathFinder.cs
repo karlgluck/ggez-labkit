@@ -1,3 +1,9 @@
+// This code import is WIP
+//   * Some parameters are constants that should be user-configurable
+//   * It needs testing (now that I've changed a bunch of stuff)
+//   * Some of the code can be inlined
+
+
 // This is free and unencumbered software released into the public domain.
 // 
 // Anyone is free to copy, modify, publish, use, compile, sell, or
