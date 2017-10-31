@@ -11,4 +11,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c433aa5a1f9a944cbb3418d7da0b383, type: 3}
   m_Name: CanvasScalerWorldSpace
   m_EditorClassIdentifier: 
-  Assets: []
+  Assets:
+  - {fileID: 102900000, guid: c138a8bdea10f46328ac7ca0d30f4381, type: 3}
