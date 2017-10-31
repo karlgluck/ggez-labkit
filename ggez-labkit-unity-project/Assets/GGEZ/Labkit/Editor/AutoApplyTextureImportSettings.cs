@@ -23,7 +23,7 @@ void OnPreprocessTexture ()
         textureImporter.spritePixelsPerUnit = LabkitProjectSettings.Instance.PixelsPerUnit;
         }
     }
-    
+
 void OnPostprocessTexture (Texture2D texture)
     {
     if (!LabkitProjectSettings.Instance.BreakNonPowerOfTwoTextures)
@@ -54,4 +54,3 @@ void OnPostprocessTexture (Texture2D texture)
 
 }
 }
- 

@@ -23,68 +23,38 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
+using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
-
 
 namespace GGEZ
 {
-public static partial class RandomExt
+public static partial class BoxColliderExt
 {
 
-public static T Pick<T> (this Random self, T[] array)
+
+public static Collider[] Overlap (this BoxCollider self, int layerMask, QueryTriggerInteraction queryTriggerInteraction)
     {
-    return array[self.Next (0, array.Length)];
+    Vector3 center = self.transform.TransformPoint (self.center);
+    Vector3 halfExtents = Vector3.Scale (self.size, self.transform.lossyScale) * 0.5f;
+    return Physics.OverlapBox (center, halfExtents, self.transform.rotation, layerMask, queryTriggerInteraction);
     }
 
-public static object Pick (this Random self, ArrayList arrayList)
+
+public static Collider[] Overlap (this BoxCollider self, int layerMask)
     {
-    return arrayList[self.Next (0, arrayList.Count)];
+    Vector3 center = self.transform.TransformPoint (self.center);
+    Vector3 halfExtents = Vector3.Scale (self.size, self.transform.lossyScale) * 0.5f;
+    return Physics.OverlapBox (center, halfExtents, self.transform.rotation, layerMask);
     }
 
-public static T Pick<T> (this Random self, List<T> list)
+
+public static Collider[] Overlap (this BoxCollider self)
     {
-    return list[self.Next (0, list.Count)];
+    Vector3 center = self.transform.TransformPoint (self.center);
+    Vector3 halfExtents = Vector3.Scale (self.size, self.transform.lossyScale) * 0.5f;
+    return Physics.OverlapBox (center, halfExtents, self.transform.rotation);
     }
 
-public static void Shuffle (this Random self, Array array)
-    {
-    int n = array.Length;
-    while (n > 1)
-        {
-        int k = self.Next (0, n);
-        --n;
-        object temp = array.GetValue (n);
-        array.SetValue (array.GetValue(k), n);
-        array.SetValue (temp, k);
-        }
-    }
 
-public static void Shuffle (this Random self, ArrayList arrayList)
-    {
-    int n = arrayList.Count;
-    while (n > 1)
-        {
-        int k = self.Next (0, n);
-        --n;
-        object temp = arrayList[n];
-        arrayList[n] = arrayList[k];
-        arrayList[k] = temp;
-        }
-    }
-
-public static void Shuffle<T> (this Random self, List<T> list)
-    {
-    int n = list.Count;
-    while (n > 1)
-        {
-        int k = self.Next (0, n);
-        --n;
-        T temp = list[n];
-        list[n] = list[k];
-        list[k] = temp;
-        }
-    }
 }
 }

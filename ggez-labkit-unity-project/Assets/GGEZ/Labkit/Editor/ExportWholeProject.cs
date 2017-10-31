@@ -1,10 +1,10 @@
 ﻿// This is free and unencumbered software released into the public domain.
-// 
+//
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
 // binary, for any purpose, commercial or non-commercial, and by any
 // means.
-// 
+//
 // In jurisdictions that recognize copyright laws, the author or authors
 // of this software dedicate any and all copyright interest in the
 // software to the public domain. We make this dedication for the benefit
@@ -12,7 +12,7 @@
 // successors. We intend this dedication to be an overt act of
 // relinquishment in perpetuity of all present and future rights to this
 // software under copyright law.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -20,7 +20,7 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 // For more information, please refer to <http://unlicense.org/>
 
 using UnityEngine;
@@ -48,7 +48,7 @@ public static void BuildAssetPackage ()
         path,
         ExportPackageOptions.IncludeLibraryAssets
         );
-    string fileName = Path.GetFileName (path); 
+    string fileName = Path.GetFileName (path);
 #if UNITY_EDITOR_WIN
     string sevenZipPath = @"""C:\Program Files\7-Zip\7z.exe""";
     File.WriteAllText (
@@ -57,7 +57,7 @@ public static void BuildAssetPackage ()
                     @"
                     {1} x ""{0}""
                     {1} x archtemp.tar
-                    
+
                     for /F ""tokens=1 delims=\"" %%i in ('findstr /s /n /i /p /m /c:""C:/Program Files/Unity/"" pathname') do ({1} d archtemp.tar %%i)
                     for /F ""tokens=1 delims=\"" %%i in ('findstr /s /n /i /p /m /c:""Library/BuildPlayer.prefs"" pathname') do ({1} d archtemp.tar %%i)
 

@@ -1,10 +1,10 @@
 // This is free and unencumbered software released into the public domain.
-// 
+//
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
 // binary, for any purpose, commercial or non-commercial, and by any
 // means.
-// 
+//
 // In jurisdictions that recognize copyright laws, the author or authors
 // of this software dedicate any and all copyright interest in the
 // software to the public domain. We make this dedication for the benefit
@@ -12,7 +12,7 @@
 // successors. We intend this dedication to be an overt act of
 // relinquishment in perpetuity of all present and future rights to this
 // software under copyright law.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -20,7 +20,7 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 // For more information, please refer to <http://unlicense.org/>
 
 using System.Collections;
@@ -39,7 +39,7 @@ private EventPipe mainPipe = new EventPipe ();
 
 IEnumerator SomeCoroutine ()
     {
-	var wait = this.mainPipe.WaitForEventType (typeof (MyEvent));
+    var wait = this.mainPipe.WaitForEventType (typeof (MyEvent));
     yield return wait;
     var myEvent = (MyEvent)wait.ReturnedEvent;
     // do something with myEvent here
@@ -122,17 +122,17 @@ public WaitForEventTypeEnumerator WaitForEventType (Type type)
 public class WaitForEventTypeEnumerator : IEnumerator
     {
     private EventPipe owner;
-    
+
     public Type EventType { get; private set; }
-    
+
     public object ReturnedEvent;
-    
+
     internal WaitForEventTypeEnumerator (EventPipe owner, Type type)
         {
         this.EventType = type;
         this.owner = owner;
         }
-    
+
     public bool MoveNext ()
         {
         for (int i = 0; i < this.owner.queue.Count; ++i)
@@ -148,7 +148,7 @@ public class WaitForEventTypeEnumerator : IEnumerator
         this.owner.queue.Clear();
         return true;
         }
-    
+
     public object Current
         {
         get
@@ -156,7 +156,7 @@ public class WaitForEventTypeEnumerator : IEnumerator
             return null;
             }
         }
-    
+
     public void Reset ()
         {
         throw new System.NotImplementedException();
@@ -246,12 +246,12 @@ public class WaitForTriggerOrEventTypeEnumerator : IEnumerator
         this.Trigger = trigger;
         this.EventType = type;
         }
-    
+
     public Func<bool> Trigger;
     public Type EventType;
     public object ReturnedEvent;
-    
-    
+
+
     public bool MoveNext ()
         {
         if (this.Trigger ())
@@ -272,7 +272,7 @@ public class WaitForTriggerOrEventTypeEnumerator : IEnumerator
         this.owner.queue.Clear();
         return true;
         }
-    
+
     public object Current
         {
         get
@@ -280,7 +280,7 @@ public class WaitForTriggerOrEventTypeEnumerator : IEnumerator
             return null;
             }
         }
-    
+
     public void Reset ()
         {
         throw new System.NotImplementedException();

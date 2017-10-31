@@ -5,12 +5,12 @@
 
 
 // This is free and unencumbered software released into the public domain.
-// 
+//
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
 // binary, for any purpose, commercial or non-commercial, and by any
 // means.
-// 
+//
 // In jurisdictions that recognize copyright laws, the author or authors
 // of this software dedicate any and all copyright interest in the
 // software to the public domain. We make this dedication for the benefit
@@ -18,7 +18,7 @@
 // successors. We intend this dedication to be an overt act of
 // relinquishment in perpetuity of all present and future rights to this
 // software under copyright law.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -26,7 +26,7 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 // For more information, please refer to <http://unlicense.org/>
 
 
@@ -69,7 +69,7 @@ namespace GGEZ
         }
 
 */
-// 
+//
 // Reference:
 // http://www.gamasutra.com/view/feature/131505/toward_more_realistic_pathfinding.php?page=2
 //----------------------------------------------------------------------
@@ -176,14 +176,14 @@ class FinalPathReversedEnumerator : IEnumerator<Vector2i>
     internal Vector2i[] path;
     internal int pathLength;
     private int iteratorPosition;
-    
+
     public FinalPathReversedEnumerator (Vector2i[] finalPath, int finalPathLength)
         {
         this.path = finalPath;
         this.pathLength = finalPathLength;
         this.Reset();
         }
-    
+
     public Vector2i Current
         {
         get
@@ -191,7 +191,7 @@ class FinalPathReversedEnumerator : IEnumerator<Vector2i>
             return this.path[iteratorPosition];
             }
         }
-    
+
     object System.Collections.IEnumerator.Current
         {
         get
@@ -199,17 +199,17 @@ class FinalPathReversedEnumerator : IEnumerator<Vector2i>
             return Current;
             }
         }
-    
+
     public void Dispose()
         {
         throw new NotImplementedException();
         }
-    
+
     public bool MoveNext()
         {
         return --this.iteratorPosition >= 0;
         }
-    
+
     public void Reset()
         {
         this.iteratorPosition = this.pathLength;
@@ -226,7 +226,7 @@ public IEnumerator<Vector2i> FindPath (Vector2i start, Vector2i end)
         {
         return null;
         }
-    
+
     this.smoothingNodes[this.smoothingNodesLength++].Position = start;
     this.smoothingNodes[0].Position = end;
     const bool doFixTerminalPositionApproaches = true;
@@ -245,7 +245,7 @@ public IEnumerator<Vector2i> FindPath (Vector2i start, Vector2i end)
                 this.smoothingNodes[1].Position.x = this.smoothingNodes[2].Position.x;
                 }
             }
-        
+
             {
             int lastSmoothingNodeIndex = this.smoothingNodesLength - 1;
             var secondApproach = this.smoothingNodes[lastSmoothingNodeIndex - 2].Position.DeltaTo (this.smoothingNodes[lastSmoothingNodeIndex - 1].Position);
@@ -262,13 +262,13 @@ public IEnumerator<Vector2i> FindPath (Vector2i start, Vector2i end)
             }
         }
 
-    
+
     for (int i = 0; i < this.smoothingNodesLength; ++i)
         {
         this.finalPath[i] = this.smoothingNodes[i].Position;
         }
     this.finalPathLength = this.smoothingNodesLength;
-    
+
     const bool doFinalForwardLookingClean = true;
     if (doFinalForwardLookingClean)
         {
@@ -280,7 +280,7 @@ public IEnumerator<Vector2i> FindPath (Vector2i start, Vector2i end)
             int furthestIndexOnCleanPath = i + 1;
             Debug.Assert (indexOfWrite <= furthestIndexOnCleanPath);
             Debug.Assert (this.isPathNavigable (anchor, this.finalPath[i + 1]));
-    
+
             for (int j = i + 2; j < this.finalPathLength; ++j)
                 {
                 var current = this.finalPath[j];
@@ -296,7 +296,7 @@ public IEnumerator<Vector2i> FindPath (Vector2i start, Vector2i end)
             }
         this.finalPathLength = indexOfWrite;
         }
-    
+
     return new FinalPathReversedEnumerator (this.finalPath, this.finalPathLength);
     }
 
@@ -307,14 +307,14 @@ class FinalPathForwardEnumerator : IEnumerator<Vector2i>
     internal Vector2i[] path;
     internal int pathLength;
     private int iteratorPosition;
-    
+
     public FinalPathForwardEnumerator (Vector2i[] finalPath, int finalPathLength)
         {
         this.path = finalPath;
         this.pathLength = finalPathLength;
         this.Reset();
         }
-    
+
     public Vector2i Current
         {
         get
@@ -322,7 +322,7 @@ class FinalPathForwardEnumerator : IEnumerator<Vector2i>
             return this.path[iteratorPosition];
             }
         }
-    
+
     object System.Collections.IEnumerator.Current
         {
         get
@@ -330,17 +330,17 @@ class FinalPathForwardEnumerator : IEnumerator<Vector2i>
             return Current;
             }
         }
-    
+
     public void Dispose()
         {
         throw new NotImplementedException();
         }
-    
+
     public bool MoveNext()
         {
         return ++this.iteratorPosition < this.pathLength;
         }
-    
+
     public void Reset()
         {
         this.iteratorPosition = -1;
@@ -418,14 +418,14 @@ private IEnumerator<Vector2i> planSimplePathStartingWithX (Vector2i start, Vecto
     this.finalPathLength = index;
     return this.planSimplePath_cleanAnglesAndValidate (end);
     }
-    
+
 
 
 
 private IEnumerator<Vector2i> planSimplePathStartingWithY (Vector2i start, Vector2i end)
     {
     int index = 0, steps;
-        
+
     int y = start.y;
     int dy = (end.y < start.y) ? -this.TileSize : +this.TileSize;
     steps = (end.y - start.y) / dy;
@@ -492,7 +492,7 @@ private IEnumerator<Vector2i> planSimplePath_cleanAnglesAndValidate (Vector2i en
         i = furthestIndexOnCleanPath;
         }
     this.finalPathLength = indexOfWrite;
-    
+
     var pathEnd = this.finalPath[this.finalPathLength - 1];
     var distanceXFirst = pathEnd.DistanceManhattan (end);
     if (distanceXFirst == 0)
@@ -504,7 +504,7 @@ private IEnumerator<Vector2i> planSimplePath_cleanAnglesAndValidate (Vector2i en
         return null;
         }
     }
-    
+
 
 
 
@@ -799,4 +799,3 @@ private int getIndexOfNode (Vector2i nodePosition)
     }
 }
 }
-

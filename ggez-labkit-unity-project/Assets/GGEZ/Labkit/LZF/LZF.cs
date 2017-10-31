@@ -1,26 +1,26 @@
 ﻿/*
  * Improved version to C# LibLZF Port:
  * Copyright (c) 2010 Roman Atachiants <kelindar@gmail.com>
- * 
+ *
  * Original CLZF Port:
  * Copyright (c) 2005 Oren J. Maurice <oymaurice@hazorea.org.il>
- * 
+ *
  * Original LibLZF Library & Algorithm:
  * Copyright (c) 2000-2008 Marc Alexander Lehmann <schmorp@schmorp.de>
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modifica-
  * tion, are permitted provided that the following conditions are met:
- * 
+ *
  *   1.  Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
- * 
+ *
  *   2.  Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- * 
+ *
  *   3.  The name of the author may not be used to endorse or promote products
  *       derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MER-
  * CHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
@@ -38,7 +38,7 @@ namespace Lzf
 {
 
     /// <summary>
-    /// Improved C# LZF Compressor, a very small data compression library. The compression algorithm is extremely fast. 
+    /// Improved C# LZF Compressor, a very small data compression library. The compression algorithm is extremely fast.
 
     /// </summary>
     public sealed class LZF
@@ -130,7 +130,7 @@ namespace Lzf
                         output[oidx++] = (byte)off;
 
                         iidx += len - 1;
-                        hval = (uint)(((input[iidx]) << 8) | input[iidx + 1]); 
+                        hval = (uint)(((input[iidx]) << 8) | input[iidx + 1]);
 
                         hval = (hval << 8) | input[iidx + 2];
                         HashTable[((hval ^ (hval << 5)) >> (int)(((3 * 8 - HLOG)) - hval * 5) & (HSIZE - 1))] = iidx;
@@ -248,4 +248,3 @@ namespace Lzf
 
     }
 }
-
