@@ -7,15 +7,15 @@ using GGEZ;
 public class %NEWASSETNAME%SettingsEditor : Editor
 {
 public override void OnInspectorGUI ()
-	{
+    {
     %NEWASSETNAME%Settings t = this.target as %NEWASSETNAME%Settings;
     if (t == null)
         {
         return;
         }
-	GUI.changed = false;
+    GUI.changed = false;
 
-	GUILayout.Label ("%NEWASSETNAME% Settings", EditorStyles.boldLabel);
+    GUILayout.Label ("%NEWASSETNAME% Settings", EditorStyles.boldLabel);
     this.DrawDefaultInspector ();
 
     if (GUI.changed)

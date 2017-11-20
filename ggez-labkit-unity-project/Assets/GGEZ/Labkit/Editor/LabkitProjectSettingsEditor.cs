@@ -1,10 +1,10 @@
 // This is free and unencumbered software released into the public domain.
-// 
+//
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
 // binary, for any purpose, commercial or non-commercial, and by any
 // means.
-// 
+//
 // In jurisdictions that recognize copyright laws, the author or authors
 // of this software dedicate any and all copyright interest in the
 // software to the public domain. We make this dedication for the benefit
@@ -12,7 +12,7 @@
 // successors. We intend this dedication to be an overt act of
 // relinquishment in perpetuity of all present and future rights to this
 // software under copyright law.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
@@ -20,7 +20,7 @@
 // OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
-// 
+//
 // For more information, please refer to <http://unlicense.org/>
 
 using UnityEngine;
@@ -45,7 +45,7 @@ void OnDisable ()
     }
 
 public override void OnInspectorGUI ()
-	{
+    {
     LabkitProjectSettings t = this.target as LabkitProjectSettings;
     if (t == null)
         {
@@ -55,11 +55,11 @@ public override void OnInspectorGUI ()
     t.name = "Labkit Settings";
 
     var serializedObject = new SerializedObject (t);
-	GUI.changed = false;
+    GUI.changed = false;
     bool anythingChanged = false;
 
     //-----------------------------------------------------------------------------------
-	GUILayout.Label ("Asset Processing", EditorStyles.boldLabel);
+    GUILayout.Label ("Asset Processing", EditorStyles.boldLabel);
     //-----------------------------------------------------------------------------------
 
     t.TextureDefaults = (LabkitProjectSettings_TextureDefaults)EditorGUILayout.EnumPopup ("Texture Defaults", t.TextureDefaults);
@@ -68,7 +68,7 @@ public override void OnInspectorGUI ()
     bool inPixelPerfect2DMode = t.TextureDefaults == LabkitProjectSettings_TextureDefaults.PixelPerfect2D;
 
     //-----------------------------------------------------------------------------------
-	GUILayout.Label ("2D", EditorStyles.boldLabel, GUILayout.MinWidth (100f));
+    GUILayout.Label ("2D", EditorStyles.boldLabel, GUILayout.MinWidth (100f));
     //-----------------------------------------------------------------------------------
     GUILayout.BeginHorizontal ();
     GUILayout.Label ("Pixels Per Unit", GUILayout.ExpandWidth (true));
@@ -80,7 +80,7 @@ public override void OnInspectorGUI ()
 
 
     //-----------------------------------------------------------------------------------
-	GUILayout.Label ("Rendering", EditorStyles.boldLabel);
+    GUILayout.Label ("Rendering", EditorStyles.boldLabel);
     //-----------------------------------------------------------------------------------
     UnityEditor.PlayerSettings.colorSpace = (ColorSpace)EditorGUILayout.EnumPopup ("Color Space", UnityEditor.PlayerSettings.colorSpace);
     if (UnityEditor.PlayerSettings.colorSpace == ColorSpace.Linear)
@@ -90,7 +90,7 @@ public override void OnInspectorGUI ()
         }
 
     //-----------------------------------------------------------------------------------
-	GUILayout.Label ("Development", EditorStyles.boldLabel);
+    GUILayout.Label ("Development", EditorStyles.boldLabel);
     //-----------------------------------------------------------------------------------
     EditorGUILayout.PropertyField (serializedObject.FindProperty ("BreakNonPowerOfTwoTextures"));
     if (inPixelPerfect2DMode && !t.BreakNonPowerOfTwoTextures)
@@ -104,7 +104,7 @@ public override void OnInspectorGUI ()
     t.MetaFilesInVersionControl = EditorGUILayout.Toggle ("Meta Files in Version Control", t.MetaFilesInVersionControl);
 
     //-----------------------------------------------------------------------------------
-	GUILayout.Label ("Optimization", EditorStyles.boldLabel);
+    GUILayout.Label ("Optimization", EditorStyles.boldLabel);
     //-----------------------------------------------------------------------------------
     anythingChanged = anythingChanged || GUI.changed;
     GUI.changed = false;
