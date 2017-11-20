@@ -27,8 +27,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+namespace GGEZ
+{
 
-[ExecuteInEditMode]
+//----------------------------------------------------------------------
+// Replaces the normal CanvasScaler 
+//----------------------------------------------------------------------
+[ExecuteInEditMode, RequireComponent (typeof(Canvas)), RequireComponent (typeof(RectTransform))]
 public class CanvasScalerWorldSpace : MonoBehaviour
 {
 
@@ -83,4 +88,7 @@ void Update ()
     canvas.scaleFactor = 1f;
     canvas.referencePixelsPerUnit = this.ReferencePixelsPerUnit;
     }
+}
+
+
 }

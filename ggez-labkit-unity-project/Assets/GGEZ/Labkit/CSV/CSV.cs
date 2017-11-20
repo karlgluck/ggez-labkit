@@ -148,7 +148,7 @@ internal static GetCsvCell _readCsv (string text, out int length, bool transpose
 public static object CsvEntryToObject (int index, GetCsvCell getCsvCell, Type type)
     {
     var retval = Activator.CreateInstance (type);
-    var fields = type.GetFields (BindingFlags.Public | BindingFlags.SetField | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+    var fields = type.GetFields (BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
     foreach (FieldInfo field in fields)
         {
         if (field.FieldType.IsArray)
