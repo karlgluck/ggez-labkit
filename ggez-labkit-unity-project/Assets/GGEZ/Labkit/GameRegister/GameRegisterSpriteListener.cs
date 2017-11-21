@@ -28,36 +28,65 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Events;
+
 namespace GGEZ
 {
+
+
+
+
+//----------------------------------------------------------------------
+[Serializable]
+public class UnityEventForGameRegisterSpriteListener : UnityEvent<Sprite>
+{
+}
 
 
 
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [
-AddComponentMenu ("GGEZ/Game Event Listener")
+AddComponentMenu ("GGEZ/Game Register Listener/Sprite")
 ]
-public class GameEventListener : MonoBehaviour
+public class GameRegisterSpriteListener : MonoBehaviour
 {
 
 
 
-#region Serialized
-[Header ("Serialized")]
-[SerializeField] private GameEvent gameEventIn;
-[SerializeField] private UnityEvent didChange;
-#endregion
+
+[SerializeField] private GameRegisterSprite spriteRegister;
+[SerializeField] private UnityEventForGameRegisterSpriteListener didChange;
+
+
+
+// Provided for convenience. If you only need to access the value in
+// the register and don't need change notifications, just create the
+// reference directly.
+public Sprite Value
+    {
+    get
+        {
+        return this.spriteRegister.Value;
+        }
+    set
+        {
+        this.spriteRegister.Value = value;
+        }
+    }
 
 
 
 
 void OnEnable ()
     {
-    if (this.gameEventIn != null)
+    Debug.Log ("listener.OnEnable");
+    if (this.spriteRegister != null)
         {
-        this.gameEventIn.RegisterListener (this);
+        this.spriteRegister.RegisterListener (this);
         }
+#if UNITY_EDITOR
+    this.registeredGameRegisterIn = this.spriteRegister;
+#endif
     }
 
 
@@ -65,58 +94,49 @@ void OnEnable ()
 
 void OnDisable ()
     {
-    if (this.gameEventIn != null)
+    if (this.spriteRegister != null)
         {
-        this.gameEventIn.UnregisterListener (this);
+        this.spriteRegister.UnregisterListener (this);
         }
+#if UNITY_EDITOR
+    this.registeredGameRegisterIn = null;
+#endif
     }
 
 
 
 
-public void OnDidTrigger ()
+public void OnDidChange (Sprite newValue)
     {
-    this.didChange.Invoke ();
+    this.didChange.Invoke (newValue);
     }
 
 
 
 
 //----------------------------------------------------------------------
-// Handle the Unity Editor changing gameEventIn from the inspector
+// Handle the Unity Editor changing gameEspriteRegister in the inspector
 //----------------------------------------------------------------------
 #if UNITY_EDITOR
 #region Editor Runtime
 [Header ("Editor Runtime")]
-private GameEvent lastGameEventIn;
+private GameRegisterSprite registeredGameRegisterIn;
 
 
 
 
 void OnValidate ()
     {
-    this.validateGameEventIn ();
+    if (this.registeredGameRegisterIn != null
+            && !object.ReferenceEquals (this.registeredGameRegisterIn, this.spriteRegister))
+        {
+        this.registeredGameRegisterIn.UnregisterListener (this);
+        this.registeredGameRegisterIn = this.spriteRegister;
+        this.spriteRegister.RegisterListener (this);
+        }
     }
 
 
-
-
-private void validateGameEventIn ()
-    {
-    if (object.ReferenceEquals (this.gameEventIn, this.lastGameEventIn))
-        {
-        return;
-        }
-    if (this.lastGameEventIn != null)
-        {
-        this.lastGameEventIn.UnregisterListener (this);
-        }
-    if (this.gameEventIn != null)
-        {
-        this.gameEventIn.RegisterListener (this);
-        }
-    this.lastGameEventIn = this.gameEventIn;
-    }
 
 #endregion
 #endif

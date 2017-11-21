@@ -25,51 +25,65 @@
 
 using UnityEngine;
 using UnityEditor;
+using System.Reflection;
+using System.Collections;
 
 namespace GGEZ
 {
-[CustomEditor(typeof (GameEventListener))]
-public class GameEventListenerEditor : Editor
+
+
+
+[
+CustomEditor(typeof (GameRegister), true),
+CanEditMultipleObjects
+]
+public class GameRegisterEditor : Editor
 {
+private SerializedProperty initialValue;
+private SerializedProperty runtimeValue;
 
-
-
-
-private SerializedProperty gameEventIn;
-private SerializedProperty didChange;
-
-
-
+private FieldInfo listenersField;
 
 void OnEnable ()
     {
-    this.gameEventIn = this.serializedObject.FindProperty ("gameEventIn");
-    this.didChange = this.serializedObject.FindProperty ("didChange");
+    this.initialValue = this.serializedObject.FindProperty ("initialValue");
+    this.runtimeValue = this.serializedObject.FindProperty ("runtimeValue");
+    this.listenersField =
+            this.targets.Length == 1
+            ? this.target.GetType ().GetField ("listeners", BindingFlags.NonPublic | BindingFlags.Instance)
+            : null;
     }
-
-
 
 
 public override void OnInspectorGUI ()
     {
-    EditorGUILayout.PropertyField (this.gameEventIn);
-    EditorGUILayout.PropertyField (this.didChange);
+    this.serializedObject.UpdateIfRequiredOrScript ();
+
+    if (this.initialValue != null)
+        {
+        EditorGUILayout.PropertyField (this.initialValue);
+        }
 
     EditorGUI.BeginDisabledGroup (!Application.isPlaying);
-    if (GUILayout.Button ("Trigger"))
+
+    if (this.runtimeValue != null)
         {
-        foreach (Object targetObject in this.serializedObject.targetObjects)
-            {
-            ((GameEventListener)targetObject).OnDidTrigger ();
-            }
+        EditorGUILayout.PropertyField (this.runtimeValue);
         }
-    EditorGUI.EndDisabledGroup ();
+
+    if (this.listenersField != null)
+        {
+        var listeners = this.listenersField.GetValue (this.target) as ICollection;
+        if (listeners != null)
+            {
+            EditorGUILayout.LabelField ("Listeners", listeners.Count.ToString ());
+            }
+        EditorGUI.EndDisabledGroup ();
+        }
+
+    EditorGUILayout.Space ();
 
     this.serializedObject.ApplyModifiedProperties ();
     }
-
-
-
-
 }
 }

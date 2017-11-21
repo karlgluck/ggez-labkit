@@ -25,51 +25,57 @@
 
 using UnityEngine;
 using UnityEditor;
+using System.IO;
 
 namespace GGEZ
 {
-[CustomEditor(typeof (GameEventListener))]
-public class GameEventListenerEditor : Editor
+namespace Labkit
 {
 
 
+public static class CreateNewGameRegisterType
+{
 
-
-private SerializedProperty gameEventIn;
-private SerializedProperty didChange;
-
-
-
-
-void OnEnable ()
+[MenuItem ("Labkit/Create/Game Register Type")]
+static void LabkitNewGameRegisterType ()
     {
-    this.gameEventIn = this.serializedObject.FindProperty ("gameEventIn");
-    this.didChange = this.serializedObject.FindProperty ("didChange");
-    }
 
-
-
-
-public override void OnInspectorGUI ()
-    {
-    EditorGUILayout.PropertyField (this.gameEventIn);
-    EditorGUILayout.PropertyField (this.didChange);
-
-    EditorGUI.BeginDisabledGroup (!Application.isPlaying);
-    if (GUILayout.Button ("Trigger"))
+    string path = EditorUtility.SaveFilePanelInProject (
+            "New Game Register Type",
+            "type.cs",
+            "cs",
+            "Name the source file <type>.cs to make the Game Register"
+            );
+    if (string.IsNullOrEmpty (path))
         {
-        foreach (Object targetObject in this.serializedObject.targetObjects)
-            {
-            ((GameEventListener)targetObject).OnDidTrigger ();
-            }
+        return;
         }
-    EditorGUI.EndDisabledGroup ();
 
-    this.serializedObject.ApplyModifiedProperties ();
+
+    string type = System.IO.Path.GetFileNameWithoutExtension (path);
+    string upperType = type.Substring (0, 1).ToUpper () + type.Substring (1);
+    string lowerType = type.Substring (0, 1).ToLower () + type.Substring (1);
+    Debug.LogFormat ("Creating {0}Register for data of type {1}", upperType, type);
+
+    string directory = Path.GetDirectoryName (path);
+
+    LabkitEditorUtility.WriteFileUsingTemplate (
+            "GameRegister_So",
+            Path.Combine (directory, upperType + "Register.cs"),
+            "%TYPE% " + type,
+            "%UPPERTYPE% " + upperType,
+            "%LOWERTYPE% " + lowerType
+            );
+
+    LabkitEditorUtility.WriteFileUsingTemplate (
+            "GameRegisterListener_Mb",
+            Path.Combine (directory, upperType + "RegisterListener.cs"),
+            "%TYPE% " + type,
+            "%UPPERTYPE% " + upperType,
+            "%LOWERTYPE% " + lowerType
+            );
     }
-
-
-
+}
 
 }
 }

@@ -28,36 +28,63 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Events;
+
 namespace GGEZ
 {
+
+
+
+
+//----------------------------------------------------------------------
+[Serializable]
+public class UnityEventForGameRegisterGameObjectListener : UnityEvent<GameObject>
+{
+}
 
 
 
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [
-AddComponentMenu ("GGEZ/Game Event Listener")
+AddComponentMenu ("GGEZ/Game Register Listener/GameObject")
 ]
-public class GameEventListener : MonoBehaviour
+public class GameRegisterGameObjectListener : MonoBehaviour
 {
 
 
+[SerializeField] private GameRegisterGameObject gameObjectRegister;
+[SerializeField] private UnityEventForGameRegisterGameObjectListener didChange;
 
-#region Serialized
-[Header ("Serialized")]
-[SerializeField] private GameEvent gameEventIn;
-[SerializeField] private UnityEvent didChange;
-#endregion
+
+
+// Provided for convenience. If you only need to access the value in
+// the register and don't need change notifications, just create the
+// reference directly.
+public GameObject Value
+    {
+    get
+        {
+        return this.gameObjectRegister.Value;
+        }
+    set
+        {
+        this.gameObjectRegister.Value = value;
+        }
+    }
 
 
 
 
 void OnEnable ()
     {
-    if (this.gameEventIn != null)
+    Debug.Log ("listener.OnEnable");
+    if (this.gameObjectRegister != null)
         {
-        this.gameEventIn.RegisterListener (this);
+        this.gameObjectRegister.RegisterListener (this);
         }
+#if UNITY_EDITOR
+    this.registeredGameRegisterIn = this.gameObjectRegister;
+#endif
     }
 
 
@@ -65,58 +92,49 @@ void OnEnable ()
 
 void OnDisable ()
     {
-    if (this.gameEventIn != null)
+    if (this.gameObjectRegister != null)
         {
-        this.gameEventIn.UnregisterListener (this);
+        this.gameObjectRegister.UnregisterListener (this);
         }
+#if UNITY_EDITOR
+    this.registeredGameRegisterIn = null;
+#endif
     }
 
 
 
 
-public void OnDidTrigger ()
+public void OnDidChange (GameObject newValue)
     {
-    this.didChange.Invoke ();
+    this.didChange.Invoke (newValue);
     }
 
 
 
 
 //----------------------------------------------------------------------
-// Handle the Unity Editor changing gameEventIn from the inspector
+// Handle the Unity Editor changing gameEgameObjectRegister in the inspector
 //----------------------------------------------------------------------
 #if UNITY_EDITOR
 #region Editor Runtime
 [Header ("Editor Runtime")]
-private GameEvent lastGameEventIn;
+private GameRegisterGameObject registeredGameRegisterIn;
 
 
 
 
 void OnValidate ()
     {
-    this.validateGameEventIn ();
+    if (this.registeredGameRegisterIn != null
+            && !object.ReferenceEquals (this.registeredGameRegisterIn, this.gameObjectRegister))
+        {
+        this.registeredGameRegisterIn.UnregisterListener (this);
+        this.registeredGameRegisterIn = this.gameObjectRegister;
+        this.gameObjectRegister.RegisterListener (this);
+        }
     }
 
 
-
-
-private void validateGameEventIn ()
-    {
-    if (object.ReferenceEquals (this.gameEventIn, this.lastGameEventIn))
-        {
-        return;
-        }
-    if (this.lastGameEventIn != null)
-        {
-        this.lastGameEventIn.UnregisterListener (this);
-        }
-    if (this.gameEventIn != null)
-        {
-        this.gameEventIn.RegisterListener (this);
-        }
-    this.lastGameEventIn = this.gameEventIn;
-    }
 
 #endregion
 #endif
