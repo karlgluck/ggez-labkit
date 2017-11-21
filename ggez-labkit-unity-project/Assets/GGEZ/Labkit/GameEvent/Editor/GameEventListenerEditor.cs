@@ -43,16 +43,7 @@ void OnEnable ()
 
 public override void OnInspectorGUI ()
     {
-    var t = (GameEventListener)target;
-
-    EditorGUI.BeginChangeCheck ();
-    var previousValue = (GameEvent)this.gameEventIn.objectReferenceValue;
     EditorGUILayout.PropertyField (this.gameEventIn);
-    if (EditorGUI.EndChangeCheck ())
-        {
-        previousValue.UnregisterListener (t);
-        }
-
     EditorGUILayout.PropertyField (this.unityEventOut);
 
     EditorGUI.BeginDisabledGroup (!Application.isPlaying);
@@ -61,6 +52,8 @@ public override void OnInspectorGUI ()
         t.OnDidTrigger ();
         }
     EditorGUI.EndDisabledGroup ();
+
+    this.serializedObject.ApplyModifiedProperties ();
     }
 }
 }
