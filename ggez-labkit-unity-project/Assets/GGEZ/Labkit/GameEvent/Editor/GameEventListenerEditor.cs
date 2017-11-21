@@ -23,73 +23,44 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
 using UnityEngine;
-using System.Collections.Generic;
-using UnityEngine.Events;
+using UnityEditor;
 
 namespace GGEZ
 {
-
-
-// the UI (or something else) calls GameEvent.Trigger
-// GameEvent.Trigger invokes GameEventListener.OnDidTrigger
-
-// MultiChannel.Trigger ("name")
-
-// Channel.Send invokes Receiver.OnDidReceive
-//----------------------------------------------------------------------
-// Helper class for binding events through prefabs, scenes and assets.
-//
-// Objects call GameEvent.Trigger
-//----------------------------------------------------------------------
-[CreateAssetMenu (fileName = "New Game Event.asset", menuName="GGEZ/Game Event")]
-public class GameEvent : ScriptableObject
+[CustomEditor(typeof (GameEventListener))]
+public class GameEventListenerEditor : Editor
 {
 
+private SerializedProperty gameEventIn;
+private SerializedProperty unityEventOut;
 
-#region Runtime
-private List<GameEventListener> listeners = new List<GameEventListener>();
-#endregion
-
-
-
-
-public void RegisterListener (GameEventListener listener)
+void OnEnable ()
     {
-    if (listener == null)
-        {
-        throw new ArgumentNullException ("listener");
-        }
-    this.listeners.Add (listener);
+    this.gameEventIn = this.serializedObject.FindProperty ("gameEventIn");
+    this.unityEventOut = this.serializedObject.FindProperty ("unityEventOut");
     }
 
-
-
-
-public void UnregisterListener (GameEventListener listener)
+public override void OnInspectorGUI ()
     {
-    if (listener == null)
+    var t = (GameEventListener)target;
+
+    EditorGUI.BeginChangeCheck ();
+    var previousValue = (GameEvent)this.gameEventIn.objectReferenceValue;
+    EditorGUILayout.PropertyField (this.gameEventIn);
+    if (EditorGUI.EndChangeCheck ())
         {
-        throw new ArgumentNullException ("listener");
+        previousValue.UnregisterListener (t);
         }
-    this.listeners.Remove (listener);
-    }
 
+    EditorGUILayout.PropertyField (this.unityEventOut);
 
-
-
-public void Trigger ()
-    {
-    for (int i = this.listeners.Count - 1; i >= 0; --i)
+    EditorGUI.BeginDisabledGroup (!Application.isPlaying);
+    if (GUILayout.Button ("Trigger"))
         {
-        this.listeners[i].OnDidTrigger ();
+        t.OnDidTrigger ();
         }
+    EditorGUI.EndDisabledGroup ();
     }
-
-
-
-
 }
-
 }

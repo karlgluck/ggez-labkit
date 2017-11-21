@@ -31,7 +31,9 @@ using System.Collections.Generic;
 namespace GGEZ
 {
 
-[CreateAssetMenu(fileName = "New Google Spreadsheet.asset", menuName="GGEZ/Google Spreadsheet")]
+[
+CreateAssetMenu(fileName = "New Google Spreadsheet.asset", menuName="GGEZ/Google Spreadsheet")
+]
 public class GoogleSpreadsheetDataSource : ScriptableObject
 {
 public string Url;

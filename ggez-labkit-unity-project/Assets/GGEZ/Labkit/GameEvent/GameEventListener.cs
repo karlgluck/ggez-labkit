@@ -28,41 +28,89 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Events;
-
 namespace GGEZ
 {
 
+
+
+[
+AddComponentMenu ("GGEZ/Game Event Listener")
+]
 public class GameEventListener : MonoBehaviour
 {
 
 
 
-#region Events
-[Header ("Events")]
-public GameEvent GameEventIn;
-public UnityEvent UnityEventOut;
+#region Serialized
+[Header ("Serialized")]
+[SerializeField] private GameEvent gameEventIn;
+[SerializeField] private UnityEvent unityEventOut;
 #endregion
+
+
+
+
+#region Runtime
+[Header ("Runtime")]
+public GameEvent _GameEventIn;
+public GameEvent GameEventIn
+    {
+    get
+        {
+        return this._GameEventIn;
+        }
+    set
+        {
+        if (this._GameEventIn != null)
+            {
+            this._GameEventIn.UnregisterListener (this);
+            }
+        if (value != null)
+            {
+            value.RegisterListener (this);
+            }
+        this._GameEventIn = value;
+        }
+    }
+#endregion
+
+
+
+
+
+void Awake ()
+    {
+    this._GameEventIn = this.gameEventIn;
+    }
+
+
+
+
+void OnValidate ()
+    {
+    this.GameEventIn = this.gameEventIn;
+    }
 
 
 
 
 void OnEnable ()
     {
-    this.GameEventIn.Register (this);
+    this.GameEventIn.RegisterListener (this);
     }
 
 
 
 void OnDisable ()
     {
-    this.GameEventIn.Unregister (this);
+    this.GameEventIn.UnregisterListener (this);
     }
 
 
 
 public void OnDidTrigger ()
     {
-    this.UnityEventOut.Invoke ();
+    this.unityEventOut.Invoke ();
     }
 
 
@@ -70,88 +118,5 @@ public void OnDidTrigger ()
 
 }
 
-// public class Channel<T> : ScriptableObject
-// {
-// private List<Receiver<T>> receivers = new List<Receiver<T>>();
-
-// public void Register (Receiver<T> receiver)
-//     {
-//     if (receiver == null)
-//         {
-//         throw new ArgumentNullException ("receiver");
-//         }
-//     this.receivers.Add (receiver);
-//     }
-
-// public void Unregister (Receiver<T> receiver)
-//     {
-//     if (receiver == null)
-//         {
-//         throw new ArgumentNullException ("receiver");
-//         }
-//     this.receivers.Remove (receiver);
-//     }
-// }
-
-// public class Receiver<T> : MonoBehaviour
-// {
-// public Channel<T> Channel;
-// public UnityEvent<T> UnityEvent;
-
-// void OnEnable ()
-//     {
-//     this.Channel.Register (this);
-//     }
-
-// void OnDisable ()
-//     {
-//     this.Channel.Unregister (this);
-//     }
-
-
-// }
-
-
-// public class MultiChannel : ScriptableObject
-// {
-// private Dictionary<string, List<GameEventListener>> receivers = new Dictionary<string, List<GameEventListener>> ();
-
-// public void Register (string key, GameEventListener receiver)
-//     {
-//     if (key == null)
-//         {
-//         throw new ArgumentNullException ("key");
-//         }
-//     if (receiver == null)
-//         {
-//         throw new ArgumentNullException ("receiver");
-//         }
-//     List<GameEventListener> receiversForKey;
-//     if (!this.receivers.TryGetValue (key, out receiversForKey))
-//         {
-//         receiversForKey = new List<GameEventListener>();
-//         this.receivers.Add (key, receiversForKey);
-//         }
-//     receiversForKey.Add (receiver);
-//     }
-
-// public void Unregister (string key, GameEventListener receiver)
-//     {
-//     if (key == null)
-//         {
-//         throw new ArgumentNullException ("key");
-//         }
-//     if (receiver == null)
-//         {
-//         throw new ArgumentNullException ("receiver");
-//         }
-//     List<GameEventListener> receiversForKey;
-//     if (!this.receivers.TryGetValue (key, out receiversForKey))
-//         {
-//         throw new InvalidOperationException ("key does not exist");
-//         }
-//     receiversForKey.Remove (receiver);
-//     }
-// }
 
 }

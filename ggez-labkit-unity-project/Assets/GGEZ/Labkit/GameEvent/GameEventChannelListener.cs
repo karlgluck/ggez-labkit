@@ -25,71 +25,86 @@
 
 using System;
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Events;
-
 namespace GGEZ
 {
 
 
-// the UI (or something else) calls GameEvent.Trigger
-// GameEvent.Trigger invokes GameEventListener.OnDidTrigger
 
-// MultiChannel.Trigger ("name")
-
-// Channel.Send invokes Receiver.OnDidReceive
-//----------------------------------------------------------------------
-// Helper class for binding events through prefabs, scenes and assets.
-//
-// Objects call GameEvent.Trigger
-//----------------------------------------------------------------------
-[CreateAssetMenu (fileName = "New Game Event.asset", menuName="GGEZ/Game Event")]
-public class GameEvent : ScriptableObject
+[
+AddComponentMenu ("GGEZ/Game Event Channel Listener")
+]
+public class GameEventChannelListener : MonoBehaviour
 {
 
 
-#region Runtime
-private List<GameEventListener> listeners = new List<GameEventListener>();
+
+#region Events
+[Header ("Events")]
+[SerializeField] private GameEventChannel GameEventChannelIn;
+[SerializeField] private UnityEvent UnityEventOut;
+#endregion
+
+#region Key
+[Header ("Key")]
+[SerializeField, Delayed]
+private string _key;
+public string Key
+    {
+    get
+        {
+        return this._key;
+        }
+    set
+        {
+        if (this._key.Equals (value))
+            {
+            this.GameEventChannelIn.UnregisterListener (this);
+            }
+        else
+            {
+            this.GameEventChannelIn.UnregisterListener (this._key, this);
+            }
+        this._key = value;
+        this.GameEventChannelIn.RegisterListener (this._key, this);
+        }
+    }
 #endregion
 
 
 
-
-public void RegisterListener (GameEventListener listener)
+void OnValidate ()
     {
-    if (listener == null)
-        {
-        throw new ArgumentNullException ("listener");
-        }
-    this.listeners.Add (listener);
+    this.Key = this._key;
     }
 
 
 
-
-public void UnregisterListener (GameEventListener listener)
+void OnEnable ()
     {
-    if (listener == null)
-        {
-        throw new ArgumentNullException ("listener");
-        }
-    this.listeners.Remove (listener);
+    this.GameEventChannelIn.RegisterListener (this.Key, this);
     }
 
 
 
-
-public void Trigger ()
+void OnDisable ()
     {
-    for (int i = this.listeners.Count - 1; i >= 0; --i)
-        {
-        this.listeners[i].OnDidTrigger ();
-        }
+    this.GameEventChannelIn.UnregisterListener (this.Key, this);
+    }
+
+
+
+public void OnDidTrigger ()
+    {
+    this.UnityEventOut.Invoke ();
     }
 
 
 
 
 }
+
 
 }

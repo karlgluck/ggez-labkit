@@ -31,7 +31,7 @@ using System.Linq;
 
 namespace GGEZ
 {
-[CreateAssetMenu(fileName = "New Asset Package.asset", menuName="Asset Package Config")]
+[CreateAssetMenu(fileName = "New Asset Package.asset", menuName="GGEZ/Labkit/Asset Package Config")]
 public class AssetPackageConfig : ScriptableObject
 {
 public string AssetPackageName

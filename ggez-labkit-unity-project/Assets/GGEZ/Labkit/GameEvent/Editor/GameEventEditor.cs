@@ -23,73 +23,24 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
 using UnityEngine;
-using System.Collections.Generic;
-using UnityEngine.Events;
+using UnityEditor;
 
 namespace GGEZ
 {
-
-
-// the UI (or something else) calls GameEvent.Trigger
-// GameEvent.Trigger invokes GameEventListener.OnDidTrigger
-
-// MultiChannel.Trigger ("name")
-
-// Channel.Send invokes Receiver.OnDidReceive
-//----------------------------------------------------------------------
-// Helper class for binding events through prefabs, scenes and assets.
-//
-// Objects call GameEvent.Trigger
-//----------------------------------------------------------------------
-[CreateAssetMenu (fileName = "New Game Event.asset", menuName="GGEZ/Game Event")]
-public class GameEvent : ScriptableObject
+[CustomEditor(typeof (GameEvent))]
+public class GameEventEditor : Editor
 {
 
-
-#region Runtime
-private List<GameEventListener> listeners = new List<GameEventListener>();
-#endregion
-
-
-
-
-public void RegisterListener (GameEventListener listener)
+public override void OnInspectorGUI ()
     {
-    if (listener == null)
+    var t = (GameEvent)target;
+    EditorGUI.BeginDisabledGroup (!Application.isPlaying);
+    if (GUILayout.Button ("Trigger"))
         {
-        throw new ArgumentNullException ("listener");
+        t.Trigger ();
         }
-    this.listeners.Add (listener);
+    EditorGUI.EndDisabledGroup ();
     }
-
-
-
-
-public void UnregisterListener (GameEventListener listener)
-    {
-    if (listener == null)
-        {
-        throw new ArgumentNullException ("listener");
-        }
-    this.listeners.Remove (listener);
-    }
-
-
-
-
-public void Trigger ()
-    {
-    for (int i = this.listeners.Count - 1; i >= 0; --i)
-        {
-        this.listeners[i].OnDidTrigger ();
-        }
-    }
-
-
-
-
 }
-
 }
