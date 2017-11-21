@@ -34,11 +34,14 @@ public class GameEventEditor : Editor
 
 public override void OnInspectorGUI ()
     {
-    var t = (GameEvent)target;
     EditorGUI.BeginDisabledGroup (!Application.isPlaying);
+
     if (GUILayout.Button ("Trigger"))
         {
-        t.Trigger ();
+        foreach (Object targetObject in this.serializedObject.targetObjects)
+            {
+            ((GameEvent)targetObject).Trigger ();
+            }
         }
     EditorGUI.EndDisabledGroup ();
     }

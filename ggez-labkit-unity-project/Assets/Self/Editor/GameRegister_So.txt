@@ -27,31 +27,74 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Events;
+using Object = UnityEngine.Object;
 
 namespace GGEZ
 {
 
 
+
 //----------------------------------------------------------------------
-// Helper class for binding events through prefabs, scenes and assets.
-// UnityEvent fields are bound to GameEvent.Trigger on a named asset.
-// GameEventListeners register themselves to a named asset in order
-// to be notified when an event occurs. The GameEventListener then has
-// its own UnityEvent field that dispatches the event.
 //----------------------------------------------------------------------
-[CreateAssetMenu (fileName = "New Game Event.asset", menuName="GGEZ/Game Event")]
-public class GameEvent : ScriptableObject
+[Serializable, CreateAssetMenu (fileName = "New %CAPITALIZEDTYPE% Register.asset", menuName="GGEZ/Game Register/%TYPE%")]
+public class GameRegister%CAPITALIZEDTYPE% : ScriptableObject
 {
 
+[SerializeField] private %TYPE% initialValue;
+
+void Awake ()
+    {
+    this.runtimeValue = this.initialValue;
+    }
+
+void Reset ()
+    {
+    this.runtimeValue = this.initialValue;
+    }
+
+#if UNITY_EDITOR
+void OnValidate ()
+    {
+    if (!Application.isPlaying)
+        {
+        this.runtimeValue = this.initialValue;
+        }
+    }
+#endif
 
 #region Runtime
-private List<GameEventListener> listeners = new List<GameEventListener>();
+private %TYPE% runtimeValue;
+public %TYPE% Value
+    {
+    get
+        {
+        return this.runtimeValue;
+        }
+    set
+        {
+        if (this.runtimeValue.Equals (value))
+            {
+            return;
+            }
+        this.runtimeValue = value;
+        for (int i = this.listeners.Count - 1; i >= 0; --i)
+            {
+            this.listeners[i].OnDidChange (value);
+            }
+        }
+    }
 #endregion
 
 
 
 
-public void RegisterListener (GameEventListener listener)
+private List<GameRegister%CAPITALIZEDTYPE%Listener> listeners = new List<GameRegister%CAPITALIZEDTYPE%Listener>();
+
+
+
+
+
+public void RegisterListener (GameRegister%CAPITALIZEDTYPE%Listener listener)
     {
     if (listener == null)
         {
@@ -63,7 +106,7 @@ public void RegisterListener (GameEventListener listener)
 
 
 
-public void UnregisterListener (GameEventListener listener)
+public void UnregisterListener (GameRegister%CAPITALIZEDTYPE%Listener listener)
     {
     if (listener == null)
         {
@@ -74,18 +117,9 @@ public void UnregisterListener (GameEventListener listener)
 
 
 
-
-public void Trigger ()
-    {
-    for (int i = this.listeners.Count - 1; i >= 0; --i)
-        {
-        this.listeners[i].OnDidTrigger ();
-        }
-    }
-
-
-
-
 }
+
+
+
 
 }

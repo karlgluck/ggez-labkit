@@ -33,6 +33,8 @@ namespace GGEZ
 
 
 
+//----------------------------------------------------------------------
+//----------------------------------------------------------------------
 [
 AddComponentMenu ("GGEZ/Game Event Listener")
 ]
@@ -50,61 +52,25 @@ public class GameEventListener : MonoBehaviour
 
 
 
-#region Runtime
-[Header ("Runtime")]
-public GameEvent _GameEventIn;
-public GameEvent GameEventIn
-    {
-    get
-        {
-        return this._GameEventIn;
-        }
-    set
-        {
-        if (this._GameEventIn != null)
-            {
-            this._GameEventIn.UnregisterListener (this);
-            }
-        if (value != null)
-            {
-            value.RegisterListener (this);
-            }
-        this._GameEventIn = value;
-        }
-    }
-#endregion
-
-
-
-
-
-void Awake ()
-    {
-    this._GameEventIn = this.gameEventIn;
-    }
-
-
-
-
-void OnValidate ()
-    {
-    this.GameEventIn = this.gameEventIn;
-    }
-
-
-
-
 void OnEnable ()
     {
-    this.GameEventIn.RegisterListener (this);
+    if (this.gameEventIn != null)
+        {
+        this.gameEventIn.RegisterListener (this);
+        }
     }
+
 
 
 
 void OnDisable ()
     {
-    this.GameEventIn.UnregisterListener (this);
+    if (this.gameEventIn != null)
+        {
+        this.gameEventIn.UnregisterListener (this);
+        }
     }
+
 
 
 
@@ -112,6 +78,50 @@ public void OnDidTrigger ()
     {
     this.unityEventOut.Invoke ();
     }
+
+
+
+
+//----------------------------------------------------------------------
+// Handle the Unity Editor changing gameEventIn from the inspector
+//----------------------------------------------------------------------
+#if UNITY_EDITOR
+#region Editor Runtime
+[Header ("Editor Runtime")]
+private GameEvent lastGameEventIn;
+
+
+
+
+void OnValidate ()
+    {
+    this.validateGameEventIn ();
+    }
+
+
+
+
+private void validateGameEventIn ()
+    {
+    if (object.ReferenceEquals (this.gameEventIn, this.lastGameEventIn))
+        {
+        return;
+        }
+    if (this.lastGameEventIn != null)
+        {
+        this.lastGameEventIn.UnregisterListener (this);
+        }
+    if (this.gameEventIn != null)
+        {
+        this.gameEventIn.RegisterListener (this);
+        }
+    this.lastGameEventIn = this.gameEventIn;
+    }
+
+#endregion
+#endif
+
+
 
 
 

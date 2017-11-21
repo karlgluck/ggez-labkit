@@ -25,67 +25,117 @@
 
 using System;
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Events;
-
 namespace GGEZ
 {
 
 
+
+
 //----------------------------------------------------------------------
-// Helper class for binding events through prefabs, scenes and assets.
-// UnityEvent fields are bound to GameEvent.Trigger on a named asset.
-// GameEventListeners register themselves to a named asset in order
-// to be notified when an event occurs. The GameEventListener then has
-// its own UnityEvent field that dispatches the event.
+[Serializable]
+public class UnityEventWithGameRegister : UnityEvent<GameRegister>
+{
+}
+
+
+
 //----------------------------------------------------------------------
-[CreateAssetMenu (fileName = "New Game Event.asset", menuName="GGEZ/Game Event")]
-public class GameEvent : ScriptableObject
+//----------------------------------------------------------------------
+[
+AddComponentMenu ("GGEZ/Game Register Listener")
+]
+public class GameRegisterListener : MonoBehaviour
 {
 
 
-#region Runtime
-private List<GameEventListener> listeners = new List<GameEventListener>();
+
+#region Serialized
+[Header ("Serialized")]
+[SerializeField] private GameRegister gameRegisterIn;
+[SerializeField] private UnityEventWithGameRegister unityEventOut;
 #endregion
 
 
 
 
-public void RegisterListener (GameEventListener listener)
+void OnEnable ()
     {
-    if (listener == null)
+    if (this.gameRegisterIn != null)
         {
-        throw new ArgumentNullException ("listener");
+        this.gameRegisterIn.RegisterListener (this);
         }
-    this.listeners.Add (listener);
+    }
+
+
+
+
+void OnDisable ()
+    {
+    if (this.gameRegisterIn != null)
+        {
+        this.gameRegisterIn.UnregisterListener (this);
+        }
+    }
+
+
+
+
+public void OnDidTrigger ()
+    {
+    this.unityEventOut.Invoke ();
     }
 
 
 
 
-public void UnregisterListener (GameEventListener listener)
+//----------------------------------------------------------------------
+// Handle the Unity Editor changing gameEventIn from the inspector
+//----------------------------------------------------------------------
+#if UNITY_EDITOR
+#region Editor Runtime
+[Header ("Editor Runtime")]
+private GameEvent lastGameEventIn;
+
+
+
+
+void OnValidate ()
     {
-    if (listener == null)
-        {
-        throw new ArgumentNullException ("listener");
-        }
-    this.listeners.Remove (listener);
+    this.validateGameEventIn ();
     }
 
 
 
 
-public void Trigger ()
+private void validateGameEventIn ()
     {
-    for (int i = this.listeners.Count - 1; i >= 0; --i)
+    if (object.ReferenceEquals (this.gameRegisterIn, this.lastGameEventIn))
         {
-        this.listeners[i].OnDidTrigger ();
+        return;
         }
+    if (this.lastGameEventIn != null)
+        {
+        this.lastGameEventIn.UnregisterListener (this);
+        }
+    if (this.gameRegisterIn != null)
+        {
+        this.gameRegisterIn.RegisterListener (this);
+        }
+    this.lastGameEventIn = this.gameRegisterIn;
     }
+
+#endregion
+#endif
+
+
 
 
 
 
 }
+
 
 }

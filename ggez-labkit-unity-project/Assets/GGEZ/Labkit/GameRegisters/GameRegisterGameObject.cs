@@ -23,53 +23,34 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
+using System;
 using UnityEngine;
-using UnityEditor;
 
 namespace GGEZ
 {
-[CustomEditor(typeof (GameEventListener))]
-public class GameEventListenerEditor : Editor
+
+
+
+
+
+//----------------------------------------------------------------------
+[Serializable, CreateAssetMenu (fileName = "New GameObject Register.asset", menuName="GGEZ/Game Register/GameObject")]
+public class GameRegisterGameObject : GameRegister
 {
 
+[SerializeField] private GameObject initialValue;
 
-
-
-private SerializedProperty gameEventIn;
-private SerializedProperty unityEventOut;
-
-
-
-
-void OnEnable ()
+protected override object getInitialValue ()
     {
-    this.gameEventIn = this.serializedObject.FindProperty ("gameEventIn");
-    this.unityEventOut = this.serializedObject.FindProperty ("unityEventOut");
+    return this.initialValue;
     }
-
-
-
-
-public override void OnInspectorGUI ()
-    {
-    EditorGUILayout.PropertyField (this.gameEventIn);
-    EditorGUILayout.PropertyField (this.unityEventOut);
-
-    EditorGUI.BeginDisabledGroup (!Application.isPlaying);
-    if (GUILayout.Button ("Trigger"))
-        {
-        foreach (Object targetObject in this.serializedObject.targetObjects)
-            {
-            ((GameEventListener)targetObject).OnDidTrigger ();
-            }
-        }
-    EditorGUI.EndDisabledGroup ();
-
-    this.serializedObject.ApplyModifiedProperties ();
-    }
-
-
 
 
 }
+
+
+
+
+
+
 }

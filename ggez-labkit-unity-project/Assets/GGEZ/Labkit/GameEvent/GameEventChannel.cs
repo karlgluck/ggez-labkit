@@ -126,7 +126,7 @@ public void Trigger (string key)
         }
     for (int i = listenersForKey.Count - 1; i >= 0; --i)
         {
-        listenersForKey[i].OnDidTrigger (key);
+        listenersForKey[i].OnDidTrigger ();
         }
     }
 
