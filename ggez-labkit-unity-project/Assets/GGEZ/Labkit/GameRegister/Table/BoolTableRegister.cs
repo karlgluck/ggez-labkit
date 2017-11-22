@@ -38,12 +38,12 @@ namespace GGEZ
 //----------------------------------------------------------------------
 [
 Serializable,
-CreateAssetMenu (fileName = "New Bool Register Table.asset", menuName="GGEZ/Game Register/[string] -> bool")
+CreateAssetMenu (fileName = "New Bool Table Register.asset", menuName="GGEZ/Game Register/Table/bool Table Register")
 ]
 public class BoolTableRegister : GameTableRegister, ISerializationCallbackReceiver
 {
 
-// The value returned when a listener registers for a nonexistent key
+// The value used when a listener registers for a nonexistent key
 [SerializeField] private bool defaultValue;
 
 
@@ -52,10 +52,12 @@ private Dictionary<string, bool> table = new Dictionary<string, bool>();
 
 #region Serialization
 
-[SerializeField] private List<BoolRegisterTableKeyValuePair> initialTable = new List<BoolRegisterTableKeyValuePair> ();
-[SerializeField] private List<BoolRegisterTableKeyValuePair> runtimeTable = new List<BoolRegisterTableKeyValuePair> ();
+// All the values that the table should start with
+[SerializeField] private List<BoolTableRegisterKeyValuePair> initialTable = new List<BoolTableRegisterKeyValuePair> ();
 
-
+// Values that the table has at runtime only. Entries are cleared out when
+// listeners unregister.
+[SerializeField] private List<BoolTableRegisterKeyValuePair> runtimeTable = new List<BoolTableRegisterKeyValuePair> ();
 
 void ISerializationCallbackReceiver.OnBeforeSerialize ()
     {
@@ -65,7 +67,7 @@ void ISerializationCallbackReceiver.OnBeforeSerialize ()
     this.runtimeTable.Capacity = Mathf.Max (this.runtimeTable.Capacity, runtimeKeys.Count);
     foreach (var key in runtimeKeys)
         {
-        this.runtimeTable.Add (new BoolRegisterTableKeyValuePair (key, this.table[key]));
+        this.runtimeTable.Add (new BoolTableRegisterKeyValuePair (key, this.table[key]));
         }
     }
 
@@ -73,17 +75,32 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
     {
 #if UNITY_EDITOR
 
-    // Clean up the initial table and runtime table keys so that
-    // there are no duplicates or blank/null entries.
+    // Clean up the runtime keys so that the editor never creates
+    // elements or tries to contain values for keys without listeners.
     HashSet<string> runtimeTableKeys = new HashSet<string> ();
-    foreach (var kvp in this.runtimeTable)
+    for (int i = this.runtimeTable.Count - 1; i >= 0; --i)
         {
-        if (string.IsNullOrEmpty(kvp.Name) || runtimeTableKeys.Contains (kvp.Name))
+        var kvp = this.runtimeTable[i];
+        if (string.IsNullOrEmpty(kvp.Name)
+                || runtimeTableKeys.Contains (kvp.Name)
+                || !this.listenersTable.ContainsKey (kvp.Name))
             {
-            kvp.Name = Guid.NewGuid ().ToString ();
+            this.runtimeTable.RemoveAt (i);
+            continue;
             }
         runtimeTableKeys.Add (kvp.Name);
         }
+
+    // Make sure keys with listeners aren't dropped from the runtime table
+    var deletedKeys = new HashSet<string> (this.listenersTable.Keys);
+    deletedKeys.ExceptWith (runtimeTableKeys);
+    foreach (var key in deletedKeys)
+        {
+        this.runtimeTable.Add (new BoolTableRegisterKeyValuePair (key, this[key]));
+        }
+
+    // Clean up initial keys so that there are no duplicates
+    // or null entries. These happen when adding elements.
     HashSet<string> initialTableKeys = new HashSet<string> ();
     foreach (var kvp in this.initialTable)
         {
@@ -94,8 +111,9 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
         initialTableKeys.Add (kvp.Name);
         }
 
-    // Dirty keys are runtime keys with changed values. Newly added
-    // keys don't matter because there are no listeners for them.
+    // Dirty keys are runtime keys with changed values. We only
+    // need to do this in the Editor because the app will change
+    // values through the overloaded accessor.
     this.dirtyKeys.Clear ();
     foreach (var kvp in this.runtimeTable)
         {
@@ -125,9 +143,10 @@ private List<string> dirtyKeys = new List<string> ();
 void Reset ()
     {
     this.table = new Dictionary<string, bool> ();
-    this.initialTable = new List<BoolRegisterTableKeyValuePair> ();
-    this.runtimeTable = new List<BoolRegisterTableKeyValuePair> ();
+    this.initialTable = new List<BoolTableRegisterKeyValuePair> ();
+    this.runtimeTable = new List<BoolTableRegisterKeyValuePair> ();
     this.dirtyKeys.Clear ();
+    this.listenersTable.Clear ();
     }
 
 void OnValidate ()
@@ -205,6 +224,10 @@ private Dictionary<string,List<BoolTableRegisterListener>> listenersTable = new 
 
 public void RegisterListener (string key, BoolTableRegisterListener listener)
     {
+    if (key == null)
+        {
+        throw new ArgumentNullException ("key");
+        }
     if (listener == null)
         {
         throw new ArgumentNullException ("listener");
@@ -232,6 +255,10 @@ public void RegisterListener (string key, BoolTableRegisterListener listener)
 
 public void UnregisterListener (string key, BoolTableRegisterListener listener)
     {
+    if (key == null)
+        {
+        throw new ArgumentNullException ("key");
+        }
     if (listener == null)
         {
         throw new ArgumentNullException ("listener");
@@ -263,7 +290,7 @@ public void UnregisterListener (string key, BoolTableRegisterListener listener)
 // Holds entries saved into the serialized form of the table
 //----------------------------------------------------------------------
 [System.Serializable]
-public class BoolRegisterTableKeyValuePair
+public class BoolTableRegisterKeyValuePair
 {
 
 // By using the value "Name" for the key, Unity's default inspector will
@@ -271,11 +298,11 @@ public class BoolRegisterTableKeyValuePair
 [Delayed] public string Name;
 public bool Value;
 
-public BoolRegisterTableKeyValuePair ()
+public BoolTableRegisterKeyValuePair ()
     {
     }
 
-public BoolRegisterTableKeyValuePair (string key, bool value)
+public BoolTableRegisterKeyValuePair (string key, bool value)
     {
     this.Name = key;
     this.Value = value;

@@ -12,7 +12,5 @@ MonoBehaviour:
   m_Name: New Bool Register Table
   m_EditorClassIdentifier: 
   defaultValue: 0
-  initialTable:
-  - Name: Main Camera
-    Value: 0
+  initialTable: []
   runtimeTable: []

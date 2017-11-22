@@ -36,53 +36,67 @@ namespace GGEZ
 
 
 //----------------------------------------------------------------------
+//----------------------------------------------------------------------
 [Serializable]
-public class UnityEventForBoolRegisterTableListener : UnityEvent<bool>
+public class UnityEventForBoolTableRegisterListener : UnityEvent<bool>
 {
 }
 
 
 
 //----------------------------------------------------------------------
+// Listens for changes to TableRegister[key]. When this component is
+// enabled or the entry changes, all callbacks registered to the Unity
+// Event didChange will be invoked with the new value.
 //----------------------------------------------------------------------
 [
-AddComponentMenu ("GGEZ/Registers/Table/bool Table Listener")
+AddComponentMenu ("GGEZ/Game Register/Table/bool Table Register Listener")
 ]
 public class BoolTableRegisterListener : MonoBehaviour
 {
 
-[SerializeField] private string key;
-[SerializeField] private BoolTableRegister boolRegisterTable;
-[SerializeField] private UnityEventForBoolRegisterTableListener didChange;
+[SerializeField, Delayed] private string key;
+[SerializeField] private BoolTableRegister boolTableRegister;
+[SerializeField] private UnityEventForBoolTableRegisterListener didChange;
 
 
 
-// Provided for convenience. If you only need to access the value in
-// the register and don't need change notifications, just create the
-// reference directly.
-public bool this[string key]
+// Value & Table are for convenience. If you only need to access
+// the register and don't need change notifications, use
+// BoolTableRegister as a serialized member field in your class.
+
+public bool Value
     {
     get
         {
-        return this.boolRegisterTable[key];
+        return this.boolTableRegister[this.key];
         }
     set
         {
-        this.boolRegisterTable[key] = value;
+        this.boolTableRegister[this.key] = value;
+        }
+    }
+
+public BoolTableRegister Table
+    {
+    get
+        {
+        return this.boolTableRegister;
         }
     }
 
 
 
-
 void OnEnable ()
     {
-    if (this.boolRegisterTable != null)
+    if (this.boolTableRegister != null && this.key != null)
         {
-        this.boolRegisterTable.RegisterListener (this.key, this);
+        this.boolTableRegister.RegisterListener (this.key, this);
         }
 #if UNITY_EDITOR
-    this.registeredWith = this.boolRegisterTable;
+    this.previousKey = this.key;
+    this.previousTableRegister = this.boolTableRegister;
+    this.hasBeenEnabled = true;
 #endif
     }
 
@@ -91,12 +105,14 @@ void OnEnable ()
 
 void OnDisable ()
     {
-    if (this.boolRegisterTable != null)
+    if (this.boolTableRegister != null && this.key != null)
         {
-        this.boolRegisterTable.UnregisterListener (this.key, this);
+        this.boolTableRegister.UnregisterListener (this.key, this);
         }
 #if UNITY_EDITOR
-    this.registeredWith = null;
+    this.hasBeenEnabled = false;
+    this.previousKey = null;
+    this.previousTableRegister = null;
 #endif
     }
 
@@ -112,31 +128,34 @@ public void OnDidChange (bool newValue)
 
 
 //----------------------------------------------------------------------
-// Handle the Unity Editor changing gameEboolRegister in the inspector
+// Handle the Editor changing values in the inspector
 //----------------------------------------------------------------------
 #if UNITY_EDITOR
 #region Editor Runtime
-[Header ("Editor Runtime")]
-private string registeredKey;
-private BoolTableRegister registeredWith;
-
-
+private bool hasBeenEnabled;
+private string previousKey;
+private BoolTableRegister previousTableRegister;
 
 
 void OnValidate ()
     {
-    if (this.registeredWith != null
-            && (this.registeredKey.Equals (this.key) ||
-                    !object.ReferenceEquals (this.registeredWith, this.boolRegisterTable)))
+    if (!this.hasBeenEnabled
+            || (object.Equals (this.key, this.previousKey)
+                    && object.ReferenceEquals (this.previousTableRegister, this.boolTableRegister)))
         {
-        this.registeredWith.UnregisterListener (this.registeredKey, this);
-        this.registeredKey = this.key;
-        this.registeredWith = this.boolRegisterTable;
-        this.boolRegisterTable.RegisterListener (this.registeredKey, this);
+        return;
+        }
+    if (this.previousTableRegister != null && this.previousKey != null)
+        {
+        this.previousTableRegister.UnregisterListener (this.previousKey, this);
+        }
+    this.previousKey = this.key;
+    this.previousTableRegister = this.boolTableRegister;
+    if (this.boolTableRegister != null && this.key != null)
+        {
+        this.boolTableRegister.RegisterListener (this.key, this);
         }
     }
-
-
 
 #endregion
 #endif

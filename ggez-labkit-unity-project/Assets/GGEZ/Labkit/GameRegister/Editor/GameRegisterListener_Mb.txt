@@ -83,7 +83,8 @@ void OnEnable ()
         this.%LOWERTYPE%Register.RegisterListener (this);
         }
 #if UNITY_EDITOR
-    this.registeredGameRegisterIn = this.%LOWERTYPE%Register;
+    this.hasBeenEnabled = false;
+    this.previousRegister = this.%LOWERTYPE%Register;
 #endif
     }
 
@@ -97,7 +98,8 @@ void OnDisable ()
         this.%LOWERTYPE%Register.UnregisterListener (this);
         }
 #if UNITY_EDITOR
-    this.registeredGameRegisterIn = null;
+    this.hasBeenEnabled = false;
+    this.previousRegister = null;
 #endif
     }
 
@@ -118,19 +120,26 @@ public void OnDidChange (%TYPE% newValue)
 #if UNITY_EDITOR
 #region Editor Runtime
 [Header ("Editor Runtime")]
-private GameRegister%UPPERTYPE% registeredGameRegisterIn;
+private bool hasBeenEnabled;
+private GameRegister%UPPERTYPE% previousRegister;
 
 
 
 
 void OnValidate ()
     {
-    if (this.registeredGameRegisterIn != null
-            && !object.ReferenceEquals (this.registeredGameRegisterIn, this.%LOWERTYPE%Register))
+    if (this.hasBeenEnabled
+            && !object.ReferenceEquals (this.previousRegister, this.%LOWERTYPE%Register))
         {
-        this.registeredGameRegisterIn.UnregisterListener (this);
-        this.registeredGameRegisterIn = this.%LOWERTYPE%Register;
-        this.%LOWERTYPE%Register.RegisterListener (this);
+        if (this.previousRegister != null)
+            {
+            this.previousRegister.UnregisterListener (this);
+            }
+        this.previousRegister = this.%LOWERTYPE%Register;
+        if (this.%LOWERTYPE%Register != null)
+            {
+            this.%LOWERTYPE%Register.RegisterListener (this);
+            }
         }
     }
 
