@@ -12,4 +12,11 @@ MonoBehaviour:
   m_Name: New Bool Register Table
   m_EditorClassIdentifier: 
   initialValue: 0
-  keyValuePairs: []
+  initialTable:
+  - Name: 3d9972c4-f5b0-4a56-8fb1-7438e8a6c928
+    Value: 1
+  runtimeTable:
+  - Name: 3d9972c4-f5b0-4a56-8fb1-7438e8a6c928
+    Value: 1
+  - Name: Main Camera
+    Value: 1
