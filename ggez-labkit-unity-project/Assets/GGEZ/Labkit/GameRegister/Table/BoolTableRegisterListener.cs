@@ -37,7 +37,7 @@ namespace GGEZ
 
 //----------------------------------------------------------------------
 [Serializable]
-public class UnityEventForGameRegisterBoolListener : UnityEvent<bool>
+public class UnityEventForBoolRegisterTableListener : UnityEvent<bool>
 {
 }
 
@@ -46,30 +46,29 @@ public class UnityEventForGameRegisterBoolListener : UnityEvent<bool>
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [
-AddComponentMenu ("GGEZ/Game Register Listener/bool")
+AddComponentMenu ("GGEZ/Registers/Table/bool Table Listener")
 ]
-public class GameRegisterBoolListener : MonoBehaviour
+public class BoolTableRegisterListener : MonoBehaviour
 {
 
-
-
-[SerializeField] private GameRegisterBool boolRegister;
-[SerializeField] private UnityEventForGameRegisterBoolListener didChange;
+[SerializeField] private string key;
+[SerializeField] private BoolTableRegister boolRegisterTable;
+[SerializeField] private UnityEventForBoolRegisterTableListener didChange;
 
 
 
 // Provided for convenience. If you only need to access the value in
 // the register and don't need change notifications, just create the
 // reference directly.
-public bool Value
+public bool this[string key]
     {
     get
         {
-        return this.boolRegister.Value;
+        return this.boolRegisterTable[key];
         }
     set
         {
-        this.boolRegister.Value = value;
+        this.boolRegisterTable[key] = value;
         }
     }
 
@@ -78,13 +77,12 @@ public bool Value
 
 void OnEnable ()
     {
-    Debug.Log ("listener.OnEnable");
-    if (this.boolRegister != null)
+    if (this.boolRegisterTable != null)
         {
-        this.boolRegister.RegisterListener (this);
+        this.boolRegisterTable.RegisterListener (this.key, this);
         }
 #if UNITY_EDITOR
-    this.registeredGameRegisterIn = this.boolRegister;
+    this.registeredWith = this.boolRegisterTable;
 #endif
     }
 
@@ -93,12 +91,12 @@ void OnEnable ()
 
 void OnDisable ()
     {
-    if (this.boolRegister != null)
+    if (this.boolRegisterTable != null)
         {
-        this.boolRegister.UnregisterListener (this);
+        this.boolRegisterTable.UnregisterListener (this.key, this);
         }
 #if UNITY_EDITOR
-    this.registeredGameRegisterIn = null;
+    this.registeredWith = null;
 #endif
     }
 
@@ -119,19 +117,22 @@ public void OnDidChange (bool newValue)
 #if UNITY_EDITOR
 #region Editor Runtime
 [Header ("Editor Runtime")]
-private GameRegisterBool registeredGameRegisterIn;
+private string registeredKey;
+private BoolTableRegister registeredWith;
 
 
 
 
 void OnValidate ()
     {
-    if (this.registeredGameRegisterIn != null
-            && !object.ReferenceEquals (this.registeredGameRegisterIn, this.boolRegister))
+    if (this.registeredWith != null
+            && (this.registeredKey.Equals (this.key) ||
+                    !object.ReferenceEquals (this.registeredWith, this.boolRegisterTable)))
         {
-        this.registeredGameRegisterIn.UnregisterListener (this);
-        this.registeredGameRegisterIn = this.boolRegister;
-        this.boolRegister.RegisterListener (this);
+        this.registeredWith.UnregisterListener (this.registeredKey, this);
+        this.registeredKey = this.key;
+        this.registeredWith = this.boolRegisterTable;
+        this.boolRegisterTable.RegisterListener (this.registeredKey, this);
         }
     }
 

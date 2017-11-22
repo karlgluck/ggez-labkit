@@ -108,8 +108,8 @@ public void RegisterListener (GameRegister%UPPERTYPE%Listener listener)
         {
         throw new ArgumentNullException ("listener");
         }
-    listener.OnDidChange (this.runtimeValue);
     this.listeners.Add (listener);
+    listener.OnDidChange (this.runtimeValue);
     }
 
 

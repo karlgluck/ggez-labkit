@@ -78,7 +78,6 @@ public %TYPE% Value
 
 void OnEnable ()
     {
-    Debug.Log ("listener.OnEnable");
     if (this.%LOWERTYPE%Register != null)
         {
         this.%LOWERTYPE%Register.RegisterListener (this);
