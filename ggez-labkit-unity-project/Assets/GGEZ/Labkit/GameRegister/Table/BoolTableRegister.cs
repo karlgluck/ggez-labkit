@@ -214,6 +214,59 @@ public bool this[string key]
     }
 
 
+public bool Remove (string key)
+    {
+    List<BoolTableRegisterListener> listeners;
+    bool hasListeners = this.listenersTable.TryGetValue (key, out listeners);
+    if (!hasListeners)
+        {
+        return this.table.Remove (key);
+        }
+    this[key] = this.defaultValue;
+    return true;
+    }
+
+
+
+public Dictionary<string, bool>.Enumerator GetEnumerator ()
+    {
+    return this.table.GetEnumerator ();
+    }
+
+
+
+
+public Dictionary<string,bool>.KeyCollection Keys
+    {
+    get
+        {
+        return this.table.Keys;
+        }
+    }
+
+
+
+
+public ICollection<string> KeysWithListeners
+    {
+    get
+        {
+        return this.listenersTable.Keys;
+        }
+    }
+
+
+
+
+public Dictionary<string,bool>.ValueCollection Values
+    {
+    get
+        {
+        return this.table.Values;
+        }
+    }
+
+
 
 
 private Dictionary<string,List<BoolTableRegisterListener>> listenersTable = new Dictionary<string,List<BoolTableRegisterListener>>();

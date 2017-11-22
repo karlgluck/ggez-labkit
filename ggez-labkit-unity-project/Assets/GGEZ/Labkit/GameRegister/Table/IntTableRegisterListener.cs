@@ -38,7 +38,7 @@ namespace GGEZ
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [Serializable]
-public class UnityEventFor%UPPERNAME%TableRegisterListener : UnityEvent<%CSHARPTYPE%>
+public class UnityEventForIntTableRegisterListener : UnityEvent<int>
 {
 }
 
@@ -50,38 +50,38 @@ public class UnityEventFor%UPPERNAME%TableRegisterListener : UnityEvent<%CSHARPT
 // Event didChange will be invoked with the new value.
 //----------------------------------------------------------------------
 [
-AddComponentMenu ("GGEZ/Game Register/Table/%NAME% Table Register Listener")
+AddComponentMenu ("GGEZ/Game Register/Table/int Table Register Listener")
 ]
-public class %UPPERNAME%TableRegisterListener : MonoBehaviour
+public class IntTableRegisterListener : MonoBehaviour
 {
 
 [SerializeField, Delayed] private string key;
-[SerializeField] private %UPPERNAME%TableRegister %LOWERNAME%TableRegister;
-[SerializeField] private UnityEventFor%UPPERNAME%TableRegisterListener didChange;
+[SerializeField] private IntTableRegister intTableRegister;
+[SerializeField] private UnityEventForIntTableRegisterListener didChange;
 
 
 
 // Value & Table are for convenience. If you only need to access
 // the register and don't need change notifications, use
-// %UPPERNAME%TableRegister as a serialized member field in your class.
+// IntTableRegister as a serialized member field in your class.
 
-public %CSHARPTYPE% Value
+public int Value
     {
     get
         {
-        return this.%LOWERNAME%TableRegister[this.key];
+        return this.intTableRegister[this.key];
         }
     set
         {
-        this.%LOWERNAME%TableRegister[this.key] = value;
+        this.intTableRegister[this.key] = value;
         }
     }
 
-public %UPPERNAME%TableRegister Table
+public IntTableRegister Table
     {
     get
         {
-        return this.%LOWERNAME%TableRegister;
+        return this.intTableRegister;
         }
     }
 
@@ -89,13 +89,13 @@ public %UPPERNAME%TableRegister Table
 
 void OnEnable ()
     {
-    if (this.%LOWERNAME%TableRegister != null && this.key != null)
+    if (this.intTableRegister != null && this.key != null)
         {
-        this.%LOWERNAME%TableRegister.RegisterListener (this.key, this);
+        this.intTableRegister.RegisterListener (this.key, this);
         }
 #if UNITY_EDITOR
     this.previousKey = this.key;
-    this.previousTableRegister = this.%LOWERNAME%TableRegister;
+    this.previousTableRegister = this.intTableRegister;
     this.hasBeenEnabled = true;
 #endif
     }
@@ -105,9 +105,9 @@ void OnEnable ()
 
 void OnDisable ()
     {
-    if (this.%LOWERNAME%TableRegister != null && this.key != null)
+    if (this.intTableRegister != null && this.key != null)
         {
-        this.%LOWERNAME%TableRegister.UnregisterListener (this.key, this);
+        this.intTableRegister.UnregisterListener (this.key, this);
         }
 #if UNITY_EDITOR
     this.hasBeenEnabled = false;
@@ -119,7 +119,7 @@ void OnDisable ()
 
 
 
-public void OnDidChange (%CSHARPTYPE% newValue)
+public void OnDidChange (int newValue)
     {
     this.didChange.Invoke (newValue);
     }
@@ -134,14 +134,14 @@ public void OnDidChange (%CSHARPTYPE% newValue)
 #region Editor Runtime
 private bool hasBeenEnabled;
 private string previousKey;
-private %UPPERNAME%TableRegister previousTableRegister;
+private IntTableRegister previousTableRegister;
 
 
 void OnValidate ()
     {
     if (!this.hasBeenEnabled
             || (object.Equals (this.key, this.previousKey)
-                    && object.ReferenceEquals (this.previousTableRegister, this.%LOWERNAME%TableRegister)))
+                    && object.ReferenceEquals (this.previousTableRegister, this.intTableRegister)))
         {
         return;
         }
@@ -150,10 +150,10 @@ void OnValidate ()
         this.previousTableRegister.UnregisterListener (this.previousKey, this);
         }
     this.previousKey = this.key;
-    this.previousTableRegister = this.%LOWERNAME%TableRegister;
-    if (this.%LOWERNAME%TableRegister != null && this.key != null)
+    this.previousTableRegister = this.intTableRegister;
+    if (this.intTableRegister != null && this.key != null)
         {
-        this.%LOWERNAME%TableRegister.RegisterListener (this.key, this);
+        this.intTableRegister.RegisterListener (this.key, this);
         }
     }
 

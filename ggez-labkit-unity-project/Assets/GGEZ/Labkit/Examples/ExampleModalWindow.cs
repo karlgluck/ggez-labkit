@@ -33,10 +33,9 @@ class ExampleModalEditorWindow : EditorWindow
 public static EditorWindow CreateAndShow ()
     {
     var window = ExampleModalEditorWindow.CreateInstance<ExampleModalEditorWindow> ();
-    var width = Screen.currentResolution.width;
-    var height = Screen.currentResolution.height;
     Vector2 size = new Vector2 (400f, 180f);
-    window.ShowAsDropDown (new Rect (width/2f-size.x/2f, height/2 - size.y/2f, 1f, 1f), size);
+    window.ShowAsDropDown (new Rect (Screen.width/2f-size.x/2f, Screen.height/2 - size.y/2f, 1f, 1f), size);
+    window.titleContent = new GUIContent ("Window Title");
     return window;
     }
 
@@ -47,29 +46,28 @@ protected virtual void OnLostFocus ()
 
 private void OnGUI()
     {
-        const float titleHeight = 35f;
+    const float titleHeight = 35f;
 
-        GUILayout.BeginArea (new Rect(0, 0, this.position.width, this.position.height));
-        GUIStyle titleStyle = new GUIStyle ("Toolbar");
-        titleStyle.fontSize = 12;
-        titleStyle.fontStyle = FontStyle.Bold;
+    GUILayout.BeginArea (new Rect(0, 0, this.position.width, this.position.height));
+    GUIStyle titleStyle = new GUIStyle ("Toolbar");
+    titleStyle.fontSize = 12;
+    titleStyle.fontStyle = FontStyle.Bold;
 
-        titleStyle.alignment = TextAnchor.MiddleCenter;
-        GUILayout.BeginHorizontal (titleStyle, GUILayout.Height (titleHeight));
-        GUILayout.Label (this.titleContent, titleStyle, GUILayout.ExpandWidth (true));
-        GUILayout.EndHorizontal ();
+    titleStyle.alignment = TextAnchor.MiddleCenter;
+    GUILayout.BeginHorizontal (titleStyle, GUILayout.Height (titleHeight));
+    GUILayout.Label (this.titleContent, titleStyle, GUILayout.ExpandWidth (true));
+    GUILayout.EndHorizontal ();
 
-        GUILayout.Space (16f);
+    GUILayout.Space (16f);
 
-        if (GUILayout.Button ("OK"))
+    if (GUILayout.Button ("OK"))
         {
-            GUIUtility.ExitGUI ();
-            this.Close ();
+        this.Close ();
         }
 
-        GUILayout.FlexibleSpace ();
+    GUILayout.FlexibleSpace ();
 
-        GUILayout.EndArea ();
+    GUILayout.EndArea ();
     }
 }
 

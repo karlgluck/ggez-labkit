@@ -38,26 +38,26 @@ namespace GGEZ
 //----------------------------------------------------------------------
 [
 Serializable,
-CreateAssetMenu (fileName = "New %UPPERNAME% Table Register.asset", menuName="GGEZ/Game Register/Table/%NAME% Table Register")
+CreateAssetMenu (fileName = "New GameObject Table Register.asset", menuName="GGEZ/Game Register/Table/GameObject Table Register")
 ]
-public class %UPPERNAME%TableRegister : GameTableRegister, ISerializationCallbackReceiver
+public class GameObjectTableRegister : GameTableRegister, ISerializationCallbackReceiver
 {
 
 // The value used when a listener registers for a nonexistent key
-[SerializeField] private %CSHARPTYPE% defaultValue;
+[SerializeField] private GameObject defaultValue;
 
 
-private Dictionary<string, %CSHARPTYPE%> table = new Dictionary<string, %CSHARPTYPE%>();
+private Dictionary<string, GameObject> table = new Dictionary<string, GameObject>();
 
 
 #region Serialization
 
 // All the values that the table should start with
-[SerializeField] private List<%UPPERNAME%TableRegisterKeyValuePair> initialTable = new List<%UPPERNAME%TableRegisterKeyValuePair> ();
+[SerializeField] private List<GameObjectTableRegisterKeyValuePair> initialTable = new List<GameObjectTableRegisterKeyValuePair> ();
 
 // Values that the table has at runtime only. Entries are cleared out when
 // listeners unregister.
-[SerializeField] private List<%UPPERNAME%TableRegisterKeyValuePair> runtimeTable = new List<%UPPERNAME%TableRegisterKeyValuePair> ();
+[SerializeField] private List<GameObjectTableRegisterKeyValuePair> runtimeTable = new List<GameObjectTableRegisterKeyValuePair> ();
 
 void ISerializationCallbackReceiver.OnBeforeSerialize ()
     {
@@ -67,7 +67,7 @@ void ISerializationCallbackReceiver.OnBeforeSerialize ()
     this.runtimeTable.Capacity = Mathf.Max (this.runtimeTable.Capacity, runtimeKeys.Count);
     foreach (var key in runtimeKeys)
         {
-        this.runtimeTable.Add (new %UPPERNAME%TableRegisterKeyValuePair (key, this.table[key]));
+        this.runtimeTable.Add (new GameObjectTableRegisterKeyValuePair (key, this.table[key]));
         }
     }
 
@@ -96,7 +96,7 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
     deletedKeys.ExceptWith (runtimeTableKeys);
     foreach (var key in deletedKeys)
         {
-        this.runtimeTable.Add (new %UPPERNAME%TableRegisterKeyValuePair (key, this[key]));
+        this.runtimeTable.Add (new GameObjectTableRegisterKeyValuePair (key, this[key]));
         }
 
     // Clean up initial keys so that there are no duplicates
@@ -117,7 +117,7 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
     this.dirtyKeys.Clear ();
     foreach (var kvp in this.runtimeTable)
         {
-        %CSHARPTYPE% value;
+        GameObject value;
         if (this.table.TryGetValue (kvp.Name, out value) && !value.Equals (kvp.Value))
             {
             this.dirtyKeys.Add (kvp.Name);
@@ -142,9 +142,9 @@ private List<string> dirtyKeys = new List<string> ();
 
 void Reset ()
     {
-    this.table = new Dictionary<string, %CSHARPTYPE%> ();
-    this.initialTable = new List<%UPPERNAME%TableRegisterKeyValuePair> ();
-    this.runtimeTable = new List<%UPPERNAME%TableRegisterKeyValuePair> ();
+    this.table = new Dictionary<string, GameObject> ();
+    this.initialTable = new List<GameObjectTableRegisterKeyValuePair> ();
+    this.runtimeTable = new List<GameObjectTableRegisterKeyValuePair> ();
     this.dirtyKeys.Clear ();
     this.listenersTable.Clear ();
     }
@@ -155,7 +155,7 @@ void OnValidate ()
         {
         foreach (var key in this.dirtyKeys)
             {
-            List<%UPPERNAME%TableRegisterListener> listeners;
+            List<GameObjectTableRegisterListener> listeners;
             if (this.listenersTable.TryGetValue (key, out listeners))
                 {
                 var value = this[key];
@@ -183,11 +183,11 @@ void OnValidate ()
 #endregion
 
 
-public %CSHARPTYPE% this[string key]
+public GameObject this[string key]
     {
     get
         {
-        %CSHARPTYPE% value;
+        GameObject value;
         if (this.table.TryGetValue (key, out value))
             {
             return value;
@@ -196,13 +196,13 @@ public %CSHARPTYPE% this[string key]
         }
     set
         {
-        %CSHARPTYPE% currentValue;
+        GameObject currentValue;
         if (this.table.TryGetValue (key, out currentValue) && currentValue.Equals (value))
             {
             return;
             }
         this.table[key] = value;
-        List<%UPPERNAME%TableRegisterListener> listeners;
+        List<GameObjectTableRegisterListener> listeners;
         if (this.listenersTable.TryGetValue (key, out listeners))
             {
             for (int i = listeners.Count - 1; i >= 0; --i)
@@ -216,7 +216,7 @@ public %CSHARPTYPE% this[string key]
 
 public bool Remove (string key)
     {
-    List<%UPPERNAME%TableRegisterListener> listeners;
+    List<GameObjectTableRegisterListener> listeners;
     if (!this.listenersTable.TryGetValue (key, out listeners))
         {
         return this.table.Remove (key);
@@ -228,7 +228,7 @@ public bool Remove (string key)
 
 
 
-public Dictionary<string, %CSHARPTYPE%>.Enumerator GetEnumerator ()
+public Dictionary<string, GameObject>.Enumerator GetEnumerator ()
     {
     return this.table.GetEnumerator ();
     }
@@ -236,7 +236,7 @@ public Dictionary<string, %CSHARPTYPE%>.Enumerator GetEnumerator ()
 
 
 
-public Dictionary<string, %CSHARPTYPE%>.KeyCollection Keys
+public Dictionary<string, GameObject>.KeyCollection Keys
     {
     get
         {
@@ -258,7 +258,7 @@ public ICollection<string> KeysWithListeners
 
 
 
-public Dictionary<string, %CSHARPTYPE%>.ValueCollection Values
+public Dictionary<string, GameObject>.ValueCollection Values
     {
     get
         {
@@ -269,13 +269,13 @@ public Dictionary<string, %CSHARPTYPE%>.ValueCollection Values
 
 
 
-private Dictionary<string,List<%UPPERNAME%TableRegisterListener>> listenersTable = new Dictionary<string,List<%UPPERNAME%TableRegisterListener>>();
+private Dictionary<string,List<GameObjectTableRegisterListener>> listenersTable = new Dictionary<string,List<GameObjectTableRegisterListener>>();
 
 
 
 
 
-public void RegisterListener (string key, %UPPERNAME%TableRegisterListener listener)
+public void RegisterListener (string key, GameObjectTableRegisterListener listener)
     {
     if (key == null)
         {
@@ -285,15 +285,15 @@ public void RegisterListener (string key, %UPPERNAME%TableRegisterListener liste
         {
         throw new ArgumentNullException ("listener");
         }
-    List<%UPPERNAME%TableRegisterListener> listeners;
+    List<GameObjectTableRegisterListener> listeners;
     if (!this.listenersTable.TryGetValue (key, out listeners))
         {
-        listeners = new List<%UPPERNAME%TableRegisterListener> ();
+        listeners = new List<GameObjectTableRegisterListener> ();
         this.listenersTable.Add (key, listeners);
         }
     listeners.Add (listener);
 
-    %CSHARPTYPE% value;
+    GameObject value;
     if (!this.table.TryGetValue (key, out value))
         {
         value = this.defaultValue;
@@ -306,7 +306,7 @@ public void RegisterListener (string key, %UPPERNAME%TableRegisterListener liste
 
 
 
-public void UnregisterListener (string key, %UPPERNAME%TableRegisterListener listener)
+public void UnregisterListener (string key, GameObjectTableRegisterListener listener)
     {
     if (key == null)
         {
@@ -316,7 +316,7 @@ public void UnregisterListener (string key, %UPPERNAME%TableRegisterListener lis
         {
         throw new ArgumentNullException ("listener");
         }
-    List<%UPPERNAME%TableRegisterListener> listeners;
+    List<GameObjectTableRegisterListener> listeners;
     if (this.listenersTable.TryGetValue (key, out listeners))
         {
         listeners.Remove (listener);
@@ -343,19 +343,19 @@ public void UnregisterListener (string key, %UPPERNAME%TableRegisterListener lis
 // Holds entries saved into the serialized form of the table
 //----------------------------------------------------------------------
 [System.Serializable]
-public class %UPPERNAME%TableRegisterKeyValuePair
+public class GameObjectTableRegisterKeyValuePair
 {
 
 // By using the value "Name" for the key, Unity's default inspector will
 // render the text more nicely.
 [Delayed] public string Name;
-public %CSHARPTYPE% Value;
+public GameObject Value;
 
-public %UPPERNAME%TableRegisterKeyValuePair ()
+public GameObjectTableRegisterKeyValuePair ()
     {
     }
 
-public %UPPERNAME%TableRegisterKeyValuePair (string key, %CSHARPTYPE% value)
+public GameObjectTableRegisterKeyValuePair (string key, GameObject value)
     {
     this.Name = key;
     this.Value = value;
