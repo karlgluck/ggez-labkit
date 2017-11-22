@@ -40,11 +40,11 @@ namespace GGEZ
 Serializable,
 CreateAssetMenu (fileName = "New Bool Register Table.asset", menuName="GGEZ/Game Register/[string] -> bool")
 ]
-public class BoolTableRegister : GameRegisterTable, ISerializationCallbackReceiver
+public class BoolTableRegister : GameTableRegister, ISerializationCallbackReceiver
 {
 
 // The value returned when a listener registers for a nonexistent key
-[SerializeField] private bool initialValue;
+[SerializeField] private bool defaultValue;
 
 
 private Dictionary<string, bool> table = new Dictionary<string, bool>();
@@ -53,24 +53,19 @@ private Dictionary<string, bool> table = new Dictionary<string, bool>();
 #region Serialization
 
 [SerializeField] private List<BoolRegisterTableKeyValuePair> initialTable = new List<BoolRegisterTableKeyValuePair> ();
-[SerializeField] private List<BoolRegisterTableKeyValuePair> runtimeTable;
+[SerializeField] private List<BoolRegisterTableKeyValuePair> runtimeTable = new List<BoolRegisterTableKeyValuePair> ();
 
 
 
 void ISerializationCallbackReceiver.OnBeforeSerialize ()
     {
-    if (this.runtimeTable == null)
+    var runtimeKeys = new HashSet<string> (this.listenersTable.Keys);
+    runtimeKeys.IntersectWith (this.table.Keys);
+    this.runtimeTable.Clear ();
+    this.runtimeTable.Capacity = Mathf.Max (this.runtimeTable.Capacity, runtimeKeys.Count);
+    foreach (var key in runtimeKeys)
         {
-        this.runtimeTable = new List<BoolRegisterTableKeyValuePair> (this.table.Count);
-        }
-    else
-        {
-        this.runtimeTable.Clear ();
-        this.runtimeTable.Capacity = this.table.Count;
-        }
-    foreach (var kvp in this.table)
-        {
-        this.runtimeTable.Add (new BoolRegisterTableKeyValuePair (kvp.Key, kvp.Value));
+        this.runtimeTable.Add (new BoolRegisterTableKeyValuePair (key, this.table[key]));
         }
     }
 
@@ -78,9 +73,8 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
     {
 #if UNITY_EDITOR
 
-    this.dirtyKeys.Clear ();
-
-    // Dirty if in runtime set and the value changed
+    // Clean up the initial table and runtime table keys so that
+    // there are no duplicates or blank/null entries.
     HashSet<string> runtimeTableKeys = new HashSet<string> ();
     foreach (var kvp in this.runtimeTable)
         {
@@ -90,22 +84,6 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
             }
         runtimeTableKeys.Add (kvp.Name);
         }
-    var runtimeKeys = new HashSet<string> (runtimeTableKeys);
-    runtimeKeys.IntersectWith (this.listenersTable.Keys);
-    foreach (var kvp in this.runtimeTable)
-        {
-        if (!runtimeKeys.Contains (kvp.Name))
-            {
-            continue;
-            }
-        bool value;
-        if (!this.table.TryGetValue (kvp.Name, out value) || !value.Equals (kvp.Value))
-            {
-            this.dirtyKeys.Add (kvp.Name);
-            }
-        }
-
-    // Dirty if not in initial but not runtime and the value changed
     HashSet<string> initialTableKeys = new HashSet<string> ();
     foreach (var kvp in this.initialTable)
         {
@@ -115,17 +93,14 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
             }
         initialTableKeys.Add (kvp.Name);
         }
-    var initialKeys = new HashSet<string> (initialTableKeys);
-    initialKeys.IntersectWith (this.listenersTable.Keys);
-    initialKeys.ExceptWith (runtimeKeys);
-    foreach (var kvp in this.initialTable)
+
+    // Dirty keys are runtime keys with changed values. Newly added
+    // keys don't matter because there are no listeners for them.
+    this.dirtyKeys.Clear ();
+    foreach (var kvp in this.runtimeTable)
         {
-        if (!initialKeys.Contains (kvp.Name))
-            {
-            continue;
-            }
         bool value;
-        if (!this.table.TryGetValue (kvp.Name, out value) || !value.Equals (kvp.Value))
+        if (this.table.TryGetValue (kvp.Name, out value) && !value.Equals (kvp.Value))
             {
             this.dirtyKeys.Add (kvp.Name);
             }
@@ -159,18 +134,14 @@ void OnValidate ()
     {
     if (Application.isPlaying)
         {
-        Debug.LogFormat ("{0} dirty keys", this.dirtyKeys.Count);
         foreach (var key in this.dirtyKeys)
             {
             List<BoolTableRegisterListener> listeners;
-            Debug.LogFormat ("Listeners for {0}...", key);
             if (this.listenersTable.TryGetValue (key, out listeners))
                 {
-                Debug.LogFormat ("Listeners for {0} = {1}", key, listeners.Count);
                 var value = this[key];
                 for (int i = listeners.Count - 1; i >= 0; --i)
                     {
-                    Debug.LogFormat ("Changed {0}", key);
                     listeners[i].OnDidChange (value);
                     }
                 }
@@ -180,10 +151,6 @@ void OnValidate ()
     else
         {
         this.runtimeTable.Clear ();
-        foreach (var kvp in this.initialTable)
-            {
-            this.runtimeTable.Add (new BoolRegisterTableKeyValuePair (kvp.Name, kvp.Value));
-            }
         this.table.Clear ();
         foreach (var kvp in this.initialTable)
             {
@@ -197,16 +164,6 @@ void OnValidate ()
 #endregion
 
 
-void Awake ()
-    {
-    Debug.Log ("AWAKE");
-    }
-
-void OnEnabled ()
-    {
-    Debug.Log ("ENABLED");
-    }
-
 public bool this[string key]
     {
     get
@@ -216,7 +173,7 @@ public bool this[string key]
             {
             return value;
             }
-        return this.initialValue;
+        return this.defaultValue;
         }
     set
         {
@@ -263,7 +220,8 @@ public void RegisterListener (string key, BoolTableRegisterListener listener)
     bool value;
     if (!this.table.TryGetValue (key, out value))
         {
-        this.table.Add (key, this.initialValue);
+        value = this.defaultValue;
+        this.table.Add (key, value);
         }
 
     listener.OnDidChange (value);
@@ -282,6 +240,10 @@ public void UnregisterListener (string key, BoolTableRegisterListener listener)
     if (this.listenersTable.TryGetValue (key, out listeners))
         {
         listeners.Remove (listener);
+        if (listeners.Count == 0)
+            {
+            this.listenersTable.Remove (key);
+            }
         }
     }
 

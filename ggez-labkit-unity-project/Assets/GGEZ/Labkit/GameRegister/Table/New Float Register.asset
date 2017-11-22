@@ -8,11 +8,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2c2e6779417d8442b44b653d8eab51c, type: 3}
-  m_Name: New Bool Register Table
+  m_Script: {fileID: 11500000, guid: 38bba6c1374364e27b938e7d6cf0c656, type: 3}
+  m_Name: New Float Register
   m_EditorClassIdentifier: 
-  defaultValue: 0
-  initialTable:
-  - Name: Main Camera
-    Value: 0
-  runtimeTable: []
+  initialValue: 0
+  runtimeValue: 0

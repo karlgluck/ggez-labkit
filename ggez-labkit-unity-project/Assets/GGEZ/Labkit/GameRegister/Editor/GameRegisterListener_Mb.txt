@@ -46,21 +46,21 @@ public class UnityEventFor%UPPERTYPE%RegisterListener : UnityEvent<%TYPE%>
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [
-AddComponentMenu ("GGEZ/Game Register Listener/%TYPE%")
+AddComponentMenu ("GGEZ/Game Register Listener/%TYPE% Register Listener")
 ]
-public class GameRegister%UPPERTYPE%Listener : MonoBehaviour
+public class %UPPERTYPE%RegisterListener : MonoBehaviour
 {
 
 
 
-[SerializeField] private GameRegister%UPPERTYPE% %LOWERTYPE%Register;
+[SerializeField] private %UPPERTYPE%Register %LOWERTYPE%Register;
 [SerializeField] private UnityEventFor%UPPERTYPE%RegisterListener didChange;
 
 
 
 // Provided for convenience. If you only need to access the value in
-// the register and don't need change notifications, just create the
-// reference directly.
+// the register and don't need change notifications, just use
+// %UPPERTYPE%Register as a serialized member field in your class.
 public %TYPE% Value
     {
     get

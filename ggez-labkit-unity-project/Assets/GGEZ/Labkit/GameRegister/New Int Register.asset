@@ -11,5 +11,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef63e697c83c5491d8c4381650f9a671, type: 3}
   m_Name: New Int Register
   m_EditorClassIdentifier: 
-  initialValue: 0
-  runtimeValue: 0
+  initialValue: 5
+  runtimeValue: 5

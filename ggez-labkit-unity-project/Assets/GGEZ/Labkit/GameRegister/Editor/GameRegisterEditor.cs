@@ -44,6 +44,8 @@ private SerializedProperty runtimeValue;
 
 private FieldInfo listenersField;
 
+private bool listenersFoldout;
+
 void OnEnable ()
     {
     this.initialValue = this.serializedObject.FindProperty ("initialValue");
@@ -74,9 +76,22 @@ public override void OnInspectorGUI ()
     if (this.listenersField != null)
         {
         var listeners = this.listenersField.GetValue (this.target) as ICollection;
-        if (listeners != null)
+        int numberOfListeners = listeners == null ? 0 : listeners.Count;
+        var controlRect = EditorGUILayout.GetControlRect ();
+        var numberOfListenersRect = new Rect (controlRect);
+        numberOfListenersRect.xMin += EditorGUIUtility.labelWidth;
+        this.listenersFoldout = EditorGUI.Foldout (controlRect, this.listenersFoldout, "Listeners", true);
+        GUI.Label (numberOfListenersRect, numberOfListeners.ToString ());
+        if (this.listenersFoldout && numberOfListeners > 0)
             {
-            EditorGUILayout.LabelField ("Listeners", listeners.Count.ToString ());
+            EditorGUI.BeginDisabledGroup (true);
+            EditorGUI.indentLevel++;
+            foreach (MonoBehaviour mb in listeners)
+                {
+                EditorGUI.ObjectField (EditorGUILayout.GetControlRect (), mb, typeof(MonoBehaviour), true);
+                }
+            EditorGUI.indentLevel--;
+            EditorGUI.EndDisabledGroup ();
             }
         EditorGUI.EndDisabledGroup ();
         }
