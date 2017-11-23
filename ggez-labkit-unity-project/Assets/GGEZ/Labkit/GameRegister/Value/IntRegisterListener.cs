@@ -37,7 +37,7 @@ namespace GGEZ
 
 //----------------------------------------------------------------------
 [Serializable]
-public class UnityEventFor%UPPERNAME%RegisterListener : UnityEvent<%CSHARPTYPE%>
+public class UnityEventForIntRegisterListener : UnityEvent<int>
 {
 }
 
@@ -46,30 +46,30 @@ public class UnityEventFor%UPPERNAME%RegisterListener : UnityEvent<%CSHARPTYPE%>
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [
-AddComponentMenu ("GGEZ/Game Register Listener/%NAME% Register Listener")
+AddComponentMenu ("GGEZ/Game Register Listener/int Register Listener")
 ]
-public class %UPPERNAME%RegisterListener : MonoBehaviour
+public class IntRegisterListener : MonoBehaviour
 {
 
 
 
-[SerializeField] private %UPPERNAME%Register %LOWERNAME%Register;
-[SerializeField] private UnityEventFor%UPPERNAME%RegisterListener didChange;
+[SerializeField] private IntRegister intRegister;
+[SerializeField] private UnityEventForIntRegisterListener didChange;
 
 
 
 // Provided for convenience. If you only need to access the value in
 // the register and don't need change notifications, use
-// %UPPERNAME%Register as a serialized member field in your class.
-public %CSHARPTYPE% Value
+// IntRegister as a serialized member field in your class.
+public int Value
     {
     get
         {
-        return this.%LOWERNAME%Register.Value;
+        return this.intRegister.Value;
         }
     set
         {
-        this.%LOWERNAME%Register.Value = value;
+        this.intRegister.Value = value;
         }
     }
 
@@ -78,13 +78,13 @@ public %CSHARPTYPE% Value
 
 void OnEnable ()
     {
-    if (this.%LOWERNAME%Register != null)
+    if (this.intRegister != null)
         {
-        this.%LOWERNAME%Register.RegisterListener (this);
+        this.intRegister.RegisterListener (this);
         }
 #if UNITY_EDITOR
     this.hasBeenEnabled = true;
-    this.previousRegister = this.%LOWERNAME%Register;
+    this.previousRegister = this.intRegister;
 #endif
     }
 
@@ -93,9 +93,9 @@ void OnEnable ()
 
 void OnDisable ()
     {
-    if (this.%LOWERNAME%Register != null)
+    if (this.intRegister != null)
         {
-        this.%LOWERNAME%Register.UnregisterListener (this);
+        this.intRegister.UnregisterListener (this);
         }
 #if UNITY_EDITOR
     this.hasBeenEnabled = false;
@@ -106,7 +106,7 @@ void OnDisable ()
 
 
 
-public void OnDidChange (%CSHARPTYPE% newValue)
+public void OnDidChange (int newValue)
     {
     this.didChange.Invoke (newValue);
     }
@@ -115,13 +115,13 @@ public void OnDidChange (%CSHARPTYPE% newValue)
 
 
 //----------------------------------------------------------------------
-// Handle the Unity Editor changing %LOWERNAME%Register in the inspector
+// Handle the Unity Editor changing intRegister in the inspector
 //----------------------------------------------------------------------
 #if UNITY_EDITOR
 #region Editor Runtime
 [Header ("Editor Runtime")]
 private bool hasBeenEnabled;
-private %UPPERNAME%Register previousRegister;
+private IntRegister previousRegister;
 
 
 
@@ -129,16 +129,16 @@ private %UPPERNAME%Register previousRegister;
 void OnValidate ()
     {
     if (this.hasBeenEnabled
-            && !object.ReferenceEquals (this.previousRegister, this.%LOWERNAME%Register))
+            && !object.ReferenceEquals (this.previousRegister, this.intRegister))
         {
         if (this.previousRegister != null)
             {
             this.previousRegister.UnregisterListener (this);
             }
-        this.previousRegister = this.%LOWERNAME%Register;
-        if (this.%LOWERNAME%Register != null)
+        this.previousRegister = this.intRegister;
+        if (this.intRegister != null)
             {
-            this.%LOWERNAME%Register.RegisterListener (this);
+            this.intRegister.RegisterListener (this);
             }
         }
     }

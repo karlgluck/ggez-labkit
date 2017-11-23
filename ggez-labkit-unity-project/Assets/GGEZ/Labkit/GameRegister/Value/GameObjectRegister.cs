@@ -32,38 +32,90 @@ namespace GGEZ
 {
 
 
+
 //----------------------------------------------------------------------
-// Helper class for binding events through prefabs, scenes and assets.
-// UnityEvent fields are bound to GameEvent.Trigger on a named asset.
-// GameEventListeners register themselves to a named asset in order
-// to be notified when an event occurs. The GameEventListener then has
-// its own UnityEvent field that dispatches the event.
 //----------------------------------------------------------------------
-[CreateAssetMenu (fileName = "New Game Event.asset", menuName="GGEZ/Game Event/Game Event")]
-public class GameEvent : ScriptableObject
+[Serializable, CreateAssetMenu (fileName = "New GameObject Register.asset", menuName="GGEZ/Game Register/GameObject Register")]
+public class GameObjectRegister : GameRegister
 {
 
+[SerializeField] private GameObject initialValue;
+
+void Awake ()
+    {
+    this.runtimeValue = this.initialValue;
+    }
+
+#if UNITY_EDITOR
+void Reset ()
+    {
+    this.listeners = new List<GameObjectRegisterListener>();
+    this.runtimeValue = this.initialValue;
+    }
+
+void OnValidate ()
+    {
+    if (Application.isPlaying)
+        {
+        var value = this.runtimeValue;
+        for (int i = this.listeners.Count - 1; i >= 0; --i)
+            {
+            this.listeners[i].OnDidChange (value);
+            }
+        }
+    else
+        {
+        this.runtimeValue = this.initialValue;
+        }
+    }
+#endif
 
 #region Runtime
-private List<GameEventListener> listeners = new List<GameEventListener>();
+[SerializeField] private GameObject runtimeValue;
+public GameObject Value
+    {
+    get
+        {
+        return this.runtimeValue;
+        }
+    set
+        {
+        if (this.runtimeValue.Equals (value))
+            {
+            return;
+            }
+        this.runtimeValue = value;
+        for (int i = this.listeners.Count - 1; i >= 0; --i)
+            {
+            this.listeners[i].OnDidChange (value);
+            }
+        }
+    }
 #endregion
 
 
 
 
-public void RegisterListener (GameEventListener listener)
+private List<GameObjectRegisterListener> listeners = new List<GameObjectRegisterListener>();
+
+
+
+
+
+public void RegisterListener (GameObjectRegisterListener listener)
     {
     if (listener == null)
         {
         throw new ArgumentNullException ("listener");
         }
     this.listeners.Add (listener);
+    listener.OnDidChange (this.runtimeValue);
     }
 
 
 
 
-public void UnregisterListener (GameEventListener listener)
+public void UnregisterListener (GameObjectRegisterListener listener)
     {
     if (listener == null)
         {
@@ -74,18 +126,9 @@ public void UnregisterListener (GameEventListener listener)
 
 
 
-
-public void Trigger ()
-    {
-    for (int i = this.listeners.Count - 1; i >= 0; --i)
-        {
-        this.listeners[i].OnDidTrigger ();
-        }
-    }
-
-
-
-
 }
+
+
+
 
 }

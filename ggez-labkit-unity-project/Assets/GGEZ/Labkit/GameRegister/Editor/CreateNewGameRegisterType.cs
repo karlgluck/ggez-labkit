@@ -33,47 +33,130 @@ namespace Labkit
 {
 
 
-public static class CreateNewGameRegisterType
-{
 
-[MenuItem ("Labkit/Create/Game Register Type")]
+
+class CreateNewGameRegisterDialog : EditorWindow
+{
+public string Folder = "";
+public string Name = "";
+public string CSharpType = "";
+
+
+[MenuItem ("Labkit/Create/Game Register Type/Single Value")]
 static void LabkitNewGameRegisterType ()
     {
-
+    const string savedPathKey = "LabkitSaveFilePanelPath";
     string path = EditorUtility.SaveFilePanelInProject (
             "New Game Register Type",
             "type.cs",
             "cs",
-            "Name the source file <type>.cs to make the Game Register"
+            "Name the source file <type>.cs",
+            EditorPrefs.GetString (savedPathKey, "")
             );
     if (string.IsNullOrEmpty (path))
         {
         return;
         }
+    EditorPrefs.SetString (savedPathKey, path);
+    CreateNewGameRegisterDialog.CreateAndShow (path);
+    }
 
 
-    string type = System.IO.Path.GetFileNameWithoutExtension (path);
-    string upperType = type.Substring (0, 1).ToUpper () + type.Substring (1);
-    string lowerType = type.Substring (0, 1).ToLower () + type.Substring (1);
-    Debug.LogFormat ("Creating {0}Register for data of type {1}", upperType, type);
+public static EditorWindow CreateAndShow (string path)
+    {
+    var window = CreateNewGameRegisterDialog.CreateInstance<CreateNewGameRegisterDialog> ();
+    var width = Screen.width;
+    var height = Screen.height;
+    Vector2 size = new Vector2 (400f, 180f);
+    window.ShowAsDropDown (new Rect (width/2f-size.x/2f, height/2 - size.y/2f, 1f, 1f), size);
+    window.titleContent = new GUIContent ("Create Table Register Type");
+    window.Folder = Path.GetDirectoryName (path);
+    window.Name = Path.GetFileNameWithoutExtension (path);
+    window.CSharpType = window.Name;
+    return window;
+    }
 
-    string directory = Path.GetDirectoryName (path);
+public void DoWork ()
+    {
+    string upperName = this.Name.Substring (0, 1).ToUpper () + this.Name.Substring (1);
+    string lowerName = this.Name.Substring (0, 1).ToLower () + this.Name.Substring (1);
+    Debug.LogFormat ("Creating {0}Register for data of type {1}", upperName, this.CSharpType);
 
     LabkitEditorUtility.WriteFileUsingTemplate (
             "GameRegister_So",
-            Path.Combine (directory, upperType + "Register.cs"),
-            "%TYPE% " + type,
-            "%UPPERTYPE% " + upperType,
-            "%LOWERTYPE% " + lowerType
+            Path.Combine (this.Folder, upperName + "Register.cs"),
+            "%NAME% " + this.Name,
+            "%UPPERNAME% " + upperName,
+            "%LOWERNAME% " + lowerName,
+            "%CSHARPTYPE% " + this.CSharpType
             );
 
     LabkitEditorUtility.WriteFileUsingTemplate (
             "GameRegisterListener_Mb",
-            Path.Combine (directory, upperType + "RegisterListener.cs"),
-            "%TYPE% " + type,
-            "%UPPERTYPE% " + upperType,
-            "%LOWERTYPE% " + lowerType
+            Path.Combine (this.Folder, upperName + "RegisterListener.cs"),
+            "%NAME% " + this.Name,
+            "%UPPERNAME% " + upperName,
+            "%LOWERNAME% " + lowerName,
+            "%CSHARPTYPE% " + this.CSharpType
             );
+    }
+
+protected virtual void OnLostFocus ()
+    {
+    this.Close ();
+    }
+
+private void OnGUI()
+    {
+    const float titleHeight = 35f;
+
+    GUILayout.BeginArea (new Rect(0, 0, this.position.width, this.position.height));
+    GUIStyle titleStyle = new GUIStyle ("Toolbar");
+    titleStyle.fontSize = 12;
+    titleStyle.fontStyle = FontStyle.Bold;
+
+    titleStyle.alignment = TextAnchor.MiddleCenter;
+    GUILayout.BeginHorizontal (titleStyle, GUILayout.Height (titleHeight));
+    GUILayout.Label (this.titleContent, titleStyle, GUILayout.ExpandWidth (true));
+    GUILayout.EndHorizontal ();
+
+    GUILayout.Space (16f);
+
+    GUILayout.BeginHorizontal ();
+    GUILayout.Label ("Path", GUILayout.Width (80f));
+    this.Folder = GUILayout.TextField (this.Folder);
+    GUILayout.EndHorizontal ();
+
+    GUILayout.BeginHorizontal ();
+    GUILayout.Label ("Name", GUILayout.Width (80f));
+    this.Name = GUILayout.TextField (this.Name);
+    GUILayout.EndHorizontal ();
+
+    GUILayout.BeginHorizontal ();
+    GUILayout.Label ("C# Type", GUILayout.Width (80f));
+    this.CSharpType = GUILayout.TextField (this.CSharpType);
+    GUILayout.EndHorizontal ();
+
+    GUILayout.FlexibleSpace ();
+
+    GUILayout.BeginHorizontal (GUILayout.Height (40f));
+    EditorGUI.BeginDisabledGroup (!Directory.Exists (this.Folder));
+
+    if (GUILayout.Button ("OK"))
+        {
+        this.DoWork ();
+        this.Close ();
+        }
+    EditorGUI.EndDisabledGroup ();
+    if (GUILayout.Button ("Cancel"))
+        {
+        this.Close ();
+        }
+    GUILayout.EndHorizontal ();
+
+    GUILayout.FlexibleSpace ();
+
+    GUILayout.EndArea ();
     }
 }
 

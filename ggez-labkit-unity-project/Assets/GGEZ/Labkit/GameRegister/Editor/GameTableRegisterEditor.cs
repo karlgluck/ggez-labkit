@@ -46,6 +46,8 @@ private SerializedProperty runtimeTable;
 
 private FieldInfo listenersTableField;
 
+private bool enableEditingInitialValuesAtRuntime;
+
 void OnEnable ()
     {
     this.defaultValue = this.serializedObject.FindProperty ("defaultValue");
@@ -55,6 +57,7 @@ void OnEnable ()
             this.targets.Length == 1
             ? this.target.GetType ().GetField ("listenersTable", BindingFlags.NonPublic | BindingFlags.Instance)
             : null;
+    this.enableEditingInitialValuesAtRuntime = false;
     }
 
 void OnDisable ()
@@ -67,6 +70,15 @@ public override void OnInspectorGUI ()
     {
     this.serializedObject.UpdateIfRequiredOrScript ();
 
+    GUILayout.Label ("Defaults", EditorStyles.boldLabel);
+    bool disableEditingDefaults = EditorApplication.isPlaying && !this.enableEditingInitialValuesAtRuntime;
+    if (disableEditingDefaults && GUILayout.Button ("Enable Editing Defaults at Runtime"))
+        {
+        this.enableEditingInitialValuesAtRuntime = true;
+        }
+
+    EditorGUI.BeginDisabledGroup (disableEditingDefaults);
+
     if (this.defaultValue != null)
         {
         EditorGUILayout.PropertyField (this.defaultValue);
@@ -77,6 +89,10 @@ public override void OnInspectorGUI ()
         EditorGUILayout.PropertyField (this.initialTable, true);
         }
 
+    EditorGUI.EndDisabledGroup ();
+
+    EditorGUILayout.Space ();
+    GUILayout.Label ("Runtime", EditorStyles.boldLabel);
     EditorGUI.BeginDisabledGroup (!Application.isPlaying);
 
     if (this.runtimeTable != null)
@@ -86,7 +102,7 @@ public override void OnInspectorGUI ()
 
 
     EditorGUILayout.Space ();
-    GUILayout.Label ("Listeners", EditorStyles.boldLabel);
+    GUILayout.Label ("Listeners Table");
     int totalListeners = 0;
     if (this.listenersTableField != null)
         {

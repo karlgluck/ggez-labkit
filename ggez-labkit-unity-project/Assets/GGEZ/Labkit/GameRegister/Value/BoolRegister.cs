@@ -32,38 +32,90 @@ namespace GGEZ
 {
 
 
+
 //----------------------------------------------------------------------
-// Helper class for binding events through prefabs, scenes and assets.
-// UnityEvent fields are bound to GameEvent.Trigger on a named asset.
-// GameEventListeners register themselves to a named asset in order
-// to be notified when an event occurs. The GameEventListener then has
-// its own UnityEvent field that dispatches the event.
 //----------------------------------------------------------------------
-[CreateAssetMenu (fileName = "New Game Event.asset", menuName="GGEZ/Game Event/Game Event")]
-public class GameEvent : ScriptableObject
+[Serializable, CreateAssetMenu (fileName = "New Bool Register.asset", menuName="GGEZ/Game Register/bool Register")]
+public class BoolRegister : GameRegister
 {
 
+[SerializeField] private bool initialValue;
+
+void Awake ()
+    {
+    this.runtimeValue = this.initialValue;
+    }
+
+#if UNITY_EDITOR
+void Reset ()
+    {
+    this.listeners = new List<BoolRegisterListener>();
+    this.runtimeValue = this.initialValue;
+    }
+
+void OnValidate ()
+    {
+    if (Application.isPlaying)
+        {
+        var value = this.runtimeValue;
+        for (int i = this.listeners.Count - 1; i >= 0; --i)
+            {
+            this.listeners[i].OnDidChange (value);
+            }
+        }
+    else
+        {
+        this.runtimeValue = this.initialValue;
+        }
+    }
+#endif
 
 #region Runtime
-private List<GameEventListener> listeners = new List<GameEventListener>();
+[SerializeField] private bool runtimeValue;
+public bool Value
+    {
+    get
+        {
+        return this.runtimeValue;
+        }
+    set
+        {
+        if (this.runtimeValue.Equals (value))
+            {
+            return;
+            }
+        this.runtimeValue = value;
+        for (int i = this.listeners.Count - 1; i >= 0; --i)
+            {
+            this.listeners[i].OnDidChange (value);
+            }
+        }
+    }
 #endregion
 
 
 
 
-public void RegisterListener (GameEventListener listener)
+private List<BoolRegisterListener> listeners = new List<BoolRegisterListener>();
+
+
+
+
+
+public void RegisterListener (BoolRegisterListener listener)
     {
     if (listener == null)
         {
         throw new ArgumentNullException ("listener");
         }
     this.listeners.Add (listener);
+    listener.OnDidChange (this.runtimeValue);
     }
 
 
 
 
-public void UnregisterListener (GameEventListener listener)
+public void UnregisterListener (BoolRegisterListener listener)
     {
     if (listener == null)
         {
@@ -74,18 +126,9 @@ public void UnregisterListener (GameEventListener listener)
 
 
 
-
-public void Trigger ()
-    {
-    for (int i = this.listeners.Count - 1; i >= 0; --i)
-        {
-        this.listeners[i].OnDidTrigger ();
-        }
-    }
-
-
-
-
 }
+
+
+
 
 }

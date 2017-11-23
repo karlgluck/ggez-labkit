@@ -38,7 +38,7 @@ namespace GGEZ
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [Serializable]
-public class UnityEventForPercentTableRegisterListener : UnityEvent<float>
+public class UnityEventForStringTableRegisterListener : UnityEvent<string>
 {
 }
 
@@ -50,38 +50,38 @@ public class UnityEventForPercentTableRegisterListener : UnityEvent<float>
 // Event didChange will be invoked with the new value.
 //----------------------------------------------------------------------
 [
-AddComponentMenu ("GGEZ/Game Register/Table/percent Table Register Listener")
+AddComponentMenu ("GGEZ/Game Register/Table/string Table Register Listener")
 ]
-public class PercentTableRegisterListener : MonoBehaviour
+public class StringTableRegisterListener : MonoBehaviour
 {
 
 [SerializeField, Delayed] private string key;
-[SerializeField] private PercentTableRegister percentTableRegister;
-[SerializeField] private UnityEventForPercentTableRegisterListener didChange;
+[SerializeField] private StringTableRegister stringTableRegister;
+[SerializeField] private UnityEventForStringTableRegisterListener didChange;
 
 
 
 // Value & Table are for convenience. If you only need to access
 // the register and don't need change notifications, use
-// PercentTableRegister as a serialized member field in your class.
+// StringTableRegister as a serialized member field in your class.
 
-public float Value
+public string Value
     {
     get
         {
-        return this.percentTableRegister[this.key];
+        return this.stringTableRegister[this.key];
         }
     set
         {
-        this.percentTableRegister[this.key] = value;
+        this.stringTableRegister[this.key] = value;
         }
     }
 
-public PercentTableRegister Table
+public StringTableRegister Table
     {
     get
         {
-        return this.percentTableRegister;
+        return this.stringTableRegister;
         }
     }
 
@@ -89,13 +89,13 @@ public PercentTableRegister Table
 
 void OnEnable ()
     {
-    if (this.percentTableRegister != null && this.key != null)
+    if (this.stringTableRegister != null && this.key != null)
         {
-        this.percentTableRegister.RegisterListener (this.key, this);
+        this.stringTableRegister.RegisterListener (this.key, this);
         }
 #if UNITY_EDITOR
     this.previousKey = this.key;
-    this.previousTableRegister = this.percentTableRegister;
+    this.previousTableRegister = this.stringTableRegister;
     this.hasBeenEnabled = true;
 #endif
     }
@@ -105,9 +105,9 @@ void OnEnable ()
 
 void OnDisable ()
     {
-    if (this.percentTableRegister != null && this.key != null)
+    if (this.stringTableRegister != null && this.key != null)
         {
-        this.percentTableRegister.UnregisterListener (this.key, this);
+        this.stringTableRegister.UnregisterListener (this.key, this);
         }
 #if UNITY_EDITOR
     this.hasBeenEnabled = false;
@@ -119,7 +119,7 @@ void OnDisable ()
 
 
 
-public void OnDidChange (float newValue)
+public void OnDidChange (string newValue)
     {
     this.didChange.Invoke (newValue);
     }
@@ -134,14 +134,14 @@ public void OnDidChange (float newValue)
 #region Editor Runtime
 private bool hasBeenEnabled;
 private string previousKey;
-private PercentTableRegister previousTableRegister;
+private StringTableRegister previousTableRegister;
 
 
 void OnValidate ()
     {
     if (!this.hasBeenEnabled
             || (object.Equals (this.key, this.previousKey)
-                    && object.ReferenceEquals (this.previousTableRegister, this.percentTableRegister)))
+                    && object.ReferenceEquals (this.previousTableRegister, this.stringTableRegister)))
         {
         return;
         }
@@ -150,10 +150,10 @@ void OnValidate ()
         this.previousTableRegister.UnregisterListener (this.previousKey, this);
         }
     this.previousKey = this.key;
-    this.previousTableRegister = this.percentTableRegister;
-    if (this.percentTableRegister != null && this.key != null)
+    this.previousTableRegister = this.stringTableRegister;
+    if (this.stringTableRegister != null && this.key != null)
         {
-        this.percentTableRegister.RegisterListener (this.key, this);
+        this.stringTableRegister.RegisterListener (this.key, this);
         }
     }
 

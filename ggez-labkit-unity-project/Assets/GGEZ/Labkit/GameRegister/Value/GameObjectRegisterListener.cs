@@ -37,7 +37,7 @@ namespace GGEZ
 
 //----------------------------------------------------------------------
 [Serializable]
-public class UnityEventFor%UPPERNAME%RegisterListener : UnityEvent<%CSHARPTYPE%>
+public class UnityEventForGameObjectRegisterListener : UnityEvent<GameObject>
 {
 }
 
@@ -46,30 +46,30 @@ public class UnityEventFor%UPPERNAME%RegisterListener : UnityEvent<%CSHARPTYPE%>
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [
-AddComponentMenu ("GGEZ/Game Register Listener/%NAME% Register Listener")
+AddComponentMenu ("GGEZ/Game Register Listener/GameObject Register Listener")
 ]
-public class %UPPERNAME%RegisterListener : MonoBehaviour
+public class GameObjectRegisterListener : MonoBehaviour
 {
 
 
 
-[SerializeField] private %UPPERNAME%Register %LOWERNAME%Register;
-[SerializeField] private UnityEventFor%UPPERNAME%RegisterListener didChange;
+[SerializeField] private GameObjectRegister gameObjectRegister;
+[SerializeField] private UnityEventForGameObjectRegisterListener didChange;
 
 
 
 // Provided for convenience. If you only need to access the value in
 // the register and don't need change notifications, use
-// %UPPERNAME%Register as a serialized member field in your class.
-public %CSHARPTYPE% Value
+// GameObjectRegister as a serialized member field in your class.
+public GameObject Value
     {
     get
         {
-        return this.%LOWERNAME%Register.Value;
+        return this.gameObjectRegister.Value;
         }
     set
         {
-        this.%LOWERNAME%Register.Value = value;
+        this.gameObjectRegister.Value = value;
         }
     }
 
@@ -78,13 +78,13 @@ public %CSHARPTYPE% Value
 
 void OnEnable ()
     {
-    if (this.%LOWERNAME%Register != null)
+    if (this.gameObjectRegister != null)
         {
-        this.%LOWERNAME%Register.RegisterListener (this);
+        this.gameObjectRegister.RegisterListener (this);
         }
 #if UNITY_EDITOR
     this.hasBeenEnabled = true;
-    this.previousRegister = this.%LOWERNAME%Register;
+    this.previousRegister = this.gameObjectRegister;
 #endif
     }
 
@@ -93,9 +93,9 @@ void OnEnable ()
 
 void OnDisable ()
     {
-    if (this.%LOWERNAME%Register != null)
+    if (this.gameObjectRegister != null)
         {
-        this.%LOWERNAME%Register.UnregisterListener (this);
+        this.gameObjectRegister.UnregisterListener (this);
         }
 #if UNITY_EDITOR
     this.hasBeenEnabled = false;
@@ -106,7 +106,7 @@ void OnDisable ()
 
 
 
-public void OnDidChange (%CSHARPTYPE% newValue)
+public void OnDidChange (GameObject newValue)
     {
     this.didChange.Invoke (newValue);
     }
@@ -115,13 +115,13 @@ public void OnDidChange (%CSHARPTYPE% newValue)
 
 
 //----------------------------------------------------------------------
-// Handle the Unity Editor changing %LOWERNAME%Register in the inspector
+// Handle the Unity Editor changing gameObjectRegister in the inspector
 //----------------------------------------------------------------------
 #if UNITY_EDITOR
 #region Editor Runtime
 [Header ("Editor Runtime")]
 private bool hasBeenEnabled;
-private %UPPERNAME%Register previousRegister;
+private GameObjectRegister previousRegister;
 
 
 
@@ -129,16 +129,16 @@ private %UPPERNAME%Register previousRegister;
 void OnValidate ()
     {
     if (this.hasBeenEnabled
-            && !object.ReferenceEquals (this.previousRegister, this.%LOWERNAME%Register))
+            && !object.ReferenceEquals (this.previousRegister, this.gameObjectRegister))
         {
         if (this.previousRegister != null)
             {
             this.previousRegister.UnregisterListener (this);
             }
-        this.previousRegister = this.%LOWERNAME%Register;
-        if (this.%LOWERNAME%Register != null)
+        this.previousRegister = this.gameObjectRegister;
+        if (this.gameObjectRegister != null)
             {
-            this.%LOWERNAME%Register.RegisterListener (this);
+            this.gameObjectRegister.RegisterListener (this);
             }
         }
     }

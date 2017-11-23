@@ -42,12 +42,12 @@ public string Name = "";
 public string CSharpType = "";
 
 
-[MenuItem ("Labkit/Create/Game Register Type/Table")]
+[MenuItem ("Labkit/Create/Game Register Type/Table of Values")]
 static void LabkitNewGameTableRegisterType ()
     {
     const string savedPathKey = "LabkitSaveFilePanelPath";
     string path = EditorUtility.SaveFilePanelInProject (
-            "New Game Register Type",
+            "New Game Register Table Type",
             "type.cs",
             "cs",
             "Name the source file <type>.cs",

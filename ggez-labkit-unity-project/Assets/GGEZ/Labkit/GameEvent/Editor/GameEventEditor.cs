@@ -25,16 +25,32 @@
 
 using UnityEngine;
 using UnityEditor;
+using System.Reflection;
+using System.Collections;
 
 namespace GGEZ
 {
+
+
+
 [CustomEditor(typeof (GameEvent))]
 public class GameEventEditor : Editor
 {
 
+private FieldInfo listenersField;
+private bool listenersFoldout;
+
+void OnEnable ()
+    {
+    this.listenersField =
+            this.targets.Length == 1
+            ? this.target.GetType ().GetField ("listeners", BindingFlags.NonPublic | BindingFlags.Instance)
+            : null;
+    }
+
 public override void OnInspectorGUI ()
     {
-    EditorGUI.BeginDisabledGroup (!Application.isPlaying);
+    EditorGUI.BeginDisabledGroup (!EditorApplication.isPlaying);
 
     if (GUILayout.Button ("Trigger"))
         {
@@ -43,6 +59,32 @@ public override void OnInspectorGUI ()
             ((GameEvent)targetObject).Trigger ();
             }
         }
+
+    if (this.listenersField != null)
+        {
+        var listeners = this.listenersField.GetValue (this.target) as ICollection;
+        int numberOfListeners = listeners == null ? 0 : listeners.Count;
+        var controlRect = EditorGUILayout.GetControlRect ();
+        var numberOfListenersRect = new Rect (controlRect);
+        numberOfListenersRect.xMin += EditorGUIUtility.labelWidth;
+        this.listenersFoldout = EditorGUI.Foldout (controlRect, this.listenersFoldout, "Listeners", true);
+        GUI.Label (numberOfListenersRect, numberOfListeners.ToString ());
+        if (this.listenersFoldout && numberOfListeners > 0)
+            {
+            EditorGUI.BeginDisabledGroup (true);
+            EditorGUI.indentLevel++;
+            foreach (MonoBehaviour mb in listeners)
+                {
+                EditorGUI.ObjectField (EditorGUILayout.GetControlRect (), mb, typeof(MonoBehaviour), true);
+                }
+            EditorGUI.indentLevel--;
+            EditorGUI.EndDisabledGroup ();
+            }
+        EditorGUI.EndDisabledGroup ();
+        }
+
+    EditorGUILayout.Space ();
+
     EditorGUI.EndDisabledGroup ();
     }
 }

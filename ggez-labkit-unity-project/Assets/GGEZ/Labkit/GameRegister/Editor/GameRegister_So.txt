@@ -35,11 +35,11 @@ namespace GGEZ
 
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
-[Serializable, CreateAssetMenu (fileName = "New %UPPERTYPE% Register.asset", menuName="GGEZ/Game Register/%TYPE% Register")]
-public class %UPPERTYPE%Register : GameRegister
+[Serializable, CreateAssetMenu (fileName = "New %UPPERNAME% Register.asset", menuName="GGEZ/Game Register/%NAME% Register")]
+public class %UPPERNAME%Register : GameRegister
 {
 
-[SerializeField] private %TYPE% initialValue;
+[SerializeField] private %CSHARPTYPE% initialValue;
 
 void Awake ()
     {
@@ -49,7 +49,7 @@ void Awake ()
 #if UNITY_EDITOR
 void Reset ()
     {
-    this.listeners = new List<GameRegister%UPPERTYPE%Listener>();
+    this.listeners = new List<%UPPERNAME%RegisterListener>();
     this.runtimeValue = this.initialValue;
     }
 
@@ -71,8 +71,8 @@ void OnValidate ()
 #endif
 
 #region Runtime
-[SerializeField] private %TYPE% runtimeValue;
-public %TYPE% Value
+[SerializeField] private %CSHARPTYPE% runtimeValue;
+public %CSHARPTYPE% Value
     {
     get
         {
@@ -96,13 +96,13 @@ public %TYPE% Value
 
 
 
-private List<GameRegister%UPPERTYPE%Listener> listeners = new List<GameRegister%UPPERTYPE%Listener>();
+private List<%UPPERNAME%RegisterListener> listeners = new List<%UPPERNAME%RegisterListener>();
 
 
 
 
 
-public void RegisterListener (GameRegister%UPPERTYPE%Listener listener)
+public void RegisterListener (%UPPERNAME%RegisterListener listener)
     {
     if (listener == null)
         {
@@ -115,7 +115,7 @@ public void RegisterListener (GameRegister%UPPERTYPE%Listener listener)
 
 
 
-public void UnregisterListener (GameRegister%UPPERTYPE%Listener listener)
+public void UnregisterListener (%UPPERNAME%RegisterListener listener)
     {
     if (listener == null)
         {

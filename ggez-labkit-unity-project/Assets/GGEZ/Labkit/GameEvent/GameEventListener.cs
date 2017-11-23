@@ -36,7 +36,7 @@ namespace GGEZ
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [
-AddComponentMenu ("GGEZ/Game Event Listener")
+AddComponentMenu ("GGEZ/Game Event/Game Event Listener")
 ]
 public class GameEventListener : MonoBehaviour
 {
@@ -45,8 +45,8 @@ public class GameEventListener : MonoBehaviour
 
 #region Serialized
 [Header ("Serialized")]
-[SerializeField] private GameEvent gameEventIn;
-[SerializeField] private UnityEvent didChange;
+[SerializeField] private GameEvent gameEvent;
+[SerializeField] private UnityEvent didTrigger;
 #endregion
 
 
@@ -54,10 +54,14 @@ public class GameEventListener : MonoBehaviour
 
 void OnEnable ()
     {
-    if (this.gameEventIn != null)
+    if (this.gameEvent != null)
         {
-        this.gameEventIn.RegisterListener (this);
+        this.gameEvent.RegisterListener (this);
         }
+#if UNITY_EDITOR
+    this.hasBeenEnabled = true;
+    this.previousGameEvent = this.gameEvent;
+#endif
     }
 
 
@@ -65,10 +69,14 @@ void OnEnable ()
 
 void OnDisable ()
     {
-    if (this.gameEventIn != null)
+    if (this.gameEvent != null)
         {
-        this.gameEventIn.UnregisterListener (this);
+        this.gameEvent.UnregisterListener (this);
         }
+#if UNITY_EDITOR
+    this.hasBeenEnabled = false;
+    this.previousGameEvent = null;
+#endif
     }
 
 
@@ -76,7 +84,7 @@ void OnDisable ()
 
 public void OnDidTrigger ()
     {
-    this.didChange.Invoke ();
+    this.didTrigger.Invoke ();
     }
 
 
@@ -86,39 +94,30 @@ public void OnDidTrigger ()
 // Handle the Unity Editor changing gameEventIn from the inspector
 //----------------------------------------------------------------------
 #if UNITY_EDITOR
-#region Editor Runtime
-[Header ("Editor Runtime")]
-private GameEvent lastGameEventIn;
+private bool hasBeenEnabled;
+private GameEvent previousGameEvent;
 
 
 
 
 void OnValidate ()
     {
-    this.validateGameEventIn ();
+    if (this.hasBeenEnabled
+            && !object.ReferenceEquals (this.gameEvent, this.previousGameEvent))
+        {
+        if (this.previousGameEvent != null)
+            {
+            this.previousGameEvent.UnregisterListener (this);
+            }
+        this.previousGameEvent = this.gameEvent;
+        if (this.gameEvent != null)
+            {
+            this.gameEvent.RegisterListener (this);
+            }
+        }
     }
 
 
-
-
-private void validateGameEventIn ()
-    {
-    if (object.ReferenceEquals (this.gameEventIn, this.lastGameEventIn))
-        {
-        return;
-        }
-    if (this.lastGameEventIn != null)
-        {
-        this.lastGameEventIn.UnregisterListener (this);
-        }
-    if (this.gameEventIn != null)
-        {
-        this.gameEventIn.RegisterListener (this);
-        }
-    this.lastGameEventIn = this.gameEventIn;
-    }
-
-#endregion
 #endif
 
 
