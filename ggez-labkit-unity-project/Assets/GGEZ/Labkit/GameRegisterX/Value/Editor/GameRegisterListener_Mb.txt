@@ -37,7 +37,11 @@ namespace GGEZ
 
 //----------------------------------------------------------------------
 [Serializable]
+<<<<<<< HEAD:ggez-labkit-unity-project/Assets/GGEZ/Labkit/GameRegister/Editor/GameRegisterListener_Mb.txt
 public class UnityEventFor%UPPERNAME%RegisterListener : UnityEvent<%CSHARPTYPE%>
+=======
+public class UnityEventFor%UPPERTYPE%RegisterListener : UnityEvent<%CSHARPTYPE%>
+>>>>>>> feature/registers-x:ggez-labkit-unity-project/Assets/GGEZ/Labkit/GameRegisterX/Value/Editor/GameRegisterListener_Mb.txt
 {
 }
 
@@ -59,8 +63,13 @@ public class %UPPERNAME%RegisterListener : MonoBehaviour
 
 
 // Provided for convenience. If you only need to access the value in
+<<<<<<< HEAD:ggez-labkit-unity-project/Assets/GGEZ/Labkit/GameRegister/Editor/GameRegisterListener_Mb.txt
 // the register and don't need change notifications, use
 // %UPPERNAME%Register as a serialized member field in your class.
+=======
+// the register and don't need change notifications, just use
+// %UPPERTYPE%Register as a serialized member field in your class.
+>>>>>>> feature/registers-x:ggez-labkit-unity-project/Assets/GGEZ/Labkit/GameRegisterX/Value/Editor/GameRegisterListener_Mb.txt
 public %CSHARPTYPE% Value
     {
     get
@@ -71,6 +80,21 @@ public %CSHARPTYPE% Value
         {
         this.%LOWERNAME%Register.Value = value;
         }
+    }
+
+public void AddDidChangeCallback (UnityAction<%CSHARPTYPE%> action)
+    {
+    this.didChange.AddListener (action);
+    }
+
+public void RemoveDidChangeCallback (UnityAction<%CSHARPTYPE%> action)
+    {
+    this.didChange.RemoveListener (action);
+    }
+
+public void RemoveAllDidChangeCallbacks (UnityAction<%CSHARPTYPE%> action)
+    {
+    this.didChange.RemoveListener (action);
     }
 
 

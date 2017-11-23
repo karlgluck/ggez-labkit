@@ -38,26 +38,37 @@ namespace GGEZ
 //----------------------------------------------------------------------
 [
 Serializable,
-CreateAssetMenu (fileName = "New String Table Register.asset", menuName="GGEZ/Game Register/Table/string Table Register")
+CreateAssetMenu (fileName = "New %UPPERNAME% Table Register.asset", menuName="GGEZ/Game Register/Table/%NAME% Table Register")
 ]
-public class StringTableRegister : GameTableRegister, ISerializationCallbackReceiver
+public class %UPPERNAME%TableRegister : GameTableRegister, ISerializationCallbackReceiver
 {
 
 // The value used when a listener registers for a nonexistent key
-[SerializeField] private string defaultValue;
+[SerializeField] private %CSHARPTYPE% defaultValue;
 
+public %CSHARPTYPE% DefaultValue
+    {
+    get
+        {
+        return this.defaultValue;
+        }
+    set
+        {
+        this.defaultValue = value;
+        }
+    }
 
-private Dictionary<string, string> table = new Dictionary<string, string>();
+private Dictionary<string, %CSHARPTYPE%> table = new Dictionary<string, %CSHARPTYPE%>();
 
 
 #region Serialization
 
 // All the values that the table should start with
-[SerializeField] private List<StringTableRegisterKeyValuePair> initialTable = new List<StringTableRegisterKeyValuePair> ();
+[SerializeField] private List<%UPPERNAME%TableRegisterKeyValuePair> initialTable = new List<%UPPERNAME%TableRegisterKeyValuePair> ();
 
 // Values that the table has at runtime only. Entries are cleared out when
 // listeners unregister.
-[SerializeField] private List<StringTableRegisterKeyValuePair> runtimeTable = new List<StringTableRegisterKeyValuePair> ();
+[SerializeField] private List<%UPPERNAME%TableRegisterKeyValuePair> runtimeTable = new List<%UPPERNAME%TableRegisterKeyValuePair> ();
 
 void ISerializationCallbackReceiver.OnBeforeSerialize ()
     {
@@ -67,7 +78,7 @@ void ISerializationCallbackReceiver.OnBeforeSerialize ()
     this.runtimeTable.Capacity = Mathf.Max (this.runtimeTable.Capacity, runtimeKeys.Count);
     foreach (var key in runtimeKeys)
         {
-        this.runtimeTable.Add (new StringTableRegisterKeyValuePair (key, this.table[key]));
+        this.runtimeTable.Add (new %UPPERNAME%TableRegisterKeyValuePair (key, this.table[key]));
         }
     }
 
@@ -96,7 +107,7 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
     deletedKeys.ExceptWith (runtimeTableKeys);
     foreach (var key in deletedKeys)
         {
-        this.runtimeTable.Add (new StringTableRegisterKeyValuePair (key, this[key]));
+        this.runtimeTable.Add (new %UPPERNAME%TableRegisterKeyValuePair (key, this[key]));
         }
 
     // Clean up initial keys so that there are no duplicates
@@ -117,7 +128,7 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
     this.dirtyKeys.Clear ();
     foreach (var kvp in this.runtimeTable)
         {
-        string value;
+        %CSHARPTYPE% value;
         if (this.table.TryGetValue (kvp.Name, out value) && !value.Equals (kvp.Value))
             {
             this.dirtyKeys.Add (kvp.Name);
@@ -142,9 +153,9 @@ private List<string> dirtyKeys = new List<string> ();
 
 void Reset ()
     {
-    this.table = new Dictionary<string, string> ();
-    this.initialTable = new List<StringTableRegisterKeyValuePair> ();
-    this.runtimeTable = new List<StringTableRegisterKeyValuePair> ();
+    this.table = new Dictionary<string, %CSHARPTYPE%> ();
+    this.initialTable = new List<%UPPERNAME%TableRegisterKeyValuePair> ();
+    this.runtimeTable = new List<%UPPERNAME%TableRegisterKeyValuePair> ();
     this.dirtyKeys.Clear ();
     this.listenersTable.Clear ();
     }
@@ -155,7 +166,7 @@ void OnValidate ()
         {
         foreach (var key in this.dirtyKeys)
             {
-            List<StringTableRegisterListener> listeners;
+            List<%UPPERNAME%TableRegisterListener> listeners;
             if (this.listenersTable.TryGetValue (key, out listeners))
                 {
                 var value = this[key];
@@ -183,11 +194,11 @@ void OnValidate ()
 #endregion
 
 
-public string this[string key]
+public %CSHARPTYPE% this[string key]
     {
     get
         {
-        string value;
+        %CSHARPTYPE% value;
         if (this.table.TryGetValue (key, out value))
             {
             return value;
@@ -196,13 +207,13 @@ public string this[string key]
         }
     set
         {
-        string currentValue;
+        %CSHARPTYPE% currentValue;
         if (this.table.TryGetValue (key, out currentValue) && currentValue.Equals (value))
             {
             return;
             }
         this.table[key] = value;
-        List<StringTableRegisterListener> listeners;
+        List<%UPPERNAME%TableRegisterListener> listeners;
         if (this.listenersTable.TryGetValue (key, out listeners))
             {
             for (int i = listeners.Count - 1; i >= 0; --i)
@@ -216,7 +227,7 @@ public string this[string key]
 
 public bool Remove (string key)
     {
-    List<StringTableRegisterListener> listeners;
+    List<%UPPERNAME%TableRegisterListener> listeners;
     if (!this.listenersTable.TryGetValue (key, out listeners))
         {
         return this.table.Remove (key);
@@ -228,7 +239,7 @@ public bool Remove (string key)
 
 
 
-public Dictionary<string, string>.Enumerator GetEnumerator ()
+public Dictionary<string, %CSHARPTYPE%>.Enumerator GetEnumerator ()
     {
     return this.table.GetEnumerator ();
     }
@@ -236,7 +247,7 @@ public Dictionary<string, string>.Enumerator GetEnumerator ()
 
 
 
-public Dictionary<string, string>.KeyCollection Keys
+public Dictionary<string, %CSHARPTYPE%>.KeyCollection Keys
     {
     get
         {
@@ -258,7 +269,7 @@ public ICollection<string> KeysWithListeners
 
 
 
-public Dictionary<string, string>.ValueCollection Values
+public Dictionary<string, %CSHARPTYPE%>.ValueCollection Values
     {
     get
         {
@@ -269,13 +280,13 @@ public Dictionary<string, string>.ValueCollection Values
 
 
 
-private Dictionary<string,List<StringTableRegisterListener>> listenersTable = new Dictionary<string,List<StringTableRegisterListener>>();
+private Dictionary<string,List<%UPPERNAME%TableRegisterListener>> listenersTable = new Dictionary<string,List<%UPPERNAME%TableRegisterListener>>();
 
 
 
 
 
-public void RegisterListener (string key, StringTableRegisterListener listener)
+public void RegisterListener (string key, %UPPERNAME%TableRegisterListener listener)
     {
     if (key == null)
         {
@@ -285,15 +296,15 @@ public void RegisterListener (string key, StringTableRegisterListener listener)
         {
         throw new ArgumentNullException ("listener");
         }
-    List<StringTableRegisterListener> listeners;
+    List<%UPPERNAME%TableRegisterListener> listeners;
     if (!this.listenersTable.TryGetValue (key, out listeners))
         {
-        listeners = new List<StringTableRegisterListener> ();
+        listeners = new List<%UPPERNAME%TableRegisterListener> ();
         this.listenersTable.Add (key, listeners);
         }
     listeners.Add (listener);
 
-    string value;
+    %CSHARPTYPE% value;
     if (!this.table.TryGetValue (key, out value))
         {
         value = this.defaultValue;
@@ -306,7 +317,7 @@ public void RegisterListener (string key, StringTableRegisterListener listener)
 
 
 
-public void UnregisterListener (string key, StringTableRegisterListener listener)
+public void UnregisterListener (string key, %UPPERNAME%TableRegisterListener listener)
     {
     if (key == null)
         {
@@ -316,7 +327,7 @@ public void UnregisterListener (string key, StringTableRegisterListener listener
         {
         throw new ArgumentNullException ("listener");
         }
-    List<StringTableRegisterListener> listeners;
+    List<%UPPERNAME%TableRegisterListener> listeners;
     if (this.listenersTable.TryGetValue (key, out listeners))
         {
         listeners.Remove (listener);
@@ -343,19 +354,19 @@ public void UnregisterListener (string key, StringTableRegisterListener listener
 // Holds entries saved into the serialized form of the table
 //----------------------------------------------------------------------
 [System.Serializable]
-public class StringTableRegisterKeyValuePair
+public class %UPPERNAME%TableRegisterKeyValuePair
 {
 
 // By using the value "Name" for the key, Unity's default inspector will
 // render the text more nicely.
 [Delayed] public string Name;
-public string Value;
+public %CSHARPTYPE% Value;
 
-public StringTableRegisterKeyValuePair ()
+public %UPPERNAME%TableRegisterKeyValuePair ()
     {
     }
 
-public StringTableRegisterKeyValuePair (string key, string value)
+public %UPPERNAME%TableRegisterKeyValuePair (string key, %CSHARPTYPE% value)
     {
     this.Name = key;
     this.Value = value;

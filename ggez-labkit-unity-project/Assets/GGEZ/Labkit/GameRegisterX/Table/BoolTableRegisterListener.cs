@@ -57,13 +57,7 @@ public class BoolTableRegisterListener : MonoBehaviour
 
 [SerializeField, Delayed] private string key;
 [SerializeField] private BoolTableRegister boolTableRegister;
-[SerializeField] private UnityEventForBoolTableRegisterListener didChange;
-
-
-
-// Value & Table are for convenience. If you only need to access
-// the register and don't need change notifications, use
-// BoolTableRegister as a serialized member field in your class.
+[SerializeField] private UnityEventForBoolTableRegisterListener didChange = new UnityEventForBoolTableRegisterListener ();
 
 public bool Value
     {
@@ -77,14 +71,83 @@ public bool Value
         }
     }
 
-public BoolTableRegister Table
+public BoolTableRegister TableRegister
     {
     get
         {
         return this.boolTableRegister;
         }
+    set
+        {
+        if (object.Equals (this.boolTableRegister, value))
+            {
+            return;
+            }
+        if (this.hasBeenEnabled && !string.IsNullOrEmpty (this.key) && this.boolTableRegister != null)
+            {
+            this.boolTableRegister.UnregisterListener (this.key, this);
+            }
+        this.boolTableRegister = value;
+#if UNITY_EDITOR
+        if (this.hasBeenEnabled)
+            {
+            this.previousTableRegister = value;
+            }
+#endif
+        if (this.hasBeenEnabled && !string.IsNullOrEmpty (this.key) && this.boolTableRegister != null)
+            {
+            this.boolTableRegister.RegisterListener (this.key, this);
+            }
+        }
     }
 
+public string Key
+    {
+    get
+        {
+        return this.key;
+        }
+    set
+        {
+        if (object.Equals (this.key, value))
+            {
+            return;
+            }
+        if (this.hasBeenEnabled && !string.IsNullOrEmpty (this.key) && this.boolTableRegister != null)
+            {
+            this.boolTableRegister.UnregisterListener (this.key, this);
+            }
+        this.key = value;
+#if UNITY_EDITOR
+        if (this.hasBeenEnabled)
+            {
+            this.previousKey = value;
+            }
+#endif
+        if (this.hasBeenEnabled && !string.IsNullOrEmpty (this.key) && this.boolTableRegister != null)
+            {
+            this.boolTableRegister.RegisterListener (this.key, this);
+            }
+        }
+    }
+
+public void AddDidChangeCallback (UnityAction<bool> action)
+    {
+    this.didChange.AddListener (action);
+    }
+
+public void RemoveDidChangeCallback (UnityAction<bool> action)
+    {
+    this.didChange.RemoveListener (action);
+    }
+
+public void RemoveAllDidChangeCallbacks (UnityAction<bool> action)
+    {
+    this.didChange.RemoveListener (action);
+    }
+
+
+private bool hasBeenEnabled;
 
 
 void OnEnable ()
@@ -93,14 +156,12 @@ void OnEnable ()
         {
         this.boolTableRegister.RegisterListener (this.key, this);
         }
+    this.hasBeenEnabled = true;
 #if UNITY_EDITOR
     this.previousKey = this.key;
     this.previousTableRegister = this.boolTableRegister;
-    this.hasBeenEnabled = true;
 #endif
     }
-
-
 
 
 void OnDisable ()
@@ -109,8 +170,8 @@ void OnDisable ()
         {
         this.boolTableRegister.UnregisterListener (this.key, this);
         }
-#if UNITY_EDITOR
     this.hasBeenEnabled = false;
+#if UNITY_EDITOR
     this.previousKey = null;
     this.previousTableRegister = null;
 #endif
@@ -132,7 +193,6 @@ public void OnDidChange (bool newValue)
 //----------------------------------------------------------------------
 #if UNITY_EDITOR
 #region Editor Runtime
-private bool hasBeenEnabled;
 private string previousKey;
 private BoolTableRegister previousTableRegister;
 

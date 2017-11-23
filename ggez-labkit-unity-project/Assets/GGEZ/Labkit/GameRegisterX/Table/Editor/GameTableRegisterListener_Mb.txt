@@ -57,13 +57,7 @@ public class %UPPERNAME%TableRegisterListener : MonoBehaviour
 
 [SerializeField, Delayed] private string key;
 [SerializeField] private %UPPERNAME%TableRegister %LOWERNAME%TableRegister;
-[SerializeField] private UnityEventFor%UPPERNAME%TableRegisterListener didChange;
-
-
-
-// Value & Table are for convenience. If you only need to access
-// the register and don't need change notifications, use
-// %UPPERNAME%TableRegister as a serialized member field in your class.
+[SerializeField] private UnityEventFor%UPPERNAME%TableRegisterListener didChange = new UnityEventFor%UPPERNAME%TableRegisterListener ();
 
 public %CSHARPTYPE% Value
     {
@@ -77,14 +71,83 @@ public %CSHARPTYPE% Value
         }
     }
 
-public %UPPERNAME%TableRegister Table
+public %UPPERNAME%TableRegister TableRegister
     {
     get
         {
         return this.%LOWERNAME%TableRegister;
         }
+    set
+        {
+        if (object.Equals (this.%LOWERNAME%TableRegister, value))
+            {
+            return;
+            }
+        if (this.hasBeenEnabled && !string.IsNullOrEmpty (this.key) && this.%LOWERNAME%TableRegister != null)
+            {
+            this.%LOWERNAME%TableRegister.UnregisterListener (this.key, this);
+            }
+        this.%LOWERNAME%TableRegister = value;
+#if UNITY_EDITOR
+        if (this.hasBeenEnabled)
+            {
+            this.previousTableRegister = value;
+            }
+#endif
+        if (this.hasBeenEnabled && !string.IsNullOrEmpty (this.key) && this.%LOWERNAME%TableRegister != null)
+            {
+            this.%LOWERNAME%TableRegister.RegisterListener (this.key, this);
+            }
+        }
     }
 
+public string Key
+    {
+    get
+        {
+        return this.key;
+        }
+    set
+        {
+        if (object.Equals (this.key, value))
+            {
+            return;
+            }
+        if (this.hasBeenEnabled && !string.IsNullOrEmpty (this.key) && this.%LOWERNAME%TableRegister != null)
+            {
+            this.%LOWERNAME%TableRegister.UnregisterListener (this.key, this);
+            }
+        this.key = value;
+#if UNITY_EDITOR
+        if (this.hasBeenEnabled)
+            {
+            this.previousKey = value;
+            }
+#endif
+        if (this.hasBeenEnabled && !string.IsNullOrEmpty (this.key) && this.%LOWERNAME%TableRegister != null)
+            {
+            this.%LOWERNAME%TableRegister.RegisterListener (this.key, this);
+            }
+        }
+    }
+
+public void AddDidChangeCallback (UnityAction<%CSHARPTYPE%> action)
+    {
+    this.didChange.AddListener (action);
+    }
+
+public void RemoveDidChangeCallback (UnityAction<%CSHARPTYPE%> action)
+    {
+    this.didChange.RemoveListener (action);
+    }
+
+public void RemoveAllDidChangeCallbacks (UnityAction<%CSHARPTYPE%> action)
+    {
+    this.didChange.RemoveListener (action);
+    }
+
+
+private bool hasBeenEnabled;
 
 
 void OnEnable ()
@@ -93,14 +156,12 @@ void OnEnable ()
         {
         this.%LOWERNAME%TableRegister.RegisterListener (this.key, this);
         }
+    this.hasBeenEnabled = true;
 #if UNITY_EDITOR
     this.previousKey = this.key;
     this.previousTableRegister = this.%LOWERNAME%TableRegister;
-    this.hasBeenEnabled = true;
 #endif
     }
-
-
 
 
 void OnDisable ()
@@ -109,8 +170,8 @@ void OnDisable ()
         {
         this.%LOWERNAME%TableRegister.UnregisterListener (this.key, this);
         }
-#if UNITY_EDITOR
     this.hasBeenEnabled = false;
+#if UNITY_EDITOR
     this.previousKey = null;
     this.previousTableRegister = null;
 #endif
@@ -132,7 +193,6 @@ public void OnDidChange (%CSHARPTYPE% newValue)
 //----------------------------------------------------------------------
 #if UNITY_EDITOR
 #region Editor Runtime
-private bool hasBeenEnabled;
 private string previousKey;
 private %UPPERNAME%TableRegister previousTableRegister;
 
