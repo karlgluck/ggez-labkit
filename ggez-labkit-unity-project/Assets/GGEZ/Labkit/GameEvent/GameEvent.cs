@@ -49,6 +49,14 @@ private List<GameEventListener> listeners = new List<GameEventListener>();
 #endregion
 
 
+public IList<GameEventListener> Listeners
+    {
+    get
+        {
+        return this.listeners.AsReadOnly ();
+        }
+    }
+
 
 
 public void RegisterListener (GameEventListener listener)

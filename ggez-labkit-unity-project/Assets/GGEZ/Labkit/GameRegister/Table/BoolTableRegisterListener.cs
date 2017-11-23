@@ -79,7 +79,7 @@ public BoolTableRegister TableRegister
         }
     set
         {
-        if (object.Equals (this.boolTableRegister, value))
+        if (object.ReferenceEquals (this.boolTableRegister, value))
             {
             return;
             }

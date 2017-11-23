@@ -46,11 +46,44 @@ public class GameEventListener : MonoBehaviour
 #region Serialized
 [Header ("Serialized")]
 [SerializeField] private GameEvent gameEvent;
-[SerializeField] private UnityEvent didTrigger;
+[SerializeField] private UnityEvent didTrigger = new UnityEvent ();
 #endregion
 
 
+public GameEvent GameEvent
+    {
+    get
+        {
+        return this.gameEvent;
+        }
+    set
+        {
+        if (object.ReferenceEquals (this.gameEvent, value))
+            {
+            return;
+            }
+        if (this.hasBeenEnabled && this.gameEvent != null)
+            {
+            this.gameEvent.UnregisterListener (this);
+            }
+        this.gameEvent = value;
+#if UNITY_EDITOR
+        if (this.hasBeenEnabled)
+            {
+            this.previousGameEvent = value;
+            }
+#endif
+        if (this.hasBeenEnabled && this.gameEvent != null)
+            {
+            this.gameEvent.RegisterListener (this);
+            }
+        }
+    }
 
+
+
+
+private bool hasBeenEnabled;
 
 void OnEnable ()
     {
@@ -79,6 +112,21 @@ void OnDisable ()
 #endif
     }
 
+public void AddDidTriggerCallback (UnityAction action)
+    {
+    this.didTrigger.AddListener (action);
+    }
+
+public void RemoveDidTriggerCallback (UnityAction action)
+    {
+    this.didTrigger.RemoveListener (action);
+    }
+
+public void RemoveAllDidTriggerCallbacks (UnityAction action)
+    {
+    this.didTrigger.RemoveListener (action);
+    }
+
 
 
 
@@ -94,10 +142,7 @@ public void OnDidTrigger ()
 // Handle the Unity Editor changing gameEventIn from the inspector
 //----------------------------------------------------------------------
 #if UNITY_EDITOR
-private bool hasBeenEnabled;
 private GameEvent previousGameEvent;
-
-
 
 
 void OnValidate ()

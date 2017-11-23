@@ -79,7 +79,7 @@ public %UPPERNAME%TableRegister TableRegister
         }
     set
         {
-        if (object.Equals (this.%LOWERNAME%TableRegister, value))
+        if (object.ReferenceEquals (this.%LOWERNAME%TableRegister, value))
             {
             return;
             }

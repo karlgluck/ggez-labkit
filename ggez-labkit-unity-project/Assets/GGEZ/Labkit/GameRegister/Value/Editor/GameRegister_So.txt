@@ -35,21 +35,64 @@ namespace GGEZ
 
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
-[Serializable, CreateAssetMenu (fileName = "New Float Register.asset", menuName="GGEZ/Game Register/float Register")]
-public class FloatRegister : GameRegister
+[Serializable, CreateAssetMenu (fileName = "New %UPPERNAME% Register.asset", menuName="GGEZ/Game Register/%NAME% Register")]
+public class %UPPERNAME%Register : GameRegister
 {
 
-[SerializeField] private float initialValue;
+[SerializeField] private %CSHARPTYPE% initialValue;
+
+public %CSHARPTYPE% InitialValue
+    {
+    get
+        {
+        return this.initialValue;
+        }
+    set
+        {
+#if UNITY_EDITOR
+        if (this.isAsset)
+            {
+            Debug.LogWarning (this.name + " is an asset! If you intend to change its value in code, use SetAssetInitialValue.");
+            return;
+            }
+#endif
+        this.initialValue = value;
+        }
+    }
+
+#if UNITY_EDITOR
+private bool isAsset;
+public bool IsAsset
+    {
+    get
+        {
+        return this.isAsset;
+        }
+    }
+
+public void SetAssetInitialValue (bool value)
+    {
+    if (!this.isAsset)
+        {
+        throw new InvalidOperationException ("called SetAssetInitialValue on non-asset register");
+        }
+    this.initialValue = value;
+    }
+    
+#endif
 
 void Awake ()
     {
     this.runtimeValue = this.initialValue;
+#if UNITY_EDITOR
+    this.isAsset = !string.IsNullOrEmpty (UnityEditor.AssetDatabase.GetAssetPath (this));
+#endif
     }
 
 #if UNITY_EDITOR
 void Reset ()
     {
-    this.listeners = new List<FloatRegisterListener>();
+    this.listeners = new List<%UPPERNAME%RegisterListener>();
     this.runtimeValue = this.initialValue;
     }
 
@@ -71,8 +114,8 @@ void OnValidate ()
 #endif
 
 #region Runtime
-[SerializeField] private float runtimeValue;
-public float Value
+[SerializeField] private %CSHARPTYPE% runtimeValue;
+public %CSHARPTYPE% Value
     {
     get
         {
@@ -96,13 +139,21 @@ public float Value
 
 
 
-private List<FloatRegisterListener> listeners = new List<FloatRegisterListener>();
+private List<%UPPERNAME%RegisterListener> listeners = new List<%UPPERNAME%RegisterListener>();
+
+
+public IList<%UPPERNAME%RegisterListener> Listeners
+    {
+    get
+        {
+        return this.listeners.AsReadOnly ();
+        }
+    }
 
 
 
 
-
-public void RegisterListener (FloatRegisterListener listener)
+public void RegisterListener (%UPPERNAME%RegisterListener listener)
     {
     if (listener == null)
         {
@@ -115,7 +166,7 @@ public void RegisterListener (FloatRegisterListener listener)
 
 
 
-public void UnregisterListener (FloatRegisterListener listener)
+public void UnregisterListener (%UPPERNAME%RegisterListener listener)
     {
     if (listener == null)
         {

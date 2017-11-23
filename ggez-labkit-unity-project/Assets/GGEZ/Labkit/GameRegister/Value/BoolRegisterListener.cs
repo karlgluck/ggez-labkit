@@ -54,13 +54,39 @@ public class BoolRegisterListener : MonoBehaviour
 
 
 [SerializeField] private BoolRegister boolRegister;
-[SerializeField] private UnityEventForBoolRegisterListener didChange;
+[SerializeField] private UnityEventForBoolRegisterListener didChange = new UnityEventForBoolRegisterListener ();
 
 
+public BoolRegister Register
+    {
+    get
+        {
+        return this.boolRegister;
+        }
+    set
+        {
+        if (object.ReferenceEquals (this.boolRegister, value))
+            {
+            return;
+            }
+        if (this.hasBeenEnabled && this.boolRegister != null)
+            {
+            this.boolRegister.UnregisterListener (this);
+            }
+        this.boolRegister = value;
+#if UNITY_EDITOR
+        if (this.hasBeenEnabled)
+            {
+            this.previousRegister = value;
+            }
+#endif
+        if (this.hasBeenEnabled && this.boolRegister != null)
+            {
+            this.boolRegister.RegisterListener (this);
+            }
+        }
+    }
 
-// Provided for convenience. If you only need to access the value in
-// the register and don't need change notifications, use
-// BoolRegister as a serialized member field in your class.
 public bool Value
     {
     get
@@ -73,7 +99,23 @@ public bool Value
         }
     }
 
+public void AddDidChangeCallback (UnityAction<bool> action)
+    {
+    this.didChange.AddListener (action);
+    }
 
+public void RemoveDidChangeCallback (UnityAction<bool> action)
+    {
+    this.didChange.RemoveListener (action);
+    }
+
+public void RemoveAllDidChangeCallbacks (UnityAction<bool> action)
+    {
+    this.didChange.RemoveListener (action);
+    }
+
+
+private bool hasBeenEnabled;
 
 
 void OnEnable ()
@@ -82,8 +124,8 @@ void OnEnable ()
         {
         this.boolRegister.RegisterListener (this);
         }
-#if UNITY_EDITOR
     this.hasBeenEnabled = true;
+#if UNITY_EDITOR
     this.previousRegister = this.boolRegister;
 #endif
     }
@@ -97,8 +139,8 @@ void OnDisable ()
         {
         this.boolRegister.UnregisterListener (this);
         }
-#if UNITY_EDITOR
     this.hasBeenEnabled = false;
+#if UNITY_EDITOR
     this.previousRegister = null;
 #endif
     }
@@ -120,7 +162,6 @@ public void OnDidChange (bool newValue)
 #if UNITY_EDITOR
 #region Editor Runtime
 [Header ("Editor Runtime")]
-private bool hasBeenEnabled;
 private BoolRegister previousRegister;
 
 

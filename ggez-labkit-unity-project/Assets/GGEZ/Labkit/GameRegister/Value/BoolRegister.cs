@@ -40,10 +40,43 @@ public class BoolRegister : GameRegister
 {
 
 [SerializeField] private bool initialValue;
+public bool InitialValue
+    {
+    get
+        {
+        return this.initialValue;
+        }
+    set
+        {
+#if UNITY_EDITOR
+        if (this.isAsset)
+            {
+            Debug.LogWarning (this.name + " is an asset! If you intend to change its value in code, use SetAssetInitialValue.");
+            return;
+            }
+#endif
+        this.initialValue = value;
+        }
+    }
+
+#if UNITY_EDITOR
+private bool isAsset;
+public void SetAssetInitialValue (bool value)
+    {
+    if (!this.isAsset)
+        {
+        throw new InvalidOperationException ("called SetAssetInitialValue on non-asset register");
+        }
+    this.initialValue = value;
+    }
+#endif
 
 void Awake ()
     {
     this.runtimeValue = this.initialValue;
+#if UNITY_EDITOR
+    this.isAsset = !string.IsNullOrEmpty (UnityEditor.AssetDatabase.GetAssetPath (this));
+#endif
     }
 
 #if UNITY_EDITOR
@@ -98,6 +131,15 @@ public bool Value
 
 private List<BoolRegisterListener> listeners = new List<BoolRegisterListener>();
 
+
+
+public IList<BoolRegisterListener> Listeners
+    {
+    get
+        {
+        return this.listeners.AsReadOnly ();
+        }
+    }
 
 
 

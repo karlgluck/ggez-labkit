@@ -37,11 +37,7 @@ namespace GGEZ
 
 //----------------------------------------------------------------------
 [Serializable]
-<<<<<<< HEAD:ggez-labkit-unity-project/Assets/GGEZ/Labkit/GameRegister/Editor/GameRegisterListener_Mb.txt
 public class UnityEventFor%UPPERNAME%RegisterListener : UnityEvent<%CSHARPTYPE%>
-=======
-public class UnityEventFor%UPPERTYPE%RegisterListener : UnityEvent<%CSHARPTYPE%>
->>>>>>> feature/registers-x:ggez-labkit-unity-project/Assets/GGEZ/Labkit/GameRegisterX/Value/Editor/GameRegisterListener_Mb.txt
 {
 }
 
@@ -58,18 +54,39 @@ public class %UPPERNAME%RegisterListener : MonoBehaviour
 
 
 [SerializeField] private %UPPERNAME%Register %LOWERNAME%Register;
-[SerializeField] private UnityEventFor%UPPERNAME%RegisterListener didChange;
+[SerializeField] private UnityEventFor%UPPERNAME%RegisterListener didChange = new UnityEventFor%UPPERNAME%RegisterListener ();
 
 
+public %UPPERNAME%Register Register
+    {
+    get
+        {
+        return this.%LOWERNAME%Register;
+        }
+    set
+        {
+        if (object.ReferenceEquals (this.%LOWERNAME%Register, value))
+            {
+            return;
+            }
+        if (this.hasBeenEnabled && this.%LOWERNAME%Register != null)
+            {
+            this.%LOWERNAME%Register.UnregisterListener (this);
+            }
+        this.%LOWERNAME%Register = value;
+#if UNITY_EDITOR
+        if (this.hasBeenEnabled)
+            {
+            this.previousRegister = value;
+            }
+#endif
+        if (this.hasBeenEnabled && this.%LOWERNAME%Register != null)
+            {
+            this.%LOWERNAME%Register.RegisterListener (this);
+            }
+        }
+    }
 
-// Provided for convenience. If you only need to access the value in
-<<<<<<< HEAD:ggez-labkit-unity-project/Assets/GGEZ/Labkit/GameRegister/Editor/GameRegisterListener_Mb.txt
-// the register and don't need change notifications, use
-// %UPPERNAME%Register as a serialized member field in your class.
-=======
-// the register and don't need change notifications, just use
-// %UPPERTYPE%Register as a serialized member field in your class.
->>>>>>> feature/registers-x:ggez-labkit-unity-project/Assets/GGEZ/Labkit/GameRegisterX/Value/Editor/GameRegisterListener_Mb.txt
 public %CSHARPTYPE% Value
     {
     get
@@ -98,6 +115,7 @@ public void RemoveAllDidChangeCallbacks (UnityAction<%CSHARPTYPE%> action)
     }
 
 
+private bool hasBeenEnabled;
 
 
 void OnEnable ()
@@ -106,8 +124,8 @@ void OnEnable ()
         {
         this.%LOWERNAME%Register.RegisterListener (this);
         }
-#if UNITY_EDITOR
     this.hasBeenEnabled = true;
+#if UNITY_EDITOR
     this.previousRegister = this.%LOWERNAME%Register;
 #endif
     }
@@ -121,8 +139,8 @@ void OnDisable ()
         {
         this.%LOWERNAME%Register.UnregisterListener (this);
         }
-#if UNITY_EDITOR
     this.hasBeenEnabled = false;
+#if UNITY_EDITOR
     this.previousRegister = null;
 #endif
     }
@@ -144,7 +162,6 @@ public void OnDidChange (%CSHARPTYPE% newValue)
 #if UNITY_EDITOR
 #region Editor Runtime
 [Header ("Editor Runtime")]
-private bool hasBeenEnabled;
 private %UPPERNAME%Register previousRegister;
 
 
