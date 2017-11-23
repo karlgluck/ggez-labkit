@@ -37,7 +37,7 @@ namespace GGEZ
 
 //----------------------------------------------------------------------
 [Serializable]
-public class UnityEventFor%UPPERTYPE%RegisterListener : UnityEvent<%TYPE%>
+public class UnityEventFor%UPPERTYPE%RegisterListener : UnityEvent<%CSHARPTYPE%>
 {
 }
 
@@ -46,7 +46,7 @@ public class UnityEventFor%UPPERTYPE%RegisterListener : UnityEvent<%TYPE%>
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [
-AddComponentMenu ("GGEZ/Game Register Listener/%TYPE% Register Listener")
+AddComponentMenu ("GGEZ/Game Register Listener/%NAME% Register Listener")
 ]
 public class %UPPERTYPE%RegisterListener : MonoBehaviour
 {
@@ -61,7 +61,7 @@ public class %UPPERTYPE%RegisterListener : MonoBehaviour
 // Provided for convenience. If you only need to access the value in
 // the register and don't need change notifications, just use
 // %UPPERTYPE%Register as a serialized member field in your class.
-public %TYPE% Value
+public %CSHARPTYPE% Value
     {
     get
         {
@@ -71,6 +71,21 @@ public %TYPE% Value
         {
         this.%LOWERTYPE%Register.Value = value;
         }
+    }
+
+public void AddDidChangeCallback (UnityAction<%CSHARPTYPE%> action)
+    {
+    this.didChange.AddListener (action);
+    }
+
+public void RemoveDidChangeCallback (UnityAction<%CSHARPTYPE%> action)
+    {
+    this.didChange.RemoveListener (action);
+    }
+
+public void RemoveAllDidChangeCallbacks (UnityAction<%CSHARPTYPE%> action)
+    {
+    this.didChange.RemoveListener (action);
     }
 
 
@@ -106,7 +121,7 @@ void OnDisable ()
 
 
 
-public void OnDidChange (%TYPE% newValue)
+public void OnDidChange (%CSHARPTYPE% newValue)
     {
     this.didChange.Invoke (newValue);
     }

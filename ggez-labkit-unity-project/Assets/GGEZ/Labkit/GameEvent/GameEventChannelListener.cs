@@ -50,25 +50,25 @@ public class GameEventChannelListener : MonoBehaviour
 #region Key
 [Header ("Key")]
 [SerializeField, Delayed]
-private string _key;
+private string key;
 public string Key
     {
     get
         {
-        return this._key;
+        return this.key;
         }
     set
         {
-        if (this._key.Equals (value))
+        if (this.key.Equals (value))
             {
             this.GameEventChannelIn.UnregisterListener (this);
             }
         else
             {
-            this.GameEventChannelIn.UnregisterListener (this._key, this);
+            this.GameEventChannelIn.UnregisterListener (this.key, this);
             }
-        this._key = value;
-        this.GameEventChannelIn.RegisterListener (this._key, this);
+        this.key = value;
+        this.GameEventChannelIn.RegisterListener (this.key, this);
         }
     }
 #endregion
@@ -77,7 +77,7 @@ public string Key
 
 void OnValidate ()
     {
-    this.Key = this._key;
+    this.Key = this.key;
     }
 
 

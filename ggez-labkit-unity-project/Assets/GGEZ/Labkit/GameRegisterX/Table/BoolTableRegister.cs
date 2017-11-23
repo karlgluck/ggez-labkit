@@ -38,26 +38,37 @@ namespace GGEZ
 //----------------------------------------------------------------------
 [
 Serializable,
-CreateAssetMenu (fileName = "New Percent Table Register.asset", menuName="GGEZ/Game Register/Table/percent Table Register")
+CreateAssetMenu (fileName = "New Bool Table Register.asset", menuName="GGEZ/Game Register/Table/bool Table Register")
 ]
-public class PercentTableRegister : GameTableRegister, ISerializationCallbackReceiver
+public class BoolTableRegister : GameTableRegister, ISerializationCallbackReceiver
 {
 
 // The value used when a listener registers for a nonexistent key
-[SerializeField] private float defaultValue;
+[SerializeField] private bool defaultValue;
 
+public bool DefaultValue
+    {
+    get
+        {
+        return this.defaultValue;
+        }
+    set
+        {
+        this.defaultValue = value;
+        }
+    }
 
-private Dictionary<string, float> table = new Dictionary<string, float>();
+private Dictionary<string, bool> table = new Dictionary<string, bool>();
 
 
 #region Serialization
 
 // All the values that the table should start with
-[SerializeField] private List<PercentTableRegisterKeyValuePair> initialTable = new List<PercentTableRegisterKeyValuePair> ();
+[SerializeField] private List<BoolTableRegisterKeyValuePair> initialTable = new List<BoolTableRegisterKeyValuePair> ();
 
 // Values that the table has at runtime only. Entries are cleared out when
 // listeners unregister.
-[SerializeField] private List<PercentTableRegisterKeyValuePair> runtimeTable = new List<PercentTableRegisterKeyValuePair> ();
+[SerializeField] private List<BoolTableRegisterKeyValuePair> runtimeTable = new List<BoolTableRegisterKeyValuePair> ();
 
 void ISerializationCallbackReceiver.OnBeforeSerialize ()
     {
@@ -67,7 +78,7 @@ void ISerializationCallbackReceiver.OnBeforeSerialize ()
     this.runtimeTable.Capacity = Mathf.Max (this.runtimeTable.Capacity, runtimeKeys.Count);
     foreach (var key in runtimeKeys)
         {
-        this.runtimeTable.Add (new PercentTableRegisterKeyValuePair (key, this.table[key]));
+        this.runtimeTable.Add (new BoolTableRegisterKeyValuePair (key, this.table[key]));
         }
     }
 
@@ -96,7 +107,7 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
     deletedKeys.ExceptWith (runtimeTableKeys);
     foreach (var key in deletedKeys)
         {
-        this.runtimeTable.Add (new PercentTableRegisterKeyValuePair (key, this[key]));
+        this.runtimeTable.Add (new BoolTableRegisterKeyValuePair (key, this[key]));
         }
 
     // Clean up initial keys so that there are no duplicates
@@ -117,7 +128,7 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
     this.dirtyKeys.Clear ();
     foreach (var kvp in this.runtimeTable)
         {
-        float value;
+        bool value;
         if (this.table.TryGetValue (kvp.Name, out value) && !value.Equals (kvp.Value))
             {
             this.dirtyKeys.Add (kvp.Name);
@@ -142,9 +153,9 @@ private List<string> dirtyKeys = new List<string> ();
 
 void Reset ()
     {
-    this.table = new Dictionary<string, float> ();
-    this.initialTable = new List<PercentTableRegisterKeyValuePair> ();
-    this.runtimeTable = new List<PercentTableRegisterKeyValuePair> ();
+    this.table = new Dictionary<string, bool> ();
+    this.initialTable = new List<BoolTableRegisterKeyValuePair> ();
+    this.runtimeTable = new List<BoolTableRegisterKeyValuePair> ();
     this.dirtyKeys.Clear ();
     this.listenersTable.Clear ();
     }
@@ -155,7 +166,7 @@ void OnValidate ()
         {
         foreach (var key in this.dirtyKeys)
             {
-            List<PercentTableRegisterListener> listeners;
+            List<BoolTableRegisterListener> listeners;
             if (this.listenersTable.TryGetValue (key, out listeners))
                 {
                 var value = this[key];
@@ -183,11 +194,11 @@ void OnValidate ()
 #endregion
 
 
-public float this[string key]
+public bool this[string key]
     {
     get
         {
-        float value;
+        bool value;
         if (this.table.TryGetValue (key, out value))
             {
             return value;
@@ -196,13 +207,13 @@ public float this[string key]
         }
     set
         {
-        float currentValue;
+        bool currentValue;
         if (this.table.TryGetValue (key, out currentValue) && currentValue.Equals (value))
             {
             return;
             }
         this.table[key] = value;
-        List<PercentTableRegisterListener> listeners;
+        List<BoolTableRegisterListener> listeners;
         if (this.listenersTable.TryGetValue (key, out listeners))
             {
             for (int i = listeners.Count - 1; i >= 0; --i)
@@ -216,7 +227,7 @@ public float this[string key]
 
 public bool Remove (string key)
     {
-    List<PercentTableRegisterListener> listeners;
+    List<BoolTableRegisterListener> listeners;
     if (!this.listenersTable.TryGetValue (key, out listeners))
         {
         return this.table.Remove (key);
@@ -228,7 +239,7 @@ public bool Remove (string key)
 
 
 
-public Dictionary<string, float>.Enumerator GetEnumerator ()
+public Dictionary<string, bool>.Enumerator GetEnumerator ()
     {
     return this.table.GetEnumerator ();
     }
@@ -236,7 +247,7 @@ public Dictionary<string, float>.Enumerator GetEnumerator ()
 
 
 
-public Dictionary<string, float>.KeyCollection Keys
+public Dictionary<string, bool>.KeyCollection Keys
     {
     get
         {
@@ -258,7 +269,7 @@ public ICollection<string> KeysWithListeners
 
 
 
-public Dictionary<string, float>.ValueCollection Values
+public Dictionary<string, bool>.ValueCollection Values
     {
     get
         {
@@ -269,13 +280,13 @@ public Dictionary<string, float>.ValueCollection Values
 
 
 
-private Dictionary<string,List<PercentTableRegisterListener>> listenersTable = new Dictionary<string,List<PercentTableRegisterListener>>();
+private Dictionary<string,List<BoolTableRegisterListener>> listenersTable = new Dictionary<string,List<BoolTableRegisterListener>>();
 
 
 
 
 
-public void RegisterListener (string key, PercentTableRegisterListener listener)
+public void RegisterListener (string key, BoolTableRegisterListener listener)
     {
     if (key == null)
         {
@@ -285,15 +296,15 @@ public void RegisterListener (string key, PercentTableRegisterListener listener)
         {
         throw new ArgumentNullException ("listener");
         }
-    List<PercentTableRegisterListener> listeners;
+    List<BoolTableRegisterListener> listeners;
     if (!this.listenersTable.TryGetValue (key, out listeners))
         {
-        listeners = new List<PercentTableRegisterListener> ();
+        listeners = new List<BoolTableRegisterListener> ();
         this.listenersTable.Add (key, listeners);
         }
     listeners.Add (listener);
 
-    float value;
+    bool value;
     if (!this.table.TryGetValue (key, out value))
         {
         value = this.defaultValue;
@@ -306,7 +317,7 @@ public void RegisterListener (string key, PercentTableRegisterListener listener)
 
 
 
-public void UnregisterListener (string key, PercentTableRegisterListener listener)
+public void UnregisterListener (string key, BoolTableRegisterListener listener)
     {
     if (key == null)
         {
@@ -316,7 +327,7 @@ public void UnregisterListener (string key, PercentTableRegisterListener listene
         {
         throw new ArgumentNullException ("listener");
         }
-    List<PercentTableRegisterListener> listeners;
+    List<BoolTableRegisterListener> listeners;
     if (this.listenersTable.TryGetValue (key, out listeners))
         {
         listeners.Remove (listener);
@@ -343,19 +354,19 @@ public void UnregisterListener (string key, PercentTableRegisterListener listene
 // Holds entries saved into the serialized form of the table
 //----------------------------------------------------------------------
 [System.Serializable]
-public class PercentTableRegisterKeyValuePair
+public class BoolTableRegisterKeyValuePair
 {
 
 // By using the value "Name" for the key, Unity's default inspector will
 // render the text more nicely.
 [Delayed] public string Name;
-public float Value;
+public bool Value;
 
-public PercentTableRegisterKeyValuePair ()
+public BoolTableRegisterKeyValuePair ()
     {
     }
 
-public PercentTableRegisterKeyValuePair (string key, float value)
+public BoolTableRegisterKeyValuePair (string key, bool value)
     {
     this.Name = key;
     this.Value = value;
