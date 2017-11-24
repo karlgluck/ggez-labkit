@@ -8,6 +8,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8cec4f504e13daa4592d0b8a2536a2ee, type: 3}
-  m_Name: New Game Event
+  m_Script: {fileID: 11500000, guid: 0a9ae090f125b6a4cbaf91d47498dd1f, type: 3}
+  m_Name: New Game Event Channel
   m_EditorClassIdentifier: 

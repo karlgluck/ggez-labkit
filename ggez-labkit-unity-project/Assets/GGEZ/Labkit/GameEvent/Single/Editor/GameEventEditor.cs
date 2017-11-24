@@ -50,6 +50,8 @@ void OnEnable ()
 
 public override void OnInspectorGUI ()
     {
+    this.serializedObject.UpdateIfRequiredOrScript ();
+
     EditorGUI.BeginDisabledGroup (!EditorApplication.isPlaying);
 
     if (GUILayout.Button ("Trigger"))

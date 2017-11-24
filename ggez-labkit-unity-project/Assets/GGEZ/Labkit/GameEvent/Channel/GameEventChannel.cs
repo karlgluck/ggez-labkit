@@ -34,60 +34,83 @@ namespace GGEZ
 
 //----------------------------------------------------------------------
 // Helper class for binding events through prefabs, scenes and assets.
-// UnityEvent fields are bound to GameEvent.Trigger on a named asset.
-// GameEventListeners register themselves to a named asset in order
-// to be notified when an event occurs. The GameEventListener then has
-// its own UnityEvent field that dispatches the event.
+//
+// Similar to GameEvent. However, listeners register for events that
+// match a certain key and the trigger must provide a key.
 //----------------------------------------------------------------------
-[CreateAssetMenu (fileName = "New Game Event.asset", menuName="GGEZ/Game Event/Game Event")]
-public class GameEvent : ScriptableObject
+[CreateAssetMenu (fileName = "New Game Event Channel.asset", menuName="GGEZ/Game Event/Event Channel")]
+public class GameEventChannel : ScriptableObject
 {
 
 
 #region Runtime
-private List<GameEventListener> listeners = new List<GameEventListener>();
+private Dictionary<string, List<GameEventChannelListener>> listeners = new Dictionary<string, List<GameEventChannelListener>> ();
 #endregion
 
 
-public IList<GameEventListener> Listeners
+
+
+public void RegisterListener (string key, GameEventChannelListener listener)
     {
-    get
+    if (key == null)
         {
-        return this.listeners.AsReadOnly ();
+        throw new ArgumentNullException ("key");
         }
-    }
-
-
-
-public void RegisterListener (GameEventListener listener)
-    {
     if (listener == null)
         {
         throw new ArgumentNullException ("listener");
         }
-    this.listeners.Add (listener);
+    List<GameEventChannelListener> listenersForKey;
+    if (!this.listeners.TryGetValue (key, out listenersForKey))
+        {
+        listenersForKey = new List<GameEventChannelListener>();
+        this.listeners.Add (key, listenersForKey);
+        }
+    listenersForKey.Add (listener);
     }
 
 
 
 
-public void UnregisterListener (GameEventListener listener)
+public void UnregisterListener (string key, GameEventChannelListener listener)
     {
+    if (key == null)
+        {
+        throw new ArgumentNullException ("key");
+        }
     if (listener == null)
         {
         throw new ArgumentNullException ("listener");
         }
-    this.listeners.Remove (listener);
+    List<GameEventChannelListener> listenersForKey;
+    if (!this.listeners.TryGetValue (key, out listenersForKey))
+        {
+        throw new InvalidOperationException ("key does not exist");
+        }
+    listenersForKey.Remove (listener);
+    if (listenersForKey.Count == 0)
+        {
+        this.listeners.Remove (key);
+        }
     }
 
 
 
 
-public void Trigger ()
+public void Trigger (string key)
     {
-    for (int i = this.listeners.Count - 1; i >= 0; --i)
+    if (key == null)
         {
-        this.listeners[i].OnDidTrigger ();
+        throw new ArgumentNullException ("key");
+        }
+    List<GameEventChannelListener> listenersForKey;
+    if (!this.listeners.TryGetValue (key, out listenersForKey))
+        {
+        return;
+        }
+    for (int i = listenersForKey.Count - 1; i >= 0; --i)
+        {
+        listenersForKey[i].OnDidTrigger ();
         }
     }
 

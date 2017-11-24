@@ -139,7 +139,7 @@ public void OnDidTrigger ()
 
 
 //----------------------------------------------------------------------
-// Handle the Unity Editor changing gameEventIn from the inspector
+// Handle the Unity Editor changing gameEvent from the inspector
 //----------------------------------------------------------------------
 #if UNITY_EDITOR
 private GameEvent previousGameEvent;
