@@ -1,0 +1,180 @@
+// This is free and unencumbered software released into the public domain.
+//
+// Anyone is free to copy, modify, publish, use, compile, sell, or
+// distribute this software, either in source code form or as a compiled
+// binary, for any purpose, commercial or non-commercial, and by any
+// means.
+//
+// In jurisdictions that recognize copyright laws, the author or authors
+// of this software dedicate any and all copyright interest in the
+// software to the public domain. We make this dedication for the benefit
+// of the public at large and to the detriment of our heirs and
+// successors. We intend this dedication to be an overt act of
+// relinquishment in perpetuity of all present and future rights to this
+// software under copyright law.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+// OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+// ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+//
+// For more information, please refer to <http://unlicense.org/>
+
+using System;
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine.Events;
+namespace GGEZ
+{
+
+[Serializable]
+public class UnityEventFor%UPPERNAME%Event : UnityEvent<%CSHARPTYPE%>
+{
+}
+
+
+//----------------------------------------------------------------------
+//----------------------------------------------------------------------
+[
+AddComponentMenu ("GGEZ/Game Event/%NAME% Event Listener")
+]
+public class %UPPERNAME%EventListener : MonoBehaviour
+{
+
+
+
+#region Serialized
+[Header ("Serialized")]
+[SerializeField] private %UPPERNAME%Event %LOWERNAME%Event;
+[SerializeField] private UnityEventFor%UPPERNAME%Event didTrigger = new UnityEventFor%UPPERNAME%Event ();
+#endregion
+
+
+public %UPPERNAME%Event %UPPERNAME%Event
+    {
+    get
+        {
+        return this.%LOWERNAME%Event;
+        }
+    set
+        {
+        if (object.ReferenceEquals (this.%LOWERNAME%Event, value))
+            {
+            return;
+            }
+        if (this.hasBeenEnabled && this.%LOWERNAME%Event != null)
+            {
+            this.%LOWERNAME%Event.UnregisterListener (this);
+            }
+        this.%LOWERNAME%Event = value;
+#if UNITY_EDITOR
+        if (this.hasBeenEnabled)
+            {
+            this.previous%UPPERNAME%Event = value;
+            }
+#endif
+        if (this.hasBeenEnabled && this.%LOWERNAME%Event != null)
+            {
+            this.%LOWERNAME%Event.RegisterListener (this);
+            }
+        }
+    }
+
+
+
+
+private bool hasBeenEnabled;
+
+void OnEnable ()
+    {
+    if (this.%LOWERNAME%Event != null)
+        {
+        this.%LOWERNAME%Event.RegisterListener (this);
+        }
+#if UNITY_EDITOR
+    this.hasBeenEnabled = true;
+    this.previous%UPPERNAME%Event = this.%LOWERNAME%Event;
+#endif
+    }
+
+
+
+
+void OnDisable ()
+    {
+    if (this.%LOWERNAME%Event != null)
+        {
+        this.%LOWERNAME%Event.UnregisterListener (this);
+        }
+#if UNITY_EDITOR
+    this.hasBeenEnabled = false;
+    this.previous%UPPERNAME%Event = null;
+#endif
+    }
+
+public void AddDidTriggerCallback (UnityAction<%CSHARPTYPE%> action)
+    {
+    this.didTrigger.AddListener (action);
+    }
+
+public void RemoveDidTriggerCallback (UnityAction<%CSHARPTYPE%> action)
+    {
+    this.didTrigger.RemoveListener (action);
+    }
+
+public void RemoveAllDidTriggerCallbacks (UnityAction<%CSHARPTYPE%> action)
+    {
+    this.didTrigger.RemoveListener (action);
+    }
+
+
+
+
+public void OnDidTrigger (%CSHARPTYPE% value)
+    {
+    this.didTrigger.Invoke (value);
+    }
+
+
+
+
+//----------------------------------------------------------------------
+// Handle the Unity Editor changing %LOWERNAME%Event from the inspector
+//----------------------------------------------------------------------
+#if UNITY_EDITOR
+private %UPPERNAME%Event previous%UPPERNAME%Event;
+
+
+void OnValidate ()
+    {
+    if (this.hasBeenEnabled
+            && !object.ReferenceEquals (this.%LOWERNAME%Event, this.previous%UPPERNAME%Event))
+        {
+        if (this.previous%UPPERNAME%Event != null)
+            {
+            this.previous%UPPERNAME%Event.UnregisterListener (this);
+            }
+        this.previous%UPPERNAME%Event = this.%LOWERNAME%Event;
+        if (this.%LOWERNAME%Event != null)
+            {
+            this.%LOWERNAME%Event.RegisterListener (this);
+            }
+        }
+    }
+
+
+#endif
+
+
+
+
+
+
+}
+
+
+}

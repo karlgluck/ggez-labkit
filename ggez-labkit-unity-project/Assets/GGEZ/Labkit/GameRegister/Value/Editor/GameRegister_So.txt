@@ -36,7 +36,7 @@ namespace GGEZ
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [Serializable, CreateAssetMenu (fileName = "New %UPPERNAME% Register.asset", menuName="GGEZ/Game Register/%NAME% Register")]
-public class %UPPERNAME%Register : GameRegister
+public class %UPPERNAME%Register : BaseGameRegister
 {
 
 [SerializeField] private %CSHARPTYPE% initialValue;
@@ -78,7 +78,7 @@ public void SetAssetInitialValue (bool value)
         }
     this.initialValue = value;
     }
-    
+
 #endif
 
 void Awake ()

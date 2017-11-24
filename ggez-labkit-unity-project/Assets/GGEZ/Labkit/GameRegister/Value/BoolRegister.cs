@@ -36,7 +36,7 @@ namespace GGEZ
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [Serializable, CreateAssetMenu (fileName = "New Bool Register.asset", menuName="GGEZ/Game Register/bool Register")]
-public class BoolRegister : GameRegister
+public class BoolRegister : BaseGameRegister
 {
 
 [SerializeField] private bool initialValue;

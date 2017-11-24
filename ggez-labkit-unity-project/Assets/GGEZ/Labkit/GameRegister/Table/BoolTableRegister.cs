@@ -40,7 +40,7 @@ namespace GGEZ
 Serializable,
 CreateAssetMenu (fileName = "New Bool Table Register.asset", menuName="GGEZ/Game Register/Table/bool Table Register")
 ]
-public class BoolTableRegister : GameTableRegister, ISerializationCallbackReceiver
+public class BoolTableRegister : BaseGameTableRegister, ISerializationCallbackReceiver
 {
 
 // The value used when a listener registers for a nonexistent key

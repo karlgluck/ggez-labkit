@@ -35,7 +35,7 @@ namespace GGEZ
 
 
 [
-CustomEditor(typeof (GameTableRegister), true),
+CustomEditor(typeof (BaseGameTableRegister), true),
 CanEditMultipleObjects
 ]
 public class GameTableRegisterEditor : Editor

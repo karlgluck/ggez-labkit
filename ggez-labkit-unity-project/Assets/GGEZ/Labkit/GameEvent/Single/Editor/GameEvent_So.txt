@@ -25,23 +25,74 @@
 
 using System;
 using UnityEngine;
+using System.Collections.Generic;
+using UnityEngine.Events;
 
 namespace GGEZ
 {
 
 
 
+
+
 //----------------------------------------------------------------------
-// Base class for all GameTableRegister types.
-//
-// Lets us write just 1 custom Editor for all GameTableRegisters
+// Helper class for binding events through prefabs, scenes and assets.
 //----------------------------------------------------------------------
-[Serializable]
-public class GameTableRegister : ScriptableObject
+[CreateAssetMenu (fileName = "New %UPPERNAME% Event.asset", menuName="GGEZ/Game Event/%UPPERNAME% Event")]
+public class %UPPERNAME%Event : ScriptableObject
 {
+
+
+#region Runtime
+private List<%UPPERNAME%EventListener> listeners = new List<%UPPERNAME%EventListener>();
+#endregion
+
+
+public IList<%UPPERNAME%EventListener> Listeners
+    {
+    get
+        {
+        return this.listeners.AsReadOnly ();
+        }
+    }
+
+
+
+public void RegisterListener (%UPPERNAME%EventListener listener)
+    {
+    if (listener == null)
+        {
+        throw new ArgumentNullException ("listener");
+        }
+    this.listeners.Add (listener);
+    }
+
+
+
+
+public void UnregisterListener (%UPPERNAME%EventListener listener)
+    {
+    if (listener == null)
+        {
+        throw new ArgumentNullException ("listener");
+        }
+    this.listeners.Remove (listener);
+    }
+
+
+
+
+public void Trigger (%CSHARPTYPE% value)
+    {
+    for (int i = this.listeners.Count - 1; i >= 0; --i)
+        {
+        this.listeners[i].OnDidTrigger (value);
+        }
+    }
+
+
+
+
 }
-
-
-
 
 }

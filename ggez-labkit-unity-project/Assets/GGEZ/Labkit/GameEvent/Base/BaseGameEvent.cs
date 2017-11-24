@@ -32,12 +32,12 @@ namespace GGEZ
 
 
 //----------------------------------------------------------------------
-// Base class for all GameRegister types.
+// Base class for all GameEvent types.
 //
-// Lets us write just 1 custom Editor for all GameRegisters.
+// Lets us write just 1 custom Editor for all GameEvents.
 //----------------------------------------------------------------------
 [Serializable]
-public class GameRegister : ScriptableObject
+public class BaseGameEvent : ScriptableObject
 {
 }
 
