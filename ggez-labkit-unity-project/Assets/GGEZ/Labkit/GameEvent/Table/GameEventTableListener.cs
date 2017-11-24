@@ -77,7 +77,7 @@ public string Key
 
 #region Event Table
 [SerializeField] private GameEventTable gameEventTable;
-[SerializeField] private UnityEvent didTrigger;
+[SerializeField] private UnityEvent didTrigger = new UnityEvent ();
 #endregion
 
 

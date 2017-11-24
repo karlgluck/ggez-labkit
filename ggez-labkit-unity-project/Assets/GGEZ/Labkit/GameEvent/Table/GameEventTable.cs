@@ -44,7 +44,7 @@ public class GameEventTable : ScriptableObject
 
 
 #region Runtime
-private Dictionary<string, List<GameEventTableListener>> listeners = new Dictionary<string, List<GameEventTableListener>> ();
+private Dictionary<string, List<GameEventTableListener>> listenersTable = new Dictionary<string, List<GameEventTableListener>> ();
 #endregion
 
 
@@ -61,10 +61,10 @@ public void RegisterListener (string key, GameEventTableListener listener)
         throw new ArgumentNullException ("listener");
         }
     List<GameEventTableListener> listenersForKey;
-    if (!this.listeners.TryGetValue (key, out listenersForKey))
+    if (!this.listenersTable.TryGetValue (key, out listenersForKey))
         {
         listenersForKey = new List<GameEventTableListener>();
-        this.listeners.Add (key, listenersForKey);
+        this.listenersTable.Add (key, listenersForKey);
         }
     listenersForKey.Add (listener);
     }
@@ -83,14 +83,14 @@ public void UnregisterListener (string key, GameEventTableListener listener)
         throw new ArgumentNullException ("listener");
         }
     List<GameEventTableListener> listenersForKey;
-    if (!this.listeners.TryGetValue (key, out listenersForKey))
+    if (!this.listenersTable.TryGetValue (key, out listenersForKey))
         {
         throw new InvalidOperationException ("key does not exist");
         }
     listenersForKey.Remove (listener);
     if (listenersForKey.Count == 0)
         {
-        this.listeners.Remove (key);
+        this.listenersTable.Remove (key);
         }
     }
 
@@ -104,13 +104,24 @@ public void Trigger (string key)
         throw new ArgumentNullException ("key");
         }
     List<GameEventTableListener> listenersForKey;
-    if (!this.listeners.TryGetValue (key, out listenersForKey))
+    if (!this.listenersTable.TryGetValue (key, out listenersForKey))
         {
         return;
         }
     for (int i = listenersForKey.Count - 1; i >= 0; --i)
         {
         listenersForKey[i].OnDidTrigger ();
+        }
+    }
+
+
+
+
+public ICollection<string> KeysWithListeners
+    {
+    get
+        {
+        return this.listenersTable.Keys;
         }
     }
 

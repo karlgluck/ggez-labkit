@@ -45,7 +45,7 @@ void OnEnable ()
     {
     this.listenersTableField =
             this.targets.Length == 1
-            ? this.target.GetType ().GetField ("listeners", BindingFlags.NonPublic | BindingFlags.Instance)
+            ? this.target.GetType ().GetField ("listenersTable", BindingFlags.NonPublic | BindingFlags.Instance)
             : null;
     }
 
