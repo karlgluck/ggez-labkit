@@ -23,24 +23,25 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
+using System;
 using UnityEngine;
-using UnityEditor;
 
 namespace GGEZ
 {
-[CustomEditor(typeof (GameEvent))]
-public class GameEventEditor : Editor
-{
 
-public override void OnInspectorGUI ()
-    {
-    var t = (GameEvent)target;
-    EditorGUI.BeginDisabledGroup (!Application.isPlaying);
-    if (GUILayout.Button ("Trigger"))
-        {
-        t.Trigger ();
-        }
-    EditorGUI.EndDisabledGroup ();
-    }
+
+
+//----------------------------------------------------------------------
+// Base class for all GameRegister types.
+//
+// Lets us write just 1 custom Editor for all GameRegisters.
+//----------------------------------------------------------------------
+[Serializable]
+public class GameRegister : ScriptableObject
+{
 }
+
+
+
+
 }

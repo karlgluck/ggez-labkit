@@ -83,7 +83,7 @@ void OnSceneGUI ()
     // SceneView.currentDrawingSceneView.isRotationLocked = true;
     // SceneView.currentDrawingSceneView.in2DMode = true;
 
-    bool shouldPreventClicksFromPassingThrough = Event.current.type == EventType.layout;
+    bool shouldPreventClicksFromPassingThrough = Event.current.type == EventType.Layout;
     if (shouldPreventClicksFromPassingThrough)
         {
         HandleUtility.AddDefaultControl (GUIUtility.GetControlID (this.GetHashCode(), FocusType.Passive));

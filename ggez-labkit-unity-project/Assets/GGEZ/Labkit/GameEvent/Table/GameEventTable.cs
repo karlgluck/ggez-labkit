@@ -38,19 +38,19 @@ namespace GGEZ
 // Similar to GameEvent. However, listeners register for events that
 // match a certain key and the trigger must provide a key.
 //----------------------------------------------------------------------
-[CreateAssetMenu (fileName = "New Game Event.asset", menuName="GGEZ/Game Event")]
-public class GameEventChannel : ScriptableObject
+[CreateAssetMenu (fileName = "New Game Event Table.asset", menuName="GGEZ/Game Event/Event Table")]
+public class GameEventTable : ScriptableObject
 {
 
 
 #region Runtime
-private Dictionary<string, List<GameEventChannelListener>> listeners = new Dictionary<string, List<GameEventChannelListener>> ();
+private Dictionary<string, List<GameEventTableListener>> listenersTable = new Dictionary<string, List<GameEventTableListener>> ();
 #endregion
 
 
 
 
-public void RegisterListener (string key, GameEventChannelListener listener)
+public void RegisterListener (string key, GameEventTableListener listener)
     {
     if (key == null)
         {
@@ -60,11 +60,11 @@ public void RegisterListener (string key, GameEventChannelListener listener)
         {
         throw new ArgumentNullException ("listener");
         }
-    List<GameEventChannelListener> listenersForKey;
-    if (!this.listeners.TryGetValue (key, out listenersForKey))
+    List<GameEventTableListener> listenersForKey;
+    if (!this.listenersTable.TryGetValue (key, out listenersForKey))
         {
-        listenersForKey = new List<GameEventChannelListener>();
-        this.listeners.Add (key, listenersForKey);
+        listenersForKey = new List<GameEventTableListener>();
+        this.listenersTable.Add (key, listenersForKey);
         }
     listenersForKey.Add (listener);
     }
@@ -72,7 +72,7 @@ public void RegisterListener (string key, GameEventChannelListener listener)
 
 
 
-public void UnregisterListener (string key, GameEventChannelListener listener)
+public void UnregisterListener (string key, GameEventTableListener listener)
     {
     if (key == null)
         {
@@ -82,31 +82,15 @@ public void UnregisterListener (string key, GameEventChannelListener listener)
         {
         throw new ArgumentNullException ("listener");
         }
-    List<GameEventChannelListener> listenersForKey;
-    if (!this.listeners.TryGetValue (key, out listenersForKey))
+    List<GameEventTableListener> listenersForKey;
+    if (!this.listenersTable.TryGetValue (key, out listenersForKey))
         {
         throw new InvalidOperationException ("key does not exist");
         }
     listenersForKey.Remove (listener);
-    }
-
-
-
-
-//----------------------------------------------------------------------
-// Slow form of UnregisterListener that removes the listener from any
-// key list that it was in. Necessary when the inspector is used to
-// change the listener's channel at runtime.
-//----------------------------------------------------------------------
-public void UnregisterListener (GameEventChannelListener listener)
-    {
-    if (listener == null)
+    if (listenersForKey.Count == 0)
         {
-        throw new ArgumentNullException ("listener");
-        }
-    foreach (var listenersForKey in this.listeners.Values)
-        {
-        listenersForKey.Remove (listener);
+        this.listenersTable.Remove (key);
         }
     }
 
@@ -119,14 +103,25 @@ public void Trigger (string key)
         {
         throw new ArgumentNullException ("key");
         }
-    List<GameEventChannelListener> listenersForKey;
-    if (!this.listeners.TryGetValue (key, out listenersForKey))
+    List<GameEventTableListener> listenersForKey;
+    if (!this.listenersTable.TryGetValue (key, out listenersForKey))
         {
         return;
         }
     for (int i = listenersForKey.Count - 1; i >= 0; --i)
         {
-        listenersForKey[i].OnDidTrigger (key);
+        listenersForKey[i].OnDidTrigger ();
+        }
+    }
+
+
+
+
+public ICollection<string> KeysWithListeners
+    {
+    get
+        {
+        return this.listenersTable.Keys;
         }
     }
 

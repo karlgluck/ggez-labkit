@@ -23,37 +23,25 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
+using System;
 using UnityEngine;
-using UnityEditor;
 
 namespace GGEZ
 {
-[CustomEditor(typeof (GameEventListener))]
-public class GameEventListenerEditor : Editor
+
+
+
+//----------------------------------------------------------------------
+// Base class for all GameTableRegister types.
+//
+// Lets us write just 1 custom Editor for all GameTableRegisters
+//----------------------------------------------------------------------
+[Serializable]
+public class GameTableRegister : ScriptableObject
 {
-
-private SerializedProperty gameEventIn;
-private SerializedProperty unityEventOut;
-
-void OnEnable ()
-    {
-    this.gameEventIn = this.serializedObject.FindProperty ("gameEventIn");
-    this.unityEventOut = this.serializedObject.FindProperty ("unityEventOut");
-    }
-
-public override void OnInspectorGUI ()
-    {
-    EditorGUILayout.PropertyField (this.gameEventIn);
-    EditorGUILayout.PropertyField (this.unityEventOut);
-
-    EditorGUI.BeginDisabledGroup (!Application.isPlaying);
-    if (GUILayout.Button ("Trigger"))
-        {
-        t.OnDidTrigger ();
-        }
-    EditorGUI.EndDisabledGroup ();
-
-    this.serializedObject.ApplyModifiedProperties ();
-    }
 }
+
+
+
+
 }

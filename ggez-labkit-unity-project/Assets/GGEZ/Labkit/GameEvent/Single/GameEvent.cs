@@ -32,18 +32,14 @@ namespace GGEZ
 {
 
 
-// the UI (or something else) calls GameEvent.Trigger
-// GameEvent.Trigger invokes GameEventListener.OnDidTrigger
-
-// MultiChannel.Trigger ("name")
-
-// Channel.Send invokes Receiver.OnDidReceive
 //----------------------------------------------------------------------
 // Helper class for binding events through prefabs, scenes and assets.
-//
-// Objects call GameEvent.Trigger
+// UnityEvent fields are bound to GameEvent.Trigger on a named asset.
+// GameEventListeners register themselves to a named asset in order
+// to be notified when an event occurs. The GameEventListener then has
+// its own UnityEvent field that dispatches the event.
 //----------------------------------------------------------------------
-[CreateAssetMenu (fileName = "New Game Event.asset", menuName="GGEZ/Game Event")]
+[CreateAssetMenu (fileName = "New Game Event.asset", menuName="GGEZ/Game Event/Single Event")]
 public class GameEvent : ScriptableObject
 {
 
@@ -52,6 +48,14 @@ public class GameEvent : ScriptableObject
 private List<GameEventListener> listeners = new List<GameEventListener>();
 #endregion
 
+
+public IList<GameEventListener> Listeners
+    {
+    get
+        {
+        return this.listeners.AsReadOnly ();
+        }
+    }
 
 
 
