@@ -39,7 +39,7 @@ namespace GGEZ
 // Helper class for binding events through prefabs, scenes and assets.
 //----------------------------------------------------------------------
 [CreateAssetMenu (fileName = "New Bool Event.asset", menuName="GGEZ/Game Event/Bool Event")]
-public class BoolEvent : ScriptableObject
+public class BoolEvent : BaseGameEvent
 {
 
 

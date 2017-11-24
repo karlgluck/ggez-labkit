@@ -36,7 +36,7 @@ namespace GGEZ
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [
-AddComponentMenu ("GGEZ/Game Event/Event Listener")
+AddComponentMenu ("GGEZ/Game Event/Game Event Listener")
 ]
 public class GameEventListener : MonoBehaviour
 {

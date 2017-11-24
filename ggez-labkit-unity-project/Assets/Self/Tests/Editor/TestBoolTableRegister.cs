@@ -275,7 +275,7 @@ public void ManyListenersGetCalledWhenValueIsChanged ()
     bool didThirdListenerGetCalled = false;
     thirdListener.AddDidChangeCallback (
             (bool value) => { didThirdListenerGetCalled = true; }
-            );    
+            );
     Assert.AreEqual (0, callbacksReceived, "no calls yet");
     register["TestKey"] = true;
 
@@ -311,6 +311,29 @@ public void ListenerGetsCalledWhenValueIsRemoved ()
 
     Assert.IsTrue (setWhenCalled, "listener gets callback when value is removed");
     Assert.IsTrue (valueFromCallback, "listener gets called with default value when removed");
+
+    GameObject.DestroyImmediate (listener.gameObject);
+    ScriptableObject.DestroyImmediate (register, false);
+    }
+
+
+[Test]
+public void ListenerGetsCalledWithValueSetOnRegisterWithoutListenersWhenRegistered ()
+    {
+
+    var register = ScriptableObject.CreateInstance <BoolTableRegister> ();
+    register.DefaultValue = false;
+    register["TestKey"] = true;
+
+    var listener = CreateWithMonoBehaviour <BoolTableRegisterListener> ();
+    listener.Key = "TestKey";
+    listener.TableRegister = register;
+
+    bool valueFromCallback = false;
+    listener.AddDidChangeCallback ( (bool value) => { valueFromCallback = value; } );
+    this.CallOnEnable (listener);
+
+    Assert.IsTrue (valueFromCallback, "listener gets callback with default value when registered; the value is not the one that was set");
 
     GameObject.DestroyImmediate (listener.gameObject);
     ScriptableObject.DestroyImmediate (register, false);

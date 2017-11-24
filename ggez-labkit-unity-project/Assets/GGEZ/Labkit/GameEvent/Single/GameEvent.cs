@@ -40,7 +40,7 @@ namespace GGEZ
 // its own UnityEvent field that dispatches the event.
 //----------------------------------------------------------------------
 [CreateAssetMenu (fileName = "New Game Event.asset", menuName="GGEZ/Game Event/Single Event")]
-public class GameEvent : ScriptableObject
+public class GameEvent : BaseGameEvent
 {
 
 

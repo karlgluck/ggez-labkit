@@ -27,41 +27,138 @@ using UnityEngine;
 using UnityEditor;
 using System.Reflection;
 using System.Collections;
+using System.Collections.Generic;
+using System;
+using System.Reflection.Emit;
 
 namespace GGEZ
 {
+public abstract class ScriptableObjectWithFieldBase : ScriptableObject
+{
+public abstract object GetValue ();
+}
+
+[Serializable]
+public class ScriptableObjectWithField<T> : ScriptableObjectWithFieldBase
+{
+public T value;
+public override object GetValue ()
+    {
+    return this.value;
+    }
+}
 
 
-
-[CustomEditor(typeof (GameEvent))]
+[CustomEditor(typeof (BaseGameEvent), true)]
 public class GameEventEditor : Editor
 {
 
 private FieldInfo listenersField;
 private bool listenersFoldout;
 
+private static Dictionary <Type, Type> backingTypeForType = new Dictionary <Type, Type> ();
+private static SerializedProperty createSerializedPropertyFor (Type type, out UnityEngine.Object fieldBackingObject)
+    {
+    string typeName = "SerializedPropertyFor" + type.Name;
+    Type createdType = null;
+    if (backingTypeForType.TryGetValue (type, out createdType))
+        {
+        // Debug.LogFormat ("Type looked up is {0}", createdType.FullName);
+        }
+    else
+        {
+        var an = new AssemblyName (typeName);
+        AssemblyBuilder assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (an, AssemblyBuilderAccess.Run);
+        ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule("MainModule");
+        TypeBuilder tb = moduleBuilder.DefineType (typeName,
+                TypeAttributes.Public |
+                TypeAttributes.Class |
+                TypeAttributes.AutoClass |
+                TypeAttributes.AnsiClass |
+                TypeAttributes.BeforeFieldInit |
+                TypeAttributes.AutoLayout,
+                null);
+        tb.SetParent (typeof(ScriptableObjectWithField<>).MakeGenericType(type));
+        ConstructorBuilder constructor = tb.DefineDefaultConstructor(MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
+        createdType = tb.CreateType ();
+        // Debug.LogFormat ("Type created is {0}", createdType.FullName);
+        backingTypeForType.Add (type, createdType);
+        }
+    var obj = (UnityEngine.Object)ScriptableObject.CreateInstance(createdType);
+    // Debug.LogFormat ("Instance = {0}", obj);
+    fieldBackingObject = obj;
+    return new SerializedObject (obj).FindProperty ("value");
+    }
+
+private MethodInfo triggerMethod;
+private SerializedProperty triggerParameter;
+private UnityEngine.Object fieldBackingObject;
 void OnEnable ()
     {
+    var targetType = this.target.GetType();
+    this.triggerMethod = targetType.GetMethod ("Trigger");
+    var parameters = this.triggerMethod == null ? null : this.triggerMethod.GetParameters ();
+    if (parameters.Length > 0)
+        {
+        var eventTriggerType = this.triggerMethod.GetParameters ()[0].ParameterType;
+        this.triggerParameter = createSerializedPropertyFor (eventTriggerType, out this.fieldBackingObject);
+        }
+    else
+        {
+        this.triggerParameter = null;
+        this.fieldBackingObject = null;
+        }
+
     this.listenersField =
             this.targets.Length == 1
             ? this.target.GetType ().GetField ("listeners", BindingFlags.NonPublic | BindingFlags.Instance)
             : null;
     }
 
+void OnDisable ()
+    {
+    this.triggerParameter = null;
+    ScriptableObject.DestroyImmediate (this.fieldBackingObject, false);
+    this.fieldBackingObject = null;
+    }
+
+
 public override void OnInspectorGUI ()
     {
     this.serializedObject.UpdateIfRequiredOrScript ();
 
+    EditorGUILayout.Space ();
     EditorGUI.BeginDisabledGroup (!EditorApplication.isPlaying);
 
-    if (GUILayout.Button ("Trigger"))
+    if (this.triggerMethod != null)
         {
-        foreach (Object targetObject in this.serializedObject.targetObjects)
+        GUILayout.Label ("Manual Trigger", EditorStyles.boldLabel);
+        if (this.triggerParameter != null)
             {
-            ((GameEvent)targetObject).Trigger ();
+            EditorGUILayout.PropertyField (triggerParameter);
+            }
+
+        if (GUILayout.Button ("Trigger"))
+            {
+            if (this.triggerParameter != null)
+                {
+                this.triggerParameter.serializedObject.ApplyModifiedPropertiesWithoutUndo ();
+                foreach (UnityEngine.Object targetObject in this.serializedObject.targetObjects)
+                    {
+                    this.triggerMethod.Invoke (targetObject, new object[] {((ScriptableObjectWithFieldBase)this.fieldBackingObject).GetValue ()});
+                    }
+                }
+            else
+                {
+                foreach (UnityEngine.Object targetObject in this.serializedObject.targetObjects)
+                    {
+                    this.triggerMethod.Invoke (targetObject, null);
+                    }
+                }
             }
         }
 
+    EditorGUILayout.Space ();
     if (this.listenersField != null)
         {
         var listeners = this.listenersField.GetValue (this.target) as ICollection;
