@@ -124,6 +124,12 @@ public bool Value
             }
         }
     }
+
+public override object GetValueObject ()
+    {
+    return this.runtimeValue;
+    }
+
 #endregion
 
 

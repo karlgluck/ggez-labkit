@@ -37,8 +37,9 @@ namespace GGEZ
 // Lets us write just 1 custom Editor for all GameRegisters.
 //----------------------------------------------------------------------
 [Serializable]
-public class BaseGameRegister : ScriptableObject
+public abstract class BaseGameRegister : ScriptableObject
 {
+public abstract object GetValueObject ();
 }
 
 

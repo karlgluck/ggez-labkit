@@ -51,6 +51,12 @@ static void EssentialAssetsFreeTextMeshPro ()
     UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/84126");
     }
 
+[MenuItem ("Asset Store/Free Essentials/MoonSharp (Lua Scripting)")]
+static void EssentialAssetsMoonSharp ()
+    {
+    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/33776");
+    }
+
 [MenuItem ("Asset Store/GGEZ/Perfect Pixel Camera")]
 static void AssetStore_GGEZ_PerfectPixelCamera ()
     {

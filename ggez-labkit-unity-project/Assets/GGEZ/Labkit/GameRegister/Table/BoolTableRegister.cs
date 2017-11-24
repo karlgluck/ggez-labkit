@@ -225,6 +225,17 @@ public bool this[string key]
     }
 
 
+public override object GetValueObject (string key)
+    {
+    bool value;
+    if (this.table.TryGetValue (key, out value))
+        {
+        return value;
+        }
+    return this.defaultValue;
+    }
+
+
 public bool Remove (string key)
     {
     List<BoolTableRegisterListener> listeners;

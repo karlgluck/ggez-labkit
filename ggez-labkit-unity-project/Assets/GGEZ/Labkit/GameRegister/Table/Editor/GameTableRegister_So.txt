@@ -225,6 +225,17 @@ public %CSHARPTYPE% this[string key]
     }
 
 
+public override object GetValueObject (string key)
+    {
+    %CSHARPTYPE% value;
+    if (this.table.TryGetValue (key, out value))
+        {
+        return value;
+        }
+    return this.defaultValue;
+    }
+
+
 public bool Remove (string key)
     {
     List<%UPPERNAME%TableRegisterListener> listeners;

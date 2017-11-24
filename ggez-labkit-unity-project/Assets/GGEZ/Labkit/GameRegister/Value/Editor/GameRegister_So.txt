@@ -134,6 +134,12 @@ public %CSHARPTYPE% Value
             }
         }
     }
+
+public override object GetRegisterValue ()
+    {
+    return this.runtimeValue;
+    }
+
 #endregion
 
 
