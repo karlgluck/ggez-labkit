@@ -32,7 +32,7 @@ using GGEZ;
 using System.Linq;
 using System.Reflection;
 
-public class TestGameEventChannel
+public class TestGameEventTable
 {
 
 public T CreateWithMonoBehaviour<T> () where T : Component
