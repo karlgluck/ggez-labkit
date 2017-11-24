@@ -32,35 +32,6 @@ namespace GGEZ
 namespace Labkit
 {
 
-public static partial class LabkitEditorUtility
-{
-public static void WriteFileUsingTemplate (string templateAssetName, string path, params string[] args)
-    {
-    string[] assets;
-    TextAsset template;
-    string contents;
-
-    assets = AssetDatabase.FindAssets (templateAssetName + " t:TextAsset");
-    if (assets == null || assets.Length < 1)
-        {
-        throw new System.InvalidOperationException ("Missing " + templateAssetName);
-        }
-    template = AssetDatabase.LoadAssetAtPath (
-            AssetDatabase.GUIDToAssetPath (assets[0]),
-            typeof(TextAsset)
-            ) as TextAsset;
-    contents = template.text;
-    foreach (string substitution in args)
-        {
-        string key = substitution.Substring (0, substitution.IndexOf (' '));
-        string value = substitution.Substring (key.Length + 1);
-        contents = contents.Replace (key, value);
-        }
-    File.WriteAllText (path, contents);
-    AssetDatabase.Refresh (ImportAssetOptions.Default);
-    }
-}
-
 public static class CreateNewScriptableObject
 {
 
