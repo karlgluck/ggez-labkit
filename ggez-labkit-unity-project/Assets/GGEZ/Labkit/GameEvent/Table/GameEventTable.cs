@@ -38,19 +38,19 @@ namespace GGEZ
 // Similar to GameEvent. However, listeners register for events that
 // match a certain key and the trigger must provide a key.
 //----------------------------------------------------------------------
-[CreateAssetMenu (fileName = "New Game Event Channel.asset", menuName="GGEZ/Game Event/Event Channel")]
-public class GameEventChannel : ScriptableObject
+[CreateAssetMenu (fileName = "New Game Event Table.asset", menuName="GGEZ/Game Event/Event Table")]
+public class GameEventTable : ScriptableObject
 {
 
 
 #region Runtime
-private Dictionary<string, List<GameEventChannelListener>> listeners = new Dictionary<string, List<GameEventChannelListener>> ();
+private Dictionary<string, List<GameEventTableListener>> listeners = new Dictionary<string, List<GameEventTableListener>> ();
 #endregion
 
 
 
 
-public void RegisterListener (string key, GameEventChannelListener listener)
+public void RegisterListener (string key, GameEventTableListener listener)
     {
     if (key == null)
         {
@@ -60,10 +60,10 @@ public void RegisterListener (string key, GameEventChannelListener listener)
         {
         throw new ArgumentNullException ("listener");
         }
-    List<GameEventChannelListener> listenersForKey;
+    List<GameEventTableListener> listenersForKey;
     if (!this.listeners.TryGetValue (key, out listenersForKey))
         {
-        listenersForKey = new List<GameEventChannelListener>();
+        listenersForKey = new List<GameEventTableListener>();
         this.listeners.Add (key, listenersForKey);
         }
     listenersForKey.Add (listener);
@@ -72,7 +72,7 @@ public void RegisterListener (string key, GameEventChannelListener listener)
 
 
 
-public void UnregisterListener (string key, GameEventChannelListener listener)
+public void UnregisterListener (string key, GameEventTableListener listener)
     {
     if (key == null)
         {
@@ -82,7 +82,7 @@ public void UnregisterListener (string key, GameEventChannelListener listener)
         {
         throw new ArgumentNullException ("listener");
         }
-    List<GameEventChannelListener> listenersForKey;
+    List<GameEventTableListener> listenersForKey;
     if (!this.listeners.TryGetValue (key, out listenersForKey))
         {
         throw new InvalidOperationException ("key does not exist");
@@ -103,7 +103,7 @@ public void Trigger (string key)
         {
         throw new ArgumentNullException ("key");
         }
-    List<GameEventChannelListener> listenersForKey;
+    List<GameEventTableListener> listenersForKey;
     if (!this.listeners.TryGetValue (key, out listenersForKey))
         {
         return;

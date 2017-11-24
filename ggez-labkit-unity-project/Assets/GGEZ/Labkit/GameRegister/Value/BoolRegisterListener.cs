@@ -46,7 +46,7 @@ public class UnityEventForBoolRegisterListener : UnityEvent<bool>
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [
-AddComponentMenu ("GGEZ/Game Register Listener/bool Register Listener")
+AddComponentMenu ("GGEZ/Game Register/Value/bool Register Listener")
 ]
 public class BoolRegisterListener : MonoBehaviour
 {

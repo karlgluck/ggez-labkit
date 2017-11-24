@@ -34,21 +34,12 @@ namespace GGEZ
 
 
 [
-AddComponentMenu ("GGEZ/Game Event Channel Listener")
+AddComponentMenu ("GGEZ/Game Event/Event Table Listener")
 ]
-public class GameEventChannelListener : MonoBehaviour
+public class GameEventTableListener : MonoBehaviour
 {
 
-
-
-#region Events
-[Header ("Events")]
-[SerializeField] private GameEventChannel gameEventChannel;
-[SerializeField] private UnityEvent didTrigger;
-#endregion
-
 #region Key
-[Header ("Key")]
 [SerializeField, Delayed]
 private string key;
 public string Key
@@ -63,9 +54,9 @@ public string Key
             {
             return;
             }
-        if (this.hasBeenEnabled && !string.IsNullOrEmpty (this.key) && this.gameEventChannel != null)
+        if (this.hasBeenEnabled && !string.IsNullOrEmpty (this.key) && this.gameEventTable != null)
             {
-            this.gameEventChannel.UnregisterListener (this.key, this);
+            this.gameEventTable.UnregisterListener (this.key, this);
             }
         this.key = value;
 #if UNITY_EDITOR
@@ -74,41 +65,48 @@ public string Key
             this.previousKey = value;
             }
 #endif
-        if (this.hasBeenEnabled && !string.IsNullOrEmpty (this.key) && this.gameEventChannel != null)
+        if (this.hasBeenEnabled && !string.IsNullOrEmpty (this.key) && this.gameEventTable != null)
             {
-            this.gameEventChannel.RegisterListener (this.key, this);
+            this.gameEventTable.RegisterListener (this.key, this);
             }
         }
     }
 #endregion
 
 
-public GameEventChannel GameEventChannel
+
+#region Event Table
+[SerializeField] private GameEventTable gameEventTable;
+[SerializeField] private UnityEvent didTrigger;
+#endregion
+
+
+public GameEventTable GameEventTable
     {
     get
         {
-        return this.gameEventChannel;
+        return this.gameEventTable;
         }
     set
         {
-        if (object.ReferenceEquals (this.gameEventChannel, value))
+        if (object.ReferenceEquals (this.gameEventTable, value))
             {
             return;
             }
-        if (this.hasBeenEnabled && !string.IsNullOrEmpty (this.key) && this.gameEventChannel != null)
+        if (this.hasBeenEnabled && !string.IsNullOrEmpty (this.key) && this.gameEventTable != null)
             {
-            this.gameEventChannel.UnregisterListener (this.key, this);
+            this.gameEventTable.UnregisterListener (this.key, this);
             }
-        this.gameEventChannel = value;
+        this.gameEventTable = value;
 #if UNITY_EDITOR
         if (this.hasBeenEnabled)
             {
-            this.previousGameEventChannel = value;
+            this.previousGameEventTable = value;
             }
 #endif
-        if (this.hasBeenEnabled && !string.IsNullOrEmpty (this.key) && this.gameEventChannel != null)
+        if (this.hasBeenEnabled && !string.IsNullOrEmpty (this.key) && this.gameEventTable != null)
             {
-            this.gameEventChannel.RegisterListener (this.key, this);
+            this.gameEventTable.RegisterListener (this.key, this);
             }
         }
     }
@@ -136,14 +134,14 @@ private bool hasBeenEnabled;
 
 void OnEnable ()
     {
-    if (this.gameEventChannel != null && this.key != null)
+    if (this.gameEventTable != null && this.key != null)
         {
-        this.gameEventChannel.RegisterListener (this.Key, this);
+        this.gameEventTable.RegisterListener (this.Key, this);
         }
     this.hasBeenEnabled = true;
 #if UNITY_EDITOR
     this.previousKey = this.key;
-    this.previousGameEventChannel = this.gameEventChannel;
+    this.previousGameEventTable = this.gameEventTable;
 #endif
     }
 
@@ -151,14 +149,14 @@ void OnEnable ()
 
 void OnDisable ()
     {
-    if (this.previousGameEventChannel != null && this.key != null)
+    if (this.previousGameEventTable != null && this.key != null)
         {
-        this.previousGameEventChannel.UnregisterListener (this.key, this);
+        this.previousGameEventTable.UnregisterListener (this.key, this);
         }
     this.hasBeenEnabled = false;
 #if UNITY_EDITOR
     this.previousKey = null;
-    this.previousGameEventChannel = null;
+    this.previousGameEventTable = null;
 #endif
     }
 
@@ -177,26 +175,26 @@ public void OnDidTrigger ()
 //----------------------------------------------------------------------
 #if UNITY_EDITOR
 private string previousKey;
-private GameEventChannel previousGameEventChannel;
+private GameEventTable previousGameEventTable;
 
 
 void OnValidate ()
     {
     if (!this.hasBeenEnabled
             || (object.Equals (this.key, this.previousKey)
-                    && object.ReferenceEquals (this.previousGameEventChannel, this.gameEventChannel)))
+                    && object.ReferenceEquals (this.previousGameEventTable, this.gameEventTable)))
         {
         return;
         }
-    if (this.previousGameEventChannel != null && this.previousKey != null)
+    if (this.previousGameEventTable != null && this.previousKey != null)
         {
-        this.previousGameEventChannel.UnregisterListener (this.previousKey, this);
+        this.previousGameEventTable.UnregisterListener (this.previousKey, this);
         }
     this.previousKey = this.key;
-    this.previousGameEventChannel = this.gameEventChannel;
-    if (this.gameEventChannel != null && this.key != null)
+    this.previousGameEventTable = this.gameEventTable;
+    if (this.gameEventTable != null && this.key != null)
         {
-        this.gameEventChannel.RegisterListener (this.key, this);
+        this.gameEventTable.RegisterListener (this.key, this);
         }
     }
 

@@ -34,8 +34,8 @@ namespace GGEZ
 
 
 
-[CustomEditor(typeof (GameEvent))]
-public class GameEventChannelEditor : Editor
+[CustomEditor(typeof (GameEventTable))]
+public class GameEventTableEditor : Editor
 {
 
 private FieldInfo listenersTableField;
@@ -107,6 +107,7 @@ private bool Foldout (string key, int listeners)
     var controlRect = EditorGUILayout.GetControlRect ();
     var listenersRect = new Rect (controlRect);
     listenersRect.xMin += EditorGUIUtility.labelWidth;
+    controlRect.xMax = listenersRect.xMin;
     value = EditorGUI.Foldout (controlRect, value, key, true);
 
     string plural = listeners == 1 ? "" : "s";
@@ -114,7 +115,7 @@ private bool Foldout (string key, int listeners)
         {
         foreach (Object targetObject in this.serializedObject.targetObjects)
             {
-            ((GameEventChannel)targetObject).Trigger (key);
+            ((GameEventTable)targetObject).Trigger (key);
             }
         }
 

@@ -46,7 +46,7 @@ public class UnityEventFor%UPPERNAME%RegisterListener : UnityEvent<%CSHARPTYPE%>
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [
-AddComponentMenu ("GGEZ/Game Register Listener/%NAME% Register Listener")
+AddComponentMenu ("GGEZ/Game Register/Value/%NAME% Register Listener")
 ]
 public class %UPPERNAME%RegisterListener : MonoBehaviour
 {
