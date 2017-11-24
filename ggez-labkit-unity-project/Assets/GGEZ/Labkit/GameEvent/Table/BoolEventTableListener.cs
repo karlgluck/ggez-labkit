@@ -31,6 +31,7 @@ using UnityEngine.Events;
 namespace GGEZ
 {
 
+[Serializable]
 class UnityEventForBoolEventTableListener : UnityEvent<bool>
 {
 }

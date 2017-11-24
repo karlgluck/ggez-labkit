@@ -31,6 +31,7 @@ using UnityEngine.Events;
 namespace GGEZ
 {
 
+[Serializable]
 class UnityEventFor%UPPERNAME%EventTableListener : UnityEvent<%CSHARPTYPE>
 {
 }

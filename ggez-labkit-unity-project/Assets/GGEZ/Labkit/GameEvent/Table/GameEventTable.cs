@@ -39,7 +39,7 @@ namespace GGEZ
 // match a certain key and the trigger must provide a key.
 //----------------------------------------------------------------------
 [CreateAssetMenu (fileName = "New Game Event Table.asset", menuName="GGEZ/Game Event/Event Table")]
-public class GameEventTable : ScriptableObject
+public class GameEventTable : BaseGameEventTable
 {
 
 

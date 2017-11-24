@@ -33,20 +33,6 @@ using System.Reflection.Emit;
 
 namespace GGEZ
 {
-public abstract class ScriptableObjectWithFieldBase : ScriptableObject
-{
-public abstract object GetValue ();
-}
-
-[Serializable]
-public class ScriptableObjectWithField<T> : ScriptableObjectWithFieldBase
-{
-public T value;
-public override object GetValue ()
-    {
-    return this.value;
-    }
-}
 
 
 [CustomEditor(typeof (BaseGameEvent), true)]
@@ -56,52 +42,19 @@ public class GameEventEditor : Editor
 private FieldInfo listenersField;
 private bool listenersFoldout;
 
-private static Dictionary <Type, Type> backingTypeForType = new Dictionary <Type, Type> ();
-private static SerializedProperty createSerializedPropertyFor (Type type, out UnityEngine.Object fieldBackingObject)
-    {
-    string typeName = "SerializedPropertyFor" + type.Name;
-    Type createdType = null;
-    if (backingTypeForType.TryGetValue (type, out createdType))
-        {
-        // Debug.LogFormat ("Type looked up is {0}", createdType.FullName);
-        }
-    else
-        {
-        var an = new AssemblyName (typeName);
-        AssemblyBuilder assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (an, AssemblyBuilderAccess.Run);
-        ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule("MainModule");
-        TypeBuilder tb = moduleBuilder.DefineType (typeName,
-                TypeAttributes.Public |
-                TypeAttributes.Class |
-                TypeAttributes.AutoClass |
-                TypeAttributes.AnsiClass |
-                TypeAttributes.BeforeFieldInit |
-                TypeAttributes.AutoLayout,
-                null);
-        tb.SetParent (typeof(ScriptableObjectWithField<>).MakeGenericType(type));
-        ConstructorBuilder constructor = tb.DefineDefaultConstructor(MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
-        createdType = tb.CreateType ();
-        // Debug.LogFormat ("Type created is {0}", createdType.FullName);
-        backingTypeForType.Add (type, createdType);
-        }
-    var obj = (UnityEngine.Object)ScriptableObject.CreateInstance(createdType);
-    // Debug.LogFormat ("Instance = {0}", obj);
-    fieldBackingObject = obj;
-    return new SerializedObject (obj).FindProperty ("value");
-    }
 
 private MethodInfo triggerMethod;
 private SerializedProperty triggerParameter;
-private UnityEngine.Object fieldBackingObject;
+private Labkit.ScriptablePropertyBackingObject fieldBackingObject;
 void OnEnable ()
     {
     var targetType = this.target.GetType();
     this.triggerMethod = targetType.GetMethod ("Trigger");
     var parameters = this.triggerMethod == null ? null : this.triggerMethod.GetParameters ();
-    if (parameters.Length > 0)
+    if (parameters.Length == 1)
         {
-        var eventTriggerType = this.triggerMethod.GetParameters ()[0].ParameterType;
-        this.triggerParameter = createSerializedPropertyFor (eventTriggerType, out this.fieldBackingObject);
+        var eventTriggerType = parameters[0].ParameterType;
+        this.triggerParameter = Labkit.SerializedPropertyExt.GetSerializedPropertyFor (eventTriggerType, out this.fieldBackingObject);
         }
     else
         {
@@ -145,7 +98,7 @@ public override void OnInspectorGUI ()
                 this.triggerParameter.serializedObject.ApplyModifiedPropertiesWithoutUndo ();
                 foreach (UnityEngine.Object targetObject in this.serializedObject.targetObjects)
                     {
-                    this.triggerMethod.Invoke (targetObject, new object[] {((ScriptableObjectWithFieldBase)this.fieldBackingObject).GetValue ()});
+                    this.triggerMethod.Invoke (targetObject, new object[] {this.fieldBackingObject.GetValue ()});
                     }
                 }
             else

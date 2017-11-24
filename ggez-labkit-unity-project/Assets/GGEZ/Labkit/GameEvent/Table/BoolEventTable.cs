@@ -39,7 +39,7 @@ namespace GGEZ
 // trigger must provide a key and value.
 //----------------------------------------------------------------------
 [CreateAssetMenu (fileName = "New Bool Event Table.asset", menuName="GGEZ/Game Event/bool Table")]
-public class BoolEventTable : ScriptableObject
+public class BoolEventTable : BaseGameEventTable
 {
 
 
