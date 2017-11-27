@@ -56,6 +56,12 @@ static void EssentialAssetsMoonSharp ()
     {
     UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/33776");
     }
+    
+[MenuItem ("Asset Store/Free Essentials/Console Enhanced")]
+static void EssentialAssetsConsoleEnhanced ()
+    {
+    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/42381");
+    }
 
 [MenuItem ("Asset Store/GGEZ/Perfect Pixel Camera")]
 static void AssetStore_GGEZ_PerfectPixelCamera ()
