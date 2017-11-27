@@ -31,51 +31,55 @@ using UnityEngine.Events;
 namespace GGEZ
 {
 
+[Serializable]
+public class UnityEventForBoolEvent : UnityEvent<bool>
+{
+}
 
 
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [
-AddComponentMenu ("GGEZ/Game Event/Game Event Listener")
+AddComponentMenu ("GGEZ/Game Event/bool Event Listener")
 ]
-public class GameEventListener : MonoBehaviour
+public class BoolEventListener : MonoBehaviour
 {
 
 
 
 #region Serialized
 [Header ("Serialized")]
-[SerializeField] private GameEvent gameEvent;
-[SerializeField] private UnityEvent didTrigger = new UnityEvent ();
+[SerializeField] private BoolEvent boolEvent;
+[SerializeField] private UnityEventForBoolEvent didTrigger = new UnityEventForBoolEvent ();
 #endregion
 
 
-public GameEvent GameEvent
+public BoolEvent BoolEvent
     {
     get
         {
-        return this.gameEvent;
+        return this.boolEvent;
         }
     set
         {
-        if (object.ReferenceEquals (this.gameEvent, value))
+        if (object.ReferenceEquals (this.boolEvent, value))
             {
             return;
             }
-        if (this.hasBeenEnabled && this.gameEvent != null)
+        if (this.hasBeenEnabled && this.boolEvent != null)
             {
-            this.gameEvent.UnregisterListener (this);
+            this.boolEvent.UnregisterListener (this);
             }
-        this.gameEvent = value;
+        this.boolEvent = value;
 #if UNITY_EDITOR
         if (this.hasBeenEnabled)
             {
-            this.previousGameEvent = value;
+            this.previousBoolEvent = value;
             }
 #endif
-        if (this.hasBeenEnabled && this.gameEvent != null)
+        if (this.hasBeenEnabled && this.boolEvent != null)
             {
-            this.gameEvent.RegisterListener (this);
+            this.boolEvent.RegisterListener (this);
             }
         }
     }
@@ -87,13 +91,13 @@ private bool hasBeenEnabled;
 
 void OnEnable ()
     {
-    if (this.gameEvent != null)
+    if (this.boolEvent != null)
         {
-        this.gameEvent.RegisterListener (this);
+        this.boolEvent.RegisterListener (this);
         }
 #if UNITY_EDITOR
     this.hasBeenEnabled = true;
-    this.previousGameEvent = this.gameEvent;
+    this.previousBoolEvent = this.boolEvent;
 #endif
     }
 
@@ -102,27 +106,27 @@ void OnEnable ()
 
 void OnDisable ()
     {
-    if (this.gameEvent != null)
+    if (this.boolEvent != null)
         {
-        this.gameEvent.UnregisterListener (this);
+        this.boolEvent.UnregisterListener (this);
         }
 #if UNITY_EDITOR
     this.hasBeenEnabled = false;
-    this.previousGameEvent = null;
+    this.previousBoolEvent = null;
 #endif
     }
 
-public void AddDidTriggerCallback (UnityAction action)
+public void AddDidTriggerCallback (UnityAction<bool> action)
     {
     this.didTrigger.AddListener (action);
     }
 
-public void RemoveDidTriggerCallback (UnityAction action)
+public void RemoveDidTriggerCallback (UnityAction<bool> action)
     {
     this.didTrigger.RemoveListener (action);
     }
 
-public void RemoveAllDidTriggerCallbacks (UnityAction action)
+public void RemoveAllDidTriggerCallbacks (UnityAction<bool> action)
     {
     this.didTrigger.RemoveListener (action);
     }
@@ -130,34 +134,34 @@ public void RemoveAllDidTriggerCallbacks (UnityAction action)
 
 
 
-public void OnDidTrigger ()
+public void OnDidTrigger (bool value)
     {
-    this.didTrigger.Invoke ();
+    this.didTrigger.Invoke (value);
     }
 
 
 
 
 //----------------------------------------------------------------------
-// Handle the Unity Editor changing gameEvent from the inspector
+// Handle the Unity Editor changing boolEvent from the inspector
 //----------------------------------------------------------------------
 #if UNITY_EDITOR
-private GameEvent previousGameEvent;
+private BoolEvent previousBoolEvent;
 
 
 void OnValidate ()
     {
     if (this.hasBeenEnabled
-            && !object.ReferenceEquals (this.gameEvent, this.previousGameEvent))
+            && !object.ReferenceEquals (this.boolEvent, this.previousBoolEvent))
         {
-        if (this.previousGameEvent != null)
+        if (this.previousBoolEvent != null)
             {
-            this.previousGameEvent.UnregisterListener (this);
+            this.previousBoolEvent.UnregisterListener (this);
             }
-        this.previousGameEvent = this.gameEvent;
-        if (this.gameEvent != null)
+        this.previousBoolEvent = this.boolEvent;
+        if (this.boolEvent != null)
             {
-            this.gameEvent.RegisterListener (this);
+            this.boolEvent.RegisterListener (this);
             }
         }
     }

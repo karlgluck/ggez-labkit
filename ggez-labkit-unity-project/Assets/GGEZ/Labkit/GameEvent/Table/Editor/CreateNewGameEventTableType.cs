@@ -35,19 +35,19 @@ namespace Labkit
 
 
 
-class CreateNewGameRegisterDialog : EditorWindow
+class CreateNewGameEventTableTypeDialog : EditorWindow
 {
 public string Folder = "";
 public string Name = "";
 public string CSharpType = "";
 
 
-[MenuItem ("Labkit/Create/Game Register Type/Single Value")]
-static void LabkitNewGameRegisterType ()
+[MenuItem ("Labkit/Create/Game Event Type/Event Table")]
+static void LabkitNewGameEventType ()
     {
     const string savedPathKey = "LabkitSaveFilePanelPath";
     string path = EditorUtility.SaveFilePanelInProject (
-            "New Game Register Type",
+            "New Game Event Type",
             "type.cs",
             "cs",
             "Name the source file <type>.cs",
@@ -58,18 +58,18 @@ static void LabkitNewGameRegisterType ()
         return;
         }
     EditorPrefs.SetString (savedPathKey, path);
-    CreateNewGameRegisterDialog.CreateAndShow (path);
+    CreateNewGameEventTableTypeDialog.CreateAndShow (path);
     }
 
 
 public static EditorWindow CreateAndShow (string path)
     {
-    var window = CreateNewGameRegisterDialog.CreateInstance<CreateNewGameRegisterDialog> ();
+    var window = CreateNewGameEventTableTypeDialog.CreateInstance<CreateNewGameEventTableTypeDialog> ();
     var width = Screen.width;
     var height = Screen.height;
     Vector2 size = new Vector2 (400f, 180f);
     window.ShowAsDropDown (new Rect (width/2f-size.x/2f, height/2 - size.y/2f, 1f, 1f), size);
-    window.titleContent = new GUIContent ("Create Register Type");
+    window.titleContent = new GUIContent ("Create Game Event Table Type");
     window.Folder = Path.GetDirectoryName (path);
     window.Name = Path.GetFileNameWithoutExtension (path);
     window.CSharpType = window.Name;
@@ -80,11 +80,11 @@ public void DoWork ()
     {
     string upperName = this.Name.Substring (0, 1).ToUpper () + this.Name.Substring (1);
     string lowerName = this.Name.Substring (0, 1).ToLower () + this.Name.Substring (1);
-    Debug.LogFormat ("Creating {0}Register for data of type {1}", upperName, this.CSharpType);
+    Debug.LogFormat ("Creating {0}Event for events of type {1}", upperName, this.CSharpType);
 
     LabkitEditorUtility.WriteFileUsingTemplate (
-            "GameRegister_So",
-            Path.Combine (this.Folder, upperName + "Register.cs"),
+            "GameEventTable_So",
+            Path.Combine (this.Folder, upperName + "EventTable.cs"),
             "%NAME% " + this.Name,
             "%UPPERNAME% " + upperName,
             "%LOWERNAME% " + lowerName,
@@ -92,8 +92,8 @@ public void DoWork ()
             );
 
     LabkitEditorUtility.WriteFileUsingTemplate (
-            "GameRegisterListener_Mb",
-            Path.Combine (this.Folder, upperName + "RegisterListener.cs"),
+            "GameEventTableListener_Mb",
+            Path.Combine (this.Folder, upperName + "EventTableListener.cs"),
             "%NAME% " + this.Name,
             "%UPPERNAME% " + upperName,
             "%LOWERNAME% " + lowerName,

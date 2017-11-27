@@ -23,25 +23,27 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
 using UnityEngine;
+using UnityEditor;
+using UnityEngine.TestTools;
+using NUnit.Framework;
+using System.Collections;
+using GGEZ;
+using System.Linq;
 
-namespace GGEZ
+public class TestRepeatUniform
 {
 
 
-
-//----------------------------------------------------------------------
-// Base class for all GameRegister types.
-//
-// Lets us write just 1 custom Editor for all GameRegisters.
-//----------------------------------------------------------------------
-[Serializable]
-public class GameRegister : ScriptableObject
-{
-}
-
-
-
+[Test]
+public void RepeatUniformWorksProperly ()
+    {
+    int[] inputs  = new int[] { 4, 3, 2, 1, 0, -1, -2, -3, -4 };
+    int[] outputs = new int[] { 1, 0, 2, 1, 0,  2,  1,  0,  2 };
+    for (int i = 0; i < inputs.Length; ++i)
+        {
+        Assert.AreEqual (Util.RepeatUniform (inputs[i], 3), outputs[i], "RepeatUniform ({0}, {1})", inputs[i], outputs[i]);
+        }
+    }
 
 }

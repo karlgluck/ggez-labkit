@@ -34,15 +34,34 @@ namespace GGEZ
 
 
 
-[CustomEditor(typeof (GameEventTable))]
+[CustomEditor(typeof (BaseGameEventTable), true)]
 public class GameEventTableEditor : Editor
 {
 
 private FieldInfo listenersTableField;
 private bool listenersFoldout;
 
+private MethodInfo triggerMethod;
+private SerializedProperty triggerParameter;
+private Labkit.ScriptablePropertyBackingObject fieldBackingObject;
+
+
 void OnEnable ()
     {
+    var targetType = this.target.GetType();
+    this.triggerMethod = targetType.GetMethod ("Trigger");
+    var parameters = this.triggerMethod == null ? null : this.triggerMethod.GetParameters ();
+    if (parameters.Length == 2)
+        {
+        var eventTriggerType = parameters[1].ParameterType;
+        this.triggerParameter = Labkit.SerializedPropertyExt.GetSerializedPropertyFor (eventTriggerType, out this.fieldBackingObject);
+        }
+    else
+        {
+        this.triggerParameter = null;
+        this.fieldBackingObject = null;
+        }
+
     this.listenersTableField =
             this.targets.Length == 1
             ? this.target.GetType ().GetField ("listenersTable", BindingFlags.NonPublic | BindingFlags.Instance)
@@ -56,8 +75,21 @@ void OnDisable ()
 
 public override void OnInspectorGUI ()
     {
+    this.serializedObject.UpdateIfRequiredOrScript ();
+
+    EditorGUILayout.Space ();
     GUILayout.Label ("Runtime", EditorStyles.boldLabel);
     EditorGUI.BeginDisabledGroup (!Application.isPlaying);
+
+    if (this.triggerMethod != null)
+        {
+        GUILayout.Label ("Manual Trigger", EditorStyles.boldLabel);
+
+        if (this.triggerParameter != null)
+            {
+            EditorGUILayout.PropertyField (triggerParameter);
+            }
+        }
 
     EditorGUILayout.Space ();
     GUILayout.Label ("Listeners Table");
@@ -113,9 +145,20 @@ private bool Foldout (string key, int listeners)
     string plural = listeners == 1 ? "" : "s";
     if (GUI.Button (listenersRect, "Trigger " + listeners.ToString () + " Listener" + plural))
         {
-        foreach (Object targetObject in this.serializedObject.targetObjects)
+        if (this.triggerParameter != null)
             {
-            ((GameEventTable)targetObject).Trigger (key);
+            this.triggerParameter.serializedObject.ApplyModifiedPropertiesWithoutUndo ();
+            foreach (UnityEngine.Object targetObject in this.serializedObject.targetObjects)
+                {
+                this.triggerMethod.Invoke (targetObject, new object[] { key, this.fieldBackingObject.GetValue ()});
+                }
+            }
+        else
+            {
+            foreach (UnityEngine.Object targetObject in this.serializedObject.targetObjects)
+                {
+                this.triggerMethod.Invoke (targetObject, new object[] { key });
+                }
             }
         }
 

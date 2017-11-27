@@ -31,51 +31,55 @@ using UnityEngine.Events;
 namespace GGEZ
 {
 
+[Serializable]
+public class UnityEventFor%UPPERNAME%Event : UnityEvent<%CSHARPTYPE%>
+{
+}
 
 
 //----------------------------------------------------------------------
 //----------------------------------------------------------------------
 [
-AddComponentMenu ("GGEZ/Game Event/Game Event Listener")
+AddComponentMenu ("GGEZ/Game Event/%NAME% Event Listener")
 ]
-public class GameEventListener : MonoBehaviour
+public class %UPPERNAME%EventListener : MonoBehaviour
 {
 
 
 
 #region Serialized
 [Header ("Serialized")]
-[SerializeField] private GameEvent gameEvent;
-[SerializeField] private UnityEvent didTrigger = new UnityEvent ();
+[SerializeField] private %UPPERNAME%Event %LOWERNAME%Event;
+[SerializeField] private UnityEventFor%UPPERNAME%Event didTrigger = new UnityEventFor%UPPERNAME%Event ();
 #endregion
 
 
-public GameEvent GameEvent
+public %UPPERNAME%Event %UPPERNAME%Event
     {
     get
         {
-        return this.gameEvent;
+        return this.%LOWERNAME%Event;
         }
     set
         {
-        if (object.ReferenceEquals (this.gameEvent, value))
+        if (object.ReferenceEquals (this.%LOWERNAME%Event, value))
             {
             return;
             }
-        if (this.hasBeenEnabled && this.gameEvent != null)
+        if (this.hasBeenEnabled && this.%LOWERNAME%Event != null)
             {
-            this.gameEvent.UnregisterListener (this);
+            this.%LOWERNAME%Event.UnregisterListener (this);
             }
-        this.gameEvent = value;
+        this.%LOWERNAME%Event = value;
 #if UNITY_EDITOR
         if (this.hasBeenEnabled)
             {
-            this.previousGameEvent = value;
+            this.previous%UPPERNAME%Event = value;
             }
 #endif
-        if (this.hasBeenEnabled && this.gameEvent != null)
+        if (this.hasBeenEnabled && this.%LOWERNAME%Event != null)
             {
-            this.gameEvent.RegisterListener (this);
+            this.%LOWERNAME%Event.RegisterListener (this);
             }
         }
     }
@@ -87,13 +91,13 @@ private bool hasBeenEnabled;
 
 void OnEnable ()
     {
-    if (this.gameEvent != null)
+    if (this.%LOWERNAME%Event != null)
         {
-        this.gameEvent.RegisterListener (this);
+        this.%LOWERNAME%Event.RegisterListener (this);
         }
 #if UNITY_EDITOR
     this.hasBeenEnabled = true;
-    this.previousGameEvent = this.gameEvent;
+    this.previous%UPPERNAME%Event = this.%LOWERNAME%Event;
 #endif
     }
 
@@ -102,27 +106,27 @@ void OnEnable ()
 
 void OnDisable ()
     {
-    if (this.gameEvent != null)
+    if (this.%LOWERNAME%Event != null)
         {
-        this.gameEvent.UnregisterListener (this);
+        this.%LOWERNAME%Event.UnregisterListener (this);
         }
 #if UNITY_EDITOR
     this.hasBeenEnabled = false;
-    this.previousGameEvent = null;
+    this.previous%UPPERNAME%Event = null;
 #endif
     }
 
-public void AddDidTriggerCallback (UnityAction action)
+public void AddDidTriggerCallback (UnityAction<%CSHARPTYPE%> action)
     {
     this.didTrigger.AddListener (action);
     }
 
-public void RemoveDidTriggerCallback (UnityAction action)
+public void RemoveDidTriggerCallback (UnityAction<%CSHARPTYPE%> action)
     {
     this.didTrigger.RemoveListener (action);
     }
 
-public void RemoveAllDidTriggerCallbacks (UnityAction action)
+public void RemoveAllDidTriggerCallbacks (UnityAction<%CSHARPTYPE%> action)
     {
     this.didTrigger.RemoveListener (action);
     }
@@ -130,34 +134,34 @@ public void RemoveAllDidTriggerCallbacks (UnityAction action)
 
 
 
-public void OnDidTrigger ()
+public void OnDidTrigger (%CSHARPTYPE% value)
     {
-    this.didTrigger.Invoke ();
+    this.didTrigger.Invoke (value);
     }
 
 
 
 
 //----------------------------------------------------------------------
-// Handle the Unity Editor changing gameEvent from the inspector
+// Handle the Unity Editor changing %LOWERNAME%Event from the inspector
 //----------------------------------------------------------------------
 #if UNITY_EDITOR
-private GameEvent previousGameEvent;
+private %UPPERNAME%Event previous%UPPERNAME%Event;
 
 
 void OnValidate ()
     {
     if (this.hasBeenEnabled
-            && !object.ReferenceEquals (this.gameEvent, this.previousGameEvent))
+            && !object.ReferenceEquals (this.%LOWERNAME%Event, this.previous%UPPERNAME%Event))
         {
-        if (this.previousGameEvent != null)
+        if (this.previous%UPPERNAME%Event != null)
             {
-            this.previousGameEvent.UnregisterListener (this);
+            this.previous%UPPERNAME%Event.UnregisterListener (this);
             }
-        this.previousGameEvent = this.gameEvent;
-        if (this.gameEvent != null)
+        this.previous%UPPERNAME%Event = this.%LOWERNAME%Event;
+        if (this.%LOWERNAME%Event != null)
             {
-            this.gameEvent.RegisterListener (this);
+            this.%LOWERNAME%Event.RegisterListener (this);
             }
         }
     }

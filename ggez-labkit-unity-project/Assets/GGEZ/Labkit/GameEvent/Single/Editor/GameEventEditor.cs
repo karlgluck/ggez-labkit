@@ -27,41 +27,91 @@ using UnityEngine;
 using UnityEditor;
 using System.Reflection;
 using System.Collections;
+using System.Collections.Generic;
+using System;
+using System.Reflection.Emit;
 
 namespace GGEZ
 {
 
 
-
-[CustomEditor(typeof (GameEvent))]
+[CustomEditor(typeof (BaseGameEvent), true)]
 public class GameEventEditor : Editor
 {
 
 private FieldInfo listenersField;
 private bool listenersFoldout;
 
+
+private MethodInfo triggerMethod;
+private SerializedProperty triggerParameter;
+private Labkit.ScriptablePropertyBackingObject fieldBackingObject;
 void OnEnable ()
     {
+    var targetType = this.target.GetType();
+    this.triggerMethod = targetType.GetMethod ("Trigger");
+    var parameters = this.triggerMethod == null ? null : this.triggerMethod.GetParameters ();
+    if (parameters.Length == 1)
+        {
+        var eventTriggerType = parameters[0].ParameterType;
+        this.triggerParameter = Labkit.SerializedPropertyExt.GetSerializedPropertyFor (eventTriggerType, out this.fieldBackingObject);
+        }
+    else
+        {
+        this.triggerParameter = null;
+        this.fieldBackingObject = null;
+        }
+
     this.listenersField =
             this.targets.Length == 1
             ? this.target.GetType ().GetField ("listeners", BindingFlags.NonPublic | BindingFlags.Instance)
             : null;
     }
 
+void OnDisable ()
+    {
+    this.triggerParameter = null;
+    ScriptableObject.DestroyImmediate (this.fieldBackingObject, false);
+    this.fieldBackingObject = null;
+    }
+
+
 public override void OnInspectorGUI ()
     {
     this.serializedObject.UpdateIfRequiredOrScript ();
 
+    EditorGUILayout.Space ();
     EditorGUI.BeginDisabledGroup (!EditorApplication.isPlaying);
 
-    if (GUILayout.Button ("Trigger"))
+    if (this.triggerMethod != null)
         {
-        foreach (Object targetObject in this.serializedObject.targetObjects)
+        GUILayout.Label ("Manual Trigger", EditorStyles.boldLabel);
+        if (this.triggerParameter != null)
             {
-            ((GameEvent)targetObject).Trigger ();
+            EditorGUILayout.PropertyField (triggerParameter);
+            }
+
+        if (GUILayout.Button ("Trigger"))
+            {
+            if (this.triggerParameter != null)
+                {
+                this.triggerParameter.serializedObject.ApplyModifiedPropertiesWithoutUndo ();
+                foreach (UnityEngine.Object targetObject in this.serializedObject.targetObjects)
+                    {
+                    this.triggerMethod.Invoke (targetObject, new object[] {this.fieldBackingObject.GetValue ()});
+                    }
+                }
+            else
+                {
+                foreach (UnityEngine.Object targetObject in this.serializedObject.targetObjects)
+                    {
+                    this.triggerMethod.Invoke (targetObject, null);
+                    }
+                }
             }
         }
 
+    EditorGUILayout.Space ();
     if (this.listenersField != null)
         {
         var listeners = this.listenersField.GetValue (this.target) as ICollection;

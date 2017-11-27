@@ -32,24 +32,23 @@ namespace GGEZ
 {
 
 
+
+
+
 //----------------------------------------------------------------------
 // Helper class for binding events through prefabs, scenes and assets.
-// UnityEvent fields are bound to GameEvent.Trigger on a named asset.
-// GameEventListeners register themselves to a named asset in order
-// to be notified when an event occurs. The GameEventListener then has
-// its own UnityEvent field that dispatches the event.
 //----------------------------------------------------------------------
-[CreateAssetMenu (fileName = "New Game Event.asset", menuName="GGEZ/Game Event/Single Event")]
-public class GameEvent : BaseGameEvent
+[CreateAssetMenu (fileName = "New Bool Event.asset", menuName="GGEZ/Game Event/Bool Event")]
+public class BoolEvent : BaseGameEvent
 {
 
 
 #region Runtime
-private List<GameEventListener> listeners = new List<GameEventListener>();
+private List<BoolEventListener> listeners = new List<BoolEventListener>();
 #endregion
 
 
-public IList<GameEventListener> Listeners
+public IList<BoolEventListener> Listeners
     {
     get
         {
@@ -59,7 +58,7 @@ public IList<GameEventListener> Listeners
 
 
 
-public void RegisterListener (GameEventListener listener)
+public void RegisterListener (BoolEventListener listener)
     {
     if (listener == null)
         {
@@ -71,7 +70,7 @@ public void RegisterListener (GameEventListener listener)
 
 
 
-public void UnregisterListener (GameEventListener listener)
+public void UnregisterListener (BoolEventListener listener)
     {
     if (listener == null)
         {
@@ -83,11 +82,11 @@ public void UnregisterListener (GameEventListener listener)
 
 
 
-public void Trigger ()
+public void Trigger (bool value)
     {
     for (int i = this.listeners.Count - 1; i >= 0; --i)
         {
-        this.listeners[i].OnDidTrigger ();
+        this.listeners[i].OnDidTrigger (value);
         }
     }
 

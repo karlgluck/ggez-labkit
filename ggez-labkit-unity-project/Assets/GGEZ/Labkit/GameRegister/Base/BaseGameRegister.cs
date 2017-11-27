@@ -25,75 +25,24 @@
 
 using System;
 using UnityEngine;
-using System.Collections.Generic;
-using UnityEngine.Events;
 
 namespace GGEZ
 {
 
 
+
 //----------------------------------------------------------------------
-// Helper class for binding events through prefabs, scenes and assets.
-// UnityEvent fields are bound to GameEvent.Trigger on a named asset.
-// GameEventListeners register themselves to a named asset in order
-// to be notified when an event occurs. The GameEventListener then has
-// its own UnityEvent field that dispatches the event.
+// Base class for all GameRegister types.
+//
+// Lets us write just 1 custom Editor for all GameRegisters.
 //----------------------------------------------------------------------
-[CreateAssetMenu (fileName = "New Game Event.asset", menuName="GGEZ/Game Event/Single Event")]
-public class GameEvent : BaseGameEvent
+[Serializable]
+public abstract class BaseGameRegister : ScriptableObject
 {
-
-
-#region Runtime
-private List<GameEventListener> listeners = new List<GameEventListener>();
-#endregion
-
-
-public IList<GameEventListener> Listeners
-    {
-    get
-        {
-        return this.listeners.AsReadOnly ();
-        }
-    }
-
-
-
-public void RegisterListener (GameEventListener listener)
-    {
-    if (listener == null)
-        {
-        throw new ArgumentNullException ("listener");
-        }
-    this.listeners.Add (listener);
-    }
-
-
-
-
-public void UnregisterListener (GameEventListener listener)
-    {
-    if (listener == null)
-        {
-        throw new ArgumentNullException ("listener");
-        }
-    this.listeners.Remove (listener);
-    }
-
-
-
-
-public void Trigger ()
-    {
-    for (int i = this.listeners.Count - 1; i >= 0; --i)
-        {
-        this.listeners[i].OnDidTrigger ();
-        }
-    }
-
-
-
-
+public abstract object GetValueObject ();
 }
+
+
+
 
 }

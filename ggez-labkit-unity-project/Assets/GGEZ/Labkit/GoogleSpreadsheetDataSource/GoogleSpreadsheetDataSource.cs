@@ -40,7 +40,7 @@ public string Url;
 
 public bool DataIsColumns = false;
 
-[HideInInspector]
+[TextArea]
 public string LocalAssetCsvText;
 
 
