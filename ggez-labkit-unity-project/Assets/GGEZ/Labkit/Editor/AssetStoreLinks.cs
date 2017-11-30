@@ -62,6 +62,12 @@ static void EssentialAssetsConsoleEnhanced ()
     {
     UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/42381");
     }
+    
+[MenuItem ("Asset Store/Free Essentials/DOTween")]
+static void EssentialAssetsDOTween ()
+    {
+    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/27676");
+    }
 
 [MenuItem ("Asset Store/GGEZ/Perfect Pixel Camera")]
 static void AssetStore_GGEZ_PerfectPixelCamera ()
