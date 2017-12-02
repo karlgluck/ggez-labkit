@@ -229,7 +229,6 @@ public void UnregisterListener (string key, Listener listener)
         }
     }
 
-
 #region void
 public void Trigger (string key)
     {
@@ -249,9 +248,6 @@ public void Trigger (string key)
     }
 #endregion
 
-
-
-
 #region object
 public object Get (string key)
     {
@@ -269,10 +265,40 @@ public object Get (string key)
 #endregion
 
 
-
-
 #region int
-public void Set (string key, int value)
+public void Set (string key, int value) { this.set <int> (key, value); }
+public void Trigger (string key, int value) { this.trigger<int> (key, value); }
+public bool Get (string key, out int value) { return this.get<int> (key, out value); }
+public int GetInt (string key, int defaultValue) { return this.getT<int> (key, defaultValue); }
+#endregion
+
+
+#region bool
+public void Set (string key, bool value) { this.set <bool> (key, value); }
+public void Trigger (string key, bool value) { this.trigger<bool> (key, value); }
+public bool Get (string key, out bool value) { return this.get<bool> (key, out value); }
+public bool GetBool (string key, bool defaultValue) { return this.getT<bool> (key, defaultValue); }
+#endregion
+
+
+#region string
+public void Set (string key, string value) { this.set <string> (key, value); }
+public void Trigger (string key, string value) { this.trigger<string> (key, value); }
+public bool Get (string key, out string value) { return this.get<string> (key, out value); }
+public string GetString (string key, string defaultValue) { return this.getT<string> (key, defaultValue); }
+#endregion
+
+
+#region float
+public void Set (string key, float value) { this.set <float> (key, value); }
+public void Trigger (string key, float value) { this.trigger<float> (key, value); }
+public bool Get (string key, out float value) { return this.get<float> (key, out value); }
+public float GetFloat (string key, float defaultValue) { return this.getT<float> (key, defaultValue); }
+#endregion
+
+
+#region Templated set/trigger/get methods
+void set<T> (string key, T value)
     {
     if (key == null)
         {
@@ -295,8 +321,7 @@ public void Set (string key, int value)
         }
     }
 
-
-public void Trigger (string key, int value)
+void trigger <T> (string key, T value)
     {
     if (key == null)
         {
@@ -313,7 +338,7 @@ public void Trigger (string key, int value)
         }
     }
 
-public bool Get (string key, out int value)
+bool get <T> (string key, out T value)
     {
     if (key == null)
         {
@@ -322,14 +347,14 @@ public bool Get (string key, out int value)
     object objectValue;
     if (!this.registersTable.TryGetValue (key, out objectValue))
         {
-        value = default(int);
+        value = default(T);
         return false;
         }
-    value = (int)objectValue;
+    value = (T)objectValue;
     return true;
     }
 
-public int GetInt (string key, int defaultValue)
+public T getT<T> (string key, T defaultValue)
     {
     if (key == null)
         {
@@ -340,91 +365,9 @@ public int GetInt (string key, int defaultValue)
         {
         return defaultValue;
         }
-    return (int)value;
+    return (T)value;
     }
-    
 #endregion
-
-
-
-
-
-#region int
-public void Set (string key, bool value)
-    {
-    if (key == null)
-        {
-        throw new ArgumentNullException ("key");
-        }
-    object oldValue;
-    if (this.registersTable.TryGetValue (key, out oldValue) && object.Equals (oldValue, value))
-        {
-        return;
-        }
-    this.registersTable[key] = value;
-    ListenerList listeners;
-    if (!this.listenersTable.TryGetValue (key, out listeners))
-        {
-        return;
-        }
-    for (int i = listeners.Count - 1; i >= 0; --i)
-        {
-        listeners[i].OnDidChange (key, value);
-        }
-    }
-
-
-public void Trigger (string key, bool value)
-    {
-    if (key == null)
-        {
-        throw new ArgumentNullException ("key");
-        }
-    ListenerList listeners;
-    if (!this.listenersTable.TryGetValue (key, out listeners))
-        {
-        return;
-        }
-    for (int i = listeners.Count - 1; i >= 0; --i)
-        {
-        listeners[i].OnDidTrigger (key, value);
-        }
-    }
-
-public bool Get (string key, out bool value)
-    {
-    if (key == null)
-        {
-        throw new ArgumentNullException ("key");
-        }
-    object objectValue;
-    if (!this.registersTable.TryGetValue (key, out objectValue))
-        {
-        value = default(bool);
-        return false;
-        }
-    value = (bool)objectValue;
-    return true;
-    }
-
-public bool GetBool (string key, bool defaultValue)
-    {
-    if (key == null)
-        {
-        throw new ArgumentNullException ("key");
-        }
-    object value;
-    if (!this.registersTable.TryGetValue (key, out value))
-        {
-        return defaultValue;
-        }
-    return (bool)value;
-    }
-    
-#endregion
-
-
-
 }
 
 

@@ -39,6 +39,20 @@ void Trigger (string key, bool value);
 bool Get (string key, out bool value);
 bool GetBool (string key, bool defaultValue);
 
+
+// ----[ string ]--------------------------------------------------------------
+void Set (string key, string value);
+void Trigger (string key, string value);
+bool Get (string key, out string value);
+string GetString (string key, string defaultValue);
+
+
+// ----[ float ]---------------------------------------------------------------
+void Set (string key, float value);
+void Trigger (string key, float value);
+bool Get (string key, out float value);
+float GetFloat (string key, float defaultValue);
+
 }
 
 

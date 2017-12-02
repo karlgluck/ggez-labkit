@@ -32,7 +32,7 @@ MonoBehaviour:
     Value_String: cardname
     Value_Int32: 0
     Value_Vector3: {x: 0, y: 0, z: 0}
-    Value_Boolean: 1
+    Value_Boolean: 0
   runtimeTable:
   - Name: ammo
     CanEditType: 0
@@ -54,4 +54,4 @@ MonoBehaviour:
     Value_String: 
     Value_Int32: 0
     Value_Vector3: {x: 0, y: 0, z: 0}
-    Value_Boolean: 1
+    Value_Boolean: 0

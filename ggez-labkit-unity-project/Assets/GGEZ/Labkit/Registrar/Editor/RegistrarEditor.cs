@@ -52,8 +52,10 @@ private FieldInfo listenersTableField;
 
 private bool enableEditingInitialValuesAtRuntime;
 
-private RegistrarKeyPairContainer keyPairContainer;
-private SerializedProperty keyPair;
+private string triggerParameterTypeName;
+private MethodInfo triggerMethod;
+private SerializedProperty triggerParameter;
+private Labkit.ScriptablePropertyBackingObject fieldBackingObject;
 
 void OnEnable ()
     {
@@ -80,10 +82,8 @@ void OnEnable ()
     this.runtimeTable.drawHeaderCallback = this.drawRuntimeTableHeader;
     this.runtimeTable.drawElementCallback = this.drawRuntimeTableElement;
 
+    this.setTriggerParameterType (null);
 
-
-    this.keyPairContainer = (RegistrarKeyPairContainer)ScriptableObject.CreateInstance (typeof(RegistrarKeyPairContainer));
-    this.keyPair = new SerializedObject (this.keyPairContainer).FindProperty ("KeyPair");
     this.listenersTableField =
             this.targets.Length == 1
             ? this.target.GetType ().GetField ("listenersTable", BindingFlags.NonPublic | BindingFlags.Instance)
@@ -132,13 +132,10 @@ void drawInitialTableElement (Rect position, int index, bool isActive, bool isFo
         {
         EditorGUI.LabelField (valueRect, typeProperty.stringValue);
         }
-
     }
 
-void onInitialTableAddDropdown (Rect buttonRect, ReorderableList list)
+static IEnumerable<Type> getFieldTypes ()
     {
-    var menu = new GenericMenu ();
-
     var valueFields = typeof(RegistrarKeyPair).FindMembers (
             MemberTypes.Field,
             BindingFlags.Public | BindingFlags.Instance,
@@ -151,8 +148,18 @@ void onInitialTableAddDropdown (Rect buttonRect, ReorderableList list)
     foreach (var memberInfo in valueFields)
         {
         FieldInfo fieldInfo = (FieldInfo)memberInfo;
+        yield return fieldInfo.FieldType;
+        }
+    }
+
+void onInitialTableAddDropdown (Rect buttonRect, ReorderableList list)
+    {
+    var menu = new GenericMenu ();
+
+    foreach (var fieldType in getFieldTypes ())
+        {
         menu.AddItem (
-            new GUIContent (fieldInfo.FieldType.Name),
+            new GUIContent (fieldType.Name),
             false,
             (object _type) =>
                 {
@@ -163,9 +170,9 @@ void onInitialTableAddDropdown (Rect buttonRect, ReorderableList list)
                 var element = list.serializedProperty.GetArrayElementAtIndex(index);
                 element.FindPropertyRelative ("Name").stringValue = GUID.Generate ().ToString ().Substring (0, 7);
                 element.FindPropertyRelative ("Type").stringValue = type.Name;
-                this.serializedObject.ApplyModifiedProperties ();
+                list.serializedProperty.serializedObject.ApplyModifiedProperties ();
                 },
-            fieldInfo.FieldType
+            fieldType
             );
         }
 
@@ -212,8 +219,67 @@ void drawRuntimeTableElement (Rect position, int index, bool isActive, bool isFo
 void OnDisable ()
     {
     this.foldouts.Clear ();
-    GameObject.DestroyImmediate (this.keyPairContainer);
+    if (this.fieldBackingObject != null)
+        {
+        GameObject.DestroyImmediate (this.fieldBackingObject);
+        }
     }
+
+
+void setTriggerParameterType (Type type)
+    {
+    if (this.fieldBackingObject != null)
+        {
+        GameObject.DestroyImmediate (this.fieldBackingObject);
+        }
+    if (type == null)
+        {
+        this.triggerMethod = typeof(Registrar).GetMethod ("Trigger", new Type[] { typeof(string) });
+        this.triggerParameter = null;
+        this.fieldBackingObject = null;
+        this.triggerParameterTypeName = "void";
+        }
+    else
+        {
+        this.triggerMethod = typeof(Registrar).GetMethod ("Trigger", new Type[] { typeof(string), type });
+        this.triggerParameter = Labkit.SerializedPropertyExt.GetSerializedPropertyFor (type, out this.fieldBackingObject);
+        this.triggerParameterTypeName = type.Name;
+        }
+    }
+
+
+private void drawManualTriggerElement ()
+    {
+    GUILayout.Label ("Manual Trigger (" + this.triggerParameterTypeName + ")", EditorStyles.boldLabel);
+    var triggerRect = EditorGUILayout.GetControlRect ();
+    var buttonRect = new Rect (triggerRect);
+    buttonRect.xMax = buttonRect.xMin + 75f;
+    var parameterRect = new Rect (triggerRect);
+    parameterRect.xMin = buttonRect.xMax + 5f;
+    if (EditorGUI.DropdownButton (buttonRect, new GUIContent ("Type"), FocusType.Passive))
+        {
+        var menu = new GenericMenu ();
+
+        menu.AddItem (new GUIContent ("void"), false, (object _unused) => this.setTriggerParameterType (null), null);
+        menu.AddSeparator ("");
+        foreach (var fieldType in getFieldTypes ())
+            {
+            menu.AddItem (
+                new GUIContent (fieldType.Name),
+                false,
+                (object _type) => this.setTriggerParameterType ((Type)_type),
+                fieldType
+                );
+            }
+
+        menu.DropDown (buttonRect);
+        }
+    if (this.triggerParameter != null)
+        {
+        EditorGUI.PropertyField (parameterRect, this.triggerParameter, GUIContent.none);
+        }
+    }
+
 
 public override void OnInspectorGUI ()
     {
@@ -241,6 +307,9 @@ public override void OnInspectorGUI ()
         this.runtimeTable.DoLayoutList ();
 
         EditorGUILayout.Space ();
+        this.drawManualTriggerElement ();
+
+        EditorGUILayout.Space ();
         GUILayout.Label ("Listeners", EditorStyles.boldLabel);
         int totalListeners = 0;
         if (this.listenersTableField != null)
@@ -248,6 +317,7 @@ public override void OnInspectorGUI ()
             var listenersTable = this.listenersTableField.GetValue (this.target) as IDictionary;
             if (listenersTable != null)
                 {
+
                 foreach (string key in listenersTable.Keys)
                     {
                     var listeners = listenersTable[key] as ICollection;
@@ -256,33 +326,6 @@ public override void OnInspectorGUI ()
                     if (!this.Foldout (key, numberOfListeners))
                         {
                         continue;
-                        }
-                    var totalRect = EditorGUILayout.GetControlRect ();
-                    var inputRect = new Rect (totalRect);
-                    inputRect.xMax -= 100;
-                    var buttonRect = new Rect (totalRect);
-                    buttonRect.xMin = inputRect.xMax + 5;
-                    EditorGUI.PropertyField (inputRect, this.keyPair, GUIContent.none);
-                    if (GUI.Button (buttonRect, "Trigger"))
-                        {
-                        this.keyPair.serializedObject.ApplyModifiedPropertiesWithoutUndo ();
-                        var argument = this.keyPairContainer.KeyPair.GetValue ();
-                        MethodInfo triggerMethodInfo = null;
-                        if (argument != null)
-                            {
-                            triggerMethodInfo = typeof (Registrar).GetMethod (
-                                    "Trigger",
-                                    new Type[] { typeof(string), argument.GetType () }
-                                    );
-                            }
-                        if (triggerMethodInfo != null)
-                            {
-                            var args = new object[] { key, argument };
-                            foreach (var target in this.targets)
-                                {
-                                triggerMethodInfo.Invoke (target, args);
-                                }
-                            }
                         }
                     EditorGUI.BeginDisabledGroup (true);
                     EditorGUI.indentLevel++;
@@ -314,8 +357,28 @@ private bool Foldout (string key, int listeners)
     var controlRect = EditorGUILayout.GetControlRect ();
     var listenersRect = new Rect (controlRect);
     listenersRect.xMin += EditorGUIUtility.labelWidth;
+    controlRect.xMax = listenersRect.xMin;
     value = EditorGUI.Foldout (controlRect, value, key, true);
-    GUI.Label (listenersRect, listeners.ToString ());
+
+    string plural = listeners == 1 ? "" : "s";
+    if (this.triggerMethod != null && GUI.Button (listenersRect, "Trigger " + listeners.ToString () + " Listener" + plural))
+        {
+        if (this.triggerParameter != null)
+            {
+            this.triggerParameter.serializedObject.ApplyModifiedPropertiesWithoutUndo ();
+            foreach (UnityEngine.Object targetObject in this.serializedObject.targetObjects)
+                {
+                this.triggerMethod.Invoke (targetObject, new object[] { key, this.fieldBackingObject.GetValue ()});
+                }
+            }
+        else
+            {
+            foreach (UnityEngine.Object targetObject in this.serializedObject.targetObjects)
+                {
+                this.triggerMethod.Invoke (targetObject, new object[] { key });
+                }
+            }
+        }
 
     this.foldouts[key] = value;
     return value;

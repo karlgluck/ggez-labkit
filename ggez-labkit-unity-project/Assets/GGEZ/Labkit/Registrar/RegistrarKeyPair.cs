@@ -23,6 +23,7 @@ public string Value_String;
 public int Value_Int32;
 public Vector3 Value_Vector3;
 public bool Value_Boolean;
+public float Value_Single;
 
 
 public object GetValue ()
@@ -33,6 +34,7 @@ public object GetValue ()
         case "Int32": return this.Value_Int32;
         case "Vector3": return this.Value_Vector3;
         case "Boolean": return this.Value_Boolean;
+        case "Single": return this.Value_Single;
         }
     return null;
     }
@@ -51,6 +53,7 @@ public void SetValue (object value)
         case "Int32": this.Value_Int32 = (int)value; break;
         case "Vector3": this.Value_Vector3 = (Vector3)value; break;
         case "Boolean": this.Value_Boolean = (bool)value; break;
+        case "Single": this.Value_Single = (float)value; break;
         }
     }
 

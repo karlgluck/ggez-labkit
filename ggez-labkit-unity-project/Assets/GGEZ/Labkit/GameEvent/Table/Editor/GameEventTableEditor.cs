@@ -87,7 +87,7 @@ public override void OnInspectorGUI ()
 
         if (this.triggerParameter != null)
             {
-            EditorGUILayout.PropertyField (triggerParameter);
+            EditorGUILayout.PropertyField (this.triggerParameter);
             }
         }
 
