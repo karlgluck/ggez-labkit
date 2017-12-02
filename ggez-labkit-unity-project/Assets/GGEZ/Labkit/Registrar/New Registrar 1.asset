@@ -11,5 +11,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ae191876b89f184e85591b2b94dfca1, type: 3}
   m_Name: New Registrar 1
   m_EditorClassIdentifier: 
-  initialTable: []
-  runtimeTable: []
+  initialTable:
+  - Name: ammo
+    CanEditType: 0
+    Type: Int32
+    Value_String: 
+    Value_Int32: 24
+    Value_Vector3: {x: 0, y: 0, z: 0}
+    Value_Boolean: 0
+  - Name: name
+    CanEditType: 0
+    Type: String
+    Value_String: cardname
+    Value_Int32: 0
+    Value_Vector3: {x: 0, y: 0, z: 0}
+    Value_Boolean: 0
+  - Name: enable
+    CanEditType: 0
+    Type: Boolean
+    Value_String: cardname
+    Value_Int32: 0
+    Value_Vector3: {x: 0, y: 0, z: 0}
+    Value_Boolean: 1
+  runtimeTable:
+  - Name: ammo
+    CanEditType: 0
+    Type: Int32
+    Value_String: 
+    Value_Int32: 24
+    Value_Vector3: {x: 0, y: 0, z: 0}
+    Value_Boolean: 0
+  - Name: name
+    CanEditType: 0
+    Type: String
+    Value_String: cardname
+    Value_Int32: 0
+    Value_Vector3: {x: 0, y: 0, z: 0}
+    Value_Boolean: 0
+  - Name: enable
+    CanEditType: 0
+    Type: Boolean
+    Value_String: 
+    Value_Int32: 0
+    Value_Vector3: {x: 0, y: 0, z: 0}
+    Value_Boolean: 1

@@ -15,13 +15,14 @@ namespace GGEZ
 [Serializable]
 public class RegistrarKeyPair
 {
-[Delayed] public string Name = "";
+public string Name = "";
 
 public bool CanEditType = true;
 public string Type = null;
 public string Value_String;
 public int Value_Int32;
 public Vector3 Value_Vector3;
+public bool Value_Boolean;
 
 
 public object GetValue ()
@@ -31,6 +32,7 @@ public object GetValue ()
         case "String": return this.Value_String;
         case "Int32": return this.Value_Int32;
         case "Vector3": return this.Value_Vector3;
+        case "Boolean": return this.Value_Boolean;
         }
     return null;
     }
@@ -46,12 +48,9 @@ public void SetValue (object value)
     switch (this.Type)
         {
         case "String": this.Value_String = (string)value; break;
-        case "Int32":
-            this.Value_Int32 = (int)value;
-            break;
-        case "Vector3":
-            this.Value_Vector3 = (Vector3)value;
-            break;
+        case "Int32": this.Value_Int32 = (int)value; break;
+        case "Vector3": this.Value_Vector3 = (Vector3)value; break;
+        case "Boolean": this.Value_Boolean = (bool)value; break;
         }
     }
 

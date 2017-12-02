@@ -30,6 +30,7 @@ using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditorInternal;
+using System.Linq;
 
 
 namespace GGEZ
@@ -45,7 +46,7 @@ CanEditMultipleObjects
 public class RegistrarEditor : Editor
 {
 private ReorderableList initialTable;
-private SerializedProperty runtimeTable;
+private ReorderableList runtimeTable;
 
 private FieldInfo listenersTableField;
 
@@ -58,13 +59,29 @@ void OnEnable ()
     {
     this.initialTable = new ReorderableList (
             serializedObject, 
-            serializedObject.FindProperty("initialTable"), 
-            true, true, true, true
+            serializedObject.FindProperty ("initialTable"), 
+            true, // draggable
+            true, // displayHeader
+            true, // displayAddButton
+            true  // displayRemoveButton
             );
     this.initialTable.drawHeaderCallback = this.drawInitialTableHeader;
     this.initialTable.drawElementCallback = this.drawInitialTableElement;
     this.initialTable.onAddDropdownCallback = this.onInitialTableAddDropdown;
-    this.runtimeTable = this.serializedObject.FindProperty ("runtimeTable");
+
+    this.runtimeTable = new ReorderableList (
+            serializedObject, 
+            serializedObject.FindProperty ("runtimeTable"), 
+            false, // draggable
+            true,  // displayHeader
+            false, // displayAddButton
+            false  // displayRemoveButton
+            );
+    this.runtimeTable.drawHeaderCallback = this.drawRuntimeTableHeader;
+    this.runtimeTable.drawElementCallback = this.drawRuntimeTableElement;
+
+
+
     this.keyPairContainer = (RegistrarKeyPairContainer)ScriptableObject.CreateInstance (typeof(RegistrarKeyPairContainer));
     this.keyPair = new SerializedObject (this.keyPairContainer).FindProperty ("KeyPair");
     this.listenersTableField =
@@ -86,18 +103,26 @@ void drawInitialTableElement (Rect position, int index, bool isActive, bool isFo
     Rect nameRect = new Rect (
             position.xMin,
             position.yMin + 2f,
-            EditorGUIUtility.labelWidth - 5f,
+            EditorGUIUtility.labelWidth - 5f - 20f,
             EditorGUIUtility.singleLineHeight
             );
     Rect valueRect = new Rect (
-            position.xMin + EditorGUIUtility.labelWidth,
+            position.xMin + nameRect.width + 5f,
             position.yMin + 2f,
             position.width - nameRect.width - 5f,
             EditorGUIUtility.singleLineHeight
             );
-    EditorGUI.PropertyField (nameRect, property.FindPropertyRelative ("Name"), GUIContent.none);
-    var typeProperty = property.FindPropertyRelative ("Type");
 
+    if (isFocused || isActive)
+        {
+        EditorGUI.PropertyField (nameRect, property.FindPropertyRelative ("Name"), GUIContent.none);
+        }
+    else
+        {
+        EditorGUI.LabelField (nameRect, property.FindPropertyRelative ("Name").stringValue);
+        }
+
+    var typeProperty = property.FindPropertyRelative ("Type");
     var valueProperty = property.FindPropertyRelative ("Value_" + typeProperty.stringValue);
     if (valueProperty != null)
         {
@@ -105,9 +130,7 @@ void drawInitialTableElement (Rect position, int index, bool isActive, bool isFo
         }
     else
         {
-        EditorGUI.BeginDisabledGroup (true);
-        EditorGUI.TextField (valueRect, "");
-        EditorGUI.EndDisabledGroup ();
+        EditorGUI.LabelField (valueRect, typeProperty.stringValue);
         }
 
     }
@@ -134,14 +157,11 @@ void onInitialTableAddDropdown (Rect buttonRect, ReorderableList list)
             (object _type) =>
                 {
                 var type = (Type)_type;
-                //object obj = type.IsValueType ? Activator.CreateInstance (type) : null;
-                //var element = RegistrarKeyPair.Create ("", obj, true);
-
                 var index = list.serializedProperty.arraySize;
                 list.serializedProperty.arraySize++;
                 list.index = index;
                 var element = list.serializedProperty.GetArrayElementAtIndex(index);
-                element.FindPropertyRelative ("Name").stringValue = new GUID ().ToString ();
+                element.FindPropertyRelative ("Name").stringValue = GUID.Generate ().ToString ().Substring (0, 7);
                 element.FindPropertyRelative ("Type").stringValue = type.Name;
                 this.serializedObject.ApplyModifiedProperties ();
                 },
@@ -149,11 +169,45 @@ void onInitialTableAddDropdown (Rect buttonRect, ReorderableList list)
             );
         }
 
-    // menu.AddItem (new GUIContent ("Value/int"), false, RegistrarKeyPairDrawer.ToInt, property);
-    // menu.AddItem (new GUIContent ("Value/string"), false, RegistrarKeyPairDrawer.ToString, property);
-    // menu.AddItem (new GUIContent ("Vector3"), false, RegistrarKeyPairDrawer.ToVector3, property);
     menu.DropDown (buttonRect);
     }
+
+void drawRuntimeTableHeader (Rect rect)
+    {
+    EditorGUI.LabelField (rect, "Runtime Registers");
+    }
+
+void drawRuntimeTableElement (Rect position, int index, bool isActive, bool isFocused)
+    {
+    SerializedProperty property = this.runtimeTable.serializedProperty.GetArrayElementAtIndex (index);
+        
+    Rect nameRect = new Rect (
+            position.xMin,
+            position.yMin + 2f,
+            EditorGUIUtility.labelWidth - 5f - 20f,
+            EditorGUIUtility.singleLineHeight
+            );
+    Rect valueRect = new Rect (
+            position.xMin + nameRect.width + 5f,
+            position.yMin + 2f,
+            position.width - nameRect.width - 5f,
+            EditorGUIUtility.singleLineHeight
+            );
+
+    EditorGUI.LabelField (nameRect, property.FindPropertyRelative ("Name").stringValue);
+
+    var typeProperty = property.FindPropertyRelative ("Type");
+    var valueProperty = property.FindPropertyRelative ("Value_" + typeProperty.stringValue);
+    if (valueProperty != null)
+        {
+        EditorGUI.PropertyField (valueRect, valueProperty, GUIContent.none);
+        }
+    else
+        {
+        EditorGUI.LabelField (valueRect, typeProperty.stringValue);
+        }
+    }
+
 
 void OnDisable ()
     {
@@ -165,89 +219,84 @@ public override void OnInspectorGUI ()
     {
     this.serializedObject.UpdateIfRequiredOrScript ();
 
-    GUILayout.Label ("Defaults", EditorStyles.boldLabel);
     bool disableEditingDefaults = EditorApplication.isPlaying && !this.enableEditingInitialValuesAtRuntime;
-    if (disableEditingDefaults && GUILayout.Button ("Enable Editing Defaults at Runtime"))
+    bool allObjectsAreAssets = this.serializedObject.targetObjects.All ((obj) => AssetDatabase.Contains (obj));
+    if (disableEditingDefaults && allObjectsAreAssets && GUILayout.Button ("Enable Editing Asset at Runtime"))
         {
         this.enableEditingInitialValuesAtRuntime = true;
         }
 
     EditorGUI.BeginDisabledGroup (disableEditingDefaults);
-
-    if (this.initialTable != null)
+    EditorGUILayout.Space ();
+    if (allObjectsAreAssets || !EditorApplication.isPlaying)
         {
         this.initialTable.DoLayoutList ();
         }
-
     EditorGUI.EndDisabledGroup ();
 
-    EditorGUILayout.Space ();
-    GUILayout.Label ("Runtime", EditorStyles.boldLabel);
-    EditorGUI.BeginDisabledGroup (!Application.isPlaying);
-
-    if (this.runtimeTable != null)
+    if (EditorApplication.isPlaying)
         {
-        EditorGUILayout.PropertyField (this.runtimeTable, true);
-        }
 
+        EditorGUILayout.Space ();
+        this.runtimeTable.DoLayoutList ();
 
-    EditorGUILayout.Space ();
-    GUILayout.Label ("Listeners", EditorStyles.boldLabel);
-    int totalListeners = 0;
-    if (this.listenersTableField != null)
-        {
-        var listenersTable = this.listenersTableField.GetValue (this.target) as IDictionary;
-        if (listenersTable != null)
+        EditorGUILayout.Space ();
+        GUILayout.Label ("Listeners", EditorStyles.boldLabel);
+        int totalListeners = 0;
+        if (this.listenersTableField != null)
             {
-            foreach (string key in listenersTable.Keys)
+            var listenersTable = this.listenersTableField.GetValue (this.target) as IDictionary;
+            if (listenersTable != null)
                 {
-                var listeners = listenersTable[key] as ICollection;
-                int numberOfListeners = listeners == null ? 0 : listeners.Count;
-                totalListeners += numberOfListeners;
-                if (!this.Foldout (key, numberOfListeners))
+                foreach (string key in listenersTable.Keys)
                     {
-                    continue;
-                    }
-                var totalRect = EditorGUILayout.GetControlRect ();
-                var inputRect = new Rect (totalRect);
-                inputRect.xMax -= 100;
-                var buttonRect = new Rect (totalRect);
-                buttonRect.xMin = inputRect.xMax + 5;
-                EditorGUI.PropertyField (inputRect, this.keyPair, GUIContent.none);
-                if (GUI.Button (buttonRect, "Trigger"))
-                    {
-                    this.keyPair.serializedObject.ApplyModifiedPropertiesWithoutUndo ();
-                    var argument = this.keyPairContainer.KeyPair.GetValue ();
-                    MethodInfo triggerMethodInfo = null;
-                    if (argument != null)
+                    var listeners = listenersTable[key] as ICollection;
+                    int numberOfListeners = listeners == null ? 0 : listeners.Count;
+                    totalListeners += numberOfListeners;
+                    if (!this.Foldout (key, numberOfListeners))
                         {
-                        triggerMethodInfo = typeof (Registrar).GetMethod (
-                                "Trigger",
-                                new Type[] { typeof(string), argument.GetType () }
-                                );
+                        continue;
                         }
-                    if (triggerMethodInfo != null)
+                    var totalRect = EditorGUILayout.GetControlRect ();
+                    var inputRect = new Rect (totalRect);
+                    inputRect.xMax -= 100;
+                    var buttonRect = new Rect (totalRect);
+                    buttonRect.xMin = inputRect.xMax + 5;
+                    EditorGUI.PropertyField (inputRect, this.keyPair, GUIContent.none);
+                    if (GUI.Button (buttonRect, "Trigger"))
                         {
-                        var args = new object[] { key, argument };
-                        foreach (var target in this.targets)
+                        this.keyPair.serializedObject.ApplyModifiedPropertiesWithoutUndo ();
+                        var argument = this.keyPairContainer.KeyPair.GetValue ();
+                        MethodInfo triggerMethodInfo = null;
+                        if (argument != null)
                             {
-                            triggerMethodInfo.Invoke (target, args);
+                            triggerMethodInfo = typeof (Registrar).GetMethod (
+                                    "Trigger",
+                                    new Type[] { typeof(string), argument.GetType () }
+                                    );
+                            }
+                        if (triggerMethodInfo != null)
+                            {
+                            var args = new object[] { key, argument };
+                            foreach (var target in this.targets)
+                                {
+                                triggerMethodInfo.Invoke (target, args);
+                                }
                             }
                         }
+                    EditorGUI.BeginDisabledGroup (true);
+                    EditorGUI.indentLevel++;
+                    foreach (MonoBehaviour mb in listeners)
+                        {
+                        EditorGUI.ObjectField (EditorGUILayout.GetControlRect (), mb, typeof(MonoBehaviour), true);
+                        }
+                    EditorGUI.indentLevel--;
+                    EditorGUI.EndDisabledGroup ();
                     }
-                EditorGUI.BeginDisabledGroup (true);
-                EditorGUI.indentLevel++;
-                foreach (MonoBehaviour mb in listeners)
-                    {
-                    EditorGUI.ObjectField (EditorGUILayout.GetControlRect (), mb, typeof(MonoBehaviour), true);
-                    }
-                EditorGUI.indentLevel--;
-                EditorGUI.EndDisabledGroup ();
                 }
             }
-        EditorGUI.EndDisabledGroup ();
+        EditorGUILayout.LabelField ("Total Listeners", totalListeners.ToString ());
         }
-    EditorGUILayout.LabelField ("Total Listeners", totalListeners.ToString ());
 
     this.serializedObject.ApplyModifiedProperties ();
     }

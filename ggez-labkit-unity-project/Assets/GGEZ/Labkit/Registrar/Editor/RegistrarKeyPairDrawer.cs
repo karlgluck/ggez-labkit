@@ -65,16 +65,16 @@ public override void OnGUI (Rect position, SerializedProperty property, GUIConte
 public static void ToInt (object _property)
     {
     var property = _property as SerializedProperty;
-    property.FindPropertyRelative ("Type").stringValue = "int";
-    property.FindPropertyRelative ("Value_int").intValue = 0;
+    property.FindPropertyRelative ("Type").stringValue = "Int32";
+    property.FindPropertyRelative ("Value_Int32").intValue = 0;
     property.serializedObject.ApplyModifiedProperties ();
     }
 
 public static void ToString (object _property)
     {
     var property = _property as SerializedProperty;
-    property.FindPropertyRelative ("Type").stringValue = "string";
-    property.FindPropertyRelative ("Value_string").stringValue = "";
+    property.FindPropertyRelative ("Type").stringValue = "String";
+    property.FindPropertyRelative ("Value_String").stringValue = "";
     property.serializedObject.ApplyModifiedProperties ();
     }
 

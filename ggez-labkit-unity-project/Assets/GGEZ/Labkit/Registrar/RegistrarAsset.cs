@@ -30,8 +30,9 @@ public sealed class RegistrarAsset : ScriptableObject, Registrar, ISerialization
 
 void ISerializationCallbackReceiver.OnBeforeSerialize ()
     {
-    var runtimeKeys = new HashSet<string> (this.listenersTable.Keys);
-    runtimeKeys.IntersectWith (this.registersTable.Keys);
+    //var runtimeKeys = new HashSet<string> (this.listenersTable.Keys);
+    //runtimeKeys.IntersectWith (this.registersTable.Keys);
+    var runtimeKeys = new HashSet<string> (this.registersTable.Keys);
     this.runtimeTable.Clear ();
     this.runtimeTable.Capacity = Mathf.Max (this.runtimeTable.Capacity, runtimeKeys.Count);
     foreach (var key in runtimeKeys)
@@ -44,16 +45,14 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
     {
 #if UNITY_EDITOR
 
-    // Clean up the runtime keys so that the editor never creates
-    // elements or tries to contain values for keys without listeners.
+    // Clean up the runtime keys
     HashSet<string> runtimeTableKeys = new HashSet<string> ();
     for (int i = this.runtimeTable.Count - 1; i >= 0; --i)
         {
         var kvp = this.runtimeTable[i];
         if (kvp == null
                 || string.IsNullOrEmpty(kvp.Name)
-                || runtimeTableKeys.Contains (kvp.Name)
-                || !this.listenersTable.ContainsKey (kvp.Name))
+                || runtimeTableKeys.Contains (kvp.Name))
             {
             this.runtimeTable.RemoveAt (i);
             continue;
@@ -345,6 +344,85 @@ public int GetInt (string key, int defaultValue)
     }
     
 #endregion
+
+
+
+
+
+#region int
+public void Set (string key, bool value)
+    {
+    if (key == null)
+        {
+        throw new ArgumentNullException ("key");
+        }
+    object oldValue;
+    if (this.registersTable.TryGetValue (key, out oldValue) && object.Equals (oldValue, value))
+        {
+        return;
+        }
+    this.registersTable[key] = value;
+    ListenerList listeners;
+    if (!this.listenersTable.TryGetValue (key, out listeners))
+        {
+        return;
+        }
+    for (int i = listeners.Count - 1; i >= 0; --i)
+        {
+        listeners[i].OnDidChange (key, value);
+        }
+    }
+
+
+public void Trigger (string key, bool value)
+    {
+    if (key == null)
+        {
+        throw new ArgumentNullException ("key");
+        }
+    ListenerList listeners;
+    if (!this.listenersTable.TryGetValue (key, out listeners))
+        {
+        return;
+        }
+    for (int i = listeners.Count - 1; i >= 0; --i)
+        {
+        listeners[i].OnDidTrigger (key, value);
+        }
+    }
+
+public bool Get (string key, out bool value)
+    {
+    if (key == null)
+        {
+        throw new ArgumentNullException ("key");
+        }
+    object objectValue;
+    if (!this.registersTable.TryGetValue (key, out objectValue))
+        {
+        value = default(bool);
+        return false;
+        }
+    value = (bool)objectValue;
+    return true;
+    }
+
+public bool GetBool (string key, bool defaultValue)
+    {
+    if (key == null)
+        {
+        throw new ArgumentNullException ("key");
+        }
+    object value;
+    if (!this.registersTable.TryGetValue (key, out value))
+        {
+        return defaultValue;
+        }
+    return (bool)value;
+    }
+    
+#endregion
+
 
 
 }
