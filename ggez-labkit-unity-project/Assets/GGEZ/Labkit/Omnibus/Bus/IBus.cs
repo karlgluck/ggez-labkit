@@ -35,18 +35,19 @@ namespace Omnibus
 
 public partial interface IBus
 {
-bool HasListeners (string key);
-bool HasValue (string key);
-StringCollection GetEventKeys ();
-StringCollection GetRegisterKeys ();
-
-void RegisterListener (string key, Fub listener);
-void UnregisterListener (string key, Fub listener);
+void Connect (string key, Fub fub);
+void Disconnect (string key, Fub fub);
 
 
 void Trigger (string key);
-
 object Get (string key);
+
+
+bool HasListeners (string key);
+bool HasValue (string key);
+
+StringCollection GetEventKeys ();
+StringCollection GetRegisterKeys ();
 
 
 }

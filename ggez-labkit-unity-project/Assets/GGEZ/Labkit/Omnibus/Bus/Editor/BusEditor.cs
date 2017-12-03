@@ -58,7 +58,7 @@ void OnEnable ()
     {
     this.initialTable = new ReorderableList (
             serializedObject, 
-            serializedObject.FindProperty (Bus.nameof_initialTable), 
+            serializedObject.FindProperty (Bus.nameof_serializedRom), 
             true, // draggable
             true, // displayHeader
             true, // displayAddButton
@@ -70,7 +70,7 @@ void OnEnable ()
 
     this.runtimeTable = new ReorderableList (
             serializedObject, 
-            serializedObject.FindProperty (Bus.nameof_runtimeTable), 
+            serializedObject.FindProperty (Bus.nameof_serializedMemory), 
             false, // draggable
             true,  // displayHeader
             false, // displayAddButton
@@ -83,7 +83,7 @@ void OnEnable ()
 
     this.listenersTableField =
             this.targets.Length == 1
-            ? this.target.GetType ().GetField (Bus.nameof_listenersTable, BindingFlags.NonPublic | BindingFlags.Instance)
+            ? this.target.GetType ().GetField (Bus.nameof_connections, BindingFlags.NonPublic | BindingFlags.Instance)
             : null;
     this.enableEditingInitialValuesAtRuntime = false;
     }
@@ -343,20 +343,13 @@ private bool Foldout (string key, int count)
     string plural = count == 1 ? "" : "s";
     if (this.triggerMethod != null && GUI.Button (listenersRect, "Trigger " + count.ToString () + " Fub" + plural))
         {
-        if (this.triggerParameter != null)
+        try
             {
-            this.triggerParameter.serializedObject.ApplyModifiedPropertiesWithoutUndo ();
-            foreach (UnityEngine.Object targetObject in this.serializedObject.targetObjects)
-                {
-                this.triggerMethod.Invoke (targetObject, new object[] { key, this.fieldBackingObject.GetValue ()});
-                }
+            this.manualTrigger (key);
             }
-        else
+        catch (InvalidCastException e)
             {
-            foreach (UnityEngine.Object targetObject in this.serializedObject.targetObjects)
-                {
-                this.triggerMethod.Invoke (targetObject, new object[] { key });
-                }
+            Debug.LogErrorFormat (e.Message);
             }
         }
 
@@ -364,6 +357,24 @@ private bool Foldout (string key, int count)
     return value;
     }
 
+private void manualTrigger (string key)
+    {
+    if (this.triggerParameter != null)
+        {
+        this.triggerParameter.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+        foreach (UnityEngine.Object targetObject in this.serializedObject.targetObjects)
+            {
+            this.triggerMethod.Invoke(targetObject, new object[] { key, this.fieldBackingObject.GetValue() });
+            }
+        }
+    else
+        {
+        foreach (UnityEngine.Object targetObject in this.serializedObject.targetObjects)
+            {
+            this.triggerMethod.Invoke(targetObject, new object[] { key });
+            }
+        }
+    }
 
 }
 }

@@ -26,7 +26,6 @@
 using System;
 using UnityEngine;
 using Keys = System.Collections.Generic.List<string>;
-using ReadonlyKeys = System.Collections.ObjectModel.ReadOnlyCollection<string>;
 using System.Collections.Generic;
 
 namespace GGEZ
@@ -35,11 +34,24 @@ namespace Omnibus
 {
 
 
+//----------------------------------------------------------------------
+// Fub: Functional Unit Block
+//----------------------------------------------------------------------
 public class Fub : MonoBehaviour
 {
 
-[SerializeField] private UnityEngine.Object bus; // MonoBehaviour or ScriptableObject
 
+//----------------------------------------------------------------------
+// Implement the fub by overriding these methods in a derived class
+//----------------------------------------------------------------------
+public virtual void OnDidTrigger (string key, object value) {}
+public virtual void OnDidChange (string key, object value) {}
+public virtual IEnumerable<string> GetKeys ()
+    {
+    throw new System.NotImplementedException ();
+    }
+
+[SerializeField] private UnityEngine.Object bus; // MonoBehaviour or ScriptableObject
 public IBus Bus
     {
     get
@@ -60,7 +72,7 @@ public IBus Bus
                 {
                 if (!string.IsNullOrEmpty (key))
                     {
-                    bus.UnregisterListener (key, this);
+                    bus.Disconnect (key, this);
                     }
                 }
             }
@@ -77,7 +89,7 @@ public IBus Bus
                 {
                 if (!string.IsNullOrEmpty (key))
                     {
-                    bus.RegisterListener (key, this);
+                    bus.Connect (key, this);
                     }
                 }
             }
@@ -96,7 +108,7 @@ void OnEnable ()
             {
             if (!string.IsNullOrEmpty (key))
                 {
-                bus.RegisterListener (key, this);
+                bus.Connect (key, this);
                 }
             }
         }
@@ -118,7 +130,7 @@ void OnDisable ()
             {
             if (!string.IsNullOrEmpty (key))
                 {
-                bus.UnregisterListener (key, this);
+                bus.Disconnect (key, this);
                 }
             }
         }
@@ -127,14 +139,6 @@ void OnDisable ()
     this.previousKeys.Clear ();
     this.previousBus = null;
 #endif
-    }
-
-
-public virtual void OnDidTrigger (string key, object value) {}
-public virtual void OnDidChange (string key, object value) {}
-public virtual IEnumerable<string> GetKeys ()
-    {
-    throw new System.NotImplementedException ();
     }
 
 
@@ -184,7 +188,7 @@ void OnValidate ()
                 {
                 if (!string.IsNullOrEmpty (key))
                     {
-                    this.previousBus.UnregisterListener (key, this);
+                    this.previousBus.Disconnect (key, this);
                     }
                 }
             }
@@ -196,7 +200,7 @@ void OnValidate ()
                 {
                 if (!string.IsNullOrEmpty (key))
                     {
-                    bus.RegisterListener (key, this);
+                    bus.Connect (key, this);
                     }
                 }
             }
@@ -209,7 +213,7 @@ void OnValidate ()
                 {
                 if (!string.IsNullOrEmpty (key))
                     {
-                    this.previousBus.UnregisterListener (key, this);
+                    this.previousBus.Disconnect (key, this);
                     }
                 }
             }
@@ -222,7 +226,7 @@ void OnValidate ()
                 {
                 if (!string.IsNullOrEmpty (key))
                     {
-                    bus.RegisterListener (key, this);
+                    bus.Connect (key, this);
                     }
                 }
             }

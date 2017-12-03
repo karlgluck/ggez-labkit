@@ -26,10 +26,10 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
-using ListenerList = System.Collections.Generic.List<GGEZ.Omnibus.Fub>;
-using ListenersTable = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<GGEZ.Omnibus.Fub>>;
-using RegistersTable = System.Collections.Generic.Dictionary<string, object>;
-using SerializableKeyValuePairList = System.Collections.Generic.List<GGEZ.Omnibus.SerializedMemoryCell>;
+using FubList = System.Collections.Generic.List<GGEZ.Omnibus.Fub>;
+using Connections = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<GGEZ.Omnibus.Fub>>;
+using Memory = System.Collections.Generic.Dictionary<string, object>;
+using SerializedMemory = System.Collections.Generic.List<GGEZ.Omnibus.SerializedMemoryCell>;
 using StringCollection = System.Collections.Generic.ICollection<string>;
 
 namespace GGEZ
@@ -46,203 +46,55 @@ AddComponentMenu ("GGEZ/Omnibus/Bus")
 public sealed partial class Bus : MonoBehaviour, IBus, ISerializationCallbackReceiver
 {
 
-#region Serialization
-[SerializeField] private SerializableKeyValuePairList initialTable = new SerializableKeyValuePairList ();
-[SerializeField] private SerializableKeyValuePairList runtimeTable = new SerializableKeyValuePairList ();
+private Connections connections = new Connections ();
+private Memory memory = new Memory ();
 
-void ISerializationCallbackReceiver.OnBeforeSerialize ()
-    {
-    var runtimeKeys = new HashSet<string> (this.registersTable.Keys);
-    this.runtimeTable.Clear ();
-    this.runtimeTable.Capacity = Mathf.Max (this.runtimeTable.Capacity, runtimeKeys.Count);
-    foreach (var key in runtimeKeys)
-        {
-        this.runtimeTable.Add (SerializedMemoryCell.Create (key, this.Get (key)));
-        }
-    }
 
-void ISerializationCallbackReceiver.OnAfterDeserialize ()
-    {
-#if UNITY_EDITOR
-
-    // Clean up deserialized values
-    HashSet<string> runtimeTableKeys = new HashSet<string> ();
-    for (int i = this.runtimeTable.Count - 1; i >= 0; --i)
-        {
-        var kvp = this.runtimeTable[i];
-        if (kvp == null
-                || string.IsNullOrEmpty(kvp.Key)
-                || runtimeTableKeys.Contains (kvp.Key))
-            {
-            this.runtimeTable.RemoveAt (i);
-            continue;
-            }
-        runtimeTableKeys.Add (kvp.Key);
-        }
-
-    // Don't delete things listeners rely on
-    var deletedKeys = new HashSet<string> (this.listenersTable.Keys);
-    deletedKeys.ExceptWith (runtimeTableKeys);
-    foreach (var key in deletedKeys)
-        {
-        this.runtimeTable.Add (SerializedMemoryCell.Create (key, this.Get (key)));
-        }
-
-    // Clean up deserialized values
-    HashSet<string> initialTableKeys = new HashSet<string> ();
-    for (int i = this.initialTable.Count - 1; i >= 0; --i)
-        {
-        var kvp = this.initialTable[i];
-        if (kvp == null)
-            {
-            this.initialTable.RemoveAt (i);
-            continue;
-            }
-        if (string.IsNullOrEmpty(kvp.Key) || initialTableKeys.Contains (kvp.Key))
-            {
-            kvp.Key = Guid.NewGuid ().ToString ();
-            }
-        initialTableKeys.Add (kvp.Key);
-        }
-
-    // Find dirty keys
-    this.dirtyKeys.Clear ();
-    foreach (var kvp in this.runtimeTable)
-        {
-        object oldValue;
-        if (this.registersTable.TryGetValue (kvp.Key, out oldValue) && !object.Equals (oldValue, kvp.GetValue ()))
-            {
-            this.dirtyKeys.Add (kvp.Key);
-            }
-        }
-
-#endif
-
-    this.registersTable.Clear ();
-    foreach (var kvp in this.initialTable)
-        {
-        this.registersTable.Add (kvp.Key, kvp.GetValue ());
-        }
-    foreach (var kvp in this.runtimeTable)
-        {
-        this.registersTable[kvp.Key] = kvp.GetValue ();
-        }
-    }
-
-#if UNITY_EDITOR
-private List<string> dirtyKeys = new List<string> ();
-
-void Reset ()
-    {
-    this.registersTable = new RegistersTable ();
-    this.initialTable = new SerializableKeyValuePairList ();
-    this.runtimeTable = new SerializableKeyValuePairList ();
-    this.dirtyKeys.Clear ();
-    this.listenersTable.Clear ();
-    }
-
-void OnValidate ()
-    {
-    if (Application.isPlaying)
-        {
-        foreach (var key in this.dirtyKeys)
-            {
-            ListenerList listeners;
-            if (this.listenersTable.TryGetValue (key, out listeners))
-                {
-                var value = this.Get (key);
-                for (int i = listeners.Count - 1; i >= 0; --i)
-                    {
-                    listeners[i].OnDidChange (key, value);
-                    }
-                }
-            }
-        this.dirtyKeys.Clear ();
-        }
-    else
-        {
-        this.runtimeTable.Clear ();
-        this.registersTable.Clear ();
-        for (int i = 0; i < this.initialTable.Count; ++i)
-            {
-            var kvp = this.initialTable[i];
-            this.registersTable.Add (kvp.Key, kvp.GetValue ());
-            }
-        }
-    }
-#endif
-#endregion
-
-private ListenersTable listenersTable = new ListenersTable ();
-private RegistersTable registersTable = new RegistersTable ();
-
-public bool HasListeners (string key)
-    {
-    return this.listenersTable.ContainsKey (key);
-    }
-
-public bool HasValue (string key)
-    {
-    return this.registersTable.ContainsKey (key);
-    }
-
-public StringCollection GetEventKeys ()
-    {
-    var retval = new HashSet<string> (this.listenersTable.Keys);
-    retval.ExceptWith (this.registersTable.Keys);
-    return retval;
-    }
-
-public StringCollection GetRegisterKeys ()
-    {
-    return this.registersTable.Keys;
-    }
-
-public void RegisterListener (string key, Fub listener)
+public void Connect (string key, Fub fub)
     {
     if (key == null)
         {
         throw new ArgumentNullException ("key");
         }
-    if (listener == null)
+    if (fub == null)
         {
-        throw new ArgumentNullException ("listener");
+        throw new ArgumentNullException ("fub");
         }
-    ListenerList listenersForKey;
-    if (!this.listenersTable.TryGetValue (key, out listenersForKey))
+    FubList fubs;
+    if (!this.connections.TryGetValue (key, out fubs))
         {
-        listenersForKey = new ListenerList ();
-        this.listenersTable.Add (key, listenersForKey);
+        fubs = new FubList ();
+        this.connections.Add (key, fubs);
         }
-    listenersForKey.Add (listener);
+    fubs.Add (fub);
 
     object value;
-    if (this.registersTable.TryGetValue (key, out value))
+    if (this.memory.TryGetValue (key, out value))
         {
-        listener.OnDidChange (key, value);
+        fub.OnDidChange (key, value);
         }
 
     }
 
-public void UnregisterListener (string key, Fub listener)
+public void Disconnect (string key, Fub fub)
     {
     if (key == null)
         {
         throw new ArgumentNullException ("key");
         }
-    if (listener == null)
+    if (fub == null)
         {
-        throw new ArgumentNullException ("listener");
+        throw new ArgumentNullException ("fub");
         }
-    ListenerList listenersForKey;
-    if (!this.listenersTable.TryGetValue (key, out listenersForKey))
+    FubList fubs;
+    if (!this.connections.TryGetValue (key, out fubs))
         {
         throw new InvalidOperationException ("key does not exist");
         }
-    listenersForKey.Remove (listener);
-    if (listenersForKey.Count == 0)
+    fubs.Remove (fub);
+    if (fubs.Count == 0)
         {
-        this.listenersTable.Remove (key);
+        this.connections.Remove (key);
         }
     }
 
@@ -252,14 +104,14 @@ public void Trigger (string key)
         {
         throw new ArgumentNullException ("key");
         }
-    ListenerList listeners;
-    if (!this.listenersTable.TryGetValue (key, out listeners))
+    FubList fubs;
+    if (!this.connections.TryGetValue (key, out fubs))
         {
         return;
         }
-    for (int i = listeners.Count - 1; i >= 0; --i)
+    for (int i = fubs.Count - 1; i >= 0; --i)
         {
-        listeners[i].OnDidTrigger (key, null);
+        fubs[i].OnDidTrigger (key, null);
         }
     }
 
@@ -270,7 +122,7 @@ public object Get (string key)
         throw new ArgumentNullException ("key");
         }
     object value;
-    if (!this.registersTable.TryGetValue (key, out value))
+    if (!this.memory.TryGetValue (key, out value))
         {
         return null;
         }
@@ -278,7 +130,7 @@ public object Get (string key)
     }
 
 
-#region Templated set/trigger/get methods
+#region Templated versions of get/set/trigger
 void set<T> (string key, T value)
     {
     if (key == null)
@@ -286,19 +138,19 @@ void set<T> (string key, T value)
         throw new ArgumentNullException ("key");
         }
     object oldValue;
-    if (this.registersTable.TryGetValue (key, out oldValue) && object.Equals (oldValue, value))
+    if (this.memory.TryGetValue (key, out oldValue) && object.Equals (oldValue, value))
         {
         return;
         }
-    this.registersTable[key] = value;
-    ListenerList listeners;
-    if (!this.listenersTable.TryGetValue (key, out listeners))
+    this.memory[key] = value;
+    FubList fubs;
+    if (!this.connections.TryGetValue (key, out fubs))
         {
         return;
         }
-    for (int i = listeners.Count - 1; i >= 0; --i)
+    for (int i = fubs.Count - 1; i >= 0; --i)
         {
-        listeners[i].OnDidChange (key, value);
+        fubs[i].OnDidChange (key, value);
         }
     }
 
@@ -308,14 +160,14 @@ void trigger <T> (string key, T value)
         {
         throw new ArgumentNullException ("key");
         }
-    ListenerList listeners;
-    if (!this.listenersTable.TryGetValue (key, out listeners))
+    FubList fubs;
+    if (!this.connections.TryGetValue (key, out fubs))
         {
         return;
         }
-    for (int i = listeners.Count - 1; i >= 0; --i)
+    for (int i = fubs.Count - 1; i >= 0; --i)
         {
-        listeners[i].OnDidTrigger (key, value);
+        fubs[i].OnDidTrigger (key, value);
         }
     }
 
@@ -326,7 +178,7 @@ bool get <T> (string key, out T value)
         throw new ArgumentNullException ("key");
         }
     object objectValue;
-    if (!this.registersTable.TryGetValue (key, out objectValue))
+    if (!this.memory.TryGetValue (key, out objectValue))
         {
         value = default(T);
         return false;
@@ -342,7 +194,7 @@ public T getT<T> (string key, T defaultValue)
         throw new ArgumentNullException ("key");
         }
     object value;
-    if (!this.registersTable.TryGetValue (key, out value))
+    if (!this.memory.TryGetValue (key, out value))
         {
         return defaultValue;
         }
@@ -351,12 +203,156 @@ public T getT<T> (string key, T defaultValue)
 #endregion
 
 
+#region Serialization
+[SerializeField] private SerializedMemory serializedRom = new SerializedMemory ();
+[SerializeField] private SerializedMemory serializedMemory = new SerializedMemory ();
 
-#region nameof
-public const string nameof_listenersTable = "listenersTable";
-public const string nameof_registersTable = "registersTable";
-public const string nameof_initialTable = "initialTable";
-public const string nameof_runtimeTable = "runtimeTable";
+void ISerializationCallbackReceiver.OnBeforeSerialize ()
+    {
+    var runtimeKeys = new HashSet<string> (this.memory.Keys);
+    this.serializedMemory.Clear ();
+    this.serializedMemory.Capacity = Mathf.Max (this.serializedMemory.Capacity, runtimeKeys.Count);
+    foreach (var key in runtimeKeys)
+        {
+        this.serializedMemory.Add (SerializedMemoryCell.Create (key, this.Get (key)));
+        }
+    }
+
+void ISerializationCallbackReceiver.OnAfterDeserialize ()
+    {
+#if UNITY_EDITOR
+
+    // Clean up deserialized values
+    HashSet<string> runtimeTableKeys = new HashSet<string> ();
+    for (int i = this.serializedMemory.Count - 1; i >= 0; --i)
+        {
+        var kvp = this.serializedMemory[i];
+        if (kvp == null
+                || string.IsNullOrEmpty(kvp.Key)
+                || runtimeTableKeys.Contains (kvp.Key))
+            {
+            this.serializedMemory.RemoveAt (i);
+            continue;
+            }
+        runtimeTableKeys.Add (kvp.Key);
+        }
+
+    // Clean up deserialized values
+    HashSet<string> initialTableKeys = new HashSet<string> ();
+    for (int i = this.serializedRom.Count - 1; i >= 0; --i)
+        {
+        var kvp = this.serializedRom[i];
+        if (kvp == null)
+            {
+            this.serializedRom.RemoveAt (i);
+            continue;
+            }
+        if (string.IsNullOrEmpty(kvp.Key) || initialTableKeys.Contains (kvp.Key))
+            {
+            kvp.Key = Guid.NewGuid ().ToString ();
+            }
+        initialTableKeys.Add (kvp.Key);
+        }
+
+    // Find dirty keys
+    this.dirtyKeys.Clear ();
+    foreach (var kvp in this.serializedMemory)
+        {
+        object oldValue;
+        if (this.memory.TryGetValue (kvp.Key, out oldValue) && !object.Equals (oldValue, kvp.GetValue ()))
+            {
+            this.dirtyKeys.Add (kvp.Key);
+            }
+        }
+
+#endif
+
+    this.memory.Clear ();
+    foreach (var kvp in this.serializedRom)
+        {
+        this.memory.Add (kvp.Key, kvp.GetValue ());
+        }
+    foreach (var kvp in this.serializedMemory)
+        {
+        this.memory[kvp.Key] = kvp.GetValue ();
+        }
+    }
+
+#if UNITY_EDITOR
+private List<string> dirtyKeys = new List<string> ();
+
+void Reset ()
+    {
+    this.memory = new Memory ();
+    this.serializedRom = new SerializedMemory ();
+    this.serializedMemory = new SerializedMemory ();
+    this.dirtyKeys.Clear ();
+    this.connections.Clear ();
+    }
+
+void OnValidate ()
+    {
+    if (Application.isPlaying)
+        {
+        foreach (var key in this.dirtyKeys)
+            {
+            FubList fubs;
+            if (this.connections.TryGetValue (key, out fubs))
+                {
+                var value = this.Get (key);
+                for (int i = fubs.Count - 1; i >= 0; --i)
+                    {
+                    fubs[i].OnDidChange (key, value);
+                    }
+                }
+            }
+        this.dirtyKeys.Clear ();
+        }
+    else
+        {
+        this.serializedMemory.Clear ();
+        this.memory.Clear ();
+        for (int i = 0; i < this.serializedRom.Count; ++i)
+            {
+            var kvp = this.serializedRom[i];
+            this.memory.Add (kvp.Key, kvp.GetValue ());
+            }
+        }
+    }
+#endif
+#endregion
+
+
+#region Accessors
+
+public bool HasListeners (string key)
+    {
+    return this.connections.ContainsKey (key);
+    }
+
+public bool HasValue (string key)
+    {
+    return this.memory.ContainsKey (key);
+    }
+
+public StringCollection GetEventKeys ()
+    {
+    var retval = new HashSet<string> (this.connections.Keys);
+    retval.ExceptWith (this.memory.Keys);
+    return retval;
+    }
+
+public StringCollection GetRegisterKeys ()
+    {
+    return this.memory.Keys;
+    }
+
+#endregion
+
+#region workaround for lack of nameof() in Unity
+public const string nameof_connections = "connections";
+public const string nameof_serializedRom = "serializedRom";
+public const string nameof_serializedMemory = "serializedMemory";
 #endregion
 }
 
@@ -372,3 +368,13 @@ public const string nameof_runtimeTable = "runtimeTable";
 
 }
 
+
+// Create BusAsset.cs by copying this file and replacing the class
+// declaration with the following:
+/*
+[
+Serializable,
+CreateAssetMenu (fileName = "New Bus.asset", menuName="GGEZ/Omnibus/Bus")
+]
+public sealed partial class BusAsset : ScriptableObject, IBus, ISerializationCallbackReceiver
+*/

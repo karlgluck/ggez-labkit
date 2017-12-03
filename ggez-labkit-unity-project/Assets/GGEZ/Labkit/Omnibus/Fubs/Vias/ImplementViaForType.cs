@@ -41,11 +41,23 @@ public class ImplementViaForType<T, D> : Fub where D : UnityEvent<T>
 
 public override void OnDidTrigger (string key, object value)
     {
+#if UNITY_EDITOR
+    if (!typeof(T).IsAssignableFrom (value.GetType ()))
+        {
+        throw new System.InvalidCastException ("`value` should be " + typeof(T).Name);
+        }
+#endif
     this.didTriggerOrChange.Invoke ((T)value);
     }
 
 public override void OnDidChange (string key, object value)
     {
+#if UNITY_EDITOR
+    if (!typeof(T).IsAssignableFrom (value.GetType ()))
+        {
+        throw new System.InvalidCastException ("`value` should be " + typeof(T).Name);
+        }
+#endif
     this.didTriggerOrChange.Invoke ((T)value);
     }
 

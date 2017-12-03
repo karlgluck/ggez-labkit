@@ -33,9 +33,12 @@ namespace GGEZ
 namespace Omnibus
 {
 
-[CustomPropertyDrawer (typeof(KeyList))]
+[
+CustomPropertyDrawer (typeof(KeyList))
+]
 public sealed class KeyListPropertyDrawer : PropertyDrawer
 {
+
 private ReorderableList reorderableList = null;
 private ReorderableList getReorderableList (SerializedProperty property)
     {
