@@ -31,12 +31,47 @@ namespace GGEZ
 namespace Omnibus
 {
 
-[Serializable] public sealed class UnityEvent_String : UnityEngine.Events.UnityEvent<string> { }
-[
-Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Via/String Via")
-]
-public sealed class StringVia : ImplementViaForType<string, UnityEvent_String> { }
+
+
+public partial interface IBus
+{
+
+void Set (string key, RectTransform value);
+void Trigger (string key, RectTransform value);
+bool Get (string key, out RectTransform value);
+RectTransform GetRectTransform (string key, RectTransform defaultValue);
+
+}
+
+
+public sealed partial class Bus
+{
+
+public void Set (string key, RectTransform value) { this.set <RectTransform> (key, value); }
+public void Trigger (string key, RectTransform value) { this.trigger<RectTransform> (key, value); }
+public bool Get (string key, out RectTransform value) { return this.get<RectTransform> (key, out value); }
+public RectTransform GetRectTransform (string key, RectTransform defaultValue) { return this.getT<RectTransform> (key, defaultValue); }
+
+}
+
+public sealed partial class BusAsset
+{
+
+public void Set (string key, RectTransform value) { this.set <RectTransform> (key, value); }
+public void Trigger (string key, RectTransform value) { this.trigger<RectTransform> (key, value); }
+public bool Get (string key, out RectTransform value) { return this.get<RectTransform> (key, out value); }
+public RectTransform GetRectTransform (string key, RectTransform defaultValue) { return this.getT<RectTransform> (key, defaultValue); }
+
+}
+
+public sealed partial class SerializedMemoryCell
+{
+
+public RectTransform Value_RectTransform;
+
+}
+
+
 
 }
 

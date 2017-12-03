@@ -1,4 +1,4 @@
-﻿// This is free and unencumbered software released into the public domain.
+// This is free and unencumbered software released into the public domain.
 //
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -36,10 +36,10 @@ namespace Omnibus
 public partial interface IBus
 {
 
-void Set (string key, int value);
-void Trigger (string key, int value);
-bool Get (string key, out int value);
-int GetInt (string key, int defaultValue);
+void Set (string key, float value);
+void Trigger (string key, float value);
+bool Get (string key, out float value);
+float GetFloat (string key, float defaultValue);
 
 }
 
@@ -47,20 +47,27 @@ int GetInt (string key, int defaultValue);
 public sealed partial class Bus
 {
 
-public void Set (string key, int value) { this.set <int> (key, value); }
-public void Trigger (string key, int value) { this.trigger<int> (key, value); }
-public bool Get (string key, out int value) { return this.get<int> (key, out value); }
-public int GetInt (string key, int defaultValue) { return this.getT<int> (key, defaultValue); }
+public void Set (string key, float value) { this.set <float> (key, value); }
+public void Trigger (string key, float value) { this.trigger<float> (key, value); }
+public bool Get (string key, out float value) { return this.get<float> (key, out value); }
+public float GetFloat (string key, float defaultValue) { return this.getT<float> (key, defaultValue); }
 
 }
 
 public sealed partial class BusAsset
 {
 
-public void Set (string key, int value) { this.set <int> (key, value); }
-public void Trigger (string key, int value) { this.trigger<int> (key, value); }
-public bool Get (string key, out int value) { return this.get<int> (key, out value); }
-public int GetInt (string key, int defaultValue) { return this.getT<int> (key, defaultValue); }
+public void Set (string key, float value) { this.set <float> (key, value); }
+public void Trigger (string key, float value) { this.trigger<float> (key, value); }
+public bool Get (string key, out float value) { return this.get<float> (key, out value); }
+public float GetFloat (string key, float defaultValue) { return this.getT<float> (key, defaultValue); }
+
+}
+
+public sealed partial class SerializedMemoryCell
+{
+
+public float Value_Single;
 
 }
 
@@ -69,4 +76,3 @@ public int GetInt (string key, int defaultValue) { return this.getT<int> (key, d
 }
 
 }
-

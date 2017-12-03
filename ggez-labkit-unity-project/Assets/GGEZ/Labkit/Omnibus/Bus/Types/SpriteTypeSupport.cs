@@ -31,12 +31,47 @@ namespace GGEZ
 namespace Omnibus
 {
 
-[Serializable] public sealed class UnityEvent_String : UnityEngine.Events.UnityEvent<string> { }
-[
-Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Via/String Via")
-]
-public sealed class StringVia : ImplementViaForType<string, UnityEvent_String> { }
+
+
+public partial interface IBus
+{
+
+void Set (string key, Sprite value);
+void Trigger (string key, Sprite value);
+bool Get (string key, out Sprite value);
+Sprite GetSprite (string key, Sprite defaultValue);
+
+}
+
+
+public sealed partial class Bus
+{
+
+public void Set (string key, Sprite value) { this.set <Sprite> (key, value); }
+public void Trigger (string key, Sprite value) { this.trigger<Sprite> (key, value); }
+public bool Get (string key, out Sprite value) { return this.get<Sprite> (key, out value); }
+public Sprite GetSprite (string key, Sprite defaultValue) { return this.getT<Sprite> (key, defaultValue); }
+
+}
+
+public sealed partial class BusAsset
+{
+
+public void Set (string key, Sprite value) { this.set <Sprite> (key, value); }
+public void Trigger (string key, Sprite value) { this.trigger<Sprite> (key, value); }
+public bool Get (string key, out Sprite value) { return this.get<Sprite> (key, out value); }
+public Sprite GetSprite (string key, Sprite defaultValue) { return this.getT<Sprite> (key, defaultValue); }
+
+}
+
+public sealed partial class SerializedMemoryCell
+{
+
+public Sprite Value_Sprite;
+
+}
+
+
 
 }
 

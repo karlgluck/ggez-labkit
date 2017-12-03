@@ -132,6 +132,29 @@ void drawInitialTableElement (Rect position, int index, bool isActive, bool isFo
     }
 
 
+private static string getFriendlyNameOfType (string name)
+    {
+    switch (name)
+        {
+        case "Boolean": return "bool";
+        case "Byte":    return "byte";
+        case "SByte":   return "sbyte";
+        case "Char":    return "char";
+        case "Decimal": return "decimal";
+        case "Double":  return "double";
+        case "Single":  return "float";
+        case "Int32":   return "int";
+        case "UInt32":  return "uint";
+        case "Int64":   return "long";
+        case "UInt64":  return "ulong";
+        case "Object":  return "object";
+        case "Int16":   return "short";
+        case "UInt16":  return "ushort";
+        case "String":  return "string";
+        }
+    return name;
+    }
+
 void onInitialTableAddDropdown (Rect buttonRect, ReorderableList list)
     {
     var menu = new GenericMenu ();
@@ -139,7 +162,7 @@ void onInitialTableAddDropdown (Rect buttonRect, ReorderableList list)
     foreach (var fieldType in SerializedMemoryCell.GetFieldTypes ())
         {
         menu.AddItem (
-            new GUIContent (fieldType.Name),
+            new GUIContent (getFriendlyNameOfType (fieldType.Name)),
             false,
             (object _type) =>
                 {
@@ -245,7 +268,7 @@ private void drawManualTriggerElement ()
         foreach (var fieldType in SerializedMemoryCell.GetFieldTypes ())
             {
             menu.AddItem (
-                new GUIContent (fieldType.Name),
+                new GUIContent (getFriendlyNameOfType (fieldType.Name)),
                 false,
                 (object _type) => this.setTriggerParameterType ((Type)_type),
                 fieldType

@@ -31,12 +31,47 @@ namespace GGEZ
 namespace Omnibus
 {
 
-[Serializable] public sealed class UnityEvent_String : UnityEngine.Events.UnityEvent<string> { }
-[
-Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Via/String Via")
-]
-public sealed class StringVia : ImplementViaForType<string, UnityEvent_String> { }
+
+
+public partial interface IBus
+{
+
+void Set (string key, %CSHARPTYPE% value);
+void Trigger (string key, %CSHARPTYPE% value);
+bool Get (string key, out %CSHARPTYPE% value);
+%CSHARPTYPE% Get%UPPERNAME% (string key, %CSHARPTYPE% defaultValue);
+
+}
+
+
+public sealed partial class Bus
+{
+
+public void Set (string key, %CSHARPTYPE% value) { this.set <%CSHARPTYPE%> (key, value); }
+public void Trigger (string key, %CSHARPTYPE% value) { this.trigger<%CSHARPTYPE%> (key, value); }
+public bool Get (string key, out %CSHARPTYPE% value) { return this.get<%CSHARPTYPE%> (key, out value); }
+public %CSHARPTYPE% Get%UPPERNAME% (string key, %CSHARPTYPE% defaultValue) { return this.getT<%CSHARPTYPE%> (key, defaultValue); }
+
+}
+
+public sealed partial class BusAsset
+{
+
+public void Set (string key, %CSHARPTYPE% value) { this.set <%CSHARPTYPE%> (key, value); }
+public void Trigger (string key, %CSHARPTYPE% value) { this.trigger<%CSHARPTYPE%> (key, value); }
+public bool Get (string key, out %CSHARPTYPE% value) { return this.get<%CSHARPTYPE%> (key, out value); }
+public %CSHARPTYPE% Get%UPPERNAME% (string key, %CSHARPTYPE% defaultValue) { return this.getT<%CSHARPTYPE%> (key, defaultValue); }
+
+}
+
+public sealed partial class SerializedMemoryCell
+{
+
+public %CSHARPTYPE% Value_%CSHARPTYPENAME%;
+
+}
+
+
 
 }
 

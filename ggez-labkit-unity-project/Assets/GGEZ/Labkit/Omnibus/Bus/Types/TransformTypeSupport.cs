@@ -31,12 +31,47 @@ namespace GGEZ
 namespace Omnibus
 {
 
-[Serializable] public sealed class UnityEvent_String : UnityEngine.Events.UnityEvent<string> { }
-[
-Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Via/String Via")
-]
-public sealed class StringVia : ImplementViaForType<string, UnityEvent_String> { }
+
+
+public partial interface IBus
+{
+
+void Set (string key, Transform value);
+void Trigger (string key, Transform value);
+bool Get (string key, out Transform value);
+Transform GetTransform (string key, Transform defaultValue);
+
+}
+
+
+public sealed partial class Bus
+{
+
+public void Set (string key, Transform value) { this.set <Transform> (key, value); }
+public void Trigger (string key, Transform value) { this.trigger<Transform> (key, value); }
+public bool Get (string key, out Transform value) { return this.get<Transform> (key, out value); }
+public Transform GetTransform (string key, Transform defaultValue) { return this.getT<Transform> (key, defaultValue); }
+
+}
+
+public sealed partial class BusAsset
+{
+
+public void Set (string key, Transform value) { this.set <Transform> (key, value); }
+public void Trigger (string key, Transform value) { this.trigger<Transform> (key, value); }
+public bool Get (string key, out Transform value) { return this.get<Transform> (key, out value); }
+public Transform GetTransform (string key, Transform defaultValue) { return this.getT<Transform> (key, defaultValue); }
+
+}
+
+public sealed partial class SerializedMemoryCell
+{
+
+public Transform Value_Transform;
+
+}
+
+
 
 }
 

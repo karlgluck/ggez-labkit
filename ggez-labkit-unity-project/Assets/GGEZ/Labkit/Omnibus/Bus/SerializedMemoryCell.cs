@@ -43,11 +43,6 @@ public string Key = "";
 
 public string Type = null;
 
-public string Value_String;
-public int Value_Int32;
-public Vector3 Value_Vector3;
-public bool Value_Boolean;
-public float Value_Single;
 
 public object GetValue ()
     {
@@ -70,7 +65,7 @@ public void SetValue (object value)
     var field = this.GetType ().GetField (nameof_Value_ + this.Type);
     if (field == null)
         {
-        throw new System.NotImplementedException ("SerializedMemorySell needs: " + this.Type + " " + nameof_Value_ + this.Type + ";");
+        throw new System.NotImplementedException ("SerializedMemorySell needs Omnibus support added for " + this.Type);
         }
     field.SetValue (this, value);
     }

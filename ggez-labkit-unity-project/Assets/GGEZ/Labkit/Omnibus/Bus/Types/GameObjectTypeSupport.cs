@@ -1,4 +1,4 @@
-﻿// This is free and unencumbered software released into the public domain.
+// This is free and unencumbered software released into the public domain.
 //
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -36,10 +36,10 @@ namespace Omnibus
 public partial interface IBus
 {
 
-void Set (string key, bool value);
-void Trigger (string key, bool value);
-bool Get (string key, out bool value);
-bool GetBool (string key, bool defaultValue);
+void Set (string key, GameObject value);
+void Trigger (string key, GameObject value);
+bool Get (string key, out GameObject value);
+GameObject GetGameObject (string key, GameObject defaultValue);
 
 }
 
@@ -47,20 +47,27 @@ bool GetBool (string key, bool defaultValue);
 public sealed partial class Bus
 {
 
-public void Set (string key, bool value) { this.set <bool> (key, value); }
-public void Trigger (string key, bool value) { this.trigger<bool> (key, value); }
-public bool Get (string key, out bool value) { return this.get<bool> (key, out value); }
-public bool GetBool (string key, bool defaultValue) { return this.getT<bool> (key, defaultValue); }
+public void Set (string key, GameObject value) { this.set <GameObject> (key, value); }
+public void Trigger (string key, GameObject value) { this.trigger<GameObject> (key, value); }
+public bool Get (string key, out GameObject value) { return this.get<GameObject> (key, out value); }
+public GameObject GetGameObject (string key, GameObject defaultValue) { return this.getT<GameObject> (key, defaultValue); }
 
 }
 
 public sealed partial class BusAsset
 {
 
-public void Set (string key, bool value) { this.set <bool> (key, value); }
-public void Trigger (string key, bool value) { this.trigger<bool> (key, value); }
-public bool Get (string key, out bool value) { return this.get<bool> (key, out value); }
-public bool GetBool (string key, bool defaultValue) { return this.getT<bool> (key, defaultValue); }
+public void Set (string key, GameObject value) { this.set <GameObject> (key, value); }
+public void Trigger (string key, GameObject value) { this.trigger<GameObject> (key, value); }
+public bool Get (string key, out GameObject value) { return this.get<GameObject> (key, out value); }
+public GameObject GetGameObject (string key, GameObject defaultValue) { return this.getT<GameObject> (key, defaultValue); }
+
+}
+
+public sealed partial class SerializedMemoryCell
+{
+
+public GameObject Value_GameObject;
 
 }
 
@@ -69,4 +76,3 @@ public bool GetBool (string key, bool defaultValue) { return this.getT<bool> (ke
 }
 
 }
-

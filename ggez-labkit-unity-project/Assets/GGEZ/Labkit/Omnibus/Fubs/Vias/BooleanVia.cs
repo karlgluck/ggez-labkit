@@ -1,4 +1,4 @@
-// This is free and unencumbered software released into the public domain.
+﻿// This is free and unencumbered software released into the public domain.
 //
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -31,12 +31,12 @@ namespace GGEZ
 namespace Omnibus
 {
 
-[Serializable] public sealed class UnityEvent_Boolean : UnityEngine.Events.UnityEvent<Boolean> { }
+[Serializable] public sealed class UnityEvent_Boolean : UnityEngine.Events.UnityEvent<bool> { }
 [
 Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Via/Boolean Via")
 ]
-public sealed class BooleanVia : ImplementViaForType<Boolean, UnityEvent_Boolean> { }
+public sealed class BooleanVia : ImplementViaForType<bool, UnityEvent_Boolean> { }
 
 }
 

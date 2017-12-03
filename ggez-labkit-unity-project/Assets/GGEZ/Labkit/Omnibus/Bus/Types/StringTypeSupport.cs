@@ -1,4 +1,4 @@
-﻿// This is free and unencumbered software released into the public domain.
+// This is free and unencumbered software released into the public domain.
 //
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -64,9 +64,15 @@ public string GetString (string key, string defaultValue) { return this.getT<str
 
 }
 
+public sealed partial class SerializedMemoryCell
+{
+
+public string Value_String;
+
+}
+
 
 
 }
 
 }
-

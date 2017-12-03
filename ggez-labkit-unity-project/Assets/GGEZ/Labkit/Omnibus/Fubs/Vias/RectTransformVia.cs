@@ -31,12 +31,12 @@ namespace GGEZ
 namespace Omnibus
 {
 
-[Serializable] public sealed class UnityEvent_String : UnityEngine.Events.UnityEvent<string> { }
+[Serializable] public sealed class UnityEvent_RectTransform : UnityEngine.Events.UnityEvent<RectTransform> { }
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Via/String Via")
+AddComponentMenu ("GGEZ/Omnibus/Via/RectTransform Via")
 ]
-public sealed class StringVia : ImplementViaForType<string, UnityEvent_String> { }
+public sealed class RectTransformVia : ImplementViaForType<RectTransform, UnityEvent_RectTransform> { }
 
 }
 

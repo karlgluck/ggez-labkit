@@ -35,19 +35,20 @@ namespace Omnibus
 
 
 
-class CreateNewOmnibusMemoryType : EditorWindow
+class CreateOmnibusTypeSupport : EditorWindow
 {
 public string Folder = "";
 public string Name = "";
-public string CSharpType = "";
+public string CSharpDeclaringType = "";
+public string CSharpTypeName = "";
 
 
-[MenuItem ("Labkit/Create/Game Register Type/Table of Values")]
-static void LabkitNewGameTableRegisterType ()
+[MenuItem ("Labkit/Create/Omnibus Type Support")]
+static void CreateNewOmnibusRegisterType ()
     {
-    const string savedPathKey = "LabkitSaveFilePanelPath";
+    string savedPathKey = "LabkitSaveFilePanelPath" + Application.productName;
     string path = EditorUtility.SaveFilePanelInProject (
-            "New Game Register Table Type",
+            "Add Omnibus Type Support",
             "type.cs",
             "cs",
             "Name the source file <type>.cs",
@@ -58,21 +59,22 @@ static void LabkitNewGameTableRegisterType ()
         return;
         }
     EditorPrefs.SetString (savedPathKey, path);
-    CreateNewOmnibusMemoryType.CreateAndShow (path);
+    CreateOmnibusTypeSupport.CreateAndShow (path);
     }
 
 
 public static EditorWindow CreateAndShow (string path)
     {
-    var window = CreateNewOmnibusMemoryType.CreateInstance<CreateNewOmnibusMemoryType> ();
+    var window = CreateOmnibusTypeSupport.CreateInstance<CreateOmnibusTypeSupport> ();
     var width = Screen.width;
     var height = Screen.height;
     Vector2 size = new Vector2 (400f, 180f);
     window.ShowAsDropDown (new Rect (width/2f-size.x/2f, height/2 - size.y/2f, 1f, 1f), size);
-    window.titleContent = new GUIContent ("Create Omnibus Memory Type");
+    window.titleContent = new GUIContent ("Create Omnibus Type Support");
     window.Folder = Path.GetDirectoryName (path);
     window.Name = Path.GetFileNameWithoutExtension (path);
-    window.CSharpType = window.Name;
+    window.CSharpDeclaringType = window.Name;
+    window.CSharpTypeName = window.Name;
     return window;
     }
 
@@ -81,13 +83,25 @@ public void DoWork ()
     string upperName = this.Name.Substring (0, 1).ToUpper () + this.Name.Substring (1);
     string lowerName = this.Name.Substring (0, 1).ToLower () + this.Name.Substring (1);
 
+    Debug.LogFormat ("Creating type support for {0} serialized as {1} in MemoryCell", this.CSharpDeclaringType, this.CSharpTypeName);
+
     Labkit.LabkitEditorUtility.WriteFileUsingTemplate (
-            "OmnibusMemoryType_cs",
-            Path.Combine (this.Folder, upperName + ".cs"),
+            "OmnibusTypeSupport_cs",
+            Path.Combine (this.Folder, upperName + "TypeSupport.cs"),
             "%NAME% " + this.Name,
             "%UPPERNAME% " + upperName,
             "%LOWERNAME% " + lowerName,
-            "%CSHARPTYPE% " + this.CSharpType
+            "%CSHARPTYPE% " + this.CSharpDeclaringType,
+            "%CSHARPTYPENAME% " + this.CSharpTypeName
+            );
+    Labkit.LabkitEditorUtility.WriteFileUsingTemplate (
+            "OmnibusVia_cs",
+            Path.Combine (this.Folder, upperName + "Via.cs"),
+            "%NAME% " + this.Name,
+            "%UPPERNAME% " + upperName,
+            "%LOWERNAME% " + lowerName,
+            "%CSHARPTYPE% " + this.CSharpDeclaringType,
+            "%CSHARPTYPENAME% " + this.CSharpTypeName
             );
     }
 
@@ -113,18 +127,23 @@ private void OnGUI()
     GUILayout.Space (16f);
 
     GUILayout.BeginHorizontal ();
-    GUILayout.Label ("Path", GUILayout.Width (80f));
+    GUILayout.Label ("Path", GUILayout.Width (120f));
     this.Folder = GUILayout.TextField (this.Folder);
     GUILayout.EndHorizontal ();
 
     GUILayout.BeginHorizontal ();
-    GUILayout.Label ("Name", GUILayout.Width (80f));
+    GUILayout.Label ("Name", GUILayout.Width (120f));
     this.Name = GUILayout.TextField (this.Name);
     GUILayout.EndHorizontal ();
 
     GUILayout.BeginHorizontal ();
-    GUILayout.Label ("C# Type", GUILayout.Width (80f));
-    this.CSharpType = GUILayout.TextField (this.CSharpType);
+    GUILayout.Label ("C# Declaring Type", GUILayout.Width (120f));
+    this.CSharpDeclaringType = GUILayout.TextField (this.CSharpDeclaringType);
+    GUILayout.EndHorizontal ();
+
+    GUILayout.BeginHorizontal ();
+    GUILayout.Label ("C# Type Name", GUILayout.Width (120f));
+    this.CSharpTypeName = GUILayout.TextField (this.CSharpTypeName);
     GUILayout.EndHorizontal ();
 
     GUILayout.FlexibleSpace ();

@@ -36,10 +36,10 @@ namespace Omnibus
 public partial interface IBus
 {
 
-void Set (string key, %CSHARPTYPE% value);
-void Trigger (string key, %CSHARPTYPE% value);
-bool Get (string key, out %CSHARPTYPE% value);
-%CSHARPTYPE% Get%UPPERNAME% (string key, %CSHARPTYPE% defaultValue);
+void Set (string key, int value);
+void Trigger (string key, int value);
+bool Get (string key, out int value);
+int GetInt (string key, int defaultValue);
 
 }
 
@@ -47,20 +47,27 @@ bool Get (string key, out %CSHARPTYPE% value);
 public sealed partial class Bus
 {
 
-public void Set (string key, %CSHARPTYPE% value) { this.set <%CSHARPTYPE%> (key, value); }
-public void Trigger (string key, %CSHARPTYPE% value) { this.trigger<%CSHARPTYPE%> (key, value); }
-public bool Get (string key, out %CSHARPTYPE% value) { return this.get<%CSHARPTYPE%> (key, out value); }
-public %CSHARPTYPE% Get%UPPERNAME% (string key, %CSHARPTYPE% defaultValue) { return this.getT<%CSHARPTYPE%> (key, defaultValue); }
+public void Set (string key, int value) { this.set <int> (key, value); }
+public void Trigger (string key, int value) { this.trigger<int> (key, value); }
+public bool Get (string key, out int value) { return this.get<int> (key, out value); }
+public int GetInt (string key, int defaultValue) { return this.getT<int> (key, defaultValue); }
 
 }
 
 public sealed partial class BusAsset
 {
 
-public void Set (string key, %CSHARPTYPE% value) { this.set <%CSHARPTYPE%> (key, value); }
-public void Trigger (string key, %CSHARPTYPE% value) { this.trigger<%CSHARPTYPE%> (key, value); }
-public bool Get (string key, out %CSHARPTYPE% value) { return this.get<%CSHARPTYPE%> (key, out value); }
-public %CSHARPTYPE% Get%UPPERNAME% (string key, %CSHARPTYPE% defaultValue) { return this.getT<%CSHARPTYPE%> (key, defaultValue); }
+public void Set (string key, int value) { this.set <int> (key, value); }
+public void Trigger (string key, int value) { this.trigger<int> (key, value); }
+public bool Get (string key, out int value) { return this.get<int> (key, out value); }
+public int GetInt (string key, int defaultValue) { return this.getT<int> (key, defaultValue); }
+
+}
+
+public sealed partial class SerializedMemoryCell
+{
+
+public int Value_Int32;
 
 }
 
