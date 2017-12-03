@@ -29,7 +29,7 @@ public Registrar Registrar
         var thisRegistrar = (Registrar)this.registrar;
         if (this.hasBeenEnabled && this.registrar != null)
             {
-            foreach (string key in this.keys)
+            foreach (string key in this.keys.Keys)
                 {
                 if (!string.IsNullOrEmpty (key))
                     {
@@ -46,7 +46,7 @@ public Registrar Registrar
 #endif
         if (this.hasBeenEnabled && thisRegistrar != null)
             {
-            foreach (string key in this.keys)
+            foreach (string key in this.keys.Keys)
                 {
                 if (!string.IsNullOrEmpty (key))
                     {
@@ -64,7 +64,7 @@ void OnEnable ()
     var thisRegistrar = (Registrar)this.registrar;
     if (thisRegistrar != null)
         {
-        foreach (string key in this.keys)
+        foreach (string key in this.keys.Keys)
             {
             if (!string.IsNullOrEmpty (key))
                 {
@@ -75,7 +75,7 @@ void OnEnable ()
     this.hasBeenEnabled = true;
 #if UNITY_EDITOR
     this.previousKeys.Clear ();
-    this.previousKeys.AddRange (this.keys);
+    this.previousKeys.AddRange (this.keys.Keys);
     this.previousRegistrar = thisRegistrar;
 #endif
     }
@@ -86,7 +86,7 @@ void OnDisable ()
     var thisRegistrar = (Registrar)this.registrar;
     if (thisRegistrar != null)
         {
-        foreach (string key in this.keys)
+        foreach (string key in this.keys.Keys)
             {
             if (!string.IsNullOrEmpty (key))
                 {
@@ -102,8 +102,8 @@ void OnDisable ()
     }
 
 // All the keys this listener cares about
-[SerializeField] private Keys keys = new Keys ();
-public ReadonlyKeys Keys { get { return this.keys.AsReadOnly (); } }
+[SerializeField] private ListenerKeys keys = new ListenerKeys ();
+public ReadonlyKeys Keys { get { return this.keys.Keys.AsReadOnly (); } }
 
 public void AddKey (string key)
     {
@@ -122,8 +122,7 @@ public void ClearKeys ()
 
 public virtual void OnDidTrigger (string key, object value) {}
 public virtual void OnDidChange (string key, object value) {}
-
-
+public virtual IEnumerable<string> GetKeys () { yield break; }
 
 
 //----------------------------------------------------------------------
@@ -159,8 +158,8 @@ void OnValidate ()
             }
         this.previousRegistrar = thisRegistrar;
         this.previousKeys.Clear ();
-        this.previousKeys.AddRange (this.keys);
-        foreach (var key in this.keys)
+        this.previousKeys.AddRange (this.keys.Keys);
+        foreach (var key in this.previousKeys)
             {
             if (!string.IsNullOrEmpty (key))
                 {
@@ -171,9 +170,9 @@ void OnValidate ()
     else
         {
         var removed = new HashSet<string> (this.previousKeys);
-        var added = new HashSet<string> (this.keys);
+        var added = new HashSet<string> (this.keys.Keys);
 
-        removed.ExceptWith (this.keys);
+        removed.ExceptWith (this.keys.Keys);
         added.ExceptWith (this.previousKeys);
 
         foreach (var key in removed)
@@ -185,7 +184,7 @@ void OnValidate ()
             }
         this.previousRegistrar = thisRegistrar;
         this.previousKeys.Clear ();
-        this.previousKeys.AddRange (this.keys);
+        this.previousKeys.AddRange (this.keys.Keys);
         foreach (var key in added)
             {
             if (!string.IsNullOrEmpty (key))
