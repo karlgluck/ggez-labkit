@@ -69,7 +69,7 @@ public static EditorWindow CreateAndShow (string path)
     var height = Screen.height;
     Vector2 size = new Vector2 (400f, 180f);
     window.ShowAsDropDown (new Rect (width/2f-size.x/2f, height/2 - size.y/2f, 1f, 1f), size);
-    window.titleContent = new GUIContent ("Create Table Register Type");
+    window.titleContent = new GUIContent ("Create Omnibus Memory Type");
     window.Folder = Path.GetDirectoryName (path);
     window.Name = Path.GetFileNameWithoutExtension (path);
     window.CSharpType = window.Name;
@@ -80,20 +80,10 @@ public void DoWork ()
     {
     string upperName = this.Name.Substring (0, 1).ToUpper () + this.Name.Substring (1);
     string lowerName = this.Name.Substring (0, 1).ToLower () + this.Name.Substring (1);
-    Debug.LogFormat ("Creating {0}TableRegister for data of type {1}", upperName, this.CSharpType);
 
-    LabkitEditorUtility.WriteFileUsingTemplate (
-            "GameTableRegister_So",
-            Path.Combine (this.Folder, upperName + "TableRegister.cs"),
-            "%NAME% " + this.Name,
-            "%UPPERNAME% " + upperName,
-            "%LOWERNAME% " + lowerName,
-            "%CSHARPTYPE% " + this.CSharpType
-            );
-
-    LabkitEditorUtility.WriteFileUsingTemplate (
-            "GameTableRegisterListener_Mb",
-            Path.Combine (this.Folder, upperName + "TableRegisterListener.cs"),
+    Labkit.LabkitEditorUtility.WriteFileUsingTemplate (
+            "OmnibusMemoryType_cs",
+            Path.Combine (this.Folder, upperName + ".cs"),
             "%NAME% " + this.Name,
             "%UPPERNAME% " + upperName,
             "%LOWERNAME% " + lowerName,

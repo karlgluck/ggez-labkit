@@ -25,106 +25,44 @@
 
 using System;
 using UnityEngine;
-using System.Collections.Generic;
-using UnityEngine.Events;
 
 namespace GGEZ
 {
-
-
-//----------------------------------------------------------------------
-// Helper class for binding events through prefabs, scenes and assets.
-//
-// Listeners register for events that match a certain key and the
-// trigger must provide a key and value.
-//----------------------------------------------------------------------
-[CreateAssetMenu (fileName = "New %UPPERNAME% Event Table.asset", menuName="GGEZ/Game Event/%NAME% Table")]
-public class %UPPERNAME%EventTable : BaseGameEventTable
+namespace Omnibus
 {
 
 
-#region Runtime
-private Dictionary<string, List<%UPPERNAME%EventTableListener>> listenersTable = new Dictionary<string, List<%UPPERNAME%EventTableListener>> ();
-#endregion
+
+public partial interface IBus
+{
+
+void Set (string key, %CSHARPTYPE% value);
+void Trigger (string key, %CSHARPTYPE% value);
+bool Get (string key, out %CSHARPTYPE% value);
+%CSHARPTYPE% Get%UPPERNAME% (string key, %CSHARPTYPE% defaultValue);
+
+}
 
 
+public sealed partial class Bus
+{
 
+public void Set (string key, %CSHARPTYPE% value) { this.set <%CSHARPTYPE%> (key, value); }
+public void Trigger (string key, %CSHARPTYPE% value) { this.trigger<%CSHARPTYPE%> (key, value); }
+public bool Get (string key, out %CSHARPTYPE% value) { return this.get<%CSHARPTYPE%> (key, out value); }
+public %CSHARPTYPE% Get%UPPERNAME% (string key, %CSHARPTYPE% defaultValue) { return this.getT<%CSHARPTYPE%> (key, defaultValue); }
 
-public void RegisterListener (string key, %UPPERNAME%EventTableListener listener)
-    {
-    if (key == null)
-        {
-        throw new ArgumentNullException ("key");
-        }
-    if (listener == null)
-        {
-        throw new ArgumentNullException ("listener");
-        }
-    List<%UPPERNAME%EventTableListener> listenersForKey;
-    if (!this.listenersTable.TryGetValue (key, out listenersForKey))
-        {
-        listenersForKey = new List<%UPPERNAME%EventTableListener>();
-        this.listenersTable.Add (key, listenersForKey);
-        }
-    listenersForKey.Add (listener);
-    }
+}
 
+public sealed partial class BusAsset
+{
 
+public void Set (string key, %CSHARPTYPE% value) { this.set <%CSHARPTYPE%> (key, value); }
+public void Trigger (string key, %CSHARPTYPE% value) { this.trigger<%CSHARPTYPE%> (key, value); }
+public bool Get (string key, out %CSHARPTYPE% value) { return this.get<%CSHARPTYPE%> (key, out value); }
+public %CSHARPTYPE% Get%UPPERNAME% (string key, %CSHARPTYPE% defaultValue) { return this.getT<%CSHARPTYPE%> (key, defaultValue); }
 
-
-public void UnregisterListener (string key, %UPPERNAME%EventTableListener listener)
-    {
-    if (key == null)
-        {
-        throw new ArgumentNullException ("key");
-        }
-    if (listener == null)
-        {
-        throw new ArgumentNullException ("listener");
-        }
-    List<%UPPERNAME%EventTableListener> listenersForKey;
-    if (!this.listenersTable.TryGetValue (key, out listenersForKey))
-        {
-        throw new InvalidOperationException ("key does not exist");
-        }
-    listenersForKey.Remove (listener);
-    if (listenersForKey.Count == 0)
-        {
-        this.listenersTable.Remove (key);
-        }
-    }
-
-
-
-
-public void Trigger (string key, %CSHARPTYPE% value)
-    {
-    if (key == null)
-        {
-        throw new ArgumentNullException ("key");
-        }
-    List<%UPPERNAME%EventTableListener> listenersForKey;
-    if (!this.listenersTable.TryGetValue (key, out listenersForKey))
-        {
-        return;
-        }
-    for (int i = listenersForKey.Count - 1; i >= 0; --i)
-        {
-        listenersForKey[i].OnDidTrigger (value);
-        }
-    }
-
-
-
-
-public ICollection<string> KeysWithListeners
-    {
-    get
-        {
-        return this.listenersTable.Keys;
-        }
-    }
-
+}
 
 
 
