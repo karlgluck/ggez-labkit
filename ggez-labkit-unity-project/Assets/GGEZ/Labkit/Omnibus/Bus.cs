@@ -26,19 +26,24 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
-using ListenerList = System.Collections.Generic.List<GGEZ.Listener>;
-using ListenersTable = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<GGEZ.Listener>>;
+using ListenerList = System.Collections.Generic.List<GGEZ.Omnibus.Fub>;
+using ListenersTable = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<GGEZ.Omnibus.Fub>>;
 using RegistersTable = System.Collections.Generic.Dictionary<string, object>;
-using SerializableKeyValuePairList = System.Collections.Generic.List<GGEZ.RegistrarKeyPair>;
+using SerializableKeyValuePairList = System.Collections.Generic.List<GGEZ.Omnibus.SerializedMemoryCell>;
 using StringCollection = System.Collections.Generic.ICollection<string>;
 
 namespace GGEZ
 {
+namespace Omnibus
+{
 
 
 
-
-public sealed class RegistrarBehaviour : MonoBehaviour, Registrar, ISerializationCallbackReceiver
+[
+DisallowMultipleComponent,
+AddComponentMenu ("GGEZ/Omnibus/Bus")
+]
+public sealed class Bus : MonoBehaviour, IBus, ISerializationCallbackReceiver
 {
 
 #region Serialization
@@ -58,7 +63,7 @@ void ISerializationCallbackReceiver.OnBeforeSerialize ()
     this.runtimeTable.Capacity = Mathf.Max (this.runtimeTable.Capacity, runtimeKeys.Count);
     foreach (var key in runtimeKeys)
         {
-        this.runtimeTable.Add (RegistrarKeyPair.Create (key, this.Get (key)));
+        this.runtimeTable.Add (SerializedMemoryCell.Create (key, this.Get (key)));
         }
     }
 
@@ -72,13 +77,13 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
         {
         var kvp = this.runtimeTable[i];
         if (kvp == null
-                || string.IsNullOrEmpty(kvp.Name)
-                || runtimeTableKeys.Contains (kvp.Name))
+                || string.IsNullOrEmpty(kvp.Key)
+                || runtimeTableKeys.Contains (kvp.Key))
             {
             this.runtimeTable.RemoveAt (i);
             continue;
             }
-        runtimeTableKeys.Add (kvp.Name);
+        runtimeTableKeys.Add (kvp.Key);
         }
 
     // Make sure keys with listeners aren't dropped from the runtime table
@@ -86,7 +91,7 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
     deletedKeys.ExceptWith (runtimeTableKeys);
     foreach (var key in deletedKeys)
         {
-        this.runtimeTable.Add (RegistrarKeyPair.Create (key, this.Get (key)));
+        this.runtimeTable.Add (SerializedMemoryCell.Create (key, this.Get (key)));
         }
 
     // Clean up initial keys so that there are no duplicates
@@ -100,11 +105,11 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
             this.initialTable.RemoveAt (i);
             continue;
             }
-        if (string.IsNullOrEmpty(kvp.Name) || initialTableKeys.Contains (kvp.Name))
+        if (string.IsNullOrEmpty(kvp.Key) || initialTableKeys.Contains (kvp.Key))
             {
-            kvp.Name = Guid.NewGuid ().ToString ();
+            kvp.Key = Guid.NewGuid ().ToString ();
             }
-        initialTableKeys.Add (kvp.Name);
+        initialTableKeys.Add (kvp.Key);
         }
 
     // Dirty keys are runtime keys with changed values. We only
@@ -114,9 +119,9 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
     foreach (var kvp in this.runtimeTable)
         {
         object oldValue;
-        if (this.registersTable.TryGetValue (kvp.Name, out oldValue) && !object.Equals (oldValue, kvp.GetValue ()))
+        if (this.registersTable.TryGetValue (kvp.Key, out oldValue) && !object.Equals (oldValue, kvp.GetValue ()))
             {
-            this.dirtyKeys.Add (kvp.Name);
+            this.dirtyKeys.Add (kvp.Key);
             }
         }
 
@@ -125,11 +130,11 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
     this.registersTable.Clear ();
     foreach (var kvp in this.initialTable)
         {
-        this.registersTable.Add (kvp.Name, kvp.GetValue ());
+        this.registersTable.Add (kvp.Key, kvp.GetValue ());
         }
     foreach (var kvp in this.runtimeTable)
         {
-        this.registersTable[kvp.Name] = kvp.GetValue ();
+        this.registersTable[kvp.Key] = kvp.GetValue ();
         }
     }
 
@@ -170,7 +175,7 @@ void OnValidate ()
         for (int i = 0; i < this.initialTable.Count; ++i)
             {
             var kvp = this.initialTable[i];
-            this.registersTable.Add (kvp.Name, kvp.GetValue ());
+            this.registersTable.Add (kvp.Key, kvp.GetValue ());
             }
         }
     }
@@ -202,7 +207,7 @@ public StringCollection GetRegisterKeys ()
     return this.registersTable.Keys;
     }
 
-public void RegisterListener (string key, Listener listener)
+public void RegisterListener (string key, Fub listener)
     {
     if (key == null)
         {
@@ -228,7 +233,7 @@ public void RegisterListener (string key, Listener listener)
 
     }
 
-public void UnregisterListener (string key, Listener listener)
+public void UnregisterListener (string key, Fub listener)
     {
     if (key == null)
         {
@@ -389,6 +394,15 @@ public T getT<T> (string key, T defaultValue)
     return (T)value;
     }
 #endregion
+
+
+
+#region nameof
+public const string nameof_listenersTable = "listenersTable";
+public const string nameof_registersTable = "registersTable";
+public const string nameof_initialTable = "initialTable";
+public const string nameof_runtimeTable = "runtimeTable";
+#endregion
 }
 
 
@@ -399,4 +413,7 @@ public T getT<T> (string key, T defaultValue)
 
 }
 
+
+
+}
 

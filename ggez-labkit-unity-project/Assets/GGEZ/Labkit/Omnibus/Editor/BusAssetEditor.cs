@@ -23,69 +23,27 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
+
 using UnityEngine;
-using UnityEngine.Events;
-using System.Collections.Generic;
+using UnityEditor;
+
 
 namespace GGEZ
 {
-
-
-
-public class Forwarder<T, D> : Listener where D : UnityEvent<T>
+namespace Omnibus
 {
-[SerializeField] private ListenerKeys keys = new ListenerKeys ();
-[SerializeField] private D didTriggerOrChange;
 
-public override void OnDidTrigger (string key, object value)
-    {
-    this.didTriggerOrChange.Invoke ((T)value);
-    }
 
-public override void OnDidChange (string key, object value)
-    {
-    this.didTriggerOrChange.Invoke ((T)value);
-    }
 
-public override IEnumerable<string> GetKeys ()
-    {
-    return this.keys.Keys;
-    }
+[
+CustomEditor(typeof (BusAsset), true),
+CanEditMultipleObjects
+]
+public class BusAssetEditor : BusEditor
+{
 }
 
 
-
-public class EventForwarder<T> : Listener where T : UnityEvent<T>
-{
-[SerializeField] private ListenerKeys keys = new ListenerKeys ();
-[SerializeField] private T didTrigger;
-public override void OnDidTrigger (string key, object value)
-    {
-    this.didTrigger.Invoke ((T)value);
-    }
-
-public override IEnumerable<string> GetKeys ()
-    {
-    return this.keys.Keys;
-    }
-}
-
-
-
-
-public class ChangeForwarder<T> : Listener where T : UnityEvent<T>
-{
-[SerializeField] private ListenerKeys keys = new ListenerKeys ();
-[SerializeField] private T didChange;
-public override void OnDidChange (string key, object value)
-    {
-    this.didChange.Invoke ((T)value);
-    }
-
-public override IEnumerable<string> GetKeys ()
-    {
-    return this.keys.Keys;
-    }
 }
 
 

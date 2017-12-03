@@ -24,11 +24,25 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using System;
+using UnityEngine;
+using System.Collections.Generic;
 
 namespace GGEZ
 {
+namespace Omnibus
+{
 
-[Serializable] public sealed class UnityEvent_int : UnityEngine.Events.UnityEvent<int> { }
-[Serializable] public sealed class IntForwarder : Forwarder<int, UnityEvent_int> { }
+
+[
+Serializable
+]
+public sealed class KeyList
+{
+public List<string> Keys = new List<string> ();
+}
+
+
+
+}
 
 }

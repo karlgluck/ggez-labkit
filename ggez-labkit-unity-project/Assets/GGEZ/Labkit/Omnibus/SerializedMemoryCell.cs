@@ -26,38 +26,35 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
-using ListenerList = System.Collections.Generic.List<GGEZ.Listener>;
-using ListenersTable = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<GGEZ.Listener>>;
-using RegistersTable = System.Collections.Generic.Dictionary<string, object>;
-using SerializableKeyValuePairList = System.Collections.Generic.List<GGEZ.RegistrarKeyPair>;
-using StringCollection = System.Collections.Generic.ICollection<string>;
+using System.Reflection;
 
 namespace GGEZ
 {
-
-
-[Serializable]
-public class RegistrarKeyPair
+namespace Omnibus
 {
-public string Name = "";
+
+
+[
+Serializable
+]
+public sealed partial class SerializedMemoryCell
+{
+public string Key = "";
 
 public string Type = null;
+
 public string Value_String;
 public int Value_Int32;
 public Vector3 Value_Vector3;
 public bool Value_Boolean;
 public float Value_Single;
 
-
 public object GetValue ()
     {
-    switch (this.Type)
+    var field = this.GetType ().GetField (nameof_Value_ + this.Type);
+    if (field != null)
         {
-        case "String": return this.Value_String;
-        case "Int32": return this.Value_Int32;
-        case "Vector3": return this.Value_Vector3;
-        case "Boolean": return this.Value_Boolean;
-        case "Single": return this.Value_Single;
+        return field.GetValue (this);
         }
     return null;
     }
@@ -70,27 +67,58 @@ public void SetValue (object value)
         return;
         }
     this.Type = value.GetType ().Name;
-    switch (this.Type)
+    var field = this.GetType ().GetField (nameof_Value_ + this.Type);
+    if (field == null)
         {
-        case "String": this.Value_String = (string)value; break;
-        case "Int32": this.Value_Int32 = (int)value; break;
-        case "Vector3": this.Value_Vector3 = (Vector3)value; break;
-        case "Boolean": this.Value_Boolean = (bool)value; break;
-        case "Single": this.Value_Single = (float)value; break;
+        throw new System.NotImplementedException ("SerializedMemorySell needs: " + this.Type + " " + nameof_Value_ + this.Type + ";");
         }
+    field.SetValue (this, value);
     }
 
-public static RegistrarKeyPair Create (string key, object value)
+public static SerializedMemoryCell Create (string key, object value)
     {
     if (key == null)
         {
         throw new ArgumentNullException ("key");
         }
-    var keyPair = new RegistrarKeyPair ();
-    keyPair.Name = key;
-    keyPair.SetValue (value);
-    return keyPair;
+    var retval = new SerializedMemoryCell ();
+    retval.Key = key;
+    retval.SetValue (value);
+    return retval;
     }
+
+private static List<Type> fieldTypes = null;
+public static IEnumerable<Type> GetFieldTypes ()
+    {
+    if (fieldTypes == null)
+        {
+        var valueFields = typeof(SerializedMemoryCell).FindMembers (
+                MemberTypes.Field,
+                BindingFlags.Public | BindingFlags.Instance,
+                delegate (MemberInfo m, object lastArgument)
+                    {
+                    return m.Name.StartsWith (SerializedMemoryCell.nameof_Value_);
+                    },
+                null
+                );
+        fieldTypes = new List<Type> ();
+        foreach (var memberInfo in valueFields)
+            {
+            FieldInfo fieldInfo = (FieldInfo)memberInfo;
+            fieldTypes.Add (fieldInfo.FieldType);
+            }
+        }
+    return fieldTypes;
+    }
+
+
+#region nameof
+public const string nameof_Key = "Key";
+public const string nameof_Type = "Type";
+public const string nameof_Value_ = "Value_";
+#endregion
+}
+
 }
 
 }

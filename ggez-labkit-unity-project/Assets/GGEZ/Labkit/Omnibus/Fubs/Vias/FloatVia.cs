@@ -24,11 +24,20 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using System;
+using UnityEngine;
 
 namespace GGEZ
 {
+namespace Omnibus
+{
 
-[Serializable] public sealed class UnityEvent_String : UnityEngine.Events.UnityEvent<string> { }
-[Serializable] public sealed class StringForwarder : Forwarder<string, UnityEvent_String> { }
+[Serializable] public sealed class UnityEvent_Float : UnityEngine.Events.UnityEvent<float> { }
+[
+Serializable,
+AddComponentMenu ("GGEZ/Omnibus/Via/Float")
+]
+public sealed class FloatVia : ImplementViaForType<float, UnityEvent_Float> { }
+
+}
 
 }

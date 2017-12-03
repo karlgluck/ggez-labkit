@@ -35,10 +35,12 @@ using System.Linq;
 
 namespace GGEZ
 {
+namespace Omnibus
+{
 
 
 
-public class RegistrarEditor : Editor
+public class BusEditor : Editor
 {
 private ReorderableList initialTable;
 private ReorderableList runtimeTable;
@@ -56,7 +58,7 @@ void OnEnable ()
     {
     this.initialTable = new ReorderableList (
             serializedObject, 
-            serializedObject.FindProperty ("initialTable"), 
+            serializedObject.FindProperty (Bus.nameof_initialTable), 
             true, // draggable
             true, // displayHeader
             true, // displayAddButton
@@ -68,7 +70,7 @@ void OnEnable ()
 
     this.runtimeTable = new ReorderableList (
             serializedObject, 
-            serializedObject.FindProperty ("runtimeTable"), 
+            serializedObject.FindProperty (Bus.nameof_runtimeTable), 
             false, // draggable
             true,  // displayHeader
             false, // displayAddButton
@@ -81,14 +83,14 @@ void OnEnable ()
 
     this.listenersTableField =
             this.targets.Length == 1
-            ? this.target.GetType ().GetField ("listenersTable", BindingFlags.NonPublic | BindingFlags.Instance)
+            ? this.target.GetType ().GetField (Bus.nameof_listenersTable, BindingFlags.NonPublic | BindingFlags.Instance)
             : null;
     this.enableEditingInitialValuesAtRuntime = false;
     }
 
 void drawInitialTableHeader (Rect rect)
     {
-    EditorGUI.LabelField (rect, "Initial Registers");
+    EditorGUI.LabelField (rect, "ROM");
     }
 
 void drawInitialTableElement (Rect position, int index, bool isActive, bool isFocused)
@@ -110,15 +112,15 @@ void drawInitialTableElement (Rect position, int index, bool isActive, bool isFo
 
     if (isFocused || isActive)
         {
-        EditorGUI.PropertyField (nameRect, property.FindPropertyRelative ("Name"), GUIContent.none);
+        EditorGUI.PropertyField (nameRect, property.FindPropertyRelative (SerializedMemoryCell.nameof_Key), GUIContent.none);
         }
     else
         {
-        EditorGUI.LabelField (nameRect, property.FindPropertyRelative ("Name").stringValue);
+        EditorGUI.LabelField (nameRect, property.FindPropertyRelative (SerializedMemoryCell.nameof_Key).stringValue);
         }
 
-    var typeProperty = property.FindPropertyRelative ("Type");
-    var valueProperty = property.FindPropertyRelative ("Value_" + typeProperty.stringValue);
+    var typeProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Type);
+    var valueProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Value_ + typeProperty.stringValue);
     if (valueProperty != null)
         {
         EditorGUI.PropertyField (valueRect, valueProperty, GUIContent.none);
@@ -129,29 +131,12 @@ void drawInitialTableElement (Rect position, int index, bool isActive, bool isFo
         }
     }
 
-static IEnumerable<Type> getFieldTypes ()
-    {
-    var valueFields = typeof(RegistrarKeyPair).FindMembers (
-            MemberTypes.Field,
-            BindingFlags.Public | BindingFlags.Instance,
-            delegate (MemberInfo m, object lastArgument)
-                {
-                return m.Name.StartsWith ("Value_");
-                },
-            null
-            );
-    foreach (var memberInfo in valueFields)
-        {
-        FieldInfo fieldInfo = (FieldInfo)memberInfo;
-        yield return fieldInfo.FieldType;
-        }
-    }
 
 void onInitialTableAddDropdown (Rect buttonRect, ReorderableList list)
     {
     var menu = new GenericMenu ();
 
-    foreach (var fieldType in getFieldTypes ())
+    foreach (var fieldType in SerializedMemoryCell.GetFieldTypes ())
         {
         menu.AddItem (
             new GUIContent (fieldType.Name),
@@ -163,8 +148,8 @@ void onInitialTableAddDropdown (Rect buttonRect, ReorderableList list)
                 list.serializedProperty.arraySize++;
                 list.index = index;
                 var element = list.serializedProperty.GetArrayElementAtIndex(index);
-                element.FindPropertyRelative ("Name").stringValue = GUID.Generate ().ToString ().Substring (0, 7);
-                element.FindPropertyRelative ("Type").stringValue = type.Name;
+                element.FindPropertyRelative (SerializedMemoryCell.nameof_Key).stringValue = GUID.Generate ().ToString ().Substring (0, 7);
+                element.FindPropertyRelative (SerializedMemoryCell.nameof_Type).stringValue = type.Name;
                 list.serializedProperty.serializedObject.ApplyModifiedProperties ();
                 },
             fieldType
@@ -176,7 +161,7 @@ void onInitialTableAddDropdown (Rect buttonRect, ReorderableList list)
 
 void drawRuntimeTableHeader (Rect rect)
     {
-    EditorGUI.LabelField (rect, "Runtime Registers");
+    EditorGUI.LabelField (rect, "Memory");
     }
 
 void drawRuntimeTableElement (Rect position, int index, bool isActive, bool isFocused)
@@ -196,10 +181,10 @@ void drawRuntimeTableElement (Rect position, int index, bool isActive, bool isFo
             EditorGUIUtility.singleLineHeight
             );
 
-    EditorGUI.LabelField (nameRect, property.FindPropertyRelative ("Name").stringValue);
+    EditorGUI.LabelField (nameRect, property.FindPropertyRelative (SerializedMemoryCell.nameof_Key).stringValue);
 
-    var typeProperty = property.FindPropertyRelative ("Type");
-    var valueProperty = property.FindPropertyRelative ("Value_" + typeProperty.stringValue);
+    var typeProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Type);
+    var valueProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Value_ + typeProperty.stringValue);
     if (valueProperty != null)
         {
         EditorGUI.PropertyField (valueRect, valueProperty, GUIContent.none);
@@ -229,14 +214,14 @@ void setTriggerParameterType (Type type)
         }
     if (type == null)
         {
-        this.triggerMethod = typeof(Registrar).GetMethod ("Trigger", new Type[] { typeof(string) });
+        this.triggerMethod = typeof(IBus).GetMethod ("Trigger", new Type[] { typeof(string) });
         this.triggerParameter = null;
         this.fieldBackingObject = null;
         this.triggerParameterTypeName = "void";
         }
     else
         {
-        this.triggerMethod = typeof(Registrar).GetMethod ("Trigger", new Type[] { typeof(string), type });
+        this.triggerMethod = typeof(IBus).GetMethod ("Trigger", new Type[] { typeof(string), type });
         this.triggerParameter = Labkit.SerializedPropertyExt.GetSerializedPropertyFor (type, out this.fieldBackingObject);
         this.triggerParameterTypeName = type.Name;
         }
@@ -245,7 +230,7 @@ void setTriggerParameterType (Type type)
 
 private void drawManualTriggerElement ()
     {
-    GUILayout.Label ("Manual Trigger (" + this.triggerParameterTypeName + ")", EditorStyles.boldLabel);
+    GUILayout.Label ("Manual Event (" + this.triggerParameterTypeName + ")", EditorStyles.boldLabel);
     var triggerRect = EditorGUILayout.GetControlRect ();
     var buttonRect = new Rect (triggerRect);
     buttonRect.xMax = buttonRect.xMin + 75f;
@@ -257,7 +242,7 @@ private void drawManualTriggerElement ()
 
         menu.AddItem (new GUIContent ("void"), false, (object _unused) => this.setTriggerParameterType (null), null);
         menu.AddSeparator ("");
-        foreach (var fieldType in getFieldTypes ())
+        foreach (var fieldType in SerializedMemoryCell.GetFieldTypes ())
             {
             menu.AddItem (
                 new GUIContent (fieldType.Name),
@@ -282,7 +267,7 @@ public override void OnInspectorGUI ()
 
     bool disableEditingDefaults = EditorApplication.isPlaying && !this.enableEditingInitialValuesAtRuntime;
     bool allObjectsAreAssets = this.serializedObject.targetObjects.All ((obj) => AssetDatabase.Contains (obj));
-    if (disableEditingDefaults && allObjectsAreAssets && GUILayout.Button ("Enable Editing Asset at Runtime"))
+    if (disableEditingDefaults && allObjectsAreAssets && GUILayout.Button ("Unlock Editing ROM at Runtime"))
         {
         this.enableEditingInitialValuesAtRuntime = true;
         }
@@ -305,26 +290,26 @@ public override void OnInspectorGUI ()
         this.drawManualTriggerElement ();
 
         EditorGUILayout.Space ();
-        GUILayout.Label ("Listeners", EditorStyles.boldLabel);
-        int totalListeners = 0;
+        GUILayout.Label ("Fubs", EditorStyles.boldLabel);
+        int total = 0;
         if (this.listenersTableField != null)
             {
-            var listenersTable = this.listenersTableField.GetValue (this.target) as IDictionary;
-            if (listenersTable != null)
+            var fubsTable = this.listenersTableField.GetValue (this.target) as IDictionary;
+            if (fubsTable != null)
                 {
 
-                foreach (string key in listenersTable.Keys)
+                foreach (string key in fubsTable.Keys)
                     {
-                    var listeners = listenersTable[key] as ICollection;
-                    int numberOfListeners = listeners == null ? 0 : listeners.Count;
-                    totalListeners += numberOfListeners;
-                    if (!this.Foldout (key, numberOfListeners))
+                    var fubs = fubsTable[key] as ICollection;
+                    int count = fubs == null ? 0 : fubs.Count;
+                    total += count;
+                    if (!this.Foldout (key, count))
                         {
                         continue;
                         }
                     EditorGUI.BeginDisabledGroup (true);
                     EditorGUI.indentLevel++;
-                    foreach (MonoBehaviour mb in listeners)
+                    foreach (MonoBehaviour mb in fubs)
                         {
                         EditorGUI.ObjectField (EditorGUILayout.GetControlRect (), mb, typeof(MonoBehaviour), true);
                         }
@@ -333,7 +318,7 @@ public override void OnInspectorGUI ()
                     }
                 }
             }
-        EditorGUILayout.LabelField ("Total Listeners", totalListeners.ToString ());
+        EditorGUILayout.LabelField ("Total Fubs", total.ToString ());
         }
 
     this.serializedObject.ApplyModifiedProperties ();
@@ -341,7 +326,7 @@ public override void OnInspectorGUI ()
 
 private Dictionary <string, bool> foldouts = new Dictionary <string, bool> ();
 
-private bool Foldout (string key, int listeners)
+private bool Foldout (string key, int count)
     {
     bool value;
     if (!this.foldouts.TryGetValue (key, out value))
@@ -355,8 +340,8 @@ private bool Foldout (string key, int listeners)
     controlRect.xMax = listenersRect.xMin;
     value = EditorGUI.Foldout (controlRect, value, key, true);
 
-    string plural = listeners == 1 ? "" : "s";
-    if (this.triggerMethod != null && GUI.Button (listenersRect, "Trigger " + listeners.ToString () + " Listener" + plural))
+    string plural = count == 1 ? "" : "s";
+    if (this.triggerMethod != null && GUI.Button (listenersRect, "Trigger " + count.ToString () + " Fub" + plural))
         {
         if (this.triggerParameter != null)
             {
@@ -381,4 +366,6 @@ private bool Foldout (string key, int listeners)
 
 
 }
+}
+
 }

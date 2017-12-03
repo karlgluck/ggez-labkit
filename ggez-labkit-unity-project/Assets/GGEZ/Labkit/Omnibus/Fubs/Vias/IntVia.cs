@@ -23,23 +23,22 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-
-using UnityEngine;
-using UnityEditor;
 using System;
-using System.Reflection;
-using System.Collections;
-using System.Collections.Generic;
+using UnityEngine;
 
 namespace GGEZ
 {
-
-
-[Serializable]
-public class RegistrarKeyPairContainer : ScriptableObject
+namespace Omnibus
 {
-public RegistrarKeyPair KeyPair;
-}
+
+[Serializable] public sealed class UnityEvent_int : UnityEngine.Events.UnityEvent<int> { }
+
+[
+Serializable,
+AddComponentMenu ("GGEZ/Omnibus/Via/Int")
+]
+public sealed class IntVia : ImplementViaForType<int, UnityEvent_int> { }
 
 }
 
+}

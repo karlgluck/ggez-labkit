@@ -30,18 +30,18 @@ using StringCollection = System.Collections.Generic.ICollection<string>;
 
 namespace GGEZ
 {
+namespace Omnibus
+{
 
-
-
-public interface Registrar
+public interface IBus
 {
 bool HasListeners (string key);
 bool HasValue (string key);
 StringCollection GetEventKeys ();
 StringCollection GetRegisterKeys ();
 
-void RegisterListener (string key, Listener listener);
-void UnregisterListener (string key, Listener listener);
+void RegisterListener (string key, Fub listener);
+void UnregisterListener (string key, Fub listener);
 
 
 // ----[ void ]----------------------------------------------------------------
@@ -85,5 +85,5 @@ float GetFloat (string key, float defaultValue);
 
 
 
-
+}
 }

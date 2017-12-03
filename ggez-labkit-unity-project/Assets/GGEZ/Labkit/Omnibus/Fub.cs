@@ -31,52 +31,53 @@ using System.Collections.Generic;
 
 namespace GGEZ
 {
-
-
-public class Listener : MonoBehaviour
+namespace Omnibus
 {
 
-// Either a RegistrarBehaviour or a RegistrarAsset
-[SerializeField] private UnityEngine.Object registrar;
 
-public Registrar Registrar
+public class Fub : MonoBehaviour
+{
+
+[SerializeField] private UnityEngine.Object bus; // MonoBehaviour or ScriptableObject
+
+public IBus Bus
     {
     get
         {
-        return (Registrar)this.registrar;
+        return this.bus as IBus;
         }
     set
         {
-        if (object.ReferenceEquals (this.registrar, value))
+        if (object.ReferenceEquals (this.bus, value))
             {
             return;
             }
         var keys = this.GetKeys ();
-        var thisRegistrar = (Registrar)this.registrar;
-        if (this.hasBeenEnabled && this.registrar != null)
+        var bus = this.bus as IBus;
+        if (this.hasBeenEnabled && this.bus != null)
             {
             foreach (string key in keys)
                 {
                 if (!string.IsNullOrEmpty (key))
                     {
-                    thisRegistrar.UnregisterListener (key, this);
+                    bus.UnregisterListener (key, this);
                     }
                 }
             }
-        this.registrar = (UnityEngine.Object)value;
+        this.bus = (UnityEngine.Object)value;
 #if UNITY_EDITOR
         if (this.hasBeenEnabled)
             {
-            this.previousRegistrar = value;
+            this.previousBus = value;
             }
 #endif
-        if (this.hasBeenEnabled && thisRegistrar != null)
+        if (this.hasBeenEnabled && bus != null)
             {
             foreach (string key in keys)
                 {
                 if (!string.IsNullOrEmpty (key))
                     {
-                    thisRegistrar.RegisterListener (key, this);
+                    bus.RegisterListener (key, this);
                     }
                 }
             }
@@ -88,14 +89,14 @@ private bool hasBeenEnabled;
 void OnEnable ()
     {
     var keys = this.GetKeys ();
-    var thisRegistrar = (Registrar)this.registrar;
-    if (thisRegistrar != null)
+    var bus = this.bus as IBus;
+    if (bus != null)
         {
         foreach (string key in keys)
             {
             if (!string.IsNullOrEmpty (key))
                 {
-                thisRegistrar.RegisterListener (key, this);
+                bus.RegisterListener (key, this);
                 }
             }
         }
@@ -103,28 +104,28 @@ void OnEnable ()
 #if UNITY_EDITOR
     this.previousKeys.Clear ();
     this.previousKeys.AddRange (keys);
-    this.previousRegistrar = thisRegistrar;
+    this.previousBus = bus;
 #endif
     }
 
 
 void OnDisable ()
     {
-    var thisRegistrar = (Registrar)this.registrar;
-    if (thisRegistrar != null)
+    var bus = this.bus as IBus;
+    if (bus != null)
         {
         foreach (string key in this.GetKeys ())
             {
             if (!string.IsNullOrEmpty (key))
                 {
-                thisRegistrar.UnregisterListener (key, this);
+                bus.UnregisterListener (key, this);
                 }
             }
         }
     this.hasBeenEnabled = false;
 #if UNITY_EDITOR
     this.previousKeys.Clear ();
-    this.previousRegistrar = null;
+    this.previousBus = null;
 #endif
     }
 
@@ -143,22 +144,23 @@ public virtual IEnumerable<string> GetKeys ()
 #if UNITY_EDITOR
 #region Editor Runtime
 private Keys previousKeys = new Keys ();
-private Registrar previousRegistrar;
+private IBus previousBus;
 
 
 void OnValidate ()
     {
-    var thisRegistrar = this.registrar as Registrar;
-    if (thisRegistrar == null)
+    var bus = this.bus as IBus;
+    if (bus == null)
         {
-        var gameObject = this.registrar as GameObject;
+        var gameObject = this.bus as GameObject;
         if (gameObject != null)
             {
-            this.registrar = gameObject.GetComponent <RegistrarBehaviour> ();
+            this.bus = gameObject.GetComponent <Bus> ();
+            bus = this.bus as IBus;
             }
         else
             {
-            this.registrar = null;
+            this.bus = null;
             }
         }
 
@@ -168,27 +170,7 @@ void OnValidate ()
         }
 
     var keys = this.GetKeys ();
-    if (!object.ReferenceEquals (this.previousRegistrar, thisRegistrar))
-        {
-        foreach (var key in this.previousKeys)
-            {
-            if (!string.IsNullOrEmpty (key))
-                {
-                this.previousRegistrar.UnregisterListener (key, this);
-                }
-            }
-        this.previousRegistrar = thisRegistrar;
-        this.previousKeys.Clear ();
-        this.previousKeys.AddRange (keys);
-        foreach (var key in keys)
-            {
-            if (!string.IsNullOrEmpty (key))
-                {
-                thisRegistrar.RegisterListener (key, this);
-                }
-            }
-        }
-    else
+    if (object.ReferenceEquals (this.previousBus, bus))
         {
         var removed = new HashSet<string> (this.previousKeys);
         var added = new HashSet<string> (keys);
@@ -196,21 +178,52 @@ void OnValidate ()
         removed.ExceptWith (keys);
         added.ExceptWith (this.previousKeys);
 
-        foreach (var key in removed)
+        if (bus != null)
             {
-            if (!string.IsNullOrEmpty (key))
+            foreach (var key in removed)
                 {
-                this.previousRegistrar.UnregisterListener (key, this);
+                if (!string.IsNullOrEmpty (key))
+                    {
+                    this.previousBus.UnregisterListener (key, this);
+                    }
                 }
             }
-        this.previousRegistrar = thisRegistrar;
         this.previousKeys.Clear ();
         this.previousKeys.AddRange (keys);
-        foreach (var key in added)
+        if (bus != null)
             {
-            if (!string.IsNullOrEmpty (key))
+            foreach (var key in added)
                 {
-                thisRegistrar.RegisterListener (key, this);
+                if (!string.IsNullOrEmpty (key))
+                    {
+                    bus.RegisterListener (key, this);
+                    }
+                }
+            }
+        }
+    else
+        {
+        if (this.previousBus != null)
+            {
+            foreach (var key in this.previousKeys)
+                {
+                if (!string.IsNullOrEmpty (key))
+                    {
+                    this.previousBus.UnregisterListener (key, this);
+                    }
+                }
+            }
+        this.previousBus = bus;
+        this.previousKeys.Clear ();
+        this.previousKeys.AddRange (keys);
+        if (bus != null)
+            {
+            foreach (var key in keys)
+                {
+                if (!string.IsNullOrEmpty (key))
+                    {
+                    bus.RegisterListener (key, this);
+                    }
                 }
             }
         }
@@ -223,8 +236,11 @@ void OnValidate ()
 
 
 
+
 }
 
 
+
+}
 
 }

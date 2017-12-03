@@ -25,20 +25,39 @@
 
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 using System.Collections.Generic;
 
 namespace GGEZ
 {
-
+namespace Omnibus
+{
 
 [
-Serializable
+Serializable,
+AddComponentMenu ("GGEZ/Omnibus/Via/Void")
 ]
-public class ListenerKeys
+public sealed class Via : Fub
 {
-public List<string> Keys = new List<string> ();
+[SerializeField] private KeyList keys = new KeyList ();
+[SerializeField] private UnityEvent didTrigger;
+
+public override void OnDidTrigger (string key, object value)
+    {
+    this.didTrigger.Invoke ();
+    }
+
+public override void OnDidChange (string key, object value)
+    {
+    this.didTrigger.Invoke ();
+    }
+
+public override IEnumerable<string> GetKeys ()
+    {
+    return this.keys.Keys;
+    }
 }
 
-
+}
 
 }

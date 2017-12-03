@@ -30,9 +30,11 @@ using UnityEditorInternal;
 
 namespace GGEZ
 {
+namespace Omnibus
+{
 
-[CustomPropertyDrawer (typeof(ListenerKeys))]
-class ListenerKeysPropertyDrawer : PropertyDrawer
+[CustomPropertyDrawer (typeof(KeyList))]
+public sealed class KeyListPropertyDrawer : PropertyDrawer
 {
 private ReorderableList reorderableList = null;
 private ReorderableList getReorderableList (SerializedProperty property)
@@ -90,5 +92,7 @@ public override void OnGUI (
     }
 }
 
+
+}
 
 }

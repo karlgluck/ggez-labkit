@@ -23,25 +23,22 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-
+using System;
 using UnityEngine;
-using UnityEditor;
-
 
 namespace GGEZ
 {
+namespace Omnibus
+{
 
-
+[Serializable] public sealed class UnityEvent_String : UnityEngine.Events.UnityEvent<string> { }
 
 [
-CustomEditor(typeof (RegistrarBehaviour), true),
-CanEditMultipleObjects
+Serializable,
+AddComponentMenu ("GGEZ/Omnibus/Via/String")
 ]
-public class RegistrarBehaviourEditor : RegistrarEditor
-{
-}
-
+public sealed class StringVia : ImplementViaForType<string, UnityEvent_String> { }
 
 }
 
-
+}

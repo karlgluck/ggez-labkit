@@ -26,13 +26,15 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
-using ListenerList = System.Collections.Generic.List<GGEZ.Listener>;
-using ListenersTable = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<GGEZ.Listener>>;
+using ListenerList = System.Collections.Generic.List<GGEZ.Omnibus.Fub>;
+using ListenersTable = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<GGEZ.Omnibus.Fub>>;
 using RegistersTable = System.Collections.Generic.Dictionary<string, object>;
-using SerializableKeyValuePairList = System.Collections.Generic.List<GGEZ.RegistrarKeyPair>;
+using SerializableKeyValuePairList = System.Collections.Generic.List<GGEZ.Omnibus.SerializedMemoryCell>;
 using StringCollection = System.Collections.Generic.ICollection<string>;
 
 namespace GGEZ
+{
+namespace Omnibus
 {
 
 
@@ -40,29 +42,23 @@ namespace GGEZ
 
 [
 Serializable,
-CreateAssetMenu (fileName = "New Registrar.asset", menuName="GGEZ/Game Registrar")
+CreateAssetMenu (fileName = "New Bus.asset", menuName="GGEZ/Omnibus/Bus")
 ]
-public sealed class RegistrarAsset : ScriptableObject, Registrar, ISerializationCallbackReceiver
+public sealed class BusAsset : ScriptableObject, IBus, ISerializationCallbackReceiver
 {
 
 #region Serialization
-// All the values that the table should start with
 [SerializeField] private SerializableKeyValuePairList initialTable = new SerializableKeyValuePairList ();
-
-// Values that the table has at runtime only. Entries are cleared out when
-// listeners unregister.
 [SerializeField] private SerializableKeyValuePairList runtimeTable = new SerializableKeyValuePairList ();
 
 void ISerializationCallbackReceiver.OnBeforeSerialize ()
     {
-    //var runtimeKeys = new HashSet<string> (this.listenersTable.Keys);
-    //runtimeKeys.IntersectWith (this.registersTable.Keys);
     var runtimeKeys = new HashSet<string> (this.registersTable.Keys);
     this.runtimeTable.Clear ();
     this.runtimeTable.Capacity = Mathf.Max (this.runtimeTable.Capacity, runtimeKeys.Count);
     foreach (var key in runtimeKeys)
         {
-        this.runtimeTable.Add (RegistrarKeyPair.Create (key, this.Get (key)));
+        this.runtimeTable.Add (SerializedMemoryCell.Create (key, this.Get (key)));
         }
     }
 
@@ -70,31 +66,30 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
     {
 #if UNITY_EDITOR
 
-    // Clean up the runtime keys
+    // Clean up deserialized values
     HashSet<string> runtimeTableKeys = new HashSet<string> ();
     for (int i = this.runtimeTable.Count - 1; i >= 0; --i)
         {
         var kvp = this.runtimeTable[i];
         if (kvp == null
-                || string.IsNullOrEmpty(kvp.Name)
-                || runtimeTableKeys.Contains (kvp.Name))
+                || string.IsNullOrEmpty(kvp.Key)
+                || runtimeTableKeys.Contains (kvp.Key))
             {
             this.runtimeTable.RemoveAt (i);
             continue;
             }
-        runtimeTableKeys.Add (kvp.Name);
+        runtimeTableKeys.Add (kvp.Key);
         }
 
-    // Make sure keys with listeners aren't dropped from the runtime table
+    // Don't delete things listeners rely on
     var deletedKeys = new HashSet<string> (this.listenersTable.Keys);
     deletedKeys.ExceptWith (runtimeTableKeys);
     foreach (var key in deletedKeys)
         {
-        this.runtimeTable.Add (RegistrarKeyPair.Create (key, this.Get (key)));
+        this.runtimeTable.Add (SerializedMemoryCell.Create (key, this.Get (key)));
         }
 
-    // Clean up initial keys so that there are no duplicates
-    // or null entries. These can happen when adding elements.
+    // Clean up deserialized values
     HashSet<string> initialTableKeys = new HashSet<string> ();
     for (int i = this.initialTable.Count - 1; i >= 0; --i)
         {
@@ -104,23 +99,21 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
             this.initialTable.RemoveAt (i);
             continue;
             }
-        if (string.IsNullOrEmpty(kvp.Name) || initialTableKeys.Contains (kvp.Name))
+        if (string.IsNullOrEmpty(kvp.Key) || initialTableKeys.Contains (kvp.Key))
             {
-            kvp.Name = Guid.NewGuid ().ToString ();
+            kvp.Key = Guid.NewGuid ().ToString ();
             }
-        initialTableKeys.Add (kvp.Name);
+        initialTableKeys.Add (kvp.Key);
         }
 
-    // Dirty keys are runtime keys with changed values. We only
-    // need to do this in the Editor because the app will change
-    // values through the class interface only.
+    // Find dirty keys
     this.dirtyKeys.Clear ();
     foreach (var kvp in this.runtimeTable)
         {
         object oldValue;
-        if (this.registersTable.TryGetValue (kvp.Name, out oldValue) && !object.Equals (oldValue, kvp.GetValue ()))
+        if (this.registersTable.TryGetValue (kvp.Key, out oldValue) && !object.Equals (oldValue, kvp.GetValue ()))
             {
-            this.dirtyKeys.Add (kvp.Name);
+            this.dirtyKeys.Add (kvp.Key);
             }
         }
 
@@ -129,16 +122,18 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
     this.registersTable.Clear ();
     foreach (var kvp in this.initialTable)
         {
-        this.registersTable.Add (kvp.Name, kvp.GetValue ());
+        this.registersTable.Add (kvp.Key, kvp.GetValue ());
         }
     foreach (var kvp in this.runtimeTable)
         {
-        this.registersTable[kvp.Name] = kvp.GetValue ();
+        this.registersTable[kvp.Key] = kvp.GetValue ();
         }
     }
 
 #if UNITY_EDITOR
 private List<string> dirtyKeys = new List<string> ();
+
+
 
 void Reset ()
     {
@@ -148,6 +143,8 @@ void Reset ()
     this.dirtyKeys.Clear ();
     this.listenersTable.Clear ();
     }
+
+
 
 void OnValidate ()
     {
@@ -174,12 +171,14 @@ void OnValidate ()
         for (int i = 0; i < this.initialTable.Count; ++i)
             {
             var kvp = this.initialTable[i];
-            this.registersTable.Add (kvp.Name, kvp.GetValue ());
+            this.registersTable.Add (kvp.Key, kvp.GetValue ());
             }
         }
     }
 #endif
 #endregion
+
+
 
 private ListenersTable listenersTable = new ListenersTable ();
 private RegistersTable registersTable = new RegistersTable ();
@@ -206,7 +205,7 @@ public StringCollection GetRegisterKeys ()
     return this.registersTable.Keys;
     }
 
-public void RegisterListener (string key, Listener listener)
+public void RegisterListener (string key, Fub listener)
     {
     if (key == null)
         {
@@ -232,7 +231,7 @@ public void RegisterListener (string key, Listener listener)
 
     }
 
-public void UnregisterListener (string key, Listener listener)
+public void UnregisterListener (string key, Fub listener)
     {
     if (key == null)
         {
@@ -402,5 +401,4 @@ public T getT<T> (string key, T defaultValue)
 
 
 }
-
-
+}

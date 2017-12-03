@@ -30,14 +30,16 @@ using UnityEditor;
 
 namespace GGEZ
 {
+namespace Omnibus
+{
 
 
 
 [
-CustomEditor(typeof (RegistrarAsset), true),
+CustomEditor(typeof (Bus), true),
 CanEditMultipleObjects
 ]
-public class RegistrarAssetEditor : RegistrarEditor
+public class BusBehaviourEditor : BusEditor
 {
 }
 
@@ -45,3 +47,5 @@ public class RegistrarAssetEditor : RegistrarEditor
 }
 
 
+
+}

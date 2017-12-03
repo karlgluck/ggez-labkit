@@ -23,12 +23,42 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
+using UnityEngine;
+using UnityEngine.Events;
+using System.Collections.Generic;
 
 namespace GGEZ
 {
+namespace Omnibus
+{
 
-[Serializable] public sealed class UnityEvent_Float : UnityEngine.Events.UnityEvent<float> { }
-[Serializable] public sealed class FloatForwarder : Forwarder<float, UnityEvent_Float> { }
+
+
+public class ImplementViaForType<T, D> : Fub where D : UnityEvent<T>
+{
+[SerializeField] private KeyList keys = new KeyList ();
+[SerializeField] private D didTriggerOrChange;
+
+public override void OnDidTrigger (string key, object value)
+    {
+    this.didTriggerOrChange.Invoke ((T)value);
+    }
+
+public override void OnDidChange (string key, object value)
+    {
+    this.didTriggerOrChange.Invoke ((T)value);
+    }
+
+public override IEnumerable<string> GetKeys ()
+    {
+    return this.keys.Keys;
+    }
+}
+
+
+
+
+
+}
 
 }
