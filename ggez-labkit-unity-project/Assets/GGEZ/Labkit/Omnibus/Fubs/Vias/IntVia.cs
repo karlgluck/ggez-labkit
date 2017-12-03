@@ -35,7 +35,7 @@ namespace Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Via/Int")
+AddComponentMenu ("GGEZ/Omnibus/Via/Int Via")
 ]
 public sealed class IntVia : ImplementViaForType<int, UnityEvent_int> { }
 

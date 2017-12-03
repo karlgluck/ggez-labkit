@@ -35,7 +35,7 @@ namespace Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Via/String")
+AddComponentMenu ("GGEZ/Omnibus/Via/String Via")
 ]
 public sealed class StringVia : ImplementViaForType<string, UnityEvent_String> { }
 

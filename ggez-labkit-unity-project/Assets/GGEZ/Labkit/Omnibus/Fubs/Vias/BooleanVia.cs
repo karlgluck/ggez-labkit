@@ -34,7 +34,7 @@ namespace Omnibus
 [Serializable] public sealed class UnityEvent_Boolean : UnityEngine.Events.UnityEvent<Boolean> { }
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Via/Boolean")
+AddComponentMenu ("GGEZ/Omnibus/Via/Boolean Via")
 ]
 public sealed class BooleanVia : ImplementViaForType<Boolean, UnityEvent_Boolean> { }
 

@@ -34,7 +34,7 @@ namespace Omnibus
 [Serializable] public sealed class UnityEvent_Float : UnityEngine.Events.UnityEvent<float> { }
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Via/Float")
+AddComponentMenu ("GGEZ/Omnibus/Via/Float Via")
 ]
 public sealed class FloatVia : ImplementViaForType<float, UnityEvent_Float> { }
 
