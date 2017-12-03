@@ -43,21 +43,15 @@ namespace Omnibus
 DisallowMultipleComponent,
 AddComponentMenu ("GGEZ/Omnibus/Bus")
 ]
-public sealed class Bus : MonoBehaviour, IBus, ISerializationCallbackReceiver
+public sealed partial class Bus : MonoBehaviour, IBus, ISerializationCallbackReceiver
 {
 
 #region Serialization
-// All the values that the table should start with
 [SerializeField] private SerializableKeyValuePairList initialTable = new SerializableKeyValuePairList ();
-
-// Values that the table has at runtime only. Entries are cleared out when
-// listeners unregister.
 [SerializeField] private SerializableKeyValuePairList runtimeTable = new SerializableKeyValuePairList ();
 
 void ISerializationCallbackReceiver.OnBeforeSerialize ()
     {
-    //var runtimeKeys = new HashSet<string> (this.listenersTable.Keys);
-    //runtimeKeys.IntersectWith (this.registersTable.Keys);
     var runtimeKeys = new HashSet<string> (this.registersTable.Keys);
     this.runtimeTable.Clear ();
     this.runtimeTable.Capacity = Mathf.Max (this.runtimeTable.Capacity, runtimeKeys.Count);
@@ -71,7 +65,7 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
     {
 #if UNITY_EDITOR
 
-    // Clean up the runtime keys
+    // Clean up deserialized values
     HashSet<string> runtimeTableKeys = new HashSet<string> ();
     for (int i = this.runtimeTable.Count - 1; i >= 0; --i)
         {
@@ -86,7 +80,7 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
         runtimeTableKeys.Add (kvp.Key);
         }
 
-    // Make sure keys with listeners aren't dropped from the runtime table
+    // Don't delete things listeners rely on
     var deletedKeys = new HashSet<string> (this.listenersTable.Keys);
     deletedKeys.ExceptWith (runtimeTableKeys);
     foreach (var key in deletedKeys)
@@ -94,8 +88,7 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
         this.runtimeTable.Add (SerializedMemoryCell.Create (key, this.Get (key)));
         }
 
-    // Clean up initial keys so that there are no duplicates
-    // or null entries. These can happen when adding elements.
+    // Clean up deserialized values
     HashSet<string> initialTableKeys = new HashSet<string> ();
     for (int i = this.initialTable.Count - 1; i >= 0; --i)
         {
@@ -112,9 +105,7 @@ void ISerializationCallbackReceiver.OnAfterDeserialize ()
         initialTableKeys.Add (kvp.Key);
         }
 
-    // Dirty keys are runtime keys with changed values. We only
-    // need to do this in the Editor because the app will change
-    // values through the class interface only.
+    // Find dirty keys
     this.dirtyKeys.Clear ();
     foreach (var kvp in this.runtimeTable)
         {
@@ -255,7 +246,6 @@ public void UnregisterListener (string key, Fub listener)
         }
     }
 
-#region void
 public void Trigger (string key)
     {
     if (key == null)
@@ -272,9 +262,7 @@ public void Trigger (string key)
         listeners[i].OnDidTrigger (key, null);
         }
     }
-#endregion
 
-#region object
 public object Get (string key)
     {
     if (key == null)
@@ -288,39 +276,6 @@ public object Get (string key)
         }
     return value;
     }
-#endregion
-
-
-#region int
-public void Set (string key, int value) { this.set <int> (key, value); }
-public void Trigger (string key, int value) { this.trigger<int> (key, value); }
-public bool Get (string key, out int value) { return this.get<int> (key, out value); }
-public int GetInt (string key, int defaultValue) { return this.getT<int> (key, defaultValue); }
-#endregion
-
-
-#region bool
-public void Set (string key, bool value) { this.set <bool> (key, value); }
-public void Trigger (string key, bool value) { this.trigger<bool> (key, value); }
-public bool Get (string key, out bool value) { return this.get<bool> (key, out value); }
-public bool GetBool (string key, bool defaultValue) { return this.getT<bool> (key, defaultValue); }
-#endregion
-
-
-#region string
-public void Set (string key, string value) { this.set <string> (key, value); }
-public void Trigger (string key, string value) { this.trigger<string> (key, value); }
-public bool Get (string key, out string value) { return this.get<string> (key, out value); }
-public string GetString (string key, string defaultValue) { return this.getT<string> (key, defaultValue); }
-#endregion
-
-
-#region float
-public void Set (string key, float value) { this.set <float> (key, value); }
-public void Trigger (string key, float value) { this.trigger<float> (key, value); }
-public bool Get (string key, out float value) { return this.get<float> (key, out value); }
-public float GetFloat (string key, float defaultValue) { return this.getT<float> (key, defaultValue); }
-#endregion
 
 
 #region Templated set/trigger/get methods

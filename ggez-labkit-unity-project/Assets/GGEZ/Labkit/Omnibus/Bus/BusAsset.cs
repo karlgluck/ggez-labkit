@@ -44,7 +44,7 @@ namespace Omnibus
 Serializable,
 CreateAssetMenu (fileName = "New Bus.asset", menuName="GGEZ/Omnibus/Bus")
 ]
-public sealed class BusAsset : ScriptableObject, IBus, ISerializationCallbackReceiver
+public sealed partial class BusAsset : ScriptableObject, IBus, ISerializationCallbackReceiver
 {
 
 #region Serialization
@@ -253,7 +253,6 @@ public void UnregisterListener (string key, Fub listener)
         }
     }
 
-#region void
 public void Trigger (string key)
     {
     if (key == null)
@@ -270,9 +269,7 @@ public void Trigger (string key)
         listeners[i].OnDidTrigger (key, null);
         }
     }
-#endregion
 
-#region object
 public object Get (string key)
     {
     if (key == null)
@@ -286,39 +283,6 @@ public object Get (string key)
         }
     return value;
     }
-#endregion
-
-
-#region int
-public void Set (string key, int value) { this.set <int> (key, value); }
-public void Trigger (string key, int value) { this.trigger<int> (key, value); }
-public bool Get (string key, out int value) { return this.get<int> (key, out value); }
-public int GetInt (string key, int defaultValue) { return this.getT<int> (key, defaultValue); }
-#endregion
-
-
-#region bool
-public void Set (string key, bool value) { this.set <bool> (key, value); }
-public void Trigger (string key, bool value) { this.trigger<bool> (key, value); }
-public bool Get (string key, out bool value) { return this.get<bool> (key, out value); }
-public bool GetBool (string key, bool defaultValue) { return this.getT<bool> (key, defaultValue); }
-#endregion
-
-
-#region string
-public void Set (string key, string value) { this.set <string> (key, value); }
-public void Trigger (string key, string value) { this.trigger<string> (key, value); }
-public bool Get (string key, out string value) { return this.get<string> (key, out value); }
-public string GetString (string key, string defaultValue) { return this.getT<string> (key, defaultValue); }
-#endregion
-
-
-#region float
-public void Set (string key, float value) { this.set <float> (key, value); }
-public void Trigger (string key, float value) { this.trigger<float> (key, value); }
-public bool Get (string key, out float value) { return this.get<float> (key, out value); }
-public float GetFloat (string key, float defaultValue) { return this.getT<float> (key, defaultValue); }
-#endregion
 
 
 #region Templated set/trigger/get methods
