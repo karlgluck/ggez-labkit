@@ -38,16 +38,17 @@ public partial interface IBus
 void Connect (string key, Fub fub);
 void Disconnect (string key, Fub fub);
 
-
 void Trigger (string key);
 object Get (string key);
+void Unset (string key);
 
-
-bool HasListeners (string key);
+bool HasConnections (string key);
 bool HasValue (string key);
 
+StringCollection GetAllKeys ();
+StringCollection GetConnectedKeys ();
 StringCollection GetEventKeys ();
-StringCollection GetRegisterKeys ();
+StringCollection GetMemoryKeys ();
 
 
 }

@@ -51,6 +51,42 @@ public virtual IEnumerable<string> GetKeys ()
     throw new System.NotImplementedException ();
     }
 
+//----------------------------------------------------------------------
+// Call these methods from the derived class to keep the fub in sync
+//----------------------------------------------------------------------
+protected void onDidAddKey (string key)
+    {
+    if (!this.hasBeenEnabled)
+        {
+        return;
+        }
+    var bus = this.bus as IBus;
+    if (bus != null)
+        {
+        bus.Connect (key, this);
+        }
+#if UNITY_EDITOR
+    this.previousKeys.Add (key);
+#endif
+    }
+
+protected void onDidRemoveKey (string key)
+    {
+    if (!this.hasBeenEnabled)
+        {
+        return;
+        }
+    var bus = this.bus as IBus;
+    if (bus != null)
+        {
+        bus.Disconnect (key, this);
+        }
+#if UNITY_EDITOR
+    this.previousKeys.Remove (key);
+#endif
+    }
+
+
 [SerializeField] private UnityEngine.Object bus; // MonoBehaviour or ScriptableObject
 public IBus Bus
     {
@@ -66,7 +102,7 @@ public IBus Bus
             }
         var keys = this.GetKeys ();
         var bus = this.bus as IBus;
-        if (this.hasBeenEnabled && this.bus != null)
+        if (this.hasBeenEnabled && bus != null)
             {
             foreach (string key in keys)
                 {
@@ -77,6 +113,7 @@ public IBus Bus
                 }
             }
         this.bus = (UnityEngine.Object)value;
+        bus = value;
 #if UNITY_EDITOR
         if (this.hasBeenEnabled)
             {

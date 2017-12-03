@@ -129,6 +129,15 @@ public object Get (string key)
     return value;
     }
 
+public void Unset (string key)
+    {
+    if (key == null)
+        {
+        throw new ArgumentNullException ("key");
+        }
+    this.memory.Remove (key);
+    }
+
 
 #region Templated versions of get/set/trigger
 void set<T> (string key, T value)
@@ -325,7 +334,20 @@ void OnValidate ()
 
 #region Accessors
 
-public bool HasListeners (string key)
+
+public StringCollection GetAllKeys ()
+    {
+    var retval = new HashSet<string> (this.connections.Keys);
+    retval.UnionWith (this.memory.Keys);
+    return retval;
+    }
+
+public StringCollection GetConnectedKeys ()
+    {
+    return this.connections.Keys;
+    }
+
+public bool HasConnections (string key)
     {
     return this.connections.ContainsKey (key);
     }
@@ -342,7 +364,7 @@ public StringCollection GetEventKeys ()
     return retval;
     }
 
-public StringCollection GetRegisterKeys ()
+public StringCollection GetMemoryKeys ()
     {
     return this.memory.Keys;
     }

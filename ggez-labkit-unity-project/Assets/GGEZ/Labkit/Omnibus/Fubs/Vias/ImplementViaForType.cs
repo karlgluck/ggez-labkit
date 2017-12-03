@@ -34,10 +34,10 @@ namespace Omnibus
 
 
 
-public class ImplementViaForType<T, D> : Fub where D : UnityEvent<T>
+public class ImplementViaForType<T, D> : Fub where D : UnityEvent<T>, new ()
 {
 [SerializeField] private KeyList keys = new KeyList ();
-[SerializeField] private D didTriggerOrChange;
+[SerializeField] private D didTriggerOrChange = new D ();
 
 public override void OnDidTrigger (string key, object value)
     {
@@ -64,6 +64,33 @@ public override void OnDidChange (string key, object value)
 public override IEnumerable<string> GetKeys ()
     {
     return this.keys.Keys;
+    }
+
+public void AddKey (string key)
+    {
+    this.keys.Keys.Add (key);
+    this.onDidAddKey (key);
+    }
+
+public void RemoveKey (string key)
+    {
+    this.keys.Keys.Remove (key);
+    this.onDidRemoveKey (key);
+    }
+
+public void AddCallback (UnityAction<T> action)
+    {
+    this.didTriggerOrChange.AddListener (action);
+    }
+
+public void RemoveCallback (UnityAction<T> action)
+    {
+    this.didTriggerOrChange.RemoveListener (action);
+    }
+
+public void RemoveAllCallbacks ()
+    {
+    this.didTriggerOrChange.RemoveAllListeners ();
     }
 }
 
