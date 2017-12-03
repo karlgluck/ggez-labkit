@@ -26,10 +26,11 @@ public Registrar Registrar
             {
             return;
             }
+        var keys = this.GetKeys ();
         var thisRegistrar = (Registrar)this.registrar;
         if (this.hasBeenEnabled && this.registrar != null)
             {
-            foreach (string key in this.keys.Keys)
+            foreach (string key in keys)
                 {
                 if (!string.IsNullOrEmpty (key))
                     {
@@ -46,7 +47,7 @@ public Registrar Registrar
 #endif
         if (this.hasBeenEnabled && thisRegistrar != null)
             {
-            foreach (string key in this.keys.Keys)
+            foreach (string key in keys)
                 {
                 if (!string.IsNullOrEmpty (key))
                     {
@@ -61,10 +62,11 @@ private bool hasBeenEnabled;
 
 void OnEnable ()
     {
+    var keys = this.GetKeys ();
     var thisRegistrar = (Registrar)this.registrar;
     if (thisRegistrar != null)
         {
-        foreach (string key in this.keys.Keys)
+        foreach (string key in keys)
             {
             if (!string.IsNullOrEmpty (key))
                 {
@@ -75,7 +77,7 @@ void OnEnable ()
     this.hasBeenEnabled = true;
 #if UNITY_EDITOR
     this.previousKeys.Clear ();
-    this.previousKeys.AddRange (this.keys.Keys);
+    this.previousKeys.AddRange (keys);
     this.previousRegistrar = thisRegistrar;
 #endif
     }
@@ -86,7 +88,7 @@ void OnDisable ()
     var thisRegistrar = (Registrar)this.registrar;
     if (thisRegistrar != null)
         {
-        foreach (string key in this.keys.Keys)
+        foreach (string key in this.GetKeys ())
             {
             if (!string.IsNullOrEmpty (key))
                 {
@@ -101,28 +103,13 @@ void OnDisable ()
 #endif
     }
 
-// All the keys this listener cares about
-[SerializeField] private ListenerKeys keys = new ListenerKeys ();
-public ReadonlyKeys Keys { get { return this.keys.Keys.AsReadOnly (); } }
-
-public void AddKey (string key)
-    {
-    throw new NotImplementedException ();
-    }
-
-public void RemoveKey (string key)
-    {
-    throw new NotImplementedException ();
-    }
-
-public void ClearKeys ()
-    {
-    throw new NotImplementedException ();
-    }
 
 public virtual void OnDidTrigger (string key, object value) {}
 public virtual void OnDidChange (string key, object value) {}
-public virtual IEnumerable<string> GetKeys () { yield break; }
+public virtual IEnumerable<string> GetKeys ()
+    {
+    throw new System.NotImplementedException ();
+    }
 
 
 //----------------------------------------------------------------------
@@ -136,17 +123,26 @@ private Registrar previousRegistrar;
 
 void OnValidate ()
     {
+    var thisRegistrar = this.registrar as Registrar;
+    if (thisRegistrar == null)
+        {
+        var gameObject = this.registrar as GameObject;
+        if (gameObject != null)
+            {
+            this.registrar = gameObject.GetComponent <RegistrarBehaviour> ();
+            }
+        else
+            {
+            this.registrar = null;
+            }
+        }
+
     if (!this.hasBeenEnabled)
         {
         return;
         }
-        
-    var thisRegistrar = this.registrar as Registrar;
-    if (thisRegistrar == null)
-        {
-        this.registrar = null;
-        }
 
+    var keys = this.GetKeys ();
     if (!object.ReferenceEquals (this.previousRegistrar, thisRegistrar))
         {
         foreach (var key in this.previousKeys)
@@ -158,8 +154,8 @@ void OnValidate ()
             }
         this.previousRegistrar = thisRegistrar;
         this.previousKeys.Clear ();
-        this.previousKeys.AddRange (this.keys.Keys);
-        foreach (var key in this.previousKeys)
+        this.previousKeys.AddRange (keys);
+        foreach (var key in keys)
             {
             if (!string.IsNullOrEmpty (key))
                 {
@@ -170,9 +166,9 @@ void OnValidate ()
     else
         {
         var removed = new HashSet<string> (this.previousKeys);
-        var added = new HashSet<string> (this.keys.Keys);
+        var added = new HashSet<string> (keys);
 
-        removed.ExceptWith (this.keys.Keys);
+        removed.ExceptWith (keys);
         added.ExceptWith (this.previousKeys);
 
         foreach (var key in removed)
@@ -184,7 +180,7 @@ void OnValidate ()
             }
         this.previousRegistrar = thisRegistrar;
         this.previousKeys.Clear ();
-        this.previousKeys.AddRange (this.keys.Keys);
+        this.previousKeys.AddRange (keys);
         foreach (var key in added)
             {
             if (!string.IsNullOrEmpty (key))

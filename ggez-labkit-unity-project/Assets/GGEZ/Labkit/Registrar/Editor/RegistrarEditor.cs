@@ -38,11 +38,6 @@ namespace GGEZ
 
 
 
-[
-CustomEditor(typeof (RegistrarAsset), true),
-//CustomEditor(typeof (RegistrarBehaviour), true),
-CanEditMultipleObjects
-]
 public class RegistrarEditor : Editor
 {
 private ReorderableList initialTable;
@@ -256,7 +251,7 @@ private void drawManualTriggerElement ()
     buttonRect.xMax = buttonRect.xMin + 75f;
     var parameterRect = new Rect (triggerRect);
     parameterRect.xMin = buttonRect.xMax + 5f;
-    if (EditorGUI.DropdownButton (buttonRect, new GUIContent ("Type"), FocusType.Passive))
+    if (EditorGUI.DropdownButton (buttonRect, new GUIContent ("Type..."), FocusType.Passive))
         {
         var menu = new GenericMenu ();
 
