@@ -41,6 +41,11 @@ void Trigger (string key, int value);
 bool Get (string key, out int value);
 int GetInt (string key, int defaultValue);
 
+void Set0 (string key);
+void Set1 (string key);
+void Trigger0 (string key);
+void Trigger1 (string key);
+
 }
 
 
@@ -52,6 +57,13 @@ public void Trigger (string key, int value) { this.trigger<int> (key, value); }
 public bool Get (string key, out int value) { return this.get<int> (key, out value); }
 public int GetInt (string key, int defaultValue) { return this.getT<int> (key, defaultValue); }
 
+
+public void Set0 (string key) { this.set<int> (key, 0); }
+public void Set1 (string key) { this.set<int> (key, 1); }
+public void Trigger0 (string key) { this.trigger<int> (key, 0); }
+public void Trigger1 (string key) { this.trigger<int> (key, 1); }
+
+
 }
 
 public sealed partial class BusAsset
@@ -61,6 +73,11 @@ public void Set (string key, int value) { this.set <int> (key, value); }
 public void Trigger (string key, int value) { this.trigger<int> (key, value); }
 public bool Get (string key, out int value) { return this.get<int> (key, out value); }
 public int GetInt (string key, int defaultValue) { return this.getT<int> (key, defaultValue); }
+
+public void Set0 (string key) { this.set<int> (key, 0); }
+public void Set1 (string key) { this.set<int> (key, 1); }
+public void Trigger0 (string key) { this.trigger<int> (key, 0); }
+public void Trigger1 (string key) { this.trigger<int> (key, 1); }
 
 }
 

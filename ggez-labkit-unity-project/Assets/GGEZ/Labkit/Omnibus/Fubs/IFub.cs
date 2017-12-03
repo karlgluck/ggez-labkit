@@ -25,6 +25,8 @@
 
 using System;
 using UnityEngine;
+using Keys = System.Collections.Generic.List<string>;
+using System.Collections.Generic;
 
 namespace GGEZ
 {
@@ -32,47 +34,14 @@ namespace Omnibus
 {
 
 
-
-public partial interface IBus
+//----------------------------------------------------------------------
+// Fub: Functional Unit Block
+//----------------------------------------------------------------------
+public interface IFub
 {
-
-void Set (string key, %CSHARPTYPE% value);
-void Trigger (string key, %CSHARPTYPE% value);
-bool Get (string key, out %CSHARPTYPE% value);
-%CSHARPTYPE% Get%UPPERNAME% (string key, %CSHARPTYPE% defaultValue);
-
+void OnDidTrigger (string key, object value);
+void OnDidChange (string key, object value);
 }
 
-
-public sealed partial class Bus
-{
-
-public void Set (string key, %CSHARPTYPE% value) { this.set<%CSHARPTYPE%> (key, value); }
-public void Trigger (string key, %CSHARPTYPE% value) { this.trigger<%CSHARPTYPE%> (key, value); }
-public bool Get (string key, out %CSHARPTYPE% value) { return this.get<%CSHARPTYPE%> (key, out value); }
-public %CSHARPTYPE% Get%UPPERNAME% (string key, %CSHARPTYPE% defaultValue) { return this.getT<%CSHARPTYPE%> (key, defaultValue); }
-
 }
-
-public sealed partial class BusAsset
-{
-
-public void Set (string key, %CSHARPTYPE% value) { this.set<%CSHARPTYPE%> (key, value); }
-public void Trigger (string key, %CSHARPTYPE% value) { this.trigger<%CSHARPTYPE%> (key, value); }
-public bool Get (string key, out %CSHARPTYPE% value) { return this.get<%CSHARPTYPE%> (key, out value); }
-public %CSHARPTYPE% Get%UPPERNAME% (string key, %CSHARPTYPE% defaultValue) { return this.getT<%CSHARPTYPE%> (key, defaultValue); }
-
-}
-
-public sealed partial class SerializedMemoryCell
-{
-
-public %CSHARPTYPE% Value_%CSHARPTYPENAME%;
-
-}
-
-
-
-}
-
 }

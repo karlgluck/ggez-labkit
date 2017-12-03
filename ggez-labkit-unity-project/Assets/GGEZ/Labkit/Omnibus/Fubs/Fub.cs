@@ -37,7 +37,7 @@ namespace Omnibus
 //----------------------------------------------------------------------
 // Fub: Functional Unit Block
 //----------------------------------------------------------------------
-public class Fub : MonoBehaviour
+public class Fub : MonoBehaviour, IFub
 {
 
 
@@ -133,9 +133,9 @@ public IBus Bus
         }
     }
 
-private bool hasBeenEnabled;
+protected bool hasBeenEnabled { get; private set; }
 
-void OnEnable ()
+protected void OnEnable ()
     {
     var keys = this.GetKeys ();
     var bus = this.bus as IBus;
@@ -158,7 +158,7 @@ void OnEnable ()
     }
 
 
-void OnDisable ()
+protected void OnDisable ()
     {
     var bus = this.bus as IBus;
     if (bus != null)
@@ -188,7 +188,7 @@ private Keys previousKeys = new Keys ();
 private IBus previousBus;
 
 
-void OnValidate ()
+protected void OnValidate ()
     {
     var bus = this.bus as IBus;
     if (bus == null)

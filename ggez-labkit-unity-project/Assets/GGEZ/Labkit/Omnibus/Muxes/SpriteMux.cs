@@ -1,4 +1,4 @@
-// This is free and unencumbered software released into the public domain.
+﻿// This is free and unencumbered software released into the public domain.
 //
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -25,43 +25,18 @@
 
 using System;
 using UnityEngine;
-using System.Collections.Generic;
-using StringCollection = System.Collections.Generic.ICollection<string>;
 
 namespace GGEZ
 {
 namespace Omnibus
 {
 
-public partial interface IBus
-{
-void Connect (string key, IFub fub);
-void Disconnect (string key, IFub fub);
-
-void Trigger (string key);
-void Set (string key, object value);
-void Trigger (string key, object value);
-object Get (string key);
-object Get (string key, object defaultValue);
-bool Get (string key, out object value);
-void Unset (string key);
-void SetNull (string key);
-
-bool HasConnections (string key);
-bool HasValue (string key);
-
-StringCollection GetAllKeys ();
-StringCollection GetConnectedKeys ();
-StringCollection GetEventKeys ();
-StringCollection GetMemoryKeys ();
-
+[
+Serializable,
+AddComponentMenu ("GGEZ/Omnibus/Mux/Sprite Mux")
+]
+public sealed class SpriteMux : ImplementMuxForType<Sprite, UnityEvent_Sprite> { }
 
 }
 
-
-
-
-
-
-}
 }

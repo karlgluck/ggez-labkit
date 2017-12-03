@@ -26,8 +26,8 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
-using FubList = System.Collections.Generic.List<GGEZ.Omnibus.Fub>;
-using Connections = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<GGEZ.Omnibus.Fub>>;
+using FubList = System.Collections.Generic.List<GGEZ.Omnibus.IFub>;
+using Connections = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<GGEZ.Omnibus.IFub>>;
 using Memory = System.Collections.Generic.Dictionary<string, object>;
 using SerializedMemory = System.Collections.Generic.List<GGEZ.Omnibus.SerializedMemoryCell>;
 using StringCollection = System.Collections.Generic.ICollection<string>;
@@ -50,7 +50,7 @@ private Connections connections = new Connections ();
 private Memory memory = new Memory ();
 
 
-public void Connect (string key, Fub fub)
+public void Connect (string key, IFub fub)
     {
     if (key == null)
         {
@@ -76,7 +76,7 @@ public void Connect (string key, Fub fub)
 
     }
 
-public void Disconnect (string key, Fub fub)
+public void Disconnect (string key, IFub fub)
     {
     if (key == null)
         {
@@ -115,6 +115,46 @@ public void Trigger (string key)
         }
     }
 
+public void Set (string key, object value)
+    {
+    if (key == null)
+        {
+        throw new ArgumentNullException ("key");
+        }
+    object oldValue;
+    if (this.memory.TryGetValue (key, out oldValue) && object.Equals (oldValue, value))
+        {
+        return;
+        }
+    this.memory[key] = value;
+    FubList fubs;
+    if (!this.connections.TryGetValue (key, out fubs))
+        {
+        return;
+        }
+    for (int i = fubs.Count - 1; i >= 0; --i)
+        {
+        fubs[i].OnDidChange (key, value);
+        }
+    }
+
+public void Trigger (string key, object value)
+    {
+    if (key == null)
+        {
+        throw new ArgumentNullException ("key");
+        }
+    FubList fubs;
+    if (!this.connections.TryGetValue (key, out fubs))
+        {
+        return;
+        }
+    for (int i = fubs.Count - 1; i >= 0; --i)
+        {
+        fubs[i].OnDidTrigger (key, value);
+        }
+    }
+
 public object Get (string key)
     {
     if (key == null)
@@ -129,6 +169,29 @@ public object Get (string key)
     return value;
     }
 
+public object Get (string key, object defaultValue)
+    {
+    if (key == null)
+        {
+        throw new ArgumentNullException ("key");
+        }
+    object value;
+    if (!this.memory.TryGetValue (key, out value))
+        {
+        return defaultValue;
+        }
+    return value;
+    }
+
+public bool Get (string key, out object value)
+    {
+    if (key == null)
+        {
+        throw new ArgumentNullException ("key");
+        }
+    return this.memory.TryGetValue (key, out value);
+    }
+
 public void Unset (string key)
     {
     if (key == null)
@@ -136,6 +199,15 @@ public void Unset (string key)
         throw new ArgumentNullException ("key");
         }
     this.memory.Remove (key);
+    }
+
+public void SetNull (string key)
+    {
+    if (key == null)
+        {
+        throw new ArgumentNullException ("key");
+        }
+    this.memory[key] = null;
     }
 
 

@@ -20,6 +20,7 @@ Heavily repurposed from integrated circuit design and computer engineering.
 | Event         | A one-time message with an optional payload                 |
 | Memory Cell   | A single System.Object held at an address                   |
 | ROM           | Read-Only Memory to initialize the Bus's memory cells       |
+| Mux           | Multiplexer. Read bus using string from another bus.        |
 -------------------------------------------------------------------------------
 
 ## Quick Demo
