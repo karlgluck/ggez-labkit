@@ -119,7 +119,7 @@ private string dataKey = null;
 public override void OnDidChange (string key, object value)
     {
 #if UNITY_EDITOR
-	if (!typeof(string).IsAssignableFrom (value.GetType ()))
+	if (value != null && !typeof(string).IsAssignableFrom (value.GetType ()))
 		{
 		throw new System.InvalidCastException ("`value` should be a string");
 		}
@@ -139,7 +139,7 @@ public override void OnDidChange (string key, object value)
 private void onDataBusValueDidChange (object value)
 	{
 #if UNITY_EDITOR
-	if (!typeof(T).IsAssignableFrom (value.GetType ()))
+	if (value != null && !typeof(T).IsAssignableFrom (value.GetType ()))
 		{
 		throw new System.InvalidCastException ("`dataBus[" + dataKey + "]` should be " + typeof(T).Name);
 		}

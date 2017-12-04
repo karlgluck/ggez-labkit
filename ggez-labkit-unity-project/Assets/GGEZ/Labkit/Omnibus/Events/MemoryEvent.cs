@@ -25,8 +25,6 @@
 
 using System;
 using UnityEngine;
-using UnityEngine.Events;
-using System.Collections.Generic;
 
 namespace GGEZ
 {
@@ -35,27 +33,59 @@ namespace Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Via/Void Via")
+AddComponentMenu ("GGEZ/Omnibus/Event/Memory Event")
 ]
-public sealed class Via : Fub
+public sealed class MemoryEvent : MonoBehaviour
 {
-[SerializeField] private KeyList keys = new KeyList ();
-[SerializeField] private UnityEvent didTrigger;
+[SerializeField] private UnityEngine.Object memoryBus;
+[SerializeField] private string memoryKey;
+[SerializeField] private UnityEngine.Object eventBus;
+[SerializeField] private string eventKey;
 
-public override void OnDidTrigger (string key, object value)
+public void Trigger ()
     {
-    this.didTrigger.Invoke ();
+    var memoryBus = this.memoryBus as IBus;
+    var eventBus = this.eventBus as IBus;
+    if (memoryBus != null
+            && !string.IsNullOrEmpty (this.memoryKey)
+            && eventBus != null
+            && !string.IsNullOrEmpty (this.eventKey))
+        {
+        eventBus.Trigger (this.eventKey, memoryBus.Get (this.memoryKey));
+        }
     }
 
-public override void OnDidChange (string key, object value)
+#if UNITY_EDITOR
+void OnValidate ()
     {
-    this.didTrigger.Invoke ();
-    }
+    if ((this.memoryBus as IBus) == null)
+        {
+        var gameObject = this.memoryBus as GameObject;
+        if (gameObject != null)
+            {
+            this.memoryBus = gameObject.GetComponent <Bus> ();
+            }
+        else
+            {
+            this.memoryBus = null;
+            }
+        }
 
-public override IEnumerable<string> GetKeys ()
-    {
-    return this.keys.Keys;
+    if ((this.eventBus as IBus) == null)
+        {
+        var gameObject = this.eventBus as GameObject;
+        if (gameObject != null)
+            {
+            this.eventBus = gameObject.GetComponent <Bus> ();
+            }
+        else
+            {
+            this.eventBus = null;
+            }
+        }
     }
+#endif
+
 }
 
 }
