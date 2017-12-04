@@ -23,70 +23,32 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
-using System.Collections.Generic;
-
-
-namespace GGEZ
+using UnityEngine;
+ 
+public static partial class TransformExt 
 {
-public static partial class ListExt
-{
-
-public static T PopLast<T> (this List<T> self)
+public static void DestroySiblings (this Transform self)
     {
-    if (self.Count > 0)
+    var parent = self.parent;
+    var childrenOfParent = parent.childCount;
+    for (int ci = childrenOfParent-1; ci >= 0; --ci)
         {
-        var index = self.Count - 1;
-        var retval = self[index];
-        self.RemoveAt (index);
-        return retval;
-        }
-    else
-        return default(T);
-    }
-
-public static T Last<T> (this List<T> self)
-    {
-    return self.Count > 0 ? self[self.Count - 1] : default(T);
-    }
-
-public static T SafeIndex<T> (this List<T> self, int i)
-    {
-    if (self != null)
-        {
-        int max = self.Count - 1;
-        if (max >= 0)
+        var child = parent.GetChild (ci);
+        if (object.ReferenceEquals (child, self))
             {
-            return self[i < 0 ? 0 : (i > max ? max : i)];
+            continue;
             }
+        GameObject.Destroy (child.gameObject);
         }
-    return default(T);
     }
 
-public static void Swap<T> (this List<T> self, int i, int j)
+public static void DestroyChildren (this Transform self)
     {
-    T temp = self[i];
-    self[i] = self[j];
-    self[j] = temp;
+    for (int ci = self.childCount-1; ci >= 0; --ci)
+        {
+        var child = self.GetChild (ci);
+        GameObject.Destroy (child.gameObject);
+        }
     }
 
-public static bool HasNullGap<T> (this List<T> self) where T : class
-    {
-    if (self.Count <= 1)
-        {
-        return false;
-        }
-    object last = self[0];
-    for (int i = 1; i < self.Count; ++i)
-        {
-        object current = self[i];
-        if (current != null && last == null)
-            {
-            return true;
-            }
-        last = current;
-        }
-    return false;
-    }
-}
 }

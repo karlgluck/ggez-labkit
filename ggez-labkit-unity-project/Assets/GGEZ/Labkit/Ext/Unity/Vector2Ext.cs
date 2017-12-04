@@ -229,5 +229,11 @@ public static bool IsInside (this Vector2 self, Vector2[] polygonBoundary)
     return retval != 0;
     }
 
+public static Vector2 ToUnwrappedAngles (this Vector2 self)
+    {
+    return new Vector2 (Mathf.DeltaAngle (0, self.x), Mathf.DeltaAngle (0f, self.y));
+    }
+
+
 }
 }
