@@ -50,13 +50,14 @@ public class FloatTerminal : Cell
 {
 public Bus bus;
 public string pin;
+private Wire input = Wire.CELL_IN;
 
 public string Pin
     {
     set
         {
         this.pin = value;
-        this.input.ReconnectPin (this.pin);
+        this.input.ReconnectPin (value);
         }
     }
 
@@ -65,11 +66,9 @@ public Bus Bus
     set
         {
         this.bus = value;
-        this.input.ReconnectBus (this.bus);
+        this.input.ReconnectBus (value);
         }
     }
-
-private Wire input = Wire.CELL_IN;
 
 public override void OnDidSignal (string pin, object value)
     {
