@@ -50,6 +50,14 @@ private Connections connections = new Connections ();
 private Memory memory = new Memory ();
 
 
+public void Connect (string pin, ICell cell)
+    {
+    }
+
+public void Disconnect (string pin, ICell cell)
+    {
+    }
+
 public void Connect (string key, IFub fub)
     {
     if (key == null)
