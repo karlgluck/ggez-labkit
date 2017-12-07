@@ -46,7 +46,7 @@ public T CreateWithMonoBehaviour<T> () where T : Component
 
 public void CallOnEnable (MonoBehaviour mb)
     {
-	typeof(Cell).InvokeMember (
+	typeof(ImplementTerminalForType<bool, UnityEventForBooleanTerminal>).InvokeMember (
 		"OnEnable",
 		BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy,
 		null,
@@ -57,7 +57,7 @@ public void CallOnEnable (MonoBehaviour mb)
 
 public void CallOnDisable (MonoBehaviour mb)
     {
-	typeof(Cell).InvokeMember (
+	typeof(ImplementTerminalForType<bool, UnityEventForBooleanTerminal>).InvokeMember (
 		"OnDisable",
 		BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy,
 		null,
@@ -284,7 +284,7 @@ public void FubGetsCalledWhenKeyIsChanged ()
     fub.Pin = "AnotherTestKey";
 
     Assert.AreEqual (1, incrementWhenCalled, "fub gets callback when key is changed");
-    Assert.AreEqual (2, bus.GetConnectedKeys ().Count, "bus has 2 connected keys");
+    Assert.AreEqual (1, bus.GetConnectedKeys ().Count, "bus has 1 connected key");
 
     GameObject.DestroyImmediate (fub.gameObject);
     ScriptableObject.DestroyImmediate (bus, false);
