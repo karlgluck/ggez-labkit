@@ -31,6 +31,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditorInternal;
 using System.Linq;
+using System.IO;
 
 
 namespace GGEZ
@@ -40,12 +41,49 @@ namespace Omnibus
 
 
 
+[
+CustomEditor(typeof (Bus), true),
+CanEditMultipleObjects
+]
 public class BusEditor : Editor
 {
+
+
+[MenuItem("Assets/Create/GGEZ/Omnibus/Bus")]
+public static void CreateBusAsset ()
+    {
+    string assetPath = "Assets";
+    foreach (UnityEngine.Object obj in Selection.GetFiltered(typeof(UnityEngine.Object), SelectionMode.Assets))
+		{
+        string path = AssetDatabase.GetAssetPath(obj);
+        if (string.IsNullOrEmpty (path))
+            {
+            continue;
+            }
+        string absolutePath = Path.Combine (Path.GetDirectoryName (Application.dataPath), path);
+        if (Directory.Exists (absolutePath))
+			{
+            assetPath = path;
+            break;
+			}
+		}
+    assetPath = AssetDatabase.GenerateUniqueAssetPath (Path.Combine (assetPath, "New Bus Asset.prefab"));
+
+    var go = new GameObject ();
+    var prefab = PrefabUtility.CreatePrefab (assetPath, go);
+    prefab.AddComponent <Bus> ();
+    GameObject.DestroyImmediate (go);
+    Selection.activeGameObject = prefab;
+    EditorGUIUtility.PingObject (prefab);
+    }
+
+
+
+
 private ReorderableList initialTable;
 private ReorderableList runtimeTable;
 
-private FieldInfo listenersTableField;
+private FieldInfo connectionsField;
 
 private bool enableEditingInitialValuesAtRuntime;
 
@@ -53,6 +91,8 @@ private string triggerParameterTypeName;
 private MethodInfo triggerMethod;
 private SerializedProperty triggerParameter;
 private Labkit.ScriptablePropertyBackingObject fieldBackingObject;
+
+
 
 void OnEnable ()
     {
@@ -66,7 +106,7 @@ void OnEnable ()
             );
     this.initialTable.drawHeaderCallback = this.drawInitialTableHeader;
     this.initialTable.drawElementCallback = this.drawInitialTableElement;
-    this.initialTable.onAddDropdownCallback = this.onInitialTableAddDropdown;
+    this.initialTable.onAddDropdownCallback = this.onTableAddDropdown;
 
     this.runtimeTable = new ReorderableList (
             serializedObject, 
@@ -78,10 +118,11 @@ void OnEnable ()
             );
     this.runtimeTable.drawHeaderCallback = this.drawRuntimeTableHeader;
     this.runtimeTable.drawElementCallback = this.drawRuntimeTableElement;
+    this.runtimeTable.onAddDropdownCallback = this.onTableAddDropdown;
 
     this.setTriggerParameterType (null);
 
-    this.listenersTableField =
+    this.connectionsField =
             this.targets.Length == 1
             ? this.target.GetType ().GetField (Bus.nameof_connections, BindingFlags.NonPublic | BindingFlags.Instance)
             : null;
@@ -155,7 +196,7 @@ private static string getFriendlyNameOfType (string name)
     return name;
     }
 
-void onInitialTableAddDropdown (Rect buttonRect, ReorderableList list)
+void onTableAddDropdown (Rect buttonRect, ReorderableList list)
     {
     var menu = new GenericMenu ();
 
@@ -219,6 +260,7 @@ void drawRuntimeTableElement (Rect position, int index, bool isActive, bool isFo
     }
 
 
+
 void OnDisable ()
     {
     this.foldouts.Clear ();
@@ -237,21 +279,21 @@ void setTriggerParameterType (Type type)
         }
     if (type == null)
         {
-        this.triggerMethod = typeof(IBus).GetMethod ("Trigger", new Type[] { typeof(string) });
+        this.triggerMethod = typeof(Bus).GetMethod (Bus.nameof_Signal, new Type[] { typeof(string) });
         this.triggerParameter = null;
         this.fieldBackingObject = null;
         this.triggerParameterTypeName = "void";
         }
     else
         {
-        this.triggerMethod = typeof(IBus).GetMethod ("Trigger", new Type[] { typeof(string), type });
+        this.triggerMethod = typeof(Bus).GetMethod (Bus.nameof_SignalObject, new Type[] { typeof(string), typeof(object) });
         this.triggerParameter = Labkit.SerializedPropertyExt.GetSerializedPropertyFor (type, out this.fieldBackingObject);
         this.triggerParameterTypeName = type.Name;
         }
     }
 
 
-private void drawManualTriggerElement ()
+private void drawManualSignalElement ()
     {
     GUILayout.Label ("Manual Event (" + this.triggerParameterTypeName + ")", EditorStyles.boldLabel);
     var triggerRect = EditorGUILayout.GetControlRect ();
@@ -310,21 +352,21 @@ public override void OnInspectorGUI ()
         this.runtimeTable.DoLayoutList ();
 
         EditorGUILayout.Space ();
-        this.drawManualTriggerElement ();
+        this.drawManualSignalElement ();
 
         EditorGUILayout.Space ();
-        GUILayout.Label ("Fubs", EditorStyles.boldLabel);
+        GUILayout.Label ("Wires", EditorStyles.boldLabel);
         int total = 0;
-        if (this.listenersTableField != null)
+        if (this.connectionsField != null)
             {
-            var fubsTable = this.listenersTableField.GetValue (this.target) as IDictionary;
-            if (fubsTable != null)
+            var connections = this.connectionsField.GetValue (this.target) as IDictionary;
+            if (connections != null)
                 {
 
-                foreach (string key in fubsTable.Keys)
+                foreach (string key in connections.Keys)
                     {
-                    var fubs = fubsTable[key] as ICollection;
-                    int count = fubs == null ? 0 : fubs.Count;
+                    var wires = connections[key] as ICollection;
+                    int count = wires == null ? 0 : wires.Count;
                     total += count;
                     if (!this.Foldout (key, count))
                         {
@@ -332,16 +374,16 @@ public override void OnInspectorGUI ()
                         }
                     EditorGUI.BeginDisabledGroup (true);
                     EditorGUI.indentLevel++;
-                    foreach (MonoBehaviour mb in fubs)
+                    foreach (Wire wire in wires)
                         {
-                        EditorGUI.ObjectField (EditorGUILayout.GetControlRect (), mb, typeof(MonoBehaviour), true);
+                        EditorGUI.ObjectField (EditorGUILayout.GetControlRect (), wire.Cell as MonoBehaviour, typeof(MonoBehaviour), true);
                         }
                     EditorGUI.indentLevel--;
                     EditorGUI.EndDisabledGroup ();
                     }
                 }
             }
-        EditorGUILayout.LabelField ("Total Fubs", total.ToString ());
+        EditorGUILayout.LabelField ("Total Cells", total.ToString ());
         }
 
     this.serializedObject.ApplyModifiedProperties ();
@@ -364,7 +406,7 @@ private bool Foldout (string key, int count)
     value = EditorGUI.Foldout (controlRect, value, key, true);
 
     string plural = count == 1 ? "" : "s";
-    if (this.triggerMethod != null && GUI.Button (listenersRect, "Trigger " + count.ToString () + " Fub" + plural))
+    if (this.triggerMethod != null && GUI.Button (listenersRect, "Signal " + count.ToString () + " Cells" + plural))
         {
         try
             {

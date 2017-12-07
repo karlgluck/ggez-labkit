@@ -53,58 +53,6 @@ private object currentValue = null;
 [SerializeField] private D didChange = new D ();
 private DataBusConnector dataBusConnector;
 
-public string Key
-	{
-	get
-		{
-		return this.key;
-		}
-	set
-		{
-		if (string.Equals (this.key, value))
-			{
-			return;
-			}
-		this.onDidRemoveKey (this.key);
-		this.dataKey = null;
-		this.key = value;
-		this.onDidAddKey (this.key);
-		}
-	}
-
-
-public IBus DataBus
-    {
-    get
-        {
-        return this.dataBus as IBus;
-        }
-    set
-        {
-        if (object.ReferenceEquals (this.dataBus, value))
-            {
-            return;
-            }
-        var dataBus = this.dataBus as IBus;
-        if (this.hasBeenEnabled && dataBus != null && !string.IsNullOrEmpty (this.dataKey))
-            {
-			dataBus.Disconnect (this.dataKey, this);
-            }
-        this.dataBus = (UnityEngine.Object)value;
-        dataBus = value;
-#if UNITY_EDITOR
-        if (this.hasBeenEnabled)
-            {
-            this.previousDataBus = value;
-            }
-#endif
-        if (this.hasBeenEnabled && dataBus != null && !string.IsNullOrEmpty (this.dataKey))
-            {
-			dataBus.Connect (this.dataKey, this);
-            }
-        }
-    }
-
 
 public ImplementMuxForType ()
 	{
@@ -124,15 +72,15 @@ public override void OnDidChange (string key, object value)
 		throw new System.InvalidCastException ("`value` should be a string");
 		}
 #endif
-	var dataBus = this.dataBus as IBus;
+	var dataBus = this.dataBus as Bus;
 	if (dataBus != null && !string.IsNullOrEmpty (this.dataKey))
 		{
-		dataBus.Disconnect (this.dataKey, this.dataBusConnector);
+		// dataBus.Disconnect (this.dataKey, this.dataBusConnector);
 		}
 	this.dataKey = (string)value;
 	if (dataBus != null && !string.IsNullOrEmpty (this.dataKey))
 		{
-		dataBus.Connect (this.dataKey, this.dataBusConnector);
+		// dataBus.Connect (this.dataKey, this.dataBusConnector);
 		}
     }
 
@@ -174,11 +122,11 @@ public void RemoveAllCallbacks ()
 
 new protected void OnEnable ()
 	{
-	base.OnEnable ();
-	var dataBus = this.dataBus as IBus;
+	// base.OnEnable ();
+	var dataBus = this.dataBus as Bus;
 	if (dataBus != null && !string.IsNullOrEmpty (this.dataKey))
 		{
-		dataBus.Connect (this.dataKey, this.dataBusConnector);
+		// dataBus.Connect (this.dataKey, this.dataBusConnector);
 		}
 #if UNITY_EDITOR
 	this.previousDataBus = dataBus;
@@ -187,13 +135,13 @@ new protected void OnEnable ()
 
 new protected void OnDisable ()
 	{
-	var dataBus = this.dataBus as IBus;
+	var dataBus = this.dataBus as Bus;
 	if (dataBus != null && !string.IsNullOrEmpty (this.dataKey))
 		{
-		dataBus.Disconnect (this.dataKey, this.dataBusConnector);
+		// dataBus.Disconnect (this.dataKey, this.dataBusConnector);
 		}
 	this.dataKey = null;
-	base.OnDisable ();
+	// base.OnDisable ();
 #if UNITY_EDITOR
 	this.previousDataBus = null;
 #endif
@@ -205,19 +153,19 @@ new protected void OnDisable ()
 //----------------------------------------------------------------------
 #if UNITY_EDITOR
 #region Editor Runtime
-private IBus previousDataBus;
+private Bus previousDataBus;
 
 
 new protected void OnValidate ()
     {
-	var dataBus = this.dataBus as IBus;
+	var dataBus = this.dataBus as Bus;
 	if (dataBus == null)
         {
         var gameObject = this.dataBus as GameObject;
         if (gameObject != null)
             {
             this.dataBus = gameObject.GetComponent <Bus> ();
-            dataBus = this.dataBus as IBus;
+            dataBus = this.dataBus as Bus;
             }
         else
             {
@@ -225,9 +173,9 @@ new protected void OnValidate ()
             }
         }
 
-    if (!this.hasBeenEnabled)
+    // if (!this.hasBeenEnabled)
         {
-		base.OnValidate ();
+		// base.OnValidate ();
         return;
         }
 
@@ -235,16 +183,16 @@ new protected void OnValidate ()
         {
 		if (this.previousDataBus != null)
 			{
-			this.previousDataBus.Disconnect (this.dataKey, this.dataBusConnector);
+			// this.previousDataBus.Disconnect (this.dataKey, this.dataBusConnector);
 			}
 		this.previousDataBus = dataBus;
 		if (dataBus != null)
 			{
-			dataBus.Connect (this.dataKey, this.dataBusConnector);
+			// dataBus.Connect (this.dataKey, this.dataBusConnector);
 			}
         }
 
-	base.OnValidate ();
+	// base.OnValidate ();
     }
 
 #endregion

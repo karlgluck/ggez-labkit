@@ -69,13 +69,13 @@ public override IEnumerable<string> GetKeys ()
 public void AddKey (string key)
     {
     this.keys.Keys.Add (key);
-    this.onDidAddKey (key);
+    // this.onDidAddKey (key);
     }
 
 public void RemoveKey (string key)
     {
     this.keys.Keys.Remove (key);
-    this.onDidRemoveKey (key);
+    // this.onDidRemoveKey (key);
     }
 
 public void AddCallback (UnityAction<T> action)

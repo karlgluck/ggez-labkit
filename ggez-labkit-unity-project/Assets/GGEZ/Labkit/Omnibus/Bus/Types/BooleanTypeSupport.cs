@@ -33,50 +33,16 @@ namespace Omnibus
 
 
 
-public partial interface IBus
-{
-
-void Set (string key, bool value);
-void Trigger (string key, bool value);
-bool Get (string key, out bool value);
-bool GetBool (string key, bool defaultValue);
-
-void SetTrue (string key);
-void SetFalse (string key);
-void TriggerTrue (string key);
-void TriggerFalse (string key);
-
-}
-
-
 public sealed partial class Bus
 {
 
-public void Set (string key, bool value) { this.set <bool> (key, value); }
-public void Trigger (string key, bool value) { this.trigger<bool> (key, value); }
-public bool Get (string key, out bool value) { return this.get<bool> (key, out value); }
-public bool GetBool (string key, bool defaultValue) { return this.getT<bool> (key, defaultValue); }
-
-public void SetTrue (string key) { this.set<bool> (key, true); }
-public void SetFalse (string key) { this.set<bool> (key, false); }
-public void TriggerTrue (string key) { this.trigger<bool> (key, true); }
-public void TriggerFalse (string key) { this.trigger<bool> (key, false); }
-}
-
-public sealed partial class BusAsset
-{
-
-public void Set (string key, bool value) { this.set <bool> (key, value); }
-public void Trigger (string key, bool value) { this.trigger<bool> (key, value); }
-public bool Get (string key, out bool value) { return this.get<bool> (key, out value); }
-public bool GetBool (string key, bool defaultValue) { return this.getT<bool> (key, defaultValue); }
-
-public void SetTrue (string key) { this.set<bool> (key, true); }
-public void SetFalse (string key) { this.set<bool> (key, false); }
-public void TriggerTrue (string key) { this.trigger<bool> (key, true); }
-public void TriggerFalse (string key) { this.trigger<bool> (key, false); }
+public void SetBoolean (string key, bool value) { this.SetObject (key, value); }
+public void SignalBoolean (string key, bool value) { this.SignalObject (key, value); }
+public bool GetBoolean (string key, out bool value) { return this.getT<bool> (key, out value); }
+public bool GetBoolean (string key, bool defaultValue) { return this.getT<bool> (key, defaultValue); }
 
 }
+
 
 public sealed partial class SerializedMemoryCell
 {

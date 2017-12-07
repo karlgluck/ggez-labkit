@@ -31,60 +31,112 @@ namespace GGEZ
 namespace Omnibus
 {
 
+
+
+
+
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Event/Memory Event")
+AddComponentMenu ("GGEZ/Omnibus/Cells/Latch to Bus Memory Cell")
 ]
-public sealed class MemoryEvent : MonoBehaviour
+public sealed class LatchToBusSignalCell : Cell
 {
-[SerializeField] private UnityEngine.Object memoryBus;
-[SerializeField] private string memoryKey;
-[SerializeField] private UnityEngine.Object eventBus;
-[SerializeField] private string eventKey;
 
-public void Trigger ()
+public Bus InputBus
     {
-    var memoryBus = this.memoryBus as IBus;
-    var eventBus = this.eventBus as IBus;
-    if (memoryBus != null
-            && !string.IsNullOrEmpty (this.memoryKey)
-            && eventBus != null
-            && !string.IsNullOrEmpty (this.eventKey))
+    get { return this.inputBus; }
+    set
         {
-        eventBus.Trigger (this.eventKey, memoryBus.Get (this.memoryKey));
+        this.inputBus = value;
+        this.refresh ();
         }
     }
 
-#if UNITY_EDITOR
+public string InputPin
+    {
+    get { return this.inputPin; }
+    set
+        {
+        this.inputPin = value;
+        this.refresh ();
+        }
+    }
+
+public Bus OutputBus
+    {
+    get { return this.outputBus; }
+    set
+        {
+        this.outputBus = value;
+        this.refresh ();
+        }
+    }
+
+public string OutputPin
+    {
+    get { return this.outputPin; }
+    set
+        {
+        this.outputPin = value;
+        this.refresh ();
+        }
+    }
+
+
+[SerializeField] private Bus inputBus;
+[SerializeField] private string inputPin;
+[SerializeField] private Bus outputBus;
+[SerializeField] private string outputPin;
+
+public override void OnDidSignal (string pin, object value)
+    {
+    Debug.Assert (this.outputBus != null && Pin.IsValid (this.outputPin));
+    this.outputBus.SetObject (this.outputPin, value);
+    }
+
+public override void Route (string net, Bus bus)
+    {
+    switch (net)
+        {
+        case "in":  this.InputBus = bus; break;
+        case "out": this.OutputBus = bus; break;
+        default:
+            {
+            this.InputBus = bus;
+            this.OutputBus = bus;
+            break;
+            }
+        }
+    }
+
+private Wire input = Wire.CELL_IN;
+
+void OnEnable ()
+    {
+    this.input.Attach (this, this.inputBus, this.inputPin);
+    }
+
+void OnDisable ()
+    {
+    this.input.Detach ();
+    }
+
 void OnValidate ()
     {
-    if ((this.memoryBus as IBus) == null)
-        {
-        var gameObject = this.memoryBus as GameObject;
-        if (gameObject != null)
-            {
-            this.memoryBus = gameObject.GetComponent <Bus> ();
-            }
-        else
-            {
-            this.memoryBus = null;
-            }
-        }
+    this.refresh ();
+    }
 
-    if ((this.eventBus as IBus) == null)
+private void refresh ()
+    {
+    if (this.outputBus == null || Pin.IsInvalid (this.outputPin))
         {
-        var gameObject = this.eventBus as GameObject;
-        if (gameObject != null)
-            {
-            this.eventBus = gameObject.GetComponent <Bus> ();
-            }
-        else
-            {
-            this.eventBus = null;
-            }
+        this.input.Disconnect ();
+        }
+    else
+        {
+        this.input.Connect (this.inputBus, this.inputPin);
         }
     }
-#endif
 
 }
 

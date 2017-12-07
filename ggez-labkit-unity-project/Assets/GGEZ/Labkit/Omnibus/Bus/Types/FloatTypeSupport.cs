@@ -33,52 +33,22 @@ namespace Omnibus
 
 
 
-public partial interface IBus
-{
-
-void Set (string key, float value);
-void Trigger (string key, float value);
-bool Get (string key, out float value);
-float GetFloat (string key, float defaultValue);
-
-void Set0f (string key);
-void Set1f (string key);
-void Trigger0f (string key);
-void Trigger1f (string key);
-
-}
-
-
 public sealed partial class Bus
 {
 
-public void Set (string key, float value) { this.set<float> (key, value); }
-public void Trigger (string key, float value) { this.trigger<float> (key, value); }
-public bool Get (string key, out float value) { return this.get<float> (key, out value); }
+public void SetFloat (string key, float value) { this.SetObject (key, value); }
+public void SignalFloat (string key, float value) { this.SignalObject (key, value); }
+public bool GetFloat (string key, out float value) { return this.getT<float> (key, out value); }
 public float GetFloat (string key, float defaultValue) { return this.getT<float> (key, defaultValue); }
 
 
-public void Set0f (string key) { this.set<float> (key, 0f); }
-public void Set1f (string key) { this.set<float> (key, 1f); }
-public void Trigger0f (string key) { this.trigger<float> (key, 0f); }
-public void Trigger1f (string key) { this.trigger<float> (key, 1f); }
+public void Set0f (string key) { this.SetObject (key, 0f); }
+public void Set1f (string key) { this.SetObject (key, 1f); }
+public void Signal0f (string key) { this.SignalObject (key, 0f); }
+public void Signal1f (string key) { this.SignalObject (key, 1f); }
 
 }
 
-public sealed partial class BusAsset
-{
-
-public void Set (string key, float value) { this.set <float> (key, value); }
-public void Trigger (string key, float value) { this.trigger<float> (key, value); }
-public bool Get (string key, out float value) { return this.get<float> (key, out value); }
-public float GetFloat (string key, float defaultValue) { return this.getT<float> (key, defaultValue); }
-
-public void Set0f (string key) { this.set<float> (key, 0f); }
-public void Set1f (string key) { this.set<float> (key, 1f); }
-public void Trigger0f (string key) { this.trigger<float> (key, 0f); }
-public void Trigger1f (string key) { this.trigger<float> (key, 1f); }
-
-}
 
 public sealed partial class SerializedMemoryCell
 {

@@ -95,8 +95,8 @@ public void DoWork ()
             "%CSHARPTYPENAME% " + this.CSharpTypeName
             );
     Labkit.LabkitEditorUtility.WriteFileUsingTemplate (
-            "OmnibusVia_cs",
-            Path.Combine (this.Folder, upperName + "Via.cs"),
+            "OmnibusTerminal_cs",
+            Path.Combine (this.Folder, upperName + "Terminal.cs"),
             "%NAME% " + this.Name,
             "%UPPERNAME% " + upperName,
             "%LOWERNAME% " + lowerName,

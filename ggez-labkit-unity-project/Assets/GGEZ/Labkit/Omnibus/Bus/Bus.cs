@@ -26,8 +26,8 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
-using FubList = System.Collections.Generic.List<GGEZ.Omnibus.IFub>;
-using Connections = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<GGEZ.Omnibus.IFub>>;
+using WireList = System.Collections.Generic.List<GGEZ.Omnibus.Wire>;
+using Connections = System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<GGEZ.Omnibus.Wire>>;
 using Memory = System.Collections.Generic.Dictionary<string, object>;
 using SerializedMemory = System.Collections.Generic.List<GGEZ.Omnibus.SerializedMemoryCell>;
 using StringCollection = System.Collections.Generic.ICollection<string>;
@@ -37,229 +37,215 @@ namespace GGEZ
 namespace Omnibus
 {
 
-
+// TODO: add "channels" or maybe "passthru pins" or something like that which do
+// not have values held in this bus but are used exclusively with SignalObject
 
 [
 DisallowMultipleComponent,
 AddComponentMenu ("GGEZ/Omnibus/Bus")
 ]
-public sealed partial class Bus : MonoBehaviour, IBus, ISerializationCallbackReceiver
+public sealed partial class Bus : MonoBehaviour, ISerializationCallbackReceiver
 {
 
 private Connections connections = new Connections ();
 private Memory memory = new Memory ();
 
 
-public void Connect (string pin, ICell cell)
+public void Connect (Wire wire)
     {
-    }
-
-public void Disconnect (string pin, ICell cell)
-    {
-    }
-
-public void Connect (string key, IFub fub)
-    {
-    if (key == null)
+    if (wire == null)
         {
-        throw new ArgumentNullException ("key");
+        throw new ArgumentNullException ("wire");
         }
-    if (fub == null)
+    Debug.Assert (object.ReferenceEquals (wire.Bus, this));
+    string pin = wire.BusPin;
+    if (Pin.IsInvalid (pin))
         {
-        throw new ArgumentNullException ("fub");
+        throw new InvalidOperationException ("wire.pin is invalid");
         }
-    FubList fubs;
-    if (!this.connections.TryGetValue (key, out fubs))
+    WireList wires;
+    if (!this.connections.TryGetValue (pin, out wires))
         {
-        fubs = new FubList ();
-        this.connections.Add (key, fubs);
+        wires = new WireList ();
+        this.connections.Add (pin, wires);
         }
-    fubs.Add (fub);
+    wires.Add (wire);
 
     object value;
-    if (this.memory.TryGetValue (key, out value))
+    if (this.memory.TryGetValue (pin, out value))
         {
-        fub.OnDidChange (key, value);
+        wire.Signal (value);
         }
 
     }
 
-public void Disconnect (string key, IFub fub)
+public void Disconnect (Wire wire)
     {
-    if (key == null)
+    if (wire == null)
         {
-        throw new ArgumentNullException ("key");
+        throw new ArgumentNullException ("cell");
         }
-    if (fub == null)
+    Debug.Assert (object.ReferenceEquals (wire.Bus, this));
+    string pin = wire.BusPin;
+    if (Pin.IsInvalid (pin))
         {
-        throw new ArgumentNullException ("fub");
+        throw new InvalidOperationException ("wire.pin is invalid");
         }
-    FubList fubs;
-    if (!this.connections.TryGetValue (key, out fubs))
+    WireList wires;
+    if (!this.connections.TryGetValue (pin, out wires))
         {
-        throw new InvalidOperationException ("key does not exist");
+        throw new InvalidOperationException ("pin does not exist");
         }
-    fubs.Remove (fub);
-    if (fubs.Count == 0)
+    wires.Remove (wire);
+    if (wires.Count == 0)
         {
-        this.connections.Remove (key);
+        this.connections.Remove (pin);
         }
     }
 
-public void Trigger (string key)
+public void Signal (string pin)
     {
-    if (key == null)
+    if (Pin.IsInvalid (pin))
         {
-        throw new ArgumentNullException ("key");
+        throw new ArgumentException ("pin");
         }
-    FubList fubs;
-    if (!this.connections.TryGetValue (key, out fubs))
+    object value;
+    this.memory.TryGetValue (pin, out value);
+    WireList wires;
+    if (!this.connections.TryGetValue (pin, out wires))
         {
         return;
         }
-    for (int i = fubs.Count - 1; i >= 0; --i)
+    for (int i = wires.Count - 1; i >= 0; --i)
         {
-        fubs[i].OnDidTrigger (key, null);
+        wires[i].Signal (value);
         }
     }
 
-public void Set (string key, object value)
+public void SignalObject (string pin, object value)
     {
-    if (key == null)
+    if (Pin.IsInvalid (pin))
         {
-        throw new ArgumentNullException ("key");
+        throw new ArgumentException ("pin");
         }
+    WireList wires;
+    if (!this.connections.TryGetValue (pin, out wires))
+        {
+        return;
+        }
+    for (int i = wires.Count - 1; i >= 0; --i)
+        {
+        wires[i].Signal (value);
+        }
+    }
+
+public void SetObject (string pin, object value)
+    {
+    if (Pin.IsInvalid (pin))
+        {
+        throw new ArgumentException ("pin");
+        }
+
     object oldValue;
-    if (this.memory.TryGetValue (key, out oldValue) && object.Equals (oldValue, value))
+    if (this.memory.TryGetValue (pin, out oldValue))
+        {
+        if (object.Equals (oldValue, value))
+            {
+            return;
+            }
+#if UNITY_EDITOR
+        if (value != null && oldValue != null && value.GetType () != oldValue.GetType ())
+            {
+            throw new InvalidOperationException ("memory being replaced with object of a different type");
+            }
+#endif
+        }
+
+    this.memory[pin] = value;
+
+    WireList wires;
+    if (!this.connections.TryGetValue (pin, out wires))
         {
         return;
         }
-    this.memory[key] = value;
-    FubList fubs;
-    if (!this.connections.TryGetValue (key, out fubs))
+    for (int i = wires.Count - 1; i >= 0; --i)
         {
-        return;
-        }
-    for (int i = fubs.Count - 1; i >= 0; --i)
-        {
-        fubs[i].OnDidChange (key, value);
+        wires[i].Signal (value);
         }
     }
 
-public void Trigger (string key, object value)
+public object Get (string pin)
     {
-    if (key == null)
+    if (Pin.IsInvalid (pin))
         {
-        throw new ArgumentNullException ("key");
-        }
-    FubList fubs;
-    if (!this.connections.TryGetValue (key, out fubs))
-        {
-        return;
-        }
-    for (int i = fubs.Count - 1; i >= 0; --i)
-        {
-        fubs[i].OnDidTrigger (key, value);
-        }
-    }
-
-public object Get (string key)
-    {
-    if (key == null)
-        {
-        throw new ArgumentNullException ("key");
+        throw new ArgumentException ("pin");
         }
     object value;
-    if (!this.memory.TryGetValue (key, out value))
-        {
-        return null;
-        }
+    this.memory.TryGetValue (pin, out value);
     return value;
     }
 
-public object Get (string key, object defaultValue)
+public object Get (string pin, object defaultValue)
     {
-    if (key == null)
+    if (Pin.IsInvalid (pin))
         {
-        throw new ArgumentNullException ("key");
+        throw new ArgumentException ("pin");
         }
     object value;
-    if (!this.memory.TryGetValue (key, out value))
+    if (!this.memory.TryGetValue (pin, out value))
         {
         return defaultValue;
         }
     return value;
     }
 
-public bool Get (string key, out object value)
+public bool Get (string pin, out object value)
     {
-    if (key == null)
+    if (Pin.IsInvalid (pin))
         {
-        throw new ArgumentNullException ("key");
+        throw new ArgumentException ("pin");
         }
-    return this.memory.TryGetValue (key, out value);
+    return this.memory.TryGetValue (pin, out value);
     }
 
-public void Unset (string key)
+public void Unset (string pin)
     {
-    if (key == null)
+    if (Pin.IsInvalid (pin))
         {
-        throw new ArgumentNullException ("key");
+        throw new ArgumentException ("pin");
         }
-    this.memory.Remove (key);
+    this.memory.Remove (pin);
     }
 
-public void SetNull (string key)
+public void SetNull (string pin)
     {
-    if (key == null)
+    if (Pin.IsInvalid (pin))
         {
-        throw new ArgumentNullException ("key");
+        throw new ArgumentException ("pin");
         }
-    this.memory[key] = null;
-    }
 
-#region Templated versions of get/set/trigger
-void set<T> (string key, T value)
-    {
-    if (key == null)
-        {
-        throw new ArgumentNullException ("key");
-        }
     object oldValue;
-    if (this.memory.TryGetValue (key, out oldValue) && object.Equals (oldValue, value))
+    if (this.memory.TryGetValue (pin, out oldValue) && object.ReferenceEquals (oldValue, null))
         {
         return;
         }
-    this.memory[key] = value;
-    FubList fubs;
-    if (!this.connections.TryGetValue (key, out fubs))
+
+    this.memory[pin] = null;
+
+    WireList wires;
+    if (!this.connections.TryGetValue (pin, out wires))
         {
         return;
         }
-    for (int i = fubs.Count - 1; i >= 0; --i)
+    for (int i = wires.Count - 1; i >= 0; --i)
         {
-        fubs[i].OnDidChange (key, value);
+        wires[i].Signal (null);
         }
     }
 
-void trigger <T> (string key, T value)
-    {
-    if (key == null)
-        {
-        throw new ArgumentNullException ("key");
-        }
-    FubList fubs;
-    if (!this.connections.TryGetValue (key, out fubs))
-        {
-        return;
-        }
-    for (int i = fubs.Count - 1; i >= 0; --i)
-        {
-        fubs[i].OnDidTrigger (key, value);
-        }
-    }
+#region Templated versions of get/set
 
-bool get <T> (string key, out T value)
+bool getT <T> (string key, out T value)
     {
     if (key == null)
         {
@@ -384,13 +370,13 @@ void OnValidate ()
         {
         foreach (var key in this.dirtyKeys)
             {
-            FubList fubs;
-            if (this.connections.TryGetValue (key, out fubs))
+            WireList wires;
+            if (this.connections.TryGetValue (key, out wires))
                 {
                 var value = this.Get (key);
-                for (int i = fubs.Count - 1; i >= 0; --i)
+                for (int i = wires.Count - 1; i >= 0; --i)
                     {
-                    fubs[i].OnDidChange (key, value);
+                    wires[i].Signal (value);
                     }
                 }
             }
@@ -449,32 +435,27 @@ public StringCollection GetMemoryKeys ()
 
 #endregion
 
+#if UNITY_EDITOR
 #region workaround for lack of nameof() in Unity
 public const string nameof_connections = "connections";
 public const string nameof_serializedRom = "serializedRom";
 public const string nameof_serializedMemory = "serializedMemory";
+public const string nameof_Signal = "Signal";
+public const string nameof_SignalObject = "SignalObject";
 #endregion
-}
-
-
-
-
-
-
+#endif
 
 }
 
 
 
+
+
+
+
 }
 
 
-// Create BusAsset.cs by copying this file and replacing the class
-// declaration with the following:
-/*
-[
-Serializable,
-CreateAssetMenu (fileName = "New Bus.asset", menuName="GGEZ/Omnibus/Bus")
-]
-public sealed partial class BusAsset : ScriptableObject, IBus, ISerializationCallbackReceiver
-*/
+
+}
+
