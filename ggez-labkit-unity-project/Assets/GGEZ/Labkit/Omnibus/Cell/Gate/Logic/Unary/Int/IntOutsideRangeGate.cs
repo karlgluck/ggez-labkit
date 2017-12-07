@@ -33,14 +33,14 @@ namespace Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Gate/Float Outside Min-Max Range Gate")
+AddComponentMenu ("GGEZ/Omnibus/Gate/Int Outside Min-Max Range Gate")
 ]
-public sealed class FloatOutsideRangeGate : ImplementUnaryLogicGateForType <float>
+public sealed class IntOutsideRangeGate : ImplementUnaryLogicGateForType <int>
 {
-[SerializeField, Tooltip ("Inclusive")] float min;
-[SerializeField, Tooltip ("Exclusive")] float max;
+[SerializeField, Tooltip ("Inclusive")] int min;
+[SerializeField, Tooltip ("Exclusive")] int max;
 
-protected override bool evaluate (float v)
+protected override bool evaluate (int v)
     {
     return v < this.min || v >= this.max;
     }
