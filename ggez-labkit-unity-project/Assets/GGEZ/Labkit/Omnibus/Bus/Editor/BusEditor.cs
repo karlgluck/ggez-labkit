@@ -406,7 +406,7 @@ private bool Foldout (string key, int count)
     value = EditorGUI.Foldout (controlRect, value, key, true);
 
     string plural = count == 1 ? "" : "s";
-    if (this.triggerMethod != null && GUI.Button (listenersRect, "Signal " + count.ToString () + " Cells" + plural))
+    if (this.triggerMethod != null && GUI.Button (listenersRect, "Signal " + count.ToString () + " Cell" + plural))
         {
         try
             {

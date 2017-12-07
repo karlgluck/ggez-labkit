@@ -57,6 +57,22 @@ public Bus Bus
         }
     }
 
+public void AddCallback (UnityAction<T> action)
+    {
+    this.didSignal.AddListener (action);
+    }
+
+public void RemoveCallback (UnityAction<T> action)
+    {
+    this.didSignal.RemoveListener (action);
+    }
+
+public void RemoveAllCallbacks ()
+    {
+    this.didSignal.RemoveAllListeners ();
+    }
+
+
 #endregion
 
 [SerializeField] private Bus bus;
@@ -69,7 +85,7 @@ public override void OnDidSignal (string pin, object value)
     {
     Debug.Assert (pin == Omnibus.Pin.IN);
 #if UNITY_EDITOR
-    if (value != null && !typeof(T).IsAssignableFrom (value.GetType ()))
+    if (value == null ? typeof(T).IsValueType : !typeof(T).IsAssignableFrom (value.GetType ()))
         {
         throw new System.InvalidCastException ("`value` should be " + typeof(T).Name);
         }
@@ -95,21 +111,6 @@ void OnDisable ()
 void OnValidate ()
     {
     this.wireIn.Connect (this.bus, this.pin);
-    }
-
-public void AddCallback (UnityAction<T> action)
-    {
-    this.didSignal.AddListener (action);
-    }
-
-public void RemoveCallback (UnityAction<T> action)
-    {
-    this.didSignal.RemoveListener (action);
-    }
-
-public void RemoveAllCallbacks ()
-    {
-    this.didSignal.RemoveAllListeners ();
     }
 
 }

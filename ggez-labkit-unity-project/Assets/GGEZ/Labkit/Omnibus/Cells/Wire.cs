@@ -125,12 +125,33 @@ public void Disconnect ()
     }
 
 
+// The Bus sends values using the Signal method. The editor implementation
+// tracks references and will stop signaling if we reach a depth that is
+// likely to mean we have an infinte loop.
 
-// The Bus sends values using this method
+#if UNITY_EDITOR
+
+private static int recursions = 0;
+private const int MaxRecursionDepth = 2048;
+
+public void Signal (object value)
+    {
+    if (++recursions > MaxRecursionDepth)
+        {
+        throw new System.InvalidProgramException ("infinite signal feedback loop");
+        }
+    this.Cell.OnDidSignal (this.CellPin, value);
+    --recursions;
+    }
+
+#else
+
 public void Signal (object value)
     {
     this.Cell.OnDidSignal (this.CellPin, value);
     }
+
+#endif
 
     
 

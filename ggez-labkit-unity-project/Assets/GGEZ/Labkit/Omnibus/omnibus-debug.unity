@@ -137,16 +137,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 1466350821}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b7a5b89511d3a14387de4b457e6928d, type: 3}
+  m_Script: {fileID: 11500000, guid: 58739030e49dbb04ea7c00046d7ee1ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bus: {fileID: 0}
-  pin: floatPin
+  bus: {fileID: 1817206760}
+  pin: float
   didSignal:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1466350823}
-        m_MethodName: set_intensity
+        m_MethodName: set_enabled
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -156,8 +156,10 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_TypeName: GGEZ.Omnibus.UnityEventForFloatTerminal, Assembly-CSharp, Version=0.0.0.0,
-      Culture=neutral, PublicKeyToken=null
+    m_TypeName: GGEZ.Omnibus.UnityEventForImplementUnaryLogicGateForType, Assembly-CSharp,
+      Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+  min: 0
+  max: 5
 --- !u!108 &1466350823
 Light:
   m_ObjectHideFlags: 0
@@ -315,12 +317,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   serializedRom:
-  - Key: floatPin
+  - Key: float
     Type: Single
     Value_Boolean: 0
     Value_Single: 0
   serializedMemory:
-  - Key: floatPin
+  - Key: float
     Type: Single
     Value_Boolean: 0
     Value_Single: 0
