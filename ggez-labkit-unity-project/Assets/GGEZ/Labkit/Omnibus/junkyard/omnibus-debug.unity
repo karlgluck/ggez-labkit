@@ -510,12 +510,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dataBus: {fileID: 1817206760}
-  selectBus: {fileID: 1306782599}
+  selectBus: {fileID: 0}
   selectPin: key
   didSignal:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1306782598}
+      - m_Target: {fileID: 1862248979}
         m_MethodName: set_name
         m_Mode: 0
         m_Arguments:
