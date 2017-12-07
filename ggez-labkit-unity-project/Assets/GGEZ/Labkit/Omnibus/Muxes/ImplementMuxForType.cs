@@ -34,12 +34,12 @@ namespace Omnibus
 
 
 
-public class ImplementMuxForType<T, D> : Fub where D : UnityEvent<T>, new ()
+public class OldImplementMuxForType<T, D> : Fub where D : UnityEvent<T>, new ()
 {
 
 protected class DataBusConnector : IFub
 	{
-	public ImplementMuxForType<T, D> Owner;
+	public OldImplementMuxForType<T, D> Owner;
 	public void OnDidTrigger (string key, object value) {}
 	public void OnDidChange (string key, object value)
 		{
@@ -54,7 +54,7 @@ private object currentValue = null;
 private DataBusConnector dataBusConnector;
 
 
-public ImplementMuxForType ()
+public OldImplementMuxForType ()
 	{
 	this.dataBusConnector = new DataBusConnector ()
 			{
