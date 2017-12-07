@@ -1,4 +1,4 @@
-// This is free and unencumbered software released into the public domain.
+﻿// This is free and unencumbered software released into the public domain.
 //
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -23,9 +23,6 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
-using UnityEngine;
-using System.Collections.Generic;
 
 namespace GGEZ
 {
@@ -33,54 +30,20 @@ namespace Omnibus
 {
 
 
-[
-Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Fub/Route Bus in Parent to Port Fub")
-]
-public class RouteBusInParentToPortFub : MonoBehaviour
+public interface ICell
 {
 
-#region Programming Interface
+// Called by a Wire that has been signaled by the Bus with a value.
+// The pin name is the pin on the cell that was assigned when the Wire was
+// created. It is not the pin on the Bus from which the signal originates.
+void OnDidSignal (string pin, object value);
 
-public void Route (Bus bus)
-    {
-    var list = this.cells.Cells;
-    for (int i = 0; i < list.Count; ++i)
-        {
-        var gameObject = list[i];
-        var cells = gameObject.GetComponents (typeof (ICell));
-#if UNITY_EDITOR
-        if (cells.Length == 0)
-            {
-            Debug.LogWarning ("GameObject `" + gameObject.name + "` has no cells for fub `" + this.name + "` to assign");
-            }
-#endif
-        for (int j = 0; j < cells.Length; ++j)
-            {
-            var cell = (ICell)cells[j];
-            cell.Route (this.port, bus);
-            }
-        }
-    }
-
-#endregion
-
-[SerializeField] private string port;
-[SerializeField] private FubCellsList cells = new FubCellsList ();
-
-void Awake ()
-    {
-    var bus = this.gameObject.GetComponentInParent <Bus> ();
-    if (bus != null)
-        {
-        this.Route (bus);
-        }
-    }
+// Called by a Fub to attach a Port to a Bus. Cells can choose to
+// ignore the port parameter.
+void Route (string port, Bus bus);
 
 }
 
 
-
 }
-
 }

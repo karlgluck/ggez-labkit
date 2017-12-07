@@ -25,7 +25,8 @@
 
 using System;
 using UnityEngine;
-using System.Collections.Generic;
+using UnityEngine.Events;
+
 
 namespace GGEZ
 {
@@ -33,54 +34,86 @@ namespace Omnibus
 {
 
 
-[
-Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Fub/Route Bus in Parent to Port Fub")
-]
-public class RouteBusInParentToPortFub : MonoBehaviour
+public class ImplementTerminalForType<T, D> : Cell where D : UnityEvent<T>, new ()
 {
 
 #region Programming Interface
 
-public void Route (Bus bus)
+public string Pin
     {
-    var list = this.cells.Cells;
-    for (int i = 0; i < list.Count; ++i)
+    set
         {
-        var gameObject = list[i];
-        var cells = gameObject.GetComponents (typeof (ICell));
-#if UNITY_EDITOR
-        if (cells.Length == 0)
-            {
-            Debug.LogWarning ("GameObject `" + gameObject.name + "` has no cells for fub `" + this.name + "` to assign");
-            }
-#endif
-        for (int j = 0; j < cells.Length; ++j)
-            {
-            var cell = (ICell)cells[j];
-            cell.Route (this.port, bus);
-            }
+        this.pin = value;
+        this.wireIn.Connect (this.bus, value);
         }
     }
+
+public Bus Bus
+    {
+    set
+        {
+        this.bus = value;
+        this.wireIn.Connect (value, this.pin);
+        }
+    }
+
+public void AddCallback (UnityAction<T> action)
+    {
+    this.didSignal.AddListener (action);
+    }
+
+public void RemoveCallback (UnityAction<T> action)
+    {
+    this.didSignal.RemoveListener (action);
+    }
+
+public void RemoveAllCallbacks ()
+    {
+    this.didSignal.RemoveAllListeners ();
+    }
+
 
 #endregion
 
-[SerializeField] private string port;
-[SerializeField] private FubCellsList cells = new FubCellsList ();
+[SerializeField] private Bus bus;
+[SerializeField] private string pin;
+[SerializeField] private D didSignal = new D ();
 
-void Awake ()
+private Wire wireIn = Wire.CELL_INPUT;
+
+public override void OnDidSignal (string pin, object value)
     {
-    var bus = this.gameObject.GetComponentInParent <Bus> ();
-    if (bus != null)
+    Debug.Assert (pin == Omnibus.Pin.INPUT);
+#if UNITY_EDITOR
+    if (value == null ? typeof(T).IsValueType : !typeof(T).IsAssignableFrom (value.GetType ()))
         {
-        this.Route (bus);
+        throw new System.InvalidCastException ("`value` should be " + typeof(T).Name);
         }
+#endif
+    this.didSignal.Invoke ((T)value);
+    }
+
+public override void Route (string port, Bus bus)
+    {
+    this.Bus = bus;
+    }
+
+void OnEnable ()
+    {
+    this.wireIn.Attach (this, this.bus, this.pin);
+    }
+
+void OnDisable ()
+    {
+    this.wireIn.Detach ();
+    }
+
+void OnValidate ()
+    {
+    this.wireIn.Connect (this.bus, this.pin);
     }
 
 }
 
-
-
 }
-
 }

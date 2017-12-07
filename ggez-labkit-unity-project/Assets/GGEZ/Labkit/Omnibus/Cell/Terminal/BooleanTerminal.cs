@@ -25,61 +25,19 @@
 
 using System;
 using UnityEngine;
-using System.Collections.Generic;
 
 namespace GGEZ
 {
 namespace Omnibus
 {
 
+[Serializable] public sealed class UnityEventForBooleanTerminal : UnityEngine.Events.UnityEvent<bool> { }
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Fub/Route Bus in Parent to Port Fub")
+AddComponentMenu ("GGEZ/Omnibus/Terminal/Boolean Terminal")
 ]
-public class RouteBusInParentToPortFub : MonoBehaviour
-{
-
-#region Programming Interface
-
-public void Route (Bus bus)
-    {
-    var list = this.cells.Cells;
-    for (int i = 0; i < list.Count; ++i)
-        {
-        var gameObject = list[i];
-        var cells = gameObject.GetComponents (typeof (ICell));
-#if UNITY_EDITOR
-        if (cells.Length == 0)
-            {
-            Debug.LogWarning ("GameObject `" + gameObject.name + "` has no cells for fub `" + this.name + "` to assign");
-            }
-#endif
-        for (int j = 0; j < cells.Length; ++j)
-            {
-            var cell = (ICell)cells[j];
-            cell.Route (this.port, bus);
-            }
-        }
-    }
-
-#endregion
-
-[SerializeField] private string port;
-[SerializeField] private FubCellsList cells = new FubCellsList ();
-
-void Awake ()
-    {
-    var bus = this.gameObject.GetComponentInParent <Bus> ();
-    if (bus != null)
-        {
-        this.Route (bus);
-        }
-    }
-
-}
-
-
+public sealed class BooleanTerminal : ImplementTerminalForType <bool, UnityEventForBooleanTerminal> { }
 
 }
 
