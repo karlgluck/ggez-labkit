@@ -38,9 +38,9 @@ public interface ICell
 // created. It is not the pin on the Bus from which the signal originates.
 void OnDidSignal (string pin, object value);
 
-// Called by a Fub to attach members of a Net to a Bus. Cells can choose to
-// ignore the net parameter.
-void Route (string net, Bus bus);
+// Called by a Fub to attach a Port to a Bus. Cells can choose to
+// ignore the port parameter.
+void Route (string port, Bus bus);
 
 }
 

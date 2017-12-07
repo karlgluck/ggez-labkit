@@ -23,29 +23,26 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
+using System;
+using UnityEngine;
 
 namespace GGEZ
 {
 namespace Omnibus
 {
 
-public static partial class Pin
+[
+Serializable,
+AddComponentMenu ("GGEZ/Omnibus/Gate/Boolean Inverter")
+]
+public sealed class BooleanInverter : ImplementUnaryLogicGateForType <bool>
 {
-public const string INPUT = "IN";
-public const string DATA = "DATA";
-public const string SELECT = "SEL";
-public const string ENABLE = "EN";
-public const string CLOCK = "CLK";
 
-public static bool IsInvalid (string pin)
+protected override bool evaluate (bool b)
     {
-    return string.IsNullOrEmpty (pin);
+    return !b;
     }
 
-public static bool IsValid (string pin)
-    {
-    return !string.IsNullOrEmpty (pin);
-    }
 }
 
 }

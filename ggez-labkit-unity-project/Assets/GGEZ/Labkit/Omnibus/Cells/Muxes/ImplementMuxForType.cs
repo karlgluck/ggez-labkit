@@ -51,22 +51,22 @@ public Bus DataBus
         }
     }
 
-public Bus StringBus
+public Bus SelectBus
     {
-    get { return this.stringBus; }
+    get { return this.selectBus; }
     set
         {
-        this.stringBus = value;
+        this.selectBus = value;
         this.refresh ();
         }
     }
 
-public string StringPin
+public string SelectPin
     {
-    get { return this.stringPin; }
+    get { return this.selectPin; }
     set
         {
-        this.stringPin = value;
+        this.selectPin = value;
         this.refresh ();
         }
     }
@@ -77,18 +77,19 @@ public string StringPin
 
 [SerializeField] private Bus dataBus;
 [SerializeField] private string inputPin;
-[SerializeField] private Bus stringBus;
-[SerializeField] private string stringPin;
-
-
+[SerializeField] private Bus selectBus;
+[SerializeField] private string selectPin;
+[SerializeField] private D didSignal = new D ();
 
 public override void OnDidSignal (string pin, object value)
     {
     switch (pin)
         {
-        case Pin.IN:
-            this.dataInput.Connect (value == null ? null : value.ToString ());
+
+        case Pin.INPUT:
+            this.dataWire.Connect (value == null ? null : value.ToString ());
             break;
+
         case Pin.DATA:
 #if UNITY_EDITOR
             if (value == null ? typeof(T).IsValueType : !typeof(T).IsAssignableFrom (value.GetType ()))
@@ -96,36 +97,35 @@ public override void OnDidSignal (string pin, object value)
                 throw new System.InvalidCastException ("`value` should be " + typeof(T).Name);
                 }
 #endif
-            this.didChange.Invoke ((T)value);
+            this.didSignal.Invoke ((T)value);
             break;
+            
         }
-    Debug.Assert (this.stringBus != null && Pin.IsValid (this.stringPin));
-    this.stringBus.SetObject (this.stringPin, value);
     }
 
-public override void Route (string net, Bus bus)
+public override void Route (string port, Bus bus)
     {
-    switch (net)
+    switch (port)
         {
-        case "data": this.DataBus = bus; break;
-        case "in": this.StringBus = bus; break;
+        case "data":   this.DataBus = bus; break;
+        case "select": this.SelectBus = bus; break;
         default:
             {
             this.DataBus = bus;
-            this.StringBus = bus;
+            this.SelectBus = bus;
             break;
             }
         }
     }
 
-private Wire stringInput = Wire.CELL_IN;
-private Wire dataInput = Wire.CELL_DATA;
+private Wire dataWire = Wire.CELL_DATA;
+private Wire selectWire = Wire.CELL_SELECT;
 
 private string dataPin
     {
     get
         {
-        var obj = this.stringBus == null || Pin.IsInvalid (this.stringPin) ? null : this.stringBus.GetObject (this.stringPin);
+        var obj = this.selectBus == null || Pin.IsInvalid (this.selectPin) ? null : this.selectBus.GetObject (this.selectPin);
         var pin = obj == null ? null : obj.ToString ();
         return pin;
         }
@@ -133,14 +133,14 @@ private string dataPin
 
 void OnEnable ()
     {
-    this.dataInput.Attach (this, this.dataBus, this.dataPin);
-    this.stringInput.Attach (this, this.stringBus, this.stringPin);
+    this.dataWire.Attach (this, this.dataBus, this.dataPin);
+    this.selectWire.Attach (this, this.selectBus, this.selectPin);
     }
 
 void OnDisable ()
     {
-    this.dataInput.Detach ();
-	this.stringInput.Detach ();
+    this.dataWire.Detach ();
+	this.selectWire.Detach ();
     }
 
 void OnValidate ()
@@ -150,8 +150,8 @@ void OnValidate ()
 
 private void refresh ()
     {
-	this.stringInput.Connect (this.stringBus, this.inputPin);
-	this.dataInput.Connect (this.dataBus, this.dataPin);
+	this.selectWire.Connect (this.selectBus, this.inputPin);
+	this.dataWire.Connect (this.dataBus, this.dataPin);
     }
 
 }

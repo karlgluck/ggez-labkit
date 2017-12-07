@@ -11,16 +11,21 @@
 Heavily repurposed from integrated circuit design and computer engineering.
 
 -------------------------------------------------------------------------------
-| Term          | Omnibus Meaning                                             |
+| Term            | Omnibus Meaning                                           |
 -------------------------------------------------------------------------------
-| Bus           | Data communication system that ties together Fubs           |
-| I/O           | Events and memory cell changes                              |
-| Fub           | Uses a bus for I/O. Fub = Functional Unit Block             |
-| Via           | Generic connectors that hook Omnibus I/O to Unity Events    |
-| Event         | A one-time message with an optional payload                 |
-| Memory Cell   | A single System.Object held at an address                   |
-| ROM           | Read-Only Memory to initialize the Bus's memory cells       |
-| Mux           | Multiplexer. Read bus using string from another bus.        |
+| Bus             | Data communication system that ties together cells        |
+| Signal          | Events and memory cell changes                            |
+| Cell            | Uses a bus for I/O. Has ports and pins. Uses wires.       |
+| Fub             | Connects cells to busses. Fub = Functional Unit Block     |
+| Port            | Pins on a cell with related functionality                 |
+| Wire            | Connects a bus's output pin to a cell's input pin         |
+| Event           | A one-time signal with an optional payload                |
+| Memory Cell     | A single System.Object held at an address                 |
+| ROM             | Read-Only Memory to initialize the Bus's memory cells     |
+| Mux (Cell)      | Read bus using string from another bus. (Multiplexer)     |
+| Terminal (Cell) | Connects signal to Unity Event                            |
+| Gate (Cell)     | A Terminal with functionality                             |
+| Latch (Cell)    | Connects signal to bus                                    |
 -------------------------------------------------------------------------------
 
 ## Quick Demo

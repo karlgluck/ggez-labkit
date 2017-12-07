@@ -79,11 +79,11 @@ public void RemoveAllCallbacks ()
 [SerializeField] private string pin;
 [SerializeField] private D didSignal = new D ();
 
-private Wire wireIn = Wire.CELL_IN;
+private Wire wireIn = Wire.CELL_INPUT;
 
 public override void OnDidSignal (string pin, object value)
     {
-    Debug.Assert (pin == Omnibus.Pin.IN);
+    Debug.Assert (pin == Omnibus.Pin.INPUT);
 #if UNITY_EDITOR
     if (value == null ? typeof(T).IsValueType : !typeof(T).IsAssignableFrom (value.GetType ()))
         {
@@ -93,7 +93,7 @@ public override void OnDidSignal (string pin, object value)
     this.didSignal.Invoke ((T)value);
     }
 
-public override void Route (string net, Bus bus)
+public override void Route (string port, Bus bus)
     {
     this.Bus = bus;
     }

@@ -80,7 +80,7 @@ public void RemoveAllCallbacks ()
 protected abstract bool evaluate (T value);
 
 
-private Wire wireIn = Wire.CELL_IN;
+private Wire wireIn = Wire.CELL_INPUT;
 
 [SerializeField] private Bus bus;
 [SerializeField] private string pin;
@@ -102,7 +102,7 @@ void OnValidate ()
     }
 
 
-public override void Route (string net, Bus bus)
+public override void Route (string port, Bus bus)
     {
     this.Bus = bus;
     }

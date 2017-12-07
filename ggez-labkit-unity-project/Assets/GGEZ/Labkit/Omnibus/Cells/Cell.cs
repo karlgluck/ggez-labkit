@@ -42,7 +42,7 @@ public virtual void OnDidSignal (string pin, object value)
     {
     }
 
-public virtual void Route (string net, Bus bus)
+public virtual void Route (string port, Bus bus)
     {
     }
 

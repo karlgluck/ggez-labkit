@@ -94,9 +94,9 @@ public override void OnDidSignal (string pin, object value)
     this.outputBus.SetObject (this.outputPin, value);
     }
 
-public override void Route (string net, Bus bus)
+public override void Route (string port, Bus bus)
     {
-    switch (net)
+    switch (port)
         {
         case "in":  this.InputBus = bus; break;
         case "out": this.OutputBus = bus; break;
@@ -109,7 +109,7 @@ public override void Route (string net, Bus bus)
         }
     }
 
-private Wire input = Wire.CELL_IN;
+private Wire input = Wire.CELL_INPUT;
 
 void OnEnable ()
     {

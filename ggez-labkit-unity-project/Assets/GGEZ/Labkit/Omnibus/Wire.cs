@@ -34,8 +34,9 @@ public class Wire
 {
 
 // Generators for wires that connect to common pin names
-public static Wire CELL_IN { get { return new Wire (Pin.IN); } }
+public static Wire CELL_INPUT { get { return new Wire (Pin.INPUT); } }
 public static Wire CELL_DATA { get { return new Wire (Pin.DATA); } }
+public static Wire CELL_SELECT { get { return new Wire (Pin.SELECT); } }
 
 public Wire (string cellPin)
     {
