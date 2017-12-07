@@ -74,10 +74,13 @@ public string StringPin
 #endregion
 
 
+
 [SerializeField] private Bus dataBus;
 [SerializeField] private string inputPin;
 [SerializeField] private Bus stringBus;
 [SerializeField] private string stringPin;
+
+
 
 public override void OnDidSignal (string pin, object value)
     {
@@ -89,8 +92,8 @@ public override void Route (string net, Bus bus)
     {
     switch (net)
         {
-        case "in":  this.DataBus = bus; break;
-        case "out": this.StringBus = bus; break;
+        case "data": this.DataBus = bus; break;
+        case "in": this.StringBus = bus; break;
         default:
             {
             this.DataBus = bus;
@@ -103,9 +106,19 @@ public override void Route (string net, Bus bus)
 private Wire stringInput = Wire.CELL_IN;
 private Wire dataInput = Wire.CELL_DATA;
 
+private string dataPin
+    {
+    get
+        {
+        var obj = this.stringBus == null || Pin.IsInvalid (this.stringPin) ? null : this.stringBus.GetObject (this.stringPin);
+        var pin = obj == null ? null : obj.ToString ();
+        return pin;
+        }
+    }
+
 void OnEnable ()
     {
-    this.dataInput.Attach (this, this.dataBus, this.stringBus == null ? null : this.stringBus.GetString (this.stringPin));
+    this.dataInput.Attach (this, this.dataBus, this.dataPin);
     this.stringInput.Attach (this, this.stringBus, this.stringPin);
     }
 
@@ -122,8 +135,8 @@ void OnValidate ()
 
 private void refresh ()
     {
-	this.stringInput.Connect (this.dataBus, this.inputPin);
-	this.dataInput.Connect (this.dataBus, this.stringBus == null ? null : this.stringBus.GetString (this.stringPin));
+	this.stringInput.Connect (this.stringBus, this.inputPin);
+	this.dataInput.Connect (this.dataBus, this.dataPin);
     }
 
 }

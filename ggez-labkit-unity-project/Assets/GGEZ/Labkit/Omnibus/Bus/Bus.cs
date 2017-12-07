@@ -174,7 +174,7 @@ public void SetObject (string pin, object value)
         }
     }
 
-public object Get (string pin)
+public object GetObject (string pin)
     {
     if (Pin.IsInvalid (pin))
         {
@@ -185,7 +185,7 @@ public object Get (string pin)
     return value;
     }
 
-public object Get (string pin, object defaultValue)
+public object GetObject (string pin, object defaultValue)
     {
     if (Pin.IsInvalid (pin))
         {
@@ -199,7 +199,7 @@ public object Get (string pin, object defaultValue)
     return value;
     }
 
-public bool Get (string pin, out object value)
+public bool GetObject (string pin, out object value)
     {
     if (Pin.IsInvalid (pin))
         {
@@ -245,14 +245,14 @@ public void SetNull (string pin)
 
 #region Templated versions of get/set
 
-bool getT <T> (string key, out T value)
+bool getT <T> (string pin, out T value)
     {
-    if (key == null)
+    if (pin == null)
         {
-        throw new ArgumentNullException ("key");
+        throw new ArgumentNullException ("pin");
         }
     object objectValue;
-    if (!this.memory.TryGetValue (key, out objectValue))
+    if (!this.memory.TryGetValue (pin, out objectValue))
         {
         value = default(T);
         return false;
@@ -261,14 +261,14 @@ bool getT <T> (string key, out T value)
     return true;
     }
 
-public T getT<T> (string key, T defaultValue)
+public T getT<T> (string pin, T defaultValue)
     {
-    if (key == null)
+    if (pin == null)
         {
-        throw new ArgumentNullException ("key");
+        throw new ArgumentNullException ("pin");
         }
     object value;
-    if (!this.memory.TryGetValue (key, out value))
+    if (!this.memory.TryGetValue (pin, out value))
         {
         return defaultValue;
         }
@@ -288,7 +288,7 @@ void ISerializationCallbackReceiver.OnBeforeSerialize ()
     this.serializedMemory.Capacity = Mathf.Max (this.serializedMemory.Capacity, runtimeKeys.Count);
     foreach (var key in runtimeKeys)
         {
-        this.serializedMemory.Add (SerializedMemoryCell.Create (key, this.Get (key)));
+        this.serializedMemory.Add (SerializedMemoryCell.Create (key, this.GetObject (key)));
         }
     }
 
@@ -373,7 +373,7 @@ void OnValidate ()
             WireList wires;
             if (this.connections.TryGetValue (key, out wires))
                 {
-                var value = this.Get (key);
+                var value = this.GetObject (key);
                 for (int i = wires.Count - 1; i >= 0; --i)
                     {
                     wires[i].Signal (value);
@@ -458,4 +458,3 @@ public const string nameof_SignalObject = "SignalObject";
 
 
 }
-
