@@ -75,10 +75,10 @@ public string SelectPin
 
 
 
-[Header ("data:" + Pin.DATA)]
+[Header ("data:" + Pin.DATA + " (type)")]
 [SerializeField] private Bus dataBus;
 
-[Header ("select:" + Pin.SELECT)]
+[Header ("select:" + Pin.SELECT + " (string)")]
 [SerializeField] private Bus selectBus;
 [SerializeField] private string selectPin;
 

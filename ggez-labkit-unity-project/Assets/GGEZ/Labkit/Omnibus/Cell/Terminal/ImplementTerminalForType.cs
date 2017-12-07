@@ -33,7 +33,6 @@ namespace GGEZ
 namespace Omnibus
 {
 
-
 public class ImplementTerminalForType<T, D> : Cell where D : UnityEvent<T>, new ()
 {
 
@@ -75,7 +74,7 @@ public void RemoveAllCallbacks ()
 
 #endregion
 
-[Header ("*:" + Pin.INPUT)]
+[Header ("*:" + Pin.INPUT + "(type)")]
 
 [SerializeField] private Bus bus;
 [SerializeField] private string pin;

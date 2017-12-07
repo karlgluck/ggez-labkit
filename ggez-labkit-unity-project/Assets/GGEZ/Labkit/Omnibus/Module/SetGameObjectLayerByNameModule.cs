@@ -1,4 +1,4 @@
-// This is free and unencumbered software released into the public domain.
+﻿// This is free and unencumbered software released into the public domain.
 //
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -33,90 +33,64 @@ namespace Omnibus
 
 
 
-
-
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Cells/Latch Writes Bus Memory Cell")
+AddComponentMenu ("GGEZ/Omnibus/Modules/Set Game Object Layer by Name (Module)")
 ]
-public sealed class LatchWritesBusMemoryCell : Cell
+public sealed class SetGameObjectLayerByNameModule : Cell
 {
 
 #region Programming Interface
-public Bus InputBus
+public Bus Bus
     {
-    get { return this.inputBus; }
+    get { return this.bus; }
     set
         {
-        this.inputBus = value;
-        this.refresh ();
+        this.bus = value;
+        this.input.Connect (this.bus, this.pin);
         }
     }
 
-public string InputPin
+public string Pin
     {
-    get { return this.inputPin; }
+    get { return this.pin; }
     set
         {
-        this.inputPin = value;
-        this.refresh ();
+        this.pin = value;
+        this.input.Connect (this.bus, this.pin);
         }
     }
 
-public Bus OutputBus
-    {
-    get { return this.outputBus; }
-    set
-        {
-        this.outputBus = value;
-        this.refresh ();
-        }
-    }
-
-public string OutputPin
-    {
-    get { return this.outputPin; }
-    set
-        {
-        this.outputPin = value;
-        this.refresh ();
-        }
-    }
 #endregion
 
 
-[SerializeField] private Bus inputBus;
-[SerializeField] private string inputPin;
-[SerializeField] private Bus outputBus;
-[SerializeField] private string outputPin;
+[Header ("*:" + Omnibus.Pin.INPUT + " (string)")]
+[SerializeField] private Bus bus;
+[SerializeField] private string pin;
 
 public override void OnDidSignal (string pin, object value)
     {
-    Debug.Assert (pin == Omnibus.Pin.INPUT);
-    Debug.Assert (this.outputBus != null && Pin.IsValid (this.outputPin));
-    this.outputBus.SetObject (this.outputPin, value);
+	Debug.Assert (pin == Omnibus.Pin.INPUT);
+	int layer = value == null ? 1 : LayerMask.NameToLayer (value.ToString ());
+#if UNITY_EDITOR
+	if (layer == ~0)
+		{
+		Debug.LogWarning ("Layer name " +  value.ToString () + " is invalid");
+		}
+#endif
+	this.gameObject.layer = layer;
     }
 
 public override void Route (string port, Bus bus)
     {
-    switch (port)
-        {
-        case "in":  this.InputBus = bus; break;
-        case "out": this.OutputBus = bus; break;
-        default:
-            {
-            this.InputBus = bus;
-            this.OutputBus = bus;
-            break;
-            }
-        }
+	this.Bus = bus;
     }
 
 private Wire input = Wire.CELL_INPUT;
 
 void OnEnable ()
     {
-    this.input.Attach (this, this.inputBus, this.inputPin);
+    this.input.Attach (this, this.bus, this.pin);
     }
 
 void OnDisable ()
@@ -126,19 +100,7 @@ void OnDisable ()
 
 void OnValidate ()
     {
-    this.refresh ();
-    }
-
-private void refresh ()
-    {
-    if (this.outputBus == null || Pin.IsInvalid (this.outputPin))
-        {
-        this.input.Disconnect ();
-        }
-    else
-        {
-        this.input.Connect (this.inputBus, this.inputPin);
-        }
+	this.input.Connect (this.bus, this.pin);
     }
 
 }
@@ -146,3 +108,8 @@ private void refresh ()
 }
 
 }
+
+
+
+
+

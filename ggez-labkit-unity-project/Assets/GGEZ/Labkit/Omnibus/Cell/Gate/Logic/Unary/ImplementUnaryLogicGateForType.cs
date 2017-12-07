@@ -82,7 +82,7 @@ protected abstract bool evaluate (T value);
 
 private Wire wireIn = Wire.CELL_INPUT;
 
-[Header ("*:" + Pin.INPUT)]
+[Header ("*:" + Pin.INPUT + " (type)")]
 [SerializeField] private Bus bus;
 [SerializeField] private string pin;
 

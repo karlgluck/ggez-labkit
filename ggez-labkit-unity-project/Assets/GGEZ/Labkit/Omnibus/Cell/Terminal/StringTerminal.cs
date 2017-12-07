@@ -25,6 +25,7 @@
 
 using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace GGEZ
 {
@@ -37,8 +38,85 @@ namespace Omnibus
 Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Terminal/String Terminal")
 ]
-public sealed class StringTerminal : ImplementTerminalForType <string, UnityEventForStringTerminal> { }
+public class StringTerminal : Cell
+{
+
+#region Programming Interface
+
+public string Pin
+    {
+    set
+        {
+        this.pin = value;
+        this.wireIn.Connect (this.bus, value);
+        }
+    }
+
+public Bus Bus
+    {
+    set
+        {
+        this.bus = value;
+        this.wireIn.Connect (value, this.pin);
+        }
+    }
+
+public void AddCallback (UnityAction<string> action)
+    {
+    this.didSignal.AddListener (action);
+    }
+
+public void RemoveCallback (UnityAction<string> action)
+    {
+    this.didSignal.RemoveListener (action);
+    }
+
+public void RemoveAllCallbacks ()
+    {
+    this.didSignal.RemoveAllListeners ();
+    }
+
+
+#endregion
+
+[Header ("*:" + Pin.INPUT + " (string)")]
+
+[SerializeField] private Bus bus;
+[SerializeField] private string pin;
+
+[Space]
+[SerializeField] private UnityEventForStringTerminal didSignal = new UnityEventForStringTerminal ();
+
+private Wire wireIn = Wire.CELL_INPUT;
+
+public override void OnDidSignal (string pin, object value)
+    {
+    Debug.Assert (pin == Omnibus.Pin.INPUT);
+    string stringValue = value == null ? null : value.ToString ();
+    this.didSignal.Invoke (stringValue);
+    }
+
+public override void Route (string port, Bus bus)
+    {
+    this.Bus = bus;
+    }
+
+void OnEnable ()
+    {
+    this.wireIn.Attach (this, this.bus, this.pin);
+    }
+
+void OnDisable ()
+    {
+    this.wireIn.Detach ();
+    }
+
+void OnValidate ()
+    {
+    this.wireIn.Connect (this.bus, this.pin);
+    }
 
 }
 
+}
 }

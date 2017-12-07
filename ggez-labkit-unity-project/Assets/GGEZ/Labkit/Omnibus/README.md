@@ -22,11 +22,12 @@ Heavily repurposed from integrated circuit design and computer engineering.
 | Event           | A one-time signal with an optional payload                |
 | Memory Cell     | A single System.Object held at an address                 |
 | ROM             | Read-Only Memory to initialize the Bus's memory cells     |
+| Module          | A complex cell                                            |
+| Fub             | Functional Unit Block. Collections of other parts.        |
 | Mux (Cell)      | Read bus using string from another bus. (Multiplexer)     |
 | Terminal (Cell) | Connects signal to Unity Event                            |
 | Gate (Cell)     | A Terminal with functionality                             |
 | Latch (Cell)    | Connects signal to bus                                    |
-| Fub             | Functional Unit Block. Drop-in collections of behavior.   |
 -------------------------------------------------------------------------------
 
 ## Quick Demo
