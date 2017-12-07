@@ -106,7 +106,7 @@ public override void OnDidSignal (string pin, object value)
 
 #if UNITY_EDITOR
         default:
-            Debug.LogWarning ("signal on invalid pin: " + pin);
+            Debug.LogError ("signal on invalid pin: " + pin);
             break;
 #endif
 

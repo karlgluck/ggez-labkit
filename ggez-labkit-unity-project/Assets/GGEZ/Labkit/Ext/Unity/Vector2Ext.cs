@@ -234,6 +234,19 @@ public static Vector2 ToUnwrappedAngles (this Vector2 self)
     return new Vector2 (Mathf.DeltaAngle (0, self.x), Mathf.DeltaAngle (0f, self.y));
     }
 
+public static float ToDirection (this Vector2 self)
+    {
+    return Mathf.Rad2Deg * Mathf.Atan2 (self.y, self.x);
+    }
+
+public static float ToDirection (this Vector2 self, float valueIfZeroMagnitude)
+    {
+    if (Mathf.Approximately (0f, self.sqrMagnitude))
+        {
+        return valueIfZeroMagnitude;
+        }
+    return ToDirection (self);
+    }
 
 }
 }

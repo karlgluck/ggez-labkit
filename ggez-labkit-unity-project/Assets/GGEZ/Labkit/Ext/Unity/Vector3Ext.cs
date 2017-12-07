@@ -83,6 +83,27 @@ public static Vector3 NormalizedOrZero (this Vector3 self, float minimumMagnitud
     return (magnitude <= minimumMagnitude) ? Vector3.zero : self / magnitude;
     }
 
+public static Vector3 InDirectionOnXZ (float y)
+    {
+    y = y * Mathf.Deg2Rad;
+    // note: this is correct because Unity is left-handed
+    return new Vector3 (Mathf.Sin (y), 0f, Mathf.Cos (y));
+    }
+
+public static float ToDirectionOnXZ (this Vector3 self)
+    {
+    // note: this is correct because Unity is left-handed
+    return Mathf.Rad2Deg * Mathf.Atan2 (self.x, self.z);
+    }
+
+public static float ToDirectionOnXZ (this Vector3 self, float valueIfZeroMagnitude)
+    {
+    if (Mathf.Approximately (0f, self.sqrMagnitude))
+        {
+        return valueIfZeroMagnitude;
+        }
+    return ToDirectionOnXZ (self);
+    }
 
 }
 }
