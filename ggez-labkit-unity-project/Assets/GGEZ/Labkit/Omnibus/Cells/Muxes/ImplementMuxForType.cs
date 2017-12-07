@@ -75,10 +75,14 @@ public string SelectPin
 
 
 
+[Header ("data:" + Pin.DATA)]
 [SerializeField] private Bus dataBus;
-[SerializeField] private string inputPin;
+
+[Header ("select:" + Pin.SELECT)]
 [SerializeField] private Bus selectBus;
 [SerializeField] private string selectPin;
+
+[Space]
 [SerializeField] private D didSignal = new D ();
 
 public override void OnDidSignal (string pin, object value)
@@ -86,7 +90,7 @@ public override void OnDidSignal (string pin, object value)
     switch (pin)
         {
 
-        case Pin.INPUT:
+        case Pin.SELECT:
             this.dataWire.Connect (value == null ? null : value.ToString ());
             break;
 
@@ -99,7 +103,13 @@ public override void OnDidSignal (string pin, object value)
 #endif
             this.didSignal.Invoke ((T)value);
             break;
-            
+
+#if UNITY_EDITOR
+        default:
+            Debug.LogWarning ("signal on invalid pin: " + pin);
+            break;
+#endif
+
         }
     }
 
@@ -150,7 +160,7 @@ void OnValidate ()
 
 private void refresh ()
     {
-	this.selectWire.Connect (this.selectBus, this.inputPin);
+	this.selectWire.Connect (this.selectBus, this.selectPin);
 	this.dataWire.Connect (this.dataBus, this.dataPin);
     }
 

@@ -46,7 +46,7 @@ public T CreateWithMonoBehaviour<T> () where T : Component
 
 public void CallOnEnable (MonoBehaviour mb)
     {
-	typeof(Fub).InvokeMember (
+	typeof(Cell).InvokeMember (
 		"OnEnable",
 		BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy,
 		null,
@@ -57,7 +57,7 @@ public void CallOnEnable (MonoBehaviour mb)
 
 public void CallOnDisable (MonoBehaviour mb)
     {
-	typeof(Fub).InvokeMember (
+	typeof(Cell).InvokeMember (
 		"OnDisable",
 		BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy,
 		null,

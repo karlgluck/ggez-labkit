@@ -80,23 +80,21 @@ public static EditorWindow CreateAndShow (string path)
 
 public void DoWork ()
     {
-    string upperName = this.Name.Substring (0, 1).ToUpper () + this.Name.Substring (1);
-    string lowerName = this.Name.Substring (0, 1).ToLower () + this.Name.Substring (1);
 
     Debug.LogFormat ("Creating type support for {0} serialized as {1} in MemoryCell", this.CSharpDeclaringType, this.CSharpTypeName);
 
+    this.write ("OmnibusTypeSupport_cs", "{0}TypeSupport.cs");
+    this.write ("OmnibusTypeTerminal_cs", "{0}Terminal.cs");
+    this.write ("OmnibusTypeMux_cs", "{0}Mux.cs");
+    }
+
+private void write (string template, string filenameFormat)
+    {
+    string upperName = this.Name.Substring (0, 1).ToUpper () + this.Name.Substring (1);
+    string lowerName = this.Name.Substring (0, 1).ToLower () + this.Name.Substring (1);
     Labkit.LabkitEditorUtility.WriteFileUsingTemplate (
-            "OmnibusTypeSupport_cs",
-            Path.Combine (this.Folder, upperName + "TypeSupport.cs"),
-            "%NAME% " + this.Name,
-            "%UPPERNAME% " + upperName,
-            "%LOWERNAME% " + lowerName,
-            "%CSHARPTYPE% " + this.CSharpDeclaringType,
-            "%CSHARPTYPENAME% " + this.CSharpTypeName
-            );
-    Labkit.LabkitEditorUtility.WriteFileUsingTemplate (
-            "OmnibusTypeTerminal_cs",
-            Path.Combine (this.Folder, upperName + "Terminal.cs"),
+            template,
+            Path.Combine (this.Folder, string.Format (filenameFormat, upperName)),
             "%NAME% " + this.Name,
             "%UPPERNAME% " + upperName,
             "%LOWERNAME% " + lowerName,
