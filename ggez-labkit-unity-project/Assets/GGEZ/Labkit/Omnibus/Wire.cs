@@ -53,7 +53,7 @@ public string BusPin { get; private set; }
 
 
 // Usually called in OnEnable of a Cell. It is okay to attach to a
-// null bus or bus-pin. The result will be that Reconnect will
+// null bus or bus-pin. The result will be that Connect will
 // connect the cell automatically should these values become valid.
 public void Attach (ICell cell, Bus bus, string busPin)
     {

@@ -35,72 +35,22 @@ namespace Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Set Game Object Layer by Name (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Modules/Transform/Set eulerAngles.y (Module)"),
+RequireComponent (typeof (Transform))
 ]
-public sealed class SetGameObjectLayerByNameModule : Cell
+public sealed class EulerAnglesYModule : FloatSetsTransformPropertyModule
 {
-
-#region Programming Interface
-public Bus Bus
-    {
-    get { return this.bus; }
-    set
-        {
-        this.bus = value;
-        this.input.Connect (this.bus, this.pin);
-        }
-    }
-
-public string Pin
-    {
-    get { return this.pin; }
-    set
-        {
-        this.pin = value;
-        this.input.Connect (this.bus, this.pin);
-        }
-    }
-
-#endregion
-
-
-[Header ("*:" + Omnibus.Pin.INPUT + " (string)")]
-[SerializeField] private Bus bus;
-[SerializeField] private string pin;
 
 public override void OnDidSignal (string pin, object value)
     {
 	Debug.Assert (pin == Omnibus.Pin.INPUT);
-	int layer = value == null ? 1 : LayerMask.NameToLayer (value.ToString ());
 #if UNITY_EDITOR
-	if (layer == ~0)
-		{
-		Debug.LogWarning ("Layer name " +  value.ToString () + " is invalid");
-		}
+    if (value == null || !typeof(float).IsAssignableFrom (value.GetType ()))
+        {
+        throw new System.InvalidCastException ("`value` should be " + typeof(float).Name);
+        }
 #endif
-	this.gameObject.layer = layer;
-    }
-
-public override void Route (string port, Bus bus)
-    {
-	this.Bus = bus;
-    }
-
-private Wire input = Wire.CELL_INPUT;
-
-void OnEnable ()
-    {
-    this.input.Attach (this, this.bus, this.pin);
-    }
-
-void OnDisable ()
-    {
-    this.input.Detach ();
-    }
-
-void OnValidate ()
-    {
-	this.input.Connect (this.bus, this.pin);
+    this.transform.eulerAngles = this.transform.eulerAngles.WithY ((float)value);
     }
 
 }
