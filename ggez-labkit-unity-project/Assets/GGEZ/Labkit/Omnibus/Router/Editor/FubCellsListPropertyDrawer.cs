@@ -34,9 +34,9 @@ namespace Omnibus
 {
 
 [
-CustomPropertyDrawer (typeof(FubCellsList))
+CustomPropertyDrawer (typeof(RouterCellsList))
 ]
-public sealed class FubCellsListPropertyDrawer : PropertyDrawer
+public sealed class RouterCellsListPropertyDrawer : PropertyDrawer
 {
 
 private ReorderableList reorderableList = null;
@@ -47,7 +47,7 @@ private ReorderableList getReorderableList (SerializedProperty property)
         return this.reorderableList;
         }
 
-    var listProperty = property.FindPropertyRelative ("Cells");
+    var listProperty = property.FindPropertyRelative (RouterCellsList.nameof_Cells);
     if (listProperty == null)
         {
         return null;
@@ -64,7 +64,7 @@ private ReorderableList getReorderableList (SerializedProperty property)
     this.reorderableList.drawHeaderCallback =
             delegate (Rect rect)
                 {
-                EditorGUI.LabelField (rect, "Cells");
+                EditorGUI.LabelField (rect, RouterCellsList.nameof_Cells);
                 };
     this.reorderableList.drawElementCallback = 
             delegate (Rect elementPosition, int index, bool isActive, bool isFocused)

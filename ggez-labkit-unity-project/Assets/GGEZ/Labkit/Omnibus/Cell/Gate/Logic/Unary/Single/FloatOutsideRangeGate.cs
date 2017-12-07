@@ -37,6 +37,8 @@ AddComponentMenu ("GGEZ/Omnibus/Gate/Float Outside Min-Max Range Gate")
 ]
 public sealed class FloatOutsideRangeGate : ImplementUnaryLogicGateForType <float>
 {
+
+[Header ("Range")]
 [SerializeField, Tooltip ("Inclusive")] float min;
 [SerializeField, Tooltip ("Exclusive")] float max;
 

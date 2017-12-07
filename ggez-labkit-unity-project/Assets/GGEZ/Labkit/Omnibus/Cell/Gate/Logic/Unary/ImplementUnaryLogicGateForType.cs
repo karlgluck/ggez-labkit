@@ -82,8 +82,11 @@ protected abstract bool evaluate (T value);
 
 private Wire wireIn = Wire.CELL_INPUT;
 
+[Header ("*:" + Pin.INPUT)]
 [SerializeField] private Bus bus;
 [SerializeField] private string pin;
+
+[Space]
 [SerializeField] private UnityEventForImplementUnaryLogicGateForType didSignal = new UnityEventForImplementUnaryLogicGateForType ();
 
 void OnEnable ()

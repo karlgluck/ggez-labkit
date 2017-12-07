@@ -67,37 +67,37 @@ public void CallOnDisable (MonoBehaviour mb)
     }
 
 [Test]
-public void FubBusAndUnregister ()
+public void CellBusAndUnregister ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
-    var firstFub = CreateWithMonoBehaviour <BooleanTerminal> ();
-    this.CallOnEnable (firstFub);
-    firstFub.Pin = "TestKey";
+    var firstCell = CreateWithMonoBehaviour <BooleanTerminal> ();
+    this.CallOnEnable (firstCell);
+    firstCell.Pin = "TestKey";
 
     Assert.AreEqual (bus.GetConnectedKeys ().Count, 0, "no fubs at start");
-    firstFub.Bus = bus;
+    firstCell.Bus = bus;
     Assert.AreEqual (bus.GetConnectedKeys ().Count, 1, "added 1 fub");
 
-    var secondFub = CreateWithMonoBehaviour <BooleanTerminal> ();
-    this.CallOnEnable (secondFub);
-    secondFub.Bus = bus;
+    var secondCell = CreateWithMonoBehaviour <BooleanTerminal> ();
+    this.CallOnEnable (secondCell);
+    secondCell.Bus = bus;
     Assert.AreEqual (bus.GetConnectedKeys ().Count, 1, "set bus for fub but no key, so it shouldn't be registered");
 
-    secondFub.Pin = "SecondTestKey";
+    secondCell.Pin = "SecondTestKey";
     Assert.AreEqual (bus.GetConnectedKeys ().Count, 2, "set key for second fub");
 
-    secondFub.Pin = "TestKey";
+    secondCell.Pin = "TestKey";
     Assert.AreEqual (bus.GetConnectedKeys ().Count, 1, "changed second fub to have same key as the first");
-    secondFub.Pin = "SecondTestKey";
+    secondCell.Pin = "SecondTestKey";
     Assert.AreEqual (bus.GetConnectedKeys ().Count, 2, "changed second fub back to a different key");
 
-    this.CallOnDisable (secondFub); // must be explicit; no coroutines or frames in test mode
-    GameObject.DestroyImmediate (secondFub.gameObject);
+    this.CallOnDisable (secondCell); // must be explicit; no coroutines or frames in test mode
+    GameObject.DestroyImmediate (secondCell.gameObject);
     Assert.AreEqual (bus.GetConnectedKeys ().Count, 1, "destroyed second fub");
 
-    this.CallOnDisable (firstFub); // must be explicit; no coroutines or frames in test mode
-    GameObject.DestroyImmediate (firstFub.gameObject);
+    this.CallOnDisable (firstCell); // must be explicit; no coroutines or frames in test mode
+    GameObject.DestroyImmediate (firstCell.gameObject);
     Assert.AreEqual (bus.GetConnectedKeys ().Count, 0, "destroyed first fub");
 
     ScriptableObject.DestroyImmediate (bus, false);
@@ -105,7 +105,7 @@ public void FubBusAndUnregister ()
 
 
 [Test]
-public void FubGetsCalledWhenEnabledThenBusSetAndNotBeforeForMemory ()
+public void CellGetsCalledWhenEnabledThenBusSetAndNotBeforeForMemory ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
@@ -126,7 +126,7 @@ public void FubGetsCalledWhenEnabledThenBusSetAndNotBeforeForMemory ()
 
 
 [Test]
-public void FubGetsCalledWhenEnabledThenBusSetAndNotBeforeForEvent ()
+public void CellGetsCalledWhenEnabledThenBusSetAndNotBeforeForEvent ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
@@ -148,7 +148,7 @@ public void FubGetsCalledWhenEnabledThenBusSetAndNotBeforeForEvent ()
 
 
 [Test]
-public void FubGetsCalledWhenEnabledThenKeySetAndNotBeforeForMemory ()
+public void CellGetsCalledWhenEnabledThenKeySetAndNotBeforeForMemory ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
@@ -172,7 +172,7 @@ public void FubGetsCalledWhenEnabledThenKeySetAndNotBeforeForMemory ()
 
 
 [Test]
-public void FubGetsCalledWhenEnabledThenKeySetAndNotBeforeForEvent ()
+public void CellGetsCalledWhenEnabledThenKeySetAndNotBeforeForEvent ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
@@ -195,7 +195,7 @@ public void FubGetsCalledWhenEnabledThenKeySetAndNotBeforeForEvent ()
 
 
 [Test]
-public void FubGetsCalledWhenBusAndKeySetThenEnabledAndNotBefore ()
+public void CellGetsCalledWhenBusAndKeySetThenEnabledAndNotBefore ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
@@ -218,7 +218,7 @@ public void FubGetsCalledWhenBusAndKeySetThenEnabledAndNotBefore ()
 
 
 [Test]
-public void FubGetsCalledWithMemoryValueWhenConnected ()
+public void CellGetsCalledWithMemoryValueWhenConnected ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
@@ -240,7 +240,7 @@ public void FubGetsCalledWithMemoryValueWhenConnected ()
 
 
 [Test]
-public void FubGetsCalledWhenValueIsChanged ()
+public void CellGetsCalledWhenValueIsChanged ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
@@ -267,7 +267,7 @@ public void FubGetsCalledWhenValueIsChanged ()
 
 
 [Test]
-public void FubGetsCalledWhenKeyIsChanged ()
+public void CellGetsCalledWhenKeyIsChanged ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
@@ -292,7 +292,7 @@ public void FubGetsCalledWhenKeyIsChanged ()
 
 
 [Test]
-public void FubNotCalledWhenOtherKeyIsChanged ()
+public void CellNotCalledWhenOtherKeyIsChanged ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
@@ -319,7 +319,7 @@ public void FubNotCalledWhenOtherKeyIsChanged ()
 
 
 [Test]
-public void FubNotCalledWhenOtherKeyIsTriggered ()
+public void CellNotCalledWhenOtherKeyIsTriggered ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
@@ -341,7 +341,7 @@ public void FubNotCalledWhenOtherKeyIsTriggered ()
 
 
 [Test]
-public void FubGetsCalledWhenTriggered ()
+public void CellGetsCalledWhenTriggered ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
@@ -363,7 +363,7 @@ public void FubGetsCalledWhenTriggered ()
 
 
 [Test]
-public void FubGetsCalledWhenBusIsChanged ()
+public void CellGetsCalledWhenBusIsChanged ()
     {
     var gameObject = new GameObject ();
     var firstBus = gameObject.AddComponent <Bus> ();
@@ -395,50 +395,50 @@ public void FubGetsCalledWhenBusIsChanged ()
 
 
 [Test]
-public void ManyFubsGetCalledWhenValueIsChanged ()
+public void ManyCellsGetCalledWhenValueIsChanged ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
     bus.SetBoolean ("TestKey", false);
     bus.SetBoolean ("SomeDifferentTestKey", false);
 
-    var firstFub = CreateWithMonoBehaviour <BooleanTerminal> ();
-    firstFub.Pin = "TestKey";
-    var secondFub = CreateWithMonoBehaviour <BooleanTerminal> ();
-    secondFub.Pin = "TestKey";
-    var thirdFub = CreateWithMonoBehaviour <BooleanTerminal> ();
-    thirdFub.Pin = "SomeDifferentTestKey";
+    var firstCell = CreateWithMonoBehaviour <BooleanTerminal> ();
+    firstCell.Pin = "TestKey";
+    var secondCell = CreateWithMonoBehaviour <BooleanTerminal> ();
+    secondCell.Pin = "TestKey";
+    var thirdCell = CreateWithMonoBehaviour <BooleanTerminal> ();
+    thirdCell.Pin = "SomeDifferentTestKey";
 
-    firstFub.Bus = bus;
-    secondFub.Bus = bus;
-    thirdFub.Bus = bus;
+    firstCell.Bus = bus;
+    secondCell.Bus = bus;
+    thirdCell.Bus = bus;
 
-    this.CallOnEnable (firstFub);
-    this.CallOnEnable (secondFub);
-    this.CallOnEnable (thirdFub);
+    this.CallOnEnable (firstCell);
+    this.CallOnEnable (secondCell);
+    this.CallOnEnable (thirdCell);
 
     int callbacksReceived = 0;
     int truesFromCallback = 0;
-    firstFub.AddCallback (
+    firstCell.AddCallback (
             (bool value) => { ++callbacksReceived; truesFromCallback += value ? 1 : 0; }
             );
-    secondFub.AddCallback (
+    secondCell.AddCallback (
             (bool value) => { ++callbacksReceived; truesFromCallback += value ? 1 : 0; }
             );
-    bool didThirdFubGetCalled = false;
-    thirdFub.AddCallback (
-            (bool value) => { didThirdFubGetCalled = true; }
+    bool didThirdCellGetCalled = false;
+    thirdCell.AddCallback (
+            (bool value) => { didThirdCellGetCalled = true; }
             );
     Assert.AreEqual (0, callbacksReceived, "no calls yet");
     bus.SetBoolean ("TestKey", true);
 
     Assert.AreEqual (2, callbacksReceived, "both fubs for the key get callbacks when changed");
     Assert.AreEqual (2, truesFromCallback, "both fubs for the key get the new value when changed");
-    Assert.IsFalse (didThirdFubGetCalled, "fub on a different key should not get a callback");
+    Assert.IsFalse (didThirdCellGetCalled, "fub on a different key should not get a callback");
 
-    GameObject.DestroyImmediate (firstFub.gameObject);
-    GameObject.DestroyImmediate (secondFub.gameObject);
-    GameObject.DestroyImmediate (thirdFub.gameObject);
+    GameObject.DestroyImmediate (firstCell.gameObject);
+    GameObject.DestroyImmediate (secondCell.gameObject);
+    GameObject.DestroyImmediate (thirdCell.gameObject);
     ScriptableObject.DestroyImmediate (bus, false);
     }
 
@@ -446,54 +446,54 @@ public void ManyFubsGetCalledWhenValueIsChanged ()
 
 
 [Test]
-public void ManyFubsGetCalledWhenEventTriggered ()
+public void ManyCellsGetCalledWhenEventTriggered ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
 
-    var firstFub = CreateWithMonoBehaviour <BooleanTerminal> ();
-    firstFub.Pin = "TestKey";
-    var secondFub = CreateWithMonoBehaviour <BooleanTerminal> ();
-    secondFub.Pin = "TestKey";
-    var thirdFub = CreateWithMonoBehaviour <BooleanTerminal> ();
-    thirdFub.Pin = "SomeDifferentTestKey";
+    var firstCell = CreateWithMonoBehaviour <BooleanTerminal> ();
+    firstCell.Pin = "TestKey";
+    var secondCell = CreateWithMonoBehaviour <BooleanTerminal> ();
+    secondCell.Pin = "TestKey";
+    var thirdCell = CreateWithMonoBehaviour <BooleanTerminal> ();
+    thirdCell.Pin = "SomeDifferentTestKey";
 
-    firstFub.Bus = bus;
-    secondFub.Bus = bus;
-    thirdFub.Bus = bus;
+    firstCell.Bus = bus;
+    secondCell.Bus = bus;
+    thirdCell.Bus = bus;
 
-    this.CallOnEnable (firstFub);
-    this.CallOnEnable (secondFub);
-    this.CallOnEnable (thirdFub);
+    this.CallOnEnable (firstCell);
+    this.CallOnEnable (secondCell);
+    this.CallOnEnable (thirdCell);
 
     int callbacksReceived = 0;
     int truesFromCallback = 0;
-    firstFub.AddCallback (
+    firstCell.AddCallback (
             (bool value) => { ++callbacksReceived; truesFromCallback += value ? 1 : 0; }
             );
-    secondFub.AddCallback (
+    secondCell.AddCallback (
             (bool value) => { ++callbacksReceived; truesFromCallback += value ? 1 : 0; }
             );
-    bool didThirdFubGetCalled = false;
-    thirdFub.AddCallback (
-            (bool value) => { didThirdFubGetCalled = true; }
+    bool didThirdCellGetCalled = false;
+    thirdCell.AddCallback (
+            (bool value) => { didThirdCellGetCalled = true; }
             );
     Assert.AreEqual (0, callbacksReceived, "no calls yet");
     bus.SignalBoolean ("TestKey", true);
 
     Assert.AreEqual (2, callbacksReceived, "both fubs for the key get callbacks when triggered");
     Assert.AreEqual (2, truesFromCallback, "both fubs for the key get the new value when triggered");
-    Assert.IsFalse (didThirdFubGetCalled, "fub on a different key should not get a callback");
+    Assert.IsFalse (didThirdCellGetCalled, "fub on a different key should not get a callback");
 
-    GameObject.DestroyImmediate (firstFub.gameObject);
-    GameObject.DestroyImmediate (secondFub.gameObject);
-    GameObject.DestroyImmediate (thirdFub.gameObject);
+    GameObject.DestroyImmediate (firstCell.gameObject);
+    GameObject.DestroyImmediate (secondCell.gameObject);
+    GameObject.DestroyImmediate (thirdCell.gameObject);
     ScriptableObject.DestroyImmediate (bus, false);
     }
 
 
 [Test]
-public void FubDoesNotCalledWhenValueIsRemoved ()
+public void CellDoesNotCalledWhenValueIsRemoved ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
@@ -518,7 +518,7 @@ public void FubDoesNotCalledWhenValueIsRemoved ()
 
 
 [Test]
-public void FubGetsCalledWithValueSetOnBusWithoutFubsWhenBused ()
+public void CellGetsCalledWithValueSetOnBusWithoutCellsWhenBused ()
     {
 var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();

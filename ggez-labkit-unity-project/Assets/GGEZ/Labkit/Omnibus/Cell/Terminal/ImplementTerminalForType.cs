@@ -75,8 +75,12 @@ public void RemoveAllCallbacks ()
 
 #endregion
 
+[Header ("*:" + Pin.INPUT)]
+
 [SerializeField] private Bus bus;
 [SerializeField] private string pin;
+
+[Space]
 [SerializeField] private D didSignal = new D ();
 
 private Wire wireIn = Wire.CELL_INPUT;

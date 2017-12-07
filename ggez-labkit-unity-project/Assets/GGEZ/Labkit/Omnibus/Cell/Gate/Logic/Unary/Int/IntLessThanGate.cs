@@ -37,6 +37,8 @@ AddComponentMenu ("GGEZ/Omnibus/Gate/Int < Value Gate")
 ]
 public sealed class IntLessThanGate : ImplementUnaryLogicGateForType <int>
 {
+
+[Header ("Value")]
 [SerializeField] int value;
 
 protected override bool evaluate (int v)

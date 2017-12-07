@@ -35,9 +35,9 @@ namespace Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Fub/Route Bus in Parent to Port Fub")
+AddComponentMenu ("GGEZ/Omnibus/Router/Bus in Parent Router")
 ]
-public class RouteBusInParentToPortFub : MonoBehaviour
+public class BusInParentRouter : MonoBehaviour
 {
 
 #region Programming Interface
@@ -66,7 +66,7 @@ public void Route (Bus bus)
 #endregion
 
 [SerializeField] private string port;
-[SerializeField] private FubCellsList cells = new FubCellsList ();
+[SerializeField] private RouterCellsList cells = new RouterCellsList ();
 
 void Awake ()
     {

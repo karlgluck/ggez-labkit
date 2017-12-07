@@ -37,6 +37,8 @@ AddComponentMenu ("GGEZ/Omnibus/Gate/Float >= Value Gate")
 ]
 public sealed class FloatGreaterThanOrEqualToGate : ImplementUnaryLogicGateForType <float>
 {
+
+[Header ("Value")]
 [SerializeField] float value;
 
 protected override bool evaluate (float v)

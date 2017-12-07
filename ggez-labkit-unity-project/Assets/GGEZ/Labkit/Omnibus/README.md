@@ -16,7 +16,7 @@ Heavily repurposed from integrated circuit design and computer engineering.
 | Bus             | Data communication system that ties together cells        |
 | Signal          | Events and memory cell changes                            |
 | Cell            | Uses a bus for I/O. Has ports and pins. Uses wires.       |
-| Fub             | Connects cells to busses. Fub = Functional Unit Block     |
+| Router          | Connects ports (on cells) to busses                       |
 | Port            | Pins on a cell with related functionality                 |
 | Wire            | Connects a bus's output pin to a cell's input pin         |
 | Event           | A one-time signal with an optional payload                |
@@ -26,6 +26,7 @@ Heavily repurposed from integrated circuit design and computer engineering.
 | Terminal (Cell) | Connects signal to Unity Event                            |
 | Gate (Cell)     | A Terminal with functionality                             |
 | Latch (Cell)    | Connects signal to bus                                    |
+| Fub             | Functional Unit Block. Drop-in collections of behavior.   |
 -------------------------------------------------------------------------------
 
 ## Quick Demo
