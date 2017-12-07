@@ -84,6 +84,21 @@ public string StringPin
 
 public override void OnDidSignal (string pin, object value)
     {
+    switch (pin)
+        {
+        case Pin.IN:
+            this.dataInput.Connect (value == null ? null : value.ToString ());
+            break;
+        case Pin.DATA:
+#if UNITY_EDITOR
+            if (value == null ? typeof(T).IsValueType : !typeof(T).IsAssignableFrom (value.GetType ()))
+                {
+                throw new System.InvalidCastException ("`value` should be " + typeof(T).Name);
+                }
+#endif
+            this.didChange.Invoke ((T)value);
+            break;
+        }
     Debug.Assert (this.stringBus != null && Pin.IsValid (this.stringPin));
     this.stringBus.SetObject (this.stringPin, value);
     }
