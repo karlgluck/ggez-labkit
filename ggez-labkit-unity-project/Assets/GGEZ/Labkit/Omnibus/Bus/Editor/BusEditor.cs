@@ -82,6 +82,10 @@ private ReorderableListCache initialTableCache;
 private ReorderableList runtimeTable;
 private ReorderableListCache runtimeTableCache;
 
+// private SerializedProperty aliases;
+// private bool aliasesFoldout;
+// private Dictionary<string, string> aliasedStandardPinsSuffixes = new Dictionary<string,string> ();
+
 private FieldInfo connectionsField;
 
 private bool enableEditingInitialValuesAtRuntime;
@@ -90,6 +94,22 @@ private string triggerParameterTypeName;
 private MethodInfo triggerMethod;
 private SerializedProperty triggerParameter;
 private Labkit.ScriptablePropertyBackingObject fieldBackingObject;
+
+// void updateAliasedStandardPinsSuffixes ()
+//     {
+//     this.aliasedStandardPinsSuffixes.Clear ();
+//     if (this.aliases != null)
+//         {
+//         for (int i = 0; i < this.aliases.arraySize; ++i)
+//             {
+//             var pin = this.aliases.GetArrayElementAtIndex (i).stringValue;
+//             if (Pin.IsValid (pin))
+//                 {
+//                 this.aliasedStandardPinsSuffixes.Add (pin, " [" + Pin.StdPin[i] + "]");
+//                 }
+//             }
+//         }
+//     }
 
 void OnEnable ()
     {
@@ -125,6 +145,10 @@ void OnEnable ()
     this.runtimeTable.onReorderCallback = (_list) => this.runtimeTableCache.Clear ();
     this.runtimeTable.elementHeightCallback = this.elementInRuntimeTableHeight;
 
+    // this.aliases = this.serializedObject.FindProperty (Bus.nameof_aliases);
+    // this.updateAliasedStandardPinsSuffixes ();
+
+
     this.setTriggerParameterType (null);
 
     this.connectionsField =
@@ -152,12 +176,23 @@ void drawInitialTableElement (Rect position, int index, bool isActive, bool isFo
 
     if (isFocused || isActive)
         {
+        EditorGUI.BeginChangeCheck ();
         EditorGUI.PropertyField (element.NameRect, element.KeyProperty, GUIContent.none);
+        if (EditorGUI.EndChangeCheck ())
+            {
+            element.Key = element.KeyProperty.stringValue;
+            }
         }
     else
         {
         EditorGUI.LabelField (element.NameRect, element.Key);
         }
+
+    // string aliasOf;
+    // if (this.aliasedStandardPinsSuffixes.TryGetValue (element.Key, out aliasOf))
+    //     {
+    //     EditorGUI.LabelField (element.AliasRect, aliasOf);
+    //     }
 
     if (element.ValueProperty != null)
         {
@@ -232,17 +267,23 @@ float elementInRuntimeTableHeight (int index)
 
 void drawRuntimeTableElement (Rect position, int index, bool isActive, bool isFocused)
     {
-    var e = this.runtimeTableCache.GetOrAddElement (index, position);
+    var element = this.runtimeTableCache.GetOrAddElement (index, position);
     
-    EditorGUI.LabelField (e.NameRect, e.Key);
+    EditorGUI.LabelField (element.NameRect, element.Key);
 
-    if (e.ValueProperty != null)
+    // string aliasOf;
+    // if (this.aliasedStandardPinsSuffixes.TryGetValue (element.Key, out aliasOf))
+    //     {
+    //     EditorGUI.LabelField (element.AliasRect, aliasOf);
+    //     }
+
+    if (element.ValueProperty != null)
         {
-        EditorGUI.PropertyField (e.ValueRect, e.ValueProperty, GUIContent.none);
+        EditorGUI.PropertyField (element.ValueRect, element.ValueProperty, GUIContent.none);
         }
     else
         {
-        EditorGUI.LabelField (e.ValueRect, e.TypeName);
+        EditorGUI.LabelField (element.ValueRect, element.TypeName);
         }
 
     }
@@ -350,13 +391,18 @@ public override void OnInspectorGUI ()
             var connections = this.connectionsField.GetValue (this.target) as IDictionary;
             if (connections != null)
                 {
-
                 foreach (string key in connections.Keys)
                     {
                     var wires = connections[key] as ICollection;
                     int count = wires == null ? 0 : wires.Count;
                     total += count;
-                    if (!this.Foldout (key, count))
+                    string foldoutText = key;
+                    // string aliasSuffix;
+                    // if (this.aliasedStandardPinsSuffixes.TryGetValue (key, out aliasSuffix))
+                    //     {
+                    //     foldoutText += aliasSuffix;
+                    //     }
+                    if (!this.Foldout (foldoutText, count))
                         {
                         continue;
                         }
@@ -378,6 +424,28 @@ public override void OnInspectorGUI ()
             }
         EditorGUILayout.LabelField ("Total Cells", total.ToString ());
         }
+    
+    // this.aliasesFoldout = EditorGUILayout.Foldout (this.aliasesFoldout, "Aliases");
+    // if (this.aliasesFoldout)
+    //     {
+    //     EditorGUI.BeginChangeCheck ();
+    //     EditorGUI.indentLevel++;
+    //     for (int i = 0; i < Pin.StdPinCount; ++i)
+    //         {
+    //         var element = this.aliases.GetArrayElementAtIndex (i);
+    //         var labelRect = EditorGUILayout.GetControlRect ();
+    //         var pinRect = new Rect (labelRect);
+    //         pinRect.xMin += EditorGUIUtility.labelWidth;
+    //         labelRect.xMax = pinRect.xMin;
+    //         EditorGUI.LabelField (labelRect, "[" + Pin.StdPin[i] + "]");
+    //         EditorGUI.PropertyField (pinRect, element, GUIContent.none);
+    //         }
+    //     EditorGUI.indentLevel--;
+    //     if (EditorGUI.EndChangeCheck ())
+    //         {
+    //         this.updateAliasedStandardPinsSuffixes ();
+    //         }
+    //     }
 
     if (this.serializedObject.ApplyModifiedProperties ())
         {
@@ -479,6 +547,12 @@ private class ReorderableListCache
                     position.width - retval.NameRect.width - 5f,
                     retval.Height - 4f
                     );
+            // retval.AliasRect = new Rect (
+            //         retval.NameRect.xMax - 25f,
+            //         retval.NameRect.yMin,
+            //         25f,
+            //         EditorGUIUtility.singleLineHeight
+            //         );
             retval.Position = position;
             }
         return retval;
@@ -517,6 +591,7 @@ private class ReorderableListCache
         public Rect Position;
         public Rect NameRect;
         public Rect ValueRect;
+        // public Rect AliasRect;
         }
 
     private Dictionary <int, ListElementData> elements = new Dictionary <int, ListElementData> ();

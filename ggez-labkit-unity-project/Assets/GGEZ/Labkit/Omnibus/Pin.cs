@@ -35,6 +35,49 @@ public const string SELECT = "SEL";
 public const string ENABLE = "EN";
 public const string CLOCK = "CLK";
 
+
+
+// Disabled for now. Might be better to do this with an intermediary class that you can
+// add on to the same object as a Bus in order to give it access to pins rather than
+// directly into the Bus itself.
+//
+// #region Standard Pins
+// public static readonly string[] StdPin = StdPinAliases;
+// public static string[] StdPinAliases
+//     {
+//     get { return new string[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", }; }
+//     }
+// public const int StdPinCount = 26;
+// public const int Std_A_Index = 0;
+// public const int Std_B_Index = 1;
+// public const int Std_C_Index = 2;
+// public const int Std_D_Index = 3;
+// public const int Std_E_Index = 4;
+// public const int Std_F_Index = 5;
+// public const int Std_G_Index = 6;
+// public const int Std_H_Index = 7;
+// public const int Std_I_Index = 8;
+// public const int Std_J_Index = 9;
+// public const int Std_K_Index = 10;
+// public const int Std_L_Index = 11;
+// public const int Std_M_Index = 12;
+// public const int Std_N_Index = 13;
+// public const int Std_O_Index = 14;
+// public const int Std_P_Index = 15;
+// public const int Std_Q_Index = 16;
+// public const int Std_R_Index = 17;
+// public const int Std_S_Index = 18;
+// public const int Std_T_Index = 19;
+// public const int Std_U_Index = 20;
+// public const int Std_V_Index = 21;
+// public const int Std_W_Index = 22;
+// public const int Std_X_Index = 23;
+// public const int Std_Y_Index = 24;
+// public const int Std_Z_Index = 25;
+// #endregion
+
+
+
 /*
 
 A

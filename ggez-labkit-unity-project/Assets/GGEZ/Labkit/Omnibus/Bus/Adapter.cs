@@ -1,4 +1,4 @@
-// This is free and unencumbered software released into the public domain.
+﻿// This is free and unencumbered software released into the public domain.
 //
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -25,36 +25,47 @@
 
 using System;
 using UnityEngine;
+using UnityEngine.Events;
+using System.Collections.Generic;
 
 namespace GGEZ.Omnibus
 {
 
-
-
-public sealed partial class Bus
+[
+RequireComponent (typeof (Bus))
+]
+public sealed partial class Adapter : MonoBehaviour
 {
 
-public void SetBoolean (string key, bool value) { this.SetObject (key, value); }
-public void SignalBoolean (string key, bool value) { this.SignalObject (key, value); }
-public bool GetBoolean (string key, out bool value) { return this.getT<bool> (key, out value); }
-public bool GetBoolean (string key, bool defaultValue) { return this.getT<bool> (key, defaultValue); }
+[SerializeField] private string[] aliases = Pin.StdPinAliases;
 
-// Disabled for now
-// public void SetBooleanA (bool value) { this.SetObject (this.aliases[Pin.Std_A_Index], value); }
-// public void SignalBooleanA (bool value) { this.SignalObject (this.aliases[Pin.Std_A_Index], value); }
-// public bool GetBooleanA (out bool value) { return this.getT<bool> (this.aliases[Pin.Std_A_Index], out value); }
-// public bool GetBooleanA (bool defaultValue) { return this.getT<bool> (this.aliases[Pin.Std_A_Index], defaultValue); }
+public void SetBooleanA (bool value) { this.bus.SetObject (this.aliases[Pin.Std_A_Index], value); }
+public void SignalBooleanA (bool value) { this.bus.SignalObject (this.aliases[Pin.Std_A_Index], value); }
+public bool GetBooleanA (out bool value) { return this.bus.GetBoolean (this.aliases[Pin.Std_A_Index], out value); }
+public bool GetBooleanA (bool defaultValue) { return this.bus.GetBoolean (this.aliases[Pin.Std_A_Index], defaultValue); }
+
+private Bus bus;
+
+void Awake ()
+	{
+	this.bus = (Bus)this.GetComponent (typeof (Bus));
+	}
+
+void OnValidate ()
+	{
+    if (this.aliases.Length != Pin.StdPinCount)
+        {
+        Array.Resize<string> (ref this.aliases, Pin.StdPinCount);
+        }
+    for (int i = 0; i < this.aliases.Length; ++i)
+        {
+        if (Pin.IsInvalid (this.aliases[i]))
+            {
+            this.aliases[i] = Pin.StdPin[i];
+            }
+        }
+	}
 
 }
-
-
-public sealed partial class SerializedMemoryCell
-{
-
-public bool Value_Boolean;
-
-}
-
-
 
 }
