@@ -48,7 +48,6 @@ CanEditMultipleObjects
 public class BusEditor : Editor
 {
 
-
 [MenuItem("Assets/Create/GGEZ/Omnibus/Bus")]
 public static void CreateBusAsset ()
     {
@@ -81,7 +80,9 @@ public static void CreateBusAsset ()
 
 
 private ReorderableList initialTable;
+private ReorderableListCache initialTableCache;
 private ReorderableList runtimeTable;
+private ReorderableListCache runtimeTableCache;
 
 private FieldInfo connectionsField;
 
@@ -91,8 +92,6 @@ private string triggerParameterTypeName;
 private MethodInfo triggerMethod;
 private SerializedProperty triggerParameter;
 private Labkit.ScriptablePropertyBackingObject fieldBackingObject;
-
-
 
 void OnEnable ()
     {
@@ -104,9 +103,13 @@ void OnEnable ()
             true, // displayAddButton
             true  // displayRemoveButton
             );
+    this.initialTableCache = new ReorderableListCache (this.initialTable);
     this.initialTable.drawHeaderCallback = this.drawInitialTableHeader;
     this.initialTable.drawElementCallback = this.drawInitialTableElement;
     this.initialTable.onAddDropdownCallback = this.onTableAddDropdown;
+    this.initialTable.onChangedCallback = (_list) => this.initialTableCache.Clear ();
+    this.initialTable.onReorderCallback = (_list) => this.initialTableCache.Clear ();
+    this.initialTable.elementHeightCallback = this.elementInInitialTableHeight;
 
     this.runtimeTable = new ReorderableList (
             serializedObject, 
@@ -116,9 +119,13 @@ void OnEnable ()
             false, // displayAddButton
             false  // displayRemoveButton
             );
+    this.runtimeTableCache = new ReorderableListCache (this.runtimeTable);
     this.runtimeTable.drawHeaderCallback = this.drawRuntimeTableHeader;
     this.runtimeTable.drawElementCallback = this.drawRuntimeTableElement;
     this.runtimeTable.onAddDropdownCallback = this.onTableAddDropdown;
+    this.runtimeTable.onChangedCallback = (_list) => this.runtimeTableCache.Clear ();
+    this.runtimeTable.onReorderCallback = (_list) => this.runtimeTableCache.Clear ();
+    this.runtimeTable.elementHeightCallback = this.elementInRuntimeTableHeight;
 
     this.setTriggerParameterType (null);
 
@@ -134,9 +141,27 @@ void drawInitialTableHeader (Rect rect)
     EditorGUI.LabelField (rect, "ROM");
     }
 
+float elementInInitialTableHeight (int index)
+    {
+    return this.initialTableCache.GetElementInTableHeight (index);
+    // SerializedProperty property = this.initialTable.serializedProperty.GetArrayElementAtIndex (index);
+    // var typeProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Type);
+    // var valueProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Value_ + typeProperty.stringValue);
+    // return (valueProperty == null ? EditorGUIUtility.singleLineHeight : EditorGUI.GetPropertyHeight (valueProperty)) + 4f;
+    }
+
+
+
 void drawInitialTableElement (Rect position, int index, bool isActive, bool isFocused)
     {
-    SerializedProperty property = this.initialTable.serializedProperty.GetArrayElementAtIndex (index);
+    string key;
+    SerializedProperty keyProperty;
+    string typeName;
+    SerializedProperty valueProperty;
+
+    this.initialTableCache.GetDrawTableElementInfo (index, out key, out keyProperty, out typeName, out valueProperty);
+    
+    // SerializedProperty property = this.initialTable.serializedProperty.GetArrayElementAtIndex (index);
     
     Rect nameRect = new Rect (
             position.xMin,
@@ -153,22 +178,25 @@ void drawInitialTableElement (Rect position, int index, bool isActive, bool isFo
 
     if (isFocused || isActive)
         {
-        EditorGUI.PropertyField (nameRect, property.FindPropertyRelative (SerializedMemoryCell.nameof_Key), GUIContent.none);
+        // EditorGUI.PropertyField (nameRect, property.FindPropertyRelative (SerializedMemoryCell.nameof_Key), GUIContent.none);
+        EditorGUI.PropertyField (nameRect, keyProperty, GUIContent.none);
         }
     else
         {
-        EditorGUI.LabelField (nameRect, property.FindPropertyRelative (SerializedMemoryCell.nameof_Key).stringValue);
+        // EditorGUI.LabelField (nameRect, property.FindPropertyRelative (SerializedMemoryCell.nameof_Key).stringValue);
+        EditorGUI.LabelField (nameRect, key);
         }
 
-    var typeProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Type);
-    var valueProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Value_ + typeProperty.stringValue);
+    // var typeProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Type);
+    // var valueProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Value_ + typeProperty.stringValue);
     if (valueProperty != null)
         {
         EditorGUI.PropertyField (valueRect, valueProperty, GUIContent.none);
         }
     else
         {
-        EditorGUI.LabelField (valueRect, typeProperty.stringValue);
+        // EditorGUI.LabelField (valueRect, typeProperty.stringValue);
+        EditorGUI.LabelField (valueRect, typeName);
         }
     }
 
@@ -228,9 +256,25 @@ void drawRuntimeTableHeader (Rect rect)
     EditorGUI.LabelField (rect, "Memory");
     }
 
+float elementInRuntimeTableHeight (int index)
+    {
+    return this.runtimeTableCache.GetElementInTableHeight (index);
+    // SerializedProperty property = this.runtimeTable.serializedProperty.GetArrayElementAtIndex (index);
+    // var typeProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Type);
+    // var valueProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Value_ + typeProperty.stringValue);
+    // return (valueProperty == null ? EditorGUIUtility.singleLineHeight : EditorGUI.GetPropertyHeight (valueProperty)) + 4f;
+    }
+
 void drawRuntimeTableElement (Rect position, int index, bool isActive, bool isFocused)
     {
-    SerializedProperty property = this.runtimeTable.serializedProperty.GetArrayElementAtIndex (index);
+
+    string key;
+    string typeName;
+    SerializedProperty valueProperty;
+
+    this.runtimeTableCache.GetDrawTableElementInfo (index, out key, out typeName, out valueProperty);
+    
+    // SerializedProperty property = this.runtimeTable.serializedProperty.GetArrayElementAtIndex (index);
         
     Rect nameRect = new Rect (
             position.xMin,
@@ -245,18 +289,21 @@ void drawRuntimeTableElement (Rect position, int index, bool isActive, bool isFo
             EditorGUIUtility.singleLineHeight
             );
 
-    EditorGUI.LabelField (nameRect, property.FindPropertyRelative (SerializedMemoryCell.nameof_Key).stringValue);
+    // EditorGUI.LabelField (nameRect, property.FindPropertyRelative (SerializedMemoryCell.nameof_Key).stringValue);
+    EditorGUI.LabelField (nameRect, key);
 
-    var typeProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Type);
-    var valueProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Value_ + typeProperty.stringValue);
+    // var typeProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Type);
+    // var valueProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Value_ + typeProperty.stringValue);
     if (valueProperty != null)
         {
         EditorGUI.PropertyField (valueRect, valueProperty, GUIContent.none);
         }
     else
         {
-        EditorGUI.LabelField (valueRect, typeProperty.stringValue);
+        // EditorGUI.LabelField (valueRect, typeProperty.stringValue);
+        EditorGUI.LabelField (valueRect, typeName);
         }
+
     }
 
 
@@ -386,8 +433,13 @@ public override void OnInspectorGUI ()
         EditorGUILayout.LabelField ("Total Cells", total.ToString ());
         }
 
-    this.serializedObject.ApplyModifiedProperties ();
+    if (this.serializedObject.ApplyModifiedProperties ())
+        {
+        // this.initialTableCache.Clear ();
+        // this.runtimeTableCache.Clear ();
+        }
     }
+
 
 private Dictionary <string, bool> foldouts = new Dictionary <string, bool> ();
 
@@ -439,6 +491,79 @@ private void manualTrigger (string key)
             this.triggerMethod.Invoke(targetObject, new object[] { key });
             }
         }
+    }
+
+
+private class ReorderableListCache
+    {
+
+    public ReorderableListCache (ReorderableList list)
+        {
+        this.list = list;
+        }
+    
+    public void Clear ()
+        {
+        this.elements.Clear ();
+        }
+
+    public float GetElementInTableHeight (int arrayIndex)
+        {
+        // Do this if we need dynamic height
+        // var valueProperty = this.GetOrAddElement (arrayIndex).ValueProperty;
+        // return (valueProperty == null ? EditorGUIUtility.singleLineHeight : EditorGUI.GetPropertyHeight (valueProperty)) + 4f;
+        return this.GetOrAddElement (arrayIndex).Height;
+        }
+
+    public void GetDrawTableElementInfo (int arrayIndex, out string key, out string typeName, out SerializedProperty valueProperty)
+        {
+        var element = this.GetOrAddElement (arrayIndex);
+        key = element.Key;
+        typeName = element.TypeName; 
+        valueProperty = element.ValueProperty;
+        }
+
+    public void GetDrawTableElementInfo (int arrayIndex, out string key, out SerializedProperty keyProperty, out string typeName, out SerializedProperty valueProperty)
+        {
+        var element = this.GetOrAddElement (arrayIndex);
+        key = element.Key;
+        keyProperty = element.KeyProperty;
+        typeName = element.TypeName; 
+        valueProperty = element.ValueProperty;
+        }
+
+    private Element GetOrAddElement (int index)
+        {
+        Element retval;
+        if (!this.elements.TryGetValue (index, out retval))
+            {
+            retval = new Element ();
+
+            SerializedProperty property = this.list.serializedProperty.GetArrayElementAtIndex (index);
+            retval.KeyProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Key);
+            retval.Key = retval.KeyProperty.stringValue;
+            var typeProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Type);
+            retval.TypeName = typeProperty.stringValue;
+            retval.ValueProperty = property.FindPropertyRelative (SerializedMemoryCell.nameof_Value_ + retval.TypeName);
+            retval.Height = (retval.ValueProperty == null ? EditorGUIUtility.singleLineHeight : EditorGUI.GetPropertyHeight (retval.ValueProperty)) + 4f;
+
+            this.elements.Add (index, retval);
+            }
+        return retval;
+        }
+
+    private ReorderableList list;
+
+    private class Element
+        {
+        public float Height;
+        public string Key;
+        public SerializedProperty KeyProperty;
+        public string TypeName;
+        public SerializedProperty ValueProperty;
+        }
+
+    private Dictionary <int, Element> elements = new Dictionary <int, Element> ();
     }
 
 }
