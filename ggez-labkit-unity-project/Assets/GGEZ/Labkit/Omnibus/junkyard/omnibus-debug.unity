@@ -194,7 +194,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 563528562}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 331.5, y: 186.5, z: 0}
+  m_LocalPosition: {x: 298.5, y: 168, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 588235542}
@@ -231,7 +231,7 @@ RectTransform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 588235541}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -265.2, y: -149.2, z: 0}
+  m_LocalPosition: {x: -238.8, y: -134.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 563528566}
@@ -452,15 +452,31 @@ MonoBehaviour:
     Value_Boolean: 0
     Value_Single: 0
     Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
     Value_String: a
+    Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
-  - Key: anotherkey
-    Type: String
+  - Key: 65ae477
+    Type: RectTransform
     Value_Boolean: 0
     Value_Single: 0
     Value_Int32: 0
-    Value_String: b
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: UI
+    Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
   - Key: layer
@@ -468,7 +484,47 @@ MonoBehaviour:
     Value_Boolean: 0
     Value_Single: 0
     Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
     Value_String: UI
+    Value_Transform: {fileID: 0}
+    Value_Vector2: {x: 0, y: 0}
+    Value_Vector3: {x: 0, y: 0, z: 0}
+  - Key: anotherkey
+    Type: String
+    Value_Boolean: 0
+    Value_Single: 0
+    Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: hello
+    Value_Transform: {fileID: 0}
+    Value_Vector2: {x: 0, y: 0}
+    Value_Vector3: {x: 0, y: 0, z: 0}
+  - Key: 7c8c503
+    Type: Rect
+    Value_Boolean: 0
+    Value_Single: 0
+    Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: UI
+    Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
   - Key: visible
@@ -476,7 +532,15 @@ MonoBehaviour:
     Value_Boolean: 0
     Value_Single: 0
     Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
     Value_String: UI
+    Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
   serializedMemory:
@@ -485,15 +549,31 @@ MonoBehaviour:
     Value_Boolean: 0
     Value_Single: 0
     Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
     Value_String: a
+    Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
-  - Key: anotherkey
-    Type: String
+  - Key: 65ae477
+    Type: RectTransform
     Value_Boolean: 0
     Value_Single: 0
     Value_Int32: 0
-    Value_String: b
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: 
+    Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
   - Key: layer
@@ -501,7 +581,47 @@ MonoBehaviour:
     Value_Boolean: 0
     Value_Single: 0
     Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
     Value_String: UI
+    Value_Transform: {fileID: 0}
+    Value_Vector2: {x: 0, y: 0}
+    Value_Vector3: {x: 0, y: 0, z: 0}
+  - Key: anotherkey
+    Type: String
+    Value_Boolean: 0
+    Value_Single: 0
+    Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: hello
+    Value_Transform: {fileID: 0}
+    Value_Vector2: {x: 0, y: 0}
+    Value_Vector3: {x: 0, y: 0, z: 0}
+  - Key: 7c8c503
+    Type: Rect
+    Value_Boolean: 0
+    Value_Single: 0
+    Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: 
+    Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
   - Key: visible
@@ -509,7 +629,15 @@ MonoBehaviour:
     Value_Boolean: 0
     Value_Single: 0
     Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
     Value_String: 
+    Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
 --- !u!4 &1306782601
@@ -817,7 +945,15 @@ MonoBehaviour:
     Value_Boolean: 0
     Value_Single: 0
     Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
     Value_String: A STRING
+    Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
   - Key: b
@@ -825,7 +961,15 @@ MonoBehaviour:
     Value_Boolean: 0
     Value_Single: 0
     Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
     Value_String: B STRING
+    Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
   - Key: c
@@ -833,7 +977,15 @@ MonoBehaviour:
     Value_Boolean: 0
     Value_Single: 0
     Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
     Value_String: THIS IS C
+    Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
   serializedMemory:
@@ -842,7 +994,15 @@ MonoBehaviour:
     Value_Boolean: 0
     Value_Single: 0
     Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
     Value_String: A STRING
+    Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
   - Key: b
@@ -850,7 +1010,15 @@ MonoBehaviour:
     Value_Boolean: 0
     Value_Single: 0
     Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
     Value_String: B STRING
+    Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
   - Key: c
@@ -858,7 +1026,15 @@ MonoBehaviour:
     Value_Boolean: 0
     Value_Single: 0
     Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
     Value_String: THIS IS C
+    Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
 --- !u!4 &1817206761
