@@ -59,20 +59,6 @@ public Bus Bus
 
 #endregion
 
-public void AddCallback (UnityAction<bool> action)
-    {
-    this.didSignal.AddListener (action);
-    }
-
-public void RemoveCallback (UnityAction<bool> action)
-    {
-    this.didSignal.RemoveListener (action);
-    }
-
-public void RemoveAllCallbacks ()
-    {
-    this.didSignal.RemoveAllListeners ();
-    }
 
 
 protected abstract bool evaluate (T value);
@@ -86,6 +72,7 @@ private Wire wireIn = Wire.CELL_INPUT;
 
 [Space]
 [SerializeField] private UnityEventForImplementUnaryLogicGateForType didSignal = new UnityEventForImplementUnaryLogicGateForType ();
+[SerializeField] private UnityEventForImplementUnaryLogicGateForType didSignalNot = new UnityEventForImplementUnaryLogicGateForType ();
 
 void OnEnable ()
     {
@@ -123,6 +110,7 @@ public override void OnDidSignal (string pin, object value)
     if (this.lastEvaluation != comparator)
         {
         this.didSignal.Invoke (emittedValue);
+        this.didSignalNot.Invoke (!emittedValue);
         this.lastEvaluation = comparator;
         }
     }

@@ -35,6 +35,37 @@ public const string SELECT = "SEL";
 public const string ENABLE = "EN";
 public const string CLOCK = "CLK";
 
+/*
+
+A
+B
+C
+D
+E
+F
+G
+H
+I
+J
+K
+L
+M
+N
+O
+P
+Q
+R
+S
+T
+U
+V
+W
+X
+Y
+Z
+
+*/
+
 public static bool IsInvalid (string pin)
     {
     return string.IsNullOrEmpty (pin);

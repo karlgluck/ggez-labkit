@@ -39,6 +39,7 @@ public void SignalBoolean (string key, bool value) { this.SignalObject (key, val
 public bool GetBoolean (string key, out bool value) { return this.getT<bool> (key, out value); }
 public bool GetBoolean (string key, bool defaultValue) { return this.getT<bool> (key, defaultValue); }
 
+// public bool SignalBooleanA (bool value) { this.SignalObject (this.aliases[Pin.A_Index], value); }
 }
 
 
