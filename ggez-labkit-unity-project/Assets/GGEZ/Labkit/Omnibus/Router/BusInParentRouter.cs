@@ -66,7 +66,7 @@ public void Route (Bus bus)
 #endregion
 
 [SerializeField] private string port;
-[SerializeField] private RouterCellsList cells = new RouterCellsList ();
+[SerializeField] private CellsList cells = new CellsList ();
 
 void Awake ()
     {

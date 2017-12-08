@@ -36,7 +36,7 @@ namespace Omnibus
 [
 Serializable
 ]
-public sealed class RouterCellsList
+public sealed class CellsList
 {
 public List<GameObject> Cells = new List<GameObject> ();
 public const string nameof_Cells = "Cells";

@@ -43,7 +43,7 @@ public string Pin
     set
         {
         this.pin = value;
-        this.wireIn.Connect (this.bus, value);
+        this.inputWire.Connect (this.bus, value);
         }
     }
 
@@ -52,7 +52,7 @@ public Bus Bus
     set
         {
         this.bus = value;
-        this.wireIn.Connect (value, this.pin);
+        this.inputWire.Connect (value, this.pin);
         }
     }
 
@@ -82,7 +82,7 @@ public void RemoveAllCallbacks ()
 [Space]
 [SerializeField] private D didSignal = new D ();
 
-private Wire wireIn = Wire.CELL_INPUT;
+private Wire inputWire = Wire.CELL_INPUT;
 
 public override void OnDidSignal (string pin, object value)
     {
@@ -103,17 +103,17 @@ public override void Route (string port, Bus bus)
 
 void OnEnable ()
     {
-    this.wireIn.Attach (this, this.bus, this.pin);
+    this.inputWire.Attach (this, this.bus, this.pin);
     }
 
 void OnDisable ()
     {
-    this.wireIn.Detach ();
+    this.inputWire.Detach ();
     }
 
 void OnValidate ()
     {
-    this.wireIn.Connect (this.bus, this.pin);
+    this.inputWire.Connect (this.bus, this.pin);
     }
 
 }
