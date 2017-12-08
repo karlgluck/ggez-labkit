@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -52,7 +50,5 @@ public %CSHARPTYPE% Value_%CSHARPTYPENAME%;
 }
 
 
-
-}
 
 }

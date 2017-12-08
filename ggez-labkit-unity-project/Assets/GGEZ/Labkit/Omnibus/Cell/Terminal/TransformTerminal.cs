@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 [Serializable] public sealed class UnityEventForTransformTerminal : UnityEngine.Events.UnityEvent<Transform> { }
@@ -38,7 +36,5 @@ Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Terminal/Transform Terminal")
 ]
 public sealed class TransformTerminal : ImplementTerminalForType <Transform, UnityEventForTransformTerminal> { }
-
-}
 
 }

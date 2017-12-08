@@ -34,9 +34,7 @@ using System.Linq;
 using System.IO;
 
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -525,6 +523,4 @@ private class ReorderableListCache
     }
 
 }
-}
-
 }

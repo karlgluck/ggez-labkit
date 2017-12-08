@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -58,7 +56,5 @@ public float Value_Single;
 }
 
 
-
-}
 
 }

@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 [Serializable] public sealed class UnityEventForBooleanTerminal : UnityEngine.Events.UnityEvent<bool> { }
@@ -38,7 +36,5 @@ Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Terminal/Boolean Terminal")
 ]
 public sealed class BooleanTerminal : ImplementTerminalForType <bool, UnityEventForBooleanTerminal> { }
-
-}
 
 }

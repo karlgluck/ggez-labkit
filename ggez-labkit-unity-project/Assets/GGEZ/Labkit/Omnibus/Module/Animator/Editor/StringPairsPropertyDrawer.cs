@@ -28,9 +28,7 @@ using UnityEditor;
 using System.Collections;
 using UnityEditorInternal;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 [
@@ -122,7 +120,5 @@ public override void OnGUI (
     }
 }
 
-
-}
 
 }

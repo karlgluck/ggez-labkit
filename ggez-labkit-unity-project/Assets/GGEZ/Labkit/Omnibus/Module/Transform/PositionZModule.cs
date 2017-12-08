@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -56,10 +54,3 @@ public override void OnDidSignal (string pin, object value)
 }
 
 }
-
-}
-
-
-
-
-

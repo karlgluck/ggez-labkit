@@ -28,9 +28,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using System.Collections.Generic;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -133,7 +131,5 @@ public override void OnDidSignal (string pin, object value)
 
 
 
-
-}
 
 }

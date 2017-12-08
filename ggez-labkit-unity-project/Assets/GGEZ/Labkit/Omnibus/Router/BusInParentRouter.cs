@@ -27,9 +27,7 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -80,7 +78,5 @@ void Awake ()
 }
 
 
-
-}
 
 }

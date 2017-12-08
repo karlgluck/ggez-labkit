@@ -27,9 +27,7 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -42,7 +40,5 @@ public List<string> Keys = new List<string> ();
 }
 
 
-
-}
 
 }

@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 [Serializable] public sealed class UnityEventForStringMux : UnityEngine.Events.UnityEvent<string> { }
@@ -38,7 +36,5 @@ Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Mux/String Mux")
 ]
 public sealed class StringMux : ImplementMuxForType <string, UnityEventForStringMux> { }
-
-}
 
 }

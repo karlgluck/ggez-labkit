@@ -28,9 +28,7 @@ using UnityEngine;
 using Image = UnityEngine.UI.Image;
 
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -155,10 +153,3 @@ void Update ()
 }
 
 }
-
-}
-
-
-
-
-

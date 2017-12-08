@@ -27,9 +27,7 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -43,7 +41,5 @@ public const string nameof_Cells = "Cells";
 }
 
 
-
-}
 
 }

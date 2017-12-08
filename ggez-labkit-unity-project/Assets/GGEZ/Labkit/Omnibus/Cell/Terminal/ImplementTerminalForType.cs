@@ -28,9 +28,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 public class ImplementTerminalForType<T, D> : Cell where D : UnityEvent<T>, new ()
@@ -118,5 +116,4 @@ void OnValidate ()
 
 }
 
-}
 }

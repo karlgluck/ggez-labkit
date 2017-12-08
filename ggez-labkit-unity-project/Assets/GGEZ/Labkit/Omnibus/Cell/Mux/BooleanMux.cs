@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 [Serializable] public sealed class UnityEventForBooleanMux : UnityEngine.Events.UnityEvent<bool> { }
@@ -38,7 +36,5 @@ Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Mux/Boolean Mux")
 ]
 public sealed class BooleanMux : ImplementMuxForType <bool, UnityEventForBooleanMux> { }
-
-}
 
 }

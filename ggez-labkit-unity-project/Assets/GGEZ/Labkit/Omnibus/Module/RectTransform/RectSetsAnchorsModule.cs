@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -116,10 +114,3 @@ void OnValidate ()
 }
 
 }
-
-}
-
-
-
-
-

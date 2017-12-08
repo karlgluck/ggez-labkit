@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 [Serializable] public sealed class UnityEventForFloatTerminal : UnityEngine.Events.UnityEvent<float> { }
@@ -38,7 +36,5 @@ Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Terminal/Float Terminal")
 ]
 public sealed class FloatTerminal : ImplementTerminalForType<float, UnityEventForFloatTerminal> { }
-
-}
 
 }

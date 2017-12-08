@@ -32,9 +32,7 @@ using Memory = System.Collections.Generic.Dictionary<string, object>;
 using SerializedMemory = System.Collections.Generic.List<GGEZ.Omnibus.SerializedMemoryCell>;
 using StringCollection = System.Collections.Generic.ICollection<string>;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 // TODO: add "channels" or maybe "passthru pins" or something like that which do
@@ -450,10 +448,6 @@ public const string nameof_SignalObject = "SignalObject";
 
 
 
-
-
-
-}
 
 
 

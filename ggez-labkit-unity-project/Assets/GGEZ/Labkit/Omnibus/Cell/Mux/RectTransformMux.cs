@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 [Serializable] public sealed class UnityEventForRectTransformMux : UnityEngine.Events.UnityEvent<RectTransform> { }
@@ -38,7 +36,5 @@ Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Mux/RectTransform Mux")
 ]
 public sealed class RectTransformMux : ImplementMuxForType <RectTransform, UnityEventForRectTransformMux> { }
-
-}
 
 }

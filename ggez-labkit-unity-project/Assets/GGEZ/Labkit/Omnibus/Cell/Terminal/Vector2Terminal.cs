@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 [Serializable] public sealed class UnityEventForVector2Terminal : UnityEngine.Events.UnityEvent<Vector2> { }
@@ -38,7 +36,5 @@ Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Terminal/Vector2 Terminal")
 ]
 public sealed class Vector2Terminal : ImplementTerminalForType <Vector2, UnityEventForVector2Terminal> { }
-
-}
 
 }

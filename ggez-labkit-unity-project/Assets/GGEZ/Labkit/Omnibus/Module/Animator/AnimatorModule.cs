@@ -29,9 +29,7 @@ using UnityEngine.Events;
 using System.Collections.Generic;
 using StringCollection = System.Collections.Generic.List<string>;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -115,5 +113,3 @@ void refresh ()
 
 
 }
-}
-

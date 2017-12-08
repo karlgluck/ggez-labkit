@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 [
@@ -49,5 +47,4 @@ protected override bool evaluate (int v)
 
 }
 
-}
 }

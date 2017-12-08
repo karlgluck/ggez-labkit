@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 [Serializable] public sealed class UnityEventForVector2Mux : UnityEngine.Events.UnityEvent<Vector2> { }
@@ -38,7 +36,5 @@ Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Mux/Vector2 Mux")
 ]
 public sealed class Vector2Mux : ImplementMuxForType <Vector2, UnityEventForVector2Mux> { }
-
-}
 
 }

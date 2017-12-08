@@ -24,9 +24,7 @@
 // For more information, please refer to <http://unlicense.org/>
 
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -45,5 +43,4 @@ void Route (string port, Bus bus);
 }
 
 
-}
 }

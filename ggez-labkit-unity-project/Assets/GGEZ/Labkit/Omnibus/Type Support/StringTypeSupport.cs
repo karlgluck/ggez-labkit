@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -54,7 +52,5 @@ public string Value_String;
 }
 
 
-
-}
 
 }

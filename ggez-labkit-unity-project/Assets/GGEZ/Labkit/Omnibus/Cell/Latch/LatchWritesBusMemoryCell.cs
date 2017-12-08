@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -140,8 +138,6 @@ private void refresh ()
         this.input.Connect (this.inputBus, this.inputPin);
         }
     }
-
-}
 
 }
 

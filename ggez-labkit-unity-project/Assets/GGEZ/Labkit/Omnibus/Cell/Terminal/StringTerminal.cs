@@ -27,9 +27,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 [Serializable] public sealed class UnityEventForStringTerminal : UnityEngine.Events.UnityEvent<string> { }
@@ -118,5 +116,4 @@ void OnValidate ()
 
 }
 
-}
 }

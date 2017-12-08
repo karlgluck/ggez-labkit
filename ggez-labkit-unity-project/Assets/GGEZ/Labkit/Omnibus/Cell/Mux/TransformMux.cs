@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 [Serializable] public sealed class UnityEventForTransformMux : UnityEngine.Events.UnityEvent<Transform> { }
@@ -38,7 +36,5 @@ Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Mux/Transform Mux")
 ]
 public sealed class TransformMux : ImplementMuxForType <Transform, UnityEventForTransformMux> { }
-
-}
 
 }

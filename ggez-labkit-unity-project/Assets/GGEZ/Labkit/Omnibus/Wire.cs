@@ -25,9 +25,7 @@
 
 using System;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 public class Wire
@@ -160,5 +158,4 @@ public void Signal (object value)
 }
 
 
-}
 }

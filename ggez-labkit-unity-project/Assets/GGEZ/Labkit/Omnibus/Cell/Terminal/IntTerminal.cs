@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 [Serializable] public sealed class UnityEventForIntTerminal : UnityEngine.Events.UnityEvent<int> { }
@@ -38,7 +36,5 @@ Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Terminal/Int Terminal")
 ]
 public sealed class IntTerminal : ImplementTerminalForType <int, UnityEventForIntTerminal> { }
-
-}
 
 }

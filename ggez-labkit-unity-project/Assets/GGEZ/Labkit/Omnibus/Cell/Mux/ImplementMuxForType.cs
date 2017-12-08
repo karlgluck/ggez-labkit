@@ -28,9 +28,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -171,5 +169,4 @@ private void refresh ()
 
 
 
-}
 }

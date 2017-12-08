@@ -27,9 +27,7 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -167,5 +165,4 @@ private void OnGUI()
     }
 }
 
-}
 }

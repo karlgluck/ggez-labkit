@@ -28,9 +28,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 
@@ -112,8 +110,6 @@ public const string nameof_Key = "Key";
 public const string nameof_Type = "Type";
 public const string nameof_Value_ = "Value_";
 #endregion
-}
-
 }
 
 }

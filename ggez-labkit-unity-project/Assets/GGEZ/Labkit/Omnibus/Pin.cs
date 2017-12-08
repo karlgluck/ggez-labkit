@@ -24,9 +24,7 @@
 // For more information, please refer to <http://unlicense.org/>
 
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 public static partial class Pin
@@ -48,5 +46,4 @@ public static bool IsValid (string pin)
     }
 }
 
-}
 }

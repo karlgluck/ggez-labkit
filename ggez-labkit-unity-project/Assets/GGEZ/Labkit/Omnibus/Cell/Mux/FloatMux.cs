@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 [Serializable] public sealed class UnityEventForFloatMux : UnityEngine.Events.UnityEvent<float> { }
@@ -38,7 +36,5 @@ Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Mux/Float Mux")
 ]
 public sealed class FloatMux : ImplementMuxForType <float, UnityEventForFloatMux> { }
-
-}
 
 }

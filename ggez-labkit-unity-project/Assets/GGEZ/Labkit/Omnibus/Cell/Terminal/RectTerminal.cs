@@ -26,9 +26,7 @@
 using System;
 using UnityEngine;
 
-namespace GGEZ
-{
-namespace Omnibus
+namespace GGEZ.Omnibus
 {
 
 [Serializable] public sealed class UnityEventForRectTerminal : UnityEngine.Events.UnityEvent<Rect> { }
@@ -38,7 +36,5 @@ Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Terminal/Rect Terminal")
 ]
 public sealed class RectTerminal : ImplementTerminalForType <Rect, UnityEventForRectTerminal> { }
-
-}
 
 }
