@@ -58,23 +58,28 @@ public Bus Bus
 #endregion
 
 
-[Header ("*:" + Omnibus.Pin.DATA + " (string)")]
 [SerializeField] private Bus bus;
 
-[Space]
-[SerializeField] private StringPairs pinToFloatParameterPairs = new StringPairs ();
+[Header ("*:FPx (float)")]
+[SerializeField] private StringPairs pinToFloatParameters = new StringPairs ();
+
+[Header ("*:LWx (float)")]
+[SerializeField] private StringPairs pinToLayerWeights = new StringPairs ();
+
+[Header ("*:IPx (int)")]
+[SerializeField] private StringPairs pinToIntParameters = new StringPairs ();
+
+[Header ("*:BPx (bool)")]
+[SerializeField] private StringPairs pinToBoolParameters = new StringPairs ();
+
+[Header ("*:Tx (void)")]
+[SerializeField] private StringPairs pinToTriggers = new StringPairs ();
+
+private Animator animator;
 
 public override void OnDidSignal (string pin, object value)
     {
-	Debug.Assert (pin == Omnibus.Pin.DATA);
-	int layer = value == null ? 1 : LayerMask.NameToLayer (value.ToString ());
-#if UNITY_EDITOR
-	if (layer == ~0)
-		{
-		Debug.LogWarning ("Layer name " +  value.ToString () + " is invalid");
-		}
-#endif
-	this.gameObject.layer = layer;
+	throw new System.NotImplementedException ();
     }
 
 public override void Route (string port, Bus bus)
@@ -82,6 +87,10 @@ public override void Route (string port, Bus bus)
 	this.Bus = bus;
     }
 
+void Awake ()
+	{
+	this.animator = (Animator)this.GetComponent (typeof (Animator));
+	}
 
 void OnEnable ()
     {
