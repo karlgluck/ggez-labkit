@@ -35,22 +35,73 @@ namespace Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Transform/Set localPosition (Module)"),
+AddComponentMenu ("GGEZ/Omnibus/Modules/transform/Set transform.parent (Module)"),
 RequireComponent (typeof (Transform))
 ]
-public sealed class LocalPositionModule : Vector3SetsTransformPropertyModule
+public class TransformParentModule : Cell
 {
+
+#region Programming Interface
+public Bus Bus
+    {
+    get { return this.bus; }
+    set
+        {
+        this.bus = value;
+        this.input.Connect (this.bus, this.pin);
+        }
+    }
+
+public string Pin
+    {
+    get { return this.pin; }
+    set
+        {
+        this.pin = value;
+        this.input.Connect (this.bus, this.pin);
+        }
+    }
+
+#endregion
+
+
+[Header ("*:" + Omnibus.Pin.INPUT + " (Transform)")]
+[SerializeField] private Bus bus;
+[SerializeField] private string pin;
+[SerializeField] private bool worldPositionStays;
 
 public override void OnDidSignal (string pin, object value)
     {
 	Debug.Assert (pin == Omnibus.Pin.INPUT);
 #if UNITY_EDITOR
-    if (value == null || !typeof(Vector3).IsAssignableFrom (value.GetType ()))
+    if (value == null || !typeof(Transform).IsAssignableFrom (value.GetType ()))
         {
-        throw new System.InvalidCastException ("`value` should be " + typeof(Vector3).Name);
+        throw new System.InvalidCastException ("`value` should be " + typeof(Transform).Name);
         }
 #endif
-    this.transform.localPosition = (Vector3)value;
+    this.transform.SetParent ((Transform)value, this.worldPositionStays);
+    }
+
+public override void Route (string port, Bus bus)
+    {
+	this.Bus = bus;
+    }
+
+private Wire input = Wire.CELL_INPUT;
+
+void OnEnable ()
+    {
+    this.input.Attach (this, this.bus, this.pin);
+    }
+
+void OnDisable ()
+    {
+    this.input.Detach ();
+    }
+
+void OnValidate ()
+    {
+	this.input.Connect (this.bus, this.pin);
     }
 
 }

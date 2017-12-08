@@ -35,22 +35,22 @@ namespace Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Transform/Set localPosition (Module)"),
+AddComponentMenu ("GGEZ/Omnibus/Modules/Transform/Set localScale.y (Module)"),
 RequireComponent (typeof (Transform))
 ]
-public sealed class LocalPositionModule : Vector3SetsTransformPropertyModule
+public sealed class LocalScaleYModule : FloatSetsTransformPropertyModule
 {
 
 public override void OnDidSignal (string pin, object value)
     {
 	Debug.Assert (pin == Omnibus.Pin.INPUT);
 #if UNITY_EDITOR
-    if (value == null || !typeof(Vector3).IsAssignableFrom (value.GetType ()))
+    if (value == null || !typeof(float).IsAssignableFrom (value.GetType ()))
         {
-        throw new System.InvalidCastException ("`value` should be " + typeof(Vector3).Name);
+        throw new System.InvalidCastException ("`value` should be " + typeof(float).Name);
         }
 #endif
-    this.transform.localPosition = (Vector3)value;
+    this.transform.localScale = this.transform.localScale.WithY ((float)value);
     }
 
 }
