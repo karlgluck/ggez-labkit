@@ -73,12 +73,13 @@ public string SelectPin
 
 #endregion
 
+public const string DATA_PORT = "data";
+public const string SELECT_PORT = "select";
 
-
-[Header ("data:" + Pin.DATA + " (type)")]
+[Header (DATA_PORT + ":" + Pin.DATA + " (type)")]
 [SerializeField] private Bus dataBus;
 
-[Header ("select:" + Pin.SELECT + " (string)")]
+[Header (SELECT_PORT + ":" + Pin.SELECT + " (string)")]
 [SerializeField] private Bus selectBus;
 [SerializeField] private string selectPin;
 
@@ -117,8 +118,8 @@ public override void Route (string port, Bus bus)
     {
     switch (port)
         {
-        case "data":   this.DataBus = bus; break;
-        case "select": this.SelectBus = bus; break;
+        case DATA_PORT:   this.DataBus = bus; break;
+        case SELECT_PORT: this.SelectBus = bus; break;
         default:
             {
             this.DataBus = bus;
@@ -160,6 +161,8 @@ void OnValidate ()
 
 private void refresh ()
     {
+	this.selectWire.Disconnect ();
+	this.dataWire.Disconnect ();
 	this.selectWire.Connect (this.selectBus, this.selectPin);
 	this.dataWire.Connect (this.dataBus, this.dataPin);
     }

@@ -85,15 +85,18 @@ public string TargetPin
 
 #endregion
 
-const string POSITION = "POS";
-const string TARGET = "TGT";
+const string POSITION_PORT = "position";
+const string TARGET_PORT = "target";
+const string POSITION_PIN = "POS";
+const string TARGET_PIN = "TGT";
 
 
-[Header ("position:" + POSITION + " (Vector2)")]
+[Header (POSITION_PORT + ":" + POSITION_PIN + " (Vector2)")]
 [SerializeField] private Bus positionBus;
 [SerializeField] private string positionPin;
 
-[Header ("target:" + TARGET + " (Vector2)")]
+
+[Header (TARGET_PORT + ":" + TARGET_PIN + " (Vector2)")]
 [SerializeField] private Bus targetBus;
 [SerializeField] private string targetPin;
 
@@ -114,11 +117,11 @@ public override void OnDidSignal (string pin, object value)
     switch (pin)
         {
 
-        case POSITION:
+        case POSITION_PIN:
             this.position = (Vector2)value;
             break;
 
-        case TARGET:
+        case TARGET_PIN:
             this.target = (Vector2)value;
             break;
 
@@ -143,8 +146,8 @@ public override void Route (string port, Bus bus)
     {
     switch (port)
         {
-        case "position": this.PositionBus  = bus; break;
-        case "target":   this.TargetBus = bus; break;
+        case POSITION_PORT: this.PositionBus  = bus; break;
+        case TARGET_PORT:   this.TargetBus = bus; break;
         default:
             {
             this.PositionBus  = bus;
@@ -154,8 +157,8 @@ public override void Route (string port, Bus bus)
         }
     }
 
-private Wire positionWire = new Wire (POSITION);
-private Wire targetWire = new Wire (TARGET);
+private Wire positionWire = new Wire (POSITION_PIN);
+private Wire targetWire = new Wire (TARGET_PIN);
 
 void Awake ()
     {
@@ -176,6 +179,8 @@ void OnDisable ()
 
 void OnValidate ()
     {
+    this.positionWire.Disconnect ();
+    this.targetWire.Disconnect ();
     this.positionWire.Connect (this.positionBus, this.positionPin);
     this.targetWire.Connect (this.targetBus, this.targetPin);
     }

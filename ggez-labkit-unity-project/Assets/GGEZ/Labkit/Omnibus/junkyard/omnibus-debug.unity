@@ -301,6 +301,7 @@ GameObject:
   - component: {fileID: 1130823465}
   - component: {fileID: 1130823464}
   - component: {fileID: 1130823463}
+  - component: {fileID: 1130823466}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -361,6 +362,23 @@ MeshFilter:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1130823462}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1130823466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1130823462}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92800de629ec8df41b9b00fab5c44b46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  layerBus: {fileID: 1306782599}
+  layerPin: layer
+  enableBus: {fileID: 1306782599}
+  enablePin: enable
+  defaultLayer: 0
+  invertEnable: 1
 --- !u!4 &1130823467
 Transform:
   m_ObjectHideFlags: 0
@@ -543,6 +561,22 @@ MonoBehaviour:
     Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
+  - Key: enable
+    Type: Boolean
+    Value_Boolean: 0
+    Value_Single: 0
+    Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: UI
+    Value_Transform: {fileID: 0}
+    Value_Vector2: {x: 0, y: 0}
+    Value_Vector3: {x: 0, y: 0, z: 0}
   serializedMemory:
   - Key: key
     Type: String
@@ -625,6 +659,22 @@ MonoBehaviour:
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
   - Key: visible
+    Type: Boolean
+    Value_Boolean: 0
+    Value_Single: 0
+    Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: 
+    Value_Transform: {fileID: 0}
+    Value_Vector2: {x: 0, y: 0}
+    Value_Vector3: {x: 0, y: 0, z: 0}
+  - Key: enable
     Type: Boolean
     Value_Boolean: 0
     Value_Single: 0

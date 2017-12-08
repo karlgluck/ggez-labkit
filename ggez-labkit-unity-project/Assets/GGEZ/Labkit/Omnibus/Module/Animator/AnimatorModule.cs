@@ -25,6 +25,9 @@
 
 using System;
 using UnityEngine;
+using UnityEngine.Events;
+using System.Collections.Generic;
+using StringCollection = System.Collections.Generic.List<string>;
 
 namespace GGEZ
 {
@@ -32,12 +35,12 @@ namespace Omnibus
 {
 
 
-
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/GameObject/Set gameObject.layer by Name (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Modules/Animator/Animator Wrapper (Module)"),
+RequireComponent (typeof (RectTransform))
 ]
-public sealed class SetGameObjectLayerByNameModule : Cell
+public sealed class AnimatorModule : Cell
 {
 
 #region Programming Interface
@@ -47,26 +50,19 @@ public Bus Bus
     set
         {
         this.bus = value;
-        this.input.Connect (this.bus, this.pin);
+        this.refresh ();
         }
     }
 
-public string Pin
-    {
-    get { return this.pin; }
-    set
-        {
-        this.pin = value;
-        this.input.Connect (this.bus, this.pin);
-        }
-    }
 
 #endregion
 
 
 [Header ("*:" + Omnibus.Pin.DATA + " (string)")]
 [SerializeField] private Bus bus;
-[SerializeField] private string pin;
+
+[Space]
+[SerializeField] private StringPairs pinToFloatParameterPairs = new StringPairs ();
 
 public override void OnDidSignal (string pin, object value)
     {
@@ -86,30 +82,29 @@ public override void Route (string port, Bus bus)
 	this.Bus = bus;
     }
 
-private Wire input = Wire.CELL_INPUT;
 
 void OnEnable ()
     {
-    this.input.Attach (this, this.bus, this.pin);
+    // this.input.Attach (this, this.bus, this.pin);
     }
 
 void OnDisable ()
     {
-    this.input.Detach ();
+    // this.input.Detach ();
     }
 
 void OnValidate ()
     {
-	this.input.Connect (this.bus, this.pin);
+	this.refresh ();
     }
 
-}
+void refresh ()
+	{
+	}
 
 }
 
+
 }
-
-
-
-
+}
 

@@ -37,6 +37,7 @@ public class Wire
 public static Wire CELL_INPUT { get { return new Wire (Pin.INPUT); } }
 public static Wire CELL_DATA { get { return new Wire (Pin.DATA); } }
 public static Wire CELL_SELECT { get { return new Wire (Pin.SELECT); } }
+public static Wire CELL_ENABLE { get { return new Wire (Pin.ENABLE); } }
 
 public Wire (string cellPin)
     {
