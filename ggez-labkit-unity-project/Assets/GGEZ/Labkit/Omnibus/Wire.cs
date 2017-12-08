@@ -44,7 +44,7 @@ public Wire (string cellPin)
     }
 
 
-// public bool IsConnected { get { return this.IsAttached && this.Bus != null && this.BusPin != null; } }
+public bool IsConnected { get { return this.IsAttached && this.Bus != null && Pin.IsValid (this.BusPin); } }
 public bool IsAttached { get { return this.Cell != null; } }
 public ICell Cell { get; private set; }
 public string CellPin { get; private set; }

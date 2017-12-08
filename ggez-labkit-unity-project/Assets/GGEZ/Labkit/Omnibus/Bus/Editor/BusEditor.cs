@@ -366,7 +366,12 @@ public override void OnInspectorGUI ()
                     EditorGUI.indentLevel++;
                     foreach (Wire wire in wires)
                         {
-                        EditorGUI.ObjectField (EditorGUILayout.GetControlRect (), wire.Cell as MonoBehaviour, typeof(MonoBehaviour), true);
+                        var labelRect = EditorGUILayout.GetControlRect ();
+                        var cellRefRect = new Rect (labelRect);
+                        cellRefRect.xMin += EditorGUIUtility.labelWidth;
+                        labelRect.xMax = cellRefRect.xMin;
+                        EditorGUI.LabelField (labelRect, wire.CellPin);
+                        EditorGUI.ObjectField (cellRefRect, wire.Cell as MonoBehaviour, typeof(MonoBehaviour), true);
                         }
                     EditorGUI.indentLevel--;
                     EditorGUI.EndDisabledGroup ();

@@ -35,7 +35,7 @@ namespace Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/transform/Set transform.parent (Module)"),
+AddComponentMenu ("GGEZ/Omnibus/Modules/Transform/Set transform.parent (Module)"),
 RequireComponent (typeof (Transform))
 ]
 public class TransformParentModule : Cell
