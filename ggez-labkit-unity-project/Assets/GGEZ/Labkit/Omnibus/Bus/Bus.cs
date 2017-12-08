@@ -48,9 +48,6 @@ public sealed partial class Bus : MonoBehaviour, ISerializationCallbackReceiver
 private Connections connections = new Connections ();
 private Memory memory = new Memory ();
 
-// Disabled for now
-// [SerializeField] private string[] aliases = Pin.StdPinAliases;
-
 public void Connect (Wire wire)
     {
     if (wire == null)
@@ -392,17 +389,6 @@ void OnValidate ()
             this.memory.Add (kvp.Key, kvp.GetValue ());
             }
         }
-    // if (this.aliases.Length != Pin.StdPinCount)
-    //     {
-    //     Array.Resize<string> (ref this.aliases, Pin.StdPinCount);
-    //     }
-    // for (int i = 0; i < this.aliases.Length; ++i)
-    //     {
-    //     if (Pin.IsInvalid (this.aliases[i]))
-    //         {
-    //         this.aliases[i] = Pin.StdPin[i];
-    //         }
-    //     }
     }
 #endif
 #endregion
@@ -453,7 +439,6 @@ public const string nameof_serializedRom = "serializedRom";
 public const string nameof_serializedMemory = "serializedMemory";
 public const string nameof_Signal = "Signal";
 public const string nameof_SignalObject = "SignalObject";
-public const string nameof_aliases = "aliases";
 #endregion
 #endif
 

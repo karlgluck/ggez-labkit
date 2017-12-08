@@ -1,4 +1,4 @@
-// This is free and unencumbered software released into the public domain.
+﻿// This is free and unencumbered software released into the public domain.
 //
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -23,40 +23,35 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
 using UnityEngine;
+using UnityEditor;
+using System;
+using System.Reflection;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEditorInternal;
+using System.Linq;
+using System.IO;
+
 
 namespace GGEZ.Omnibus
 {
 
 
 
-public sealed partial class Bus
+[
+CustomEditor(typeof (Adapter), true),
+CanEditMultipleObjects
+]
+public sealed class AdapterEditor : Editor
 {
 
-public void SetBoolean (string key, bool value) { this.SetObject (key, value); }
-public void SignalBoolean (string key, bool value) { this.SignalObject (key, value); }
-public bool GetBoolean (string key, out bool value) { return this.getT<bool> (key, out value); }
-public bool GetBoolean (string key, bool defaultValue) { return this.getT<bool> (key, defaultValue); }
 
-}
+public override void OnInspectorGUI ()
+	{
+	}
 
 
-public sealed partial class SerializedMemoryCell
-{
-
-public bool Value_Boolean;
-
-}
-
-public sealed partial class Adapter
-{
-
-public void SetBooleanA (bool value) { this.bus.SetObject (this.aliases[Pin.Std_A_Index], value); }
-public void SignalBooleanA (bool value) { this.bus.SignalObject (this.aliases[Pin.Std_A_Index], value); }
-public bool GetBooleanA (out bool value) { return this.bus.GetBoolean (this.aliases[Pin.Std_A_Index], out value); }
-public bool GetBooleanA (bool defaultValue) { return this.bus.GetBoolean (this.aliases[Pin.Std_A_Index], defaultValue); }
-    
 }
 
 }

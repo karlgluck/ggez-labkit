@@ -39,11 +39,6 @@ public sealed partial class Adapter : MonoBehaviour
 
 [SerializeField] private string[] aliases = Pin.StdPinAliases;
 
-public void SetBooleanA (bool value) { this.bus.SetObject (this.aliases[Pin.Std_A_Index], value); }
-public void SignalBooleanA (bool value) { this.bus.SignalObject (this.aliases[Pin.Std_A_Index], value); }
-public bool GetBooleanA (out bool value) { return this.bus.GetBoolean (this.aliases[Pin.Std_A_Index], out value); }
-public bool GetBooleanA (bool defaultValue) { return this.bus.GetBoolean (this.aliases[Pin.Std_A_Index], defaultValue); }
-
 private Bus bus;
 
 void Awake ()
@@ -65,6 +60,12 @@ void OnValidate ()
             }
         }
 	}
+
+#if UNITY_EDITOR
+#region workaround for lack of nameof() in Unity
+public const string nameof_aliases = "aliases";
+#endregion
+#endif
 
 }
 
