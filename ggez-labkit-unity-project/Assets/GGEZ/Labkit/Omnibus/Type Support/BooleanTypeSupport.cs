@@ -34,8 +34,8 @@ namespace GGEZ.Omnibus
 public sealed partial class Bus
 {
 
-public void SetBoolean (string key, bool value) { this.SetObject (key, value); }
-public void SignalBoolean (string key, bool value) { this.SignalObject (key, value); }
+public void Set (string key, bool value) { this.SetObject (key, value); }
+public void Signal (string key, bool value) { this.SignalObject (key, value); }
 public bool GetBoolean (string key, out bool value) { return this.getT<bool> (key, out value); }
 public bool GetBoolean (string key, bool defaultValue) { return this.getT<bool> (key, defaultValue); }
 

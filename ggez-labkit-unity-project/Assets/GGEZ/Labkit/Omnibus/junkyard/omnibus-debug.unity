@@ -218,6 +218,7 @@ GameObject:
   - component: {fileID: 588235545}
   - component: {fileID: 588235544}
   - component: {fileID: 588235543}
+  - component: {fileID: 588235546}
   m_Layer: 5
   m_Name: Image
   m_TagString: Untagged
@@ -249,7 +250,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 588235541}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eae47543e2256a449bb148c5c95cbbd7, type: 3}
   m_Name: 
@@ -291,6 +292,37 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 588235541}
+--- !u!114 &588235546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 588235541}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e52973b7f1c250945895416bc3d2bce0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bus: {fileID: 1306782599}
+  pin: FloatToggle
+  didSignal:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 588235545}
+        m_MethodName: SetAlpha
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_TypeName: GGEZ.Omnibus.UnityEventForFloatToggleModule, Assembly-CSharp, Version=0.0.0.0,
+      Culture=neutral, PublicKeyToken=null
+  invert: 0
+  fadeTime: 1
 --- !u!1 &1062245882
 GameObject:
   m_ObjectHideFlags: 0
@@ -745,6 +777,22 @@ MonoBehaviour:
     Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
+  - Key: FloatToggle
+    Type: Boolean
+    Value_Boolean: 0
+    Value_Single: 0
+    Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: UI
+    Value_Transform: {fileID: 0}
+    Value_Vector2: {x: 0, y: 0}
+    Value_Vector3: {x: 0, y: 0, z: 0}
   serializedMemory:
   - Key: key
     Type: String
@@ -843,6 +891,22 @@ MonoBehaviour:
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
   - Key: enable
+    Type: Boolean
+    Value_Boolean: 0
+    Value_Single: 0
+    Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: 
+    Value_Transform: {fileID: 0}
+    Value_Vector2: {x: 0, y: 0}
+    Value_Vector3: {x: 0, y: 0, z: 0}
+  - Key: FloatToggle
     Type: Boolean
     Value_Boolean: 0
     Value_Single: 0

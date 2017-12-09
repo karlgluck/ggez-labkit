@@ -109,7 +109,7 @@ public void CellGetsCalledWhenEnabledThenBusSetAndNotBeforeForMemory ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
-	bus.SetBoolean ("TestKey", true);
+	bus.Set ("TestKey", true);
     var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
     int incrementWhenCalled = 0;
     fub.AddCallback ( (bool value) => { ++incrementWhenCalled; } );
@@ -139,7 +139,7 @@ public void CellGetsCalledWhenEnabledThenBusSetAndNotBeforeForEvent ()
 
     Assert.AreEqual (0, incrementWhenCalled, "no callbacks until bus is set");
     fub.Bus = bus;
-	bus.SignalBoolean ("TestKey", true);
+	bus.Signal ("TestKey", true);
     Assert.AreEqual (1, incrementWhenCalled, "fub gets trigger callback when bus is set");
 
     GameObject.DestroyImmediate (fub.gameObject);
@@ -152,7 +152,7 @@ public void CellGetsCalledWhenEnabledThenKeySetAndNotBeforeForMemory ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
-	bus.SetBoolean ("TestKey", true);
+	bus.Set ("TestKey", true);
 
     var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
     int incrementWhenCalled = 0;
@@ -180,13 +180,13 @@ public void CellGetsCalledWhenEnabledThenKeySetAndNotBeforeForEvent ()
     int incrementWhenCalled = 0;
     fub.AddCallback ( (bool value) => { ++incrementWhenCalled; } );
     fub.Bus = bus;
-	bus.SignalBoolean ("TestKey", true);
+	bus.Signal ("TestKey", true);
     this.CallOnEnable (fub);
 
     Assert.AreEqual (0, incrementWhenCalled, "no callbacks until key is set");
 
     fub.Pin = "TestKey";
-	bus.SignalBoolean ("TestKey", true);
+	bus.Signal ("TestKey", true);
     Assert.AreEqual (1, incrementWhenCalled, "fub gets trigger callback when key is set");
 
     GameObject.DestroyImmediate (fub.gameObject);
@@ -199,7 +199,7 @@ public void CellGetsCalledWhenBusAndKeySetThenEnabledAndNotBefore ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
-	bus.SetBoolean ("TestKey", true);
+	bus.Set ("TestKey", true);
 
     var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
     int incrementWhenCalled = 0;
@@ -222,7 +222,7 @@ public void CellGetsCalledWithMemoryValueWhenConnected ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
-	bus.SetBoolean ("TestKey", true);
+	bus.Set ("TestKey", true);
 
     var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
     fub.Pin = "TestKey";
@@ -244,7 +244,7 @@ public void CellGetsCalledWhenValueIsChanged ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
-	bus.SetBoolean ("TestKey", false);
+	bus.Set ("TestKey", false);
     var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
 
     fub.Pin = "TestKey";
@@ -256,7 +256,7 @@ public void CellGetsCalledWhenValueIsChanged ()
     fub.AddCallback (
             (bool value) => { setWhenCalled = true; valueFromCallback = value; }
             );
-	bus.SetBoolean ("TestKey", true);
+	bus.Set ("TestKey", true);
 
     Assert.IsTrue (setWhenCalled, "fub gets callback when value is changed");
     Assert.IsTrue (valueFromCallback, "fub gets called with new value when changed");
@@ -271,8 +271,8 @@ public void CellGetsCalledWhenKeyIsChanged ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
-	bus.SetBoolean ("TestKey", true);
-	bus.SetBoolean ("AnotherTestKey", true);
+	bus.Set ("TestKey", true);
+	bus.Set ("AnotherTestKey", true);
 
     var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
     fub.Pin = "TestKey";
@@ -296,8 +296,8 @@ public void CellNotCalledWhenOtherKeyIsChanged ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
-	bus.SetBoolean ("TestKey", true);
-	bus.SetBoolean ("AnotherTestKey", true);
+	bus.Set ("TestKey", true);
+	bus.Set ("AnotherTestKey", true);
 
     var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
     fub.Pin = "TestKey";
@@ -306,8 +306,8 @@ public void CellNotCalledWhenOtherKeyIsChanged ()
 
     int incrementWhenCalled = 0;
     fub.AddCallback ( (bool value) => { ++incrementWhenCalled; } );
-    bus.SetBoolean ("AnotherTestKey", false);
-    bus.SetBoolean ("ThirdTestKey", true);
+    bus.Set ("AnotherTestKey", false);
+    bus.Set ("ThirdTestKey", true);
 
     Assert.AreEqual (0, incrementWhenCalled, "fub gets callback when key is changed");
     Assert.AreEqual (1, bus.GetConnectedKeys ().Count, "bus has 1 connected key");
@@ -330,7 +330,7 @@ public void CellNotCalledWhenOtherKeyIsTriggered ()
 
     int incrementWhenCalled = 0;
     fub.AddCallback ( (bool value) => { ++incrementWhenCalled; } );
-	bus.SignalBoolean ("AnotherTestKey", true);
+	bus.Signal ("AnotherTestKey", true);
 
     Assert.AreEqual (0, incrementWhenCalled, "fub gets callback when key is changed");
     Assert.AreEqual (1, bus.GetConnectedKeys ().Count, "bus has 1 connected key");
@@ -352,7 +352,7 @@ public void CellGetsCalledWhenTriggered ()
 
     int incrementWhenCalled = 0;
     fub.AddCallback ( (bool value) => { ++incrementWhenCalled; } );
-	bus.SignalBoolean ("TestKey", true);
+	bus.Signal ("TestKey", true);
 
     Assert.AreEqual (1, incrementWhenCalled, "fub gets callback when key is changed");
     Assert.AreEqual (1, bus.GetConnectedKeys ().Count, "bus has 1 connected key");
@@ -367,11 +367,11 @@ public void CellGetsCalledWhenBusIsChanged ()
     {
     var gameObject = new GameObject ();
     var firstBus = gameObject.AddComponent <Bus> ();
-	firstBus.SetBoolean ("TestKey", true);
+	firstBus.Set ("TestKey", true);
 
     var secondGameObject = new GameObject ();
     var secondBus = secondGameObject.AddComponent <Bus> ();
-	secondBus.SetBoolean ("TestKey", true);
+	secondBus.Set ("TestKey", true);
 
     var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
     fub.Pin = "TestKey";
@@ -399,8 +399,8 @@ public void ManyCellsGetCalledWhenValueIsChanged ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
-    bus.SetBoolean ("TestKey", false);
-    bus.SetBoolean ("SomeDifferentTestKey", false);
+    bus.Set ("TestKey", false);
+    bus.Set ("SomeDifferentTestKey", false);
 
     var firstCell = CreateWithMonoBehaviour <BooleanTerminal> ();
     firstCell.Pin = "TestKey";
@@ -430,7 +430,7 @@ public void ManyCellsGetCalledWhenValueIsChanged ()
             (bool value) => { didThirdCellGetCalled = true; }
             );
     Assert.AreEqual (0, callbacksReceived, "no calls yet");
-    bus.SetBoolean ("TestKey", true);
+    bus.Set ("TestKey", true);
 
     Assert.AreEqual (2, callbacksReceived, "both fubs for the key get callbacks when changed");
     Assert.AreEqual (2, truesFromCallback, "both fubs for the key get the new value when changed");
@@ -479,7 +479,7 @@ public void ManyCellsGetCalledWhenEventTriggered ()
             (bool value) => { didThirdCellGetCalled = true; }
             );
     Assert.AreEqual (0, callbacksReceived, "no calls yet");
-    bus.SignalBoolean ("TestKey", true);
+    bus.Signal ("TestKey", true);
 
     Assert.AreEqual (2, callbacksReceived, "both fubs for the key get callbacks when triggered");
     Assert.AreEqual (2, truesFromCallback, "both fubs for the key get the new value when triggered");
@@ -497,7 +497,7 @@ public void CellDoesNotCalledWhenValueIsRemoved ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
-    bus.SetBoolean ("TestKey", false);
+    bus.Set ("TestKey", false);
 
     var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
     fub.Pin = "TestKey";
@@ -522,7 +522,7 @@ public void CellGetsCalledWithValueSetOnBusWithoutCellsWhenBused ()
     {
 var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
-    bus.SetBoolean ("TestKey", true);
+    bus.Set ("TestKey", true);
 
     var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
     fub.Pin = "TestKey";
