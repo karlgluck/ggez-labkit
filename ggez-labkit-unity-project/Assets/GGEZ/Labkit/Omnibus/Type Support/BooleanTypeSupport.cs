@@ -49,14 +49,5 @@ public bool Value_Boolean;
 
 }
 
-public sealed partial class Adapter
-{
-
-public void SetBooleanA (bool value) { this.bus.SetObject (this.aliases[Pin.Std_A_Index], value); }
-public void SignalBooleanA (bool value) { this.bus.SignalObject (this.aliases[Pin.Std_A_Index], value); }
-public bool GetBooleanA (out bool value) { return this.bus.GetBoolean (this.aliases[Pin.Std_A_Index], out value); }
-public bool GetBooleanA (bool defaultValue) { return this.bus.GetBoolean (this.aliases[Pin.Std_A_Index], defaultValue); }
-    
-}
 
 }

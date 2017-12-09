@@ -40,6 +40,26 @@ public string Name = "";
 public string CSharpDeclaringType = "";
 public string CSharpTypeName = "";
 
+private bool writeTypeSupport
+    {
+    get { return EditorPrefs.GetBool ("LabkitTypeSupport_writeTypeSupport", true); }
+    set { EditorPrefs.SetBool ("LabkitTypeSupport_writeTypeSupport", value); }
+    }
+private bool writeTerminal
+    {
+    get { return EditorPrefs.GetBool ("LabkitTypeSupport_writeTerminal", true); }
+    set { EditorPrefs.SetBool ("LabkitTypeSupport_writeTerminal", value); }
+    }
+private bool writeMux
+    {
+    get { return EditorPrefs.GetBool ("LabkitTypeSupport_writeMux", true); }
+    set { EditorPrefs.SetBool ("LabkitTypeSupport_writeMux", value); }
+    }
+private bool writeAdapterAlias
+    {
+    get { return EditorPrefs.GetBool ("LabkitTypeSupport_writeAdapterAlias", true); }
+    set { EditorPrefs.SetBool ("LabkitTypeSupport_writeAdapterAlias", value); }
+    }
 
 [MenuItem ("Labkit/Create/Omnibus Type Support")]
 static void CreateNewOmnibusRegisterType ()
@@ -66,8 +86,8 @@ public static EditorWindow CreateAndShow (string path)
     var window = CreateOmnibusTypeSupport.CreateInstance<CreateOmnibusTypeSupport> ();
     var width = Screen.width;
     var height = Screen.height;
-    Vector2 size = new Vector2 (400f, 180f);
-    window.ShowAsDropDown (new Rect (width/2f-size.x/2f, height/2 - size.y/2f, 1f, 1f), size);
+    Vector2 size = new Vector2 (400f, 220f);
+    window.ShowAsDropDown (new Rect (width/2f-size.x/2f, height/2 - size.y/2f, size.x, size.y), size);
     window.titleContent = new GUIContent ("Create Omnibus Type Support");
     window.Folder = Path.GetDirectoryName (path);
     window.Name = Path.GetFileNameWithoutExtension (path);
@@ -81,9 +101,10 @@ public void DoWork ()
 
     Debug.LogFormat ("Creating type support for {0} serialized as {1} in MemoryCell", this.CSharpDeclaringType, this.CSharpTypeName);
 
-    this.write ("OmnibusTypeSupport_cs", "{0}TypeSupport.cs");
-    this.write ("OmnibusTypeTerminal_cs", "{0}Terminal.cs");
-    this.write ("OmnibusTypeMux_cs", "{0}Mux.cs");
+    if (this.writeTypeSupport) this.write ("OmnibusTypeSupport_cs", "{0}TypeSupport.cs");
+    if (this.writeTerminal) this.write ("OmnibusTypeTerminal_cs", "{0}Terminal.cs");
+    if (this.writeMux) this.write ("OmnibusTypeMux_cs", "{0}Mux.cs");
+    if (this.writeAdapterAlias) this.write ("OmnibusTypeSupport_AdapterAlias_cs", "{0}TypeAdapterAlias.cs");
     }
 
 private void write (string template, string filenameFormat)
@@ -140,6 +161,15 @@ private void OnGUI()
     GUILayout.BeginHorizontal ();
     GUILayout.Label ("C# Type Name", GUILayout.Width (120f));
     this.CSharpTypeName = GUILayout.TextField (this.CSharpTypeName);
+    GUILayout.EndHorizontal ();
+
+    GUILayout.FlexibleSpace ();
+
+    GUILayout.BeginHorizontal ();
+    this.writeTypeSupport = GUILayout.Toggle (this.writeTypeSupport, "Type Support");
+    this.writeTerminal = GUILayout.Toggle (this.writeTerminal, "Terminal");
+    this.writeMux = GUILayout.Toggle (this.writeMux, "Mux");
+    this.writeAdapterAlias = GUILayout.Toggle (this.writeAdapterAlias, "Adapter Alias");
     GUILayout.EndHorizontal ();
 
     GUILayout.FlexibleSpace ();
