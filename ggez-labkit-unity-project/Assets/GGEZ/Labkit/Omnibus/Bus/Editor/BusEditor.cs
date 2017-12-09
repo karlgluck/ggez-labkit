@@ -107,8 +107,22 @@ void updateAliasedStandardPinsSuffixes ()
             var pin = this.aliases.GetArrayElementAtIndex (i).stringValue;
             if (Pin.IsValid (pin))
                 {
-                this.aliasedStandardPinsSuffixes.Add (pin, " [" + Pin.StdPin[i] + "]");
+                string value;
+                if (this.aliasedStandardPinsSuffixes.TryGetValue (pin, out value))
+                    {
+                    value += ", " + Pin.StdPin[i];
+                    }
+                else
+                    {
+                    value = Pin.StdPin[i];
+                    }
+                this.aliasedStandardPinsSuffixes[pin] = value;
                 }
+            }
+
+        foreach (var key in new List<string> (this.aliasedStandardPinsSuffixes.Keys))
+            {
+            this.aliasedStandardPinsSuffixes[key] = "[" + this.aliasedStandardPinsSuffixes[key] + "]";
             }
         }
     }
