@@ -42,6 +42,18 @@ public Wire (string cellPin)
     this.CellPin = cellPin;
     }
 
+public Wire (string cellPin, string busPin)
+    {
+    this.CellPin = cellPin;
+    this.BusPin = busPin;
+    }
+
+public Wire (string cellPin, Bus bus, string busPin)
+    {
+    this.CellPin = cellPin;
+    this.Bus = bus;
+    this.BusPin = busPin;
+    }
 
 public bool IsConnected { get { return this.IsAttached && this.Bus != null && Pin.IsValid (this.BusPin); } }
 public bool IsAttached { get { return this.Cell != null; } }
@@ -73,6 +85,25 @@ public void Attach (ICell cell, Bus bus, string busPin)
         }
     }
 
+// These variants will not change values that are not provided.
+// This can be useful if you might have called Connect in the
+// past, or initialized the Wire with a bus and/or bus pin.
+
+public void Attach (ICell cell)
+    {
+    this.Attach (cell, this.Bus, this.BusPin);
+    }
+
+public void Attach (ICell cell, Bus bus)
+    {
+    this.Attach (cell, bus, this.BusPin);
+    }
+
+public void Attach (ICell cell, string busPin)
+    {
+    this.Attach (cell, this.Bus, busPin);
+    }
+
 // Usually called in OnDisable from a Cell. Once called, Connect
 // has no effect on the IsConnected status.
 public void Detach ()
@@ -90,6 +121,9 @@ public void Detach ()
 //   - If true, Connect will connect the cell to the bus
 //   - If false, Connect will store the values internally
 // In either case, any current connection will be removed.
+//
+// Calling versions of Connect without the bus and/or pin parameter(s)
+// will maintain the current value of those parameter(s).
 
 public void Connect (Bus bus, string busPin)
     {
@@ -117,6 +151,11 @@ public void Connect (Bus bus)
 public void Connect (string busPin)
     {
     this.Connect (this.Bus, busPin);
+    }
+
+public void Connect ()
+    {
+    this.Connect (this.Bus, this.BusPin);
     }
 
 public void Disconnect ()

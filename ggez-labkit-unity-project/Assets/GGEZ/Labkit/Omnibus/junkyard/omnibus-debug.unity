@@ -494,25 +494,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 197c308f477f60b46af179aab5b546b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bus: {fileID: 0}
+  bus: {fileID: 1817206760}
   pinToFloatParameters:
     Keys:
     - Anim_FwdBwd
+    - Anim_Float
     - Anim_LeftRight
     Values:
     - FwdBwd
     - LeftRight
+    - New Float
   pinToLayerWeights:
     Keys:
     - Anim_NotIdle
+    - Anim_BaseLayerWeight
     Values:
     - Walk Layer
+    - Base Layer
   pinToIntParameters:
-    Keys: []
-    Values: []
+    Keys:
+    - Anim_Int
+    Values:
+    - New Int
   pinToBoolParameters:
-    Keys: []
-    Values: []
+    Keys:
+    - Anim_Bool
+    Values:
+    - New Bool
   pinToTriggers:
     Keys: []
     Values: []
@@ -525,7 +533,7 @@ Animator:
   m_GameObject: {fileID: 1177470633}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 390bfbfc5ddcf9347844a0929c3a883f, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -862,8 +870,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   aliases:
-  - visible
-  - layer
+  - A
+  - B
   - C
   - D
   - E
@@ -1364,6 +1372,70 @@ MonoBehaviour:
     Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
+  - Key: Anim_Float
+    Type: Single
+    Value_Boolean: 0
+    Value_Single: 0.333
+    Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: THIS IS C
+    Value_Transform: {fileID: 0}
+    Value_Vector2: {x: 0, y: 0}
+    Value_Vector3: {x: 0, y: 0, z: 0}
+  - Key: Anim_BaseLayerWeight
+    Type: Single
+    Value_Boolean: 0
+    Value_Single: 1
+    Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: THIS IS C
+    Value_Transform: {fileID: 0}
+    Value_Vector2: {x: 0, y: 0}
+    Value_Vector3: {x: 0, y: 0, z: 0}
+  - Key: Anim_Int
+    Type: Int32
+    Value_Boolean: 0
+    Value_Single: 0
+    Value_Int32: 2
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: THIS IS C
+    Value_Transform: {fileID: 0}
+    Value_Vector2: {x: 0, y: 0}
+    Value_Vector3: {x: 0, y: 0, z: 0}
+  - Key: Anim_Bool
+    Type: Boolean
+    Value_Boolean: 0
+    Value_Single: 0
+    Value_Int32: 2
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: THIS IS C
+    Value_Transform: {fileID: 0}
+    Value_Vector2: {x: 0, y: 0}
+    Value_Vector3: {x: 0, y: 0, z: 0}
   serializedMemory:
   - Key: a
     Type: String
@@ -1413,6 +1485,70 @@ MonoBehaviour:
     Value_Transform: {fileID: 0}
     Value_Vector2: {x: 0, y: 0}
     Value_Vector3: {x: 0, y: 0, z: 0}
+  - Key: Anim_Float
+    Type: Single
+    Value_Boolean: 0
+    Value_Single: 0.333
+    Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: 
+    Value_Transform: {fileID: 0}
+    Value_Vector2: {x: 0, y: 0}
+    Value_Vector3: {x: 0, y: 0, z: 0}
+  - Key: Anim_BaseLayerWeight
+    Type: Single
+    Value_Boolean: 0
+    Value_Single: 1
+    Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: 
+    Value_Transform: {fileID: 0}
+    Value_Vector2: {x: 0, y: 0}
+    Value_Vector3: {x: 0, y: 0, z: 0}
+  - Key: Anim_Int
+    Type: Int32
+    Value_Boolean: 0
+    Value_Single: 0
+    Value_Int32: 2
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: 
+    Value_Transform: {fileID: 0}
+    Value_Vector2: {x: 0, y: 0}
+    Value_Vector3: {x: 0, y: 0, z: 0}
+  - Key: Anim_Bool
+    Type: Boolean
+    Value_Boolean: 0
+    Value_Single: 0
+    Value_Int32: 0
+    Value_RectTransform: {fileID: 0}
+    Value_Rect:
+      serializedVersion: 2
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    Value_String: 
+    Value_Transform: {fileID: 0}
+    Value_Vector2: {x: 0, y: 0}
+    Value_Vector3: {x: 0, y: 0, z: 0}
 --- !u!4 &1817206761
 Transform:
   m_ObjectHideFlags: 0
@@ -1438,9 +1574,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   aliases:
-  - visible
-  - layer
-  - C
+  - a
+  - b
+  - c
   - D
   - E
   - F

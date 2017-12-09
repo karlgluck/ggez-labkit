@@ -38,6 +38,30 @@ public sealed class StringPairs
 {
 public List<string> Keys = new List<string> ();
 public List<string> Values = new List<string> ();
+public void OnValidate ()
+    {
+    while (this.Keys.Count > this.Values.Count) this.Keys.RemoveAt (0);
+    while (this.Values.Count > this.Keys.Count) this.Values.RemoveAt (0);
+    }
+public void ToDictionary (Dictionary<string, string> dictionary)
+    {
+    dictionary.Clear ();
+    Debug.Assert (this.Keys.Count == this.Values.Count);
+    for (int i = 0; i < this.Keys.Count; ++i)
+        {
+        dictionary[this.Keys[i]] = this.Values[i];
+        }
+    }
+
+public void ToAnimatorLayerDictionary (string pinPrefix, Animator animator, Dictionary<string, int> dictionary)
+    {
+    dictionary.Clear ();
+    Debug.Assert (this.Keys.Count == this.Values.Count);
+    for (int i = 0; i < this.Keys.Count; ++i)
+        {
+        dictionary[pinPrefix + i.ToString ()] = animator.GetLayerIndex (this.Values[i]);
+        }
+    }
 }
 
 

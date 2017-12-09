@@ -581,9 +581,9 @@ private class ReorderableListCache
                     retval.Height - 4f
                     );
             retval.AdapterAliasRect = new Rect (
-                    retval.NameRect.xMax - 25f,
+                    retval.NameRect.xMax - 28f,
                     retval.NameRect.yMin,
-                    25f,
+                    28f,
                     EditorGUIUtility.singleLineHeight
                     );
             retval.Position = position;
