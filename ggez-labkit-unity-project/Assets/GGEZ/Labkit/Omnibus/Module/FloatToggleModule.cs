@@ -1,4 +1,4 @@
-﻿// This is free and unencumbered software released into the public domain.
+// This is free and unencumbered software released into the public domain.
 //
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -32,13 +32,14 @@ namespace GGEZ.Omnibus
 {
 
 
+[Serializable] public sealed class UnityEventForFloatToggleModule : UnityEngine.Events.UnityEvent<float> { }
+
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/UI.Image/Image Alpha Toggle (Module)"),
-RequireComponent (typeof (Image))
+AddComponentMenu ("GGEZ/Omnibus/Modules/Float Toggle (Module)")
 ]
-public sealed class ImageAlphaToggleModule : Cell
+public sealed class FloatToggleModule : Cell
 {
 
 #region Programming Interface
@@ -79,13 +80,14 @@ public float FadeTime
 [SerializeField] private Bus bus;
 [SerializeField] private string pin;
 
+[Space, SerializeField] private UnityEventForFloatToggleModule didSignal = new UnityEventForFloatToggleModule ();
+
 [Header ("Settings")]
 [SerializeField] private bool invert;
 [SerializeField] private float fadeTime = 1f;
 
 private Wire input = Wire.CELL_INPUT;
 private float targetValue = 0.5f;
-private Image image;
 
 private float _value = 0.5f;
 private float value
@@ -97,9 +99,7 @@ private float value
     set
         {
         this._value = value;
-        var color = this.image.color;
-        color.a = value;
-        this.image.color = color;
+        this.didSignal.Invoke (value);
         }
     }
 
@@ -123,11 +123,6 @@ public override void Route (string port, Bus bus)
         {
         this.enabled = true;
         }
-    }
-    
-void Awake ()
-    {
-    this.image = (Image)this.GetComponent (typeof (Image));
     }
 
 void OnEnable ()
