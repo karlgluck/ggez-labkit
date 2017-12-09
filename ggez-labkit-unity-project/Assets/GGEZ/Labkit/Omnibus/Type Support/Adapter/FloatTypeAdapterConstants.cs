@@ -1,4 +1,4 @@
-// This is free and unencumbered software released into the public domain.
+﻿// This is free and unencumbered software released into the public domain.
 //
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -30,25 +30,15 @@ namespace GGEZ.Omnibus
 {
 
 
-
-public sealed partial class Bus
+public sealed partial class Adapter
 {
 
-public void Set (string key, float value) { this.SetObject (key, value); }
-public void Signal (string key, float value) { this.SignalObject (key, value); }
-public bool GetFloat (string key, out float value) { return this.getT<float> (key, out value); }
-public float GetFloat (string key, float defaultValue) { return this.getT<float> (key, defaultValue); }
+public void Set0f (string key) { this.bus.SetObject (key, 0f); }
+public void Set1f (string key) { this.bus.SetObject (key, 1f); }
+public void Signal0f (string key) { this.bus.SignalObject (key, 0f); }
+public void Signal1f (string key) { this.bus.SignalObject (key, 1f); }
 
+    
 }
-
-
-public sealed partial class SerializedMemoryCell
-{
-
-public float Value_Single;
-
-}
-
-
 
 }
