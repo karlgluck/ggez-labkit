@@ -32,14 +32,14 @@ namespace GGEZ.Omnibus
 {
 
 
-[Serializable] public sealed class UnityEventForStringFormatModule : UnityEngine.Events.UnityEvent<string> { }
+[Serializable] public sealed class UnityEventForStringFormatFilter : UnityEngine.Events.UnityEvent<string> { }
 
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/String Format (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Filters/String Format (Filter)")
 ]
-public sealed class StringFormatModule : Cell
+public sealed class StringFormatFilter : Cell
 {
 
 #region Programming Interface
@@ -81,7 +81,7 @@ public string Format
 [SerializeField] private Bus bus;
 [SerializeField] private string pin;
 
-[Space, SerializeField] private UnityEventForStringFormatModule didSignal = new UnityEventForStringFormatModule ();
+[Space, SerializeField] private UnityEventForStringFormatFilter didSignal = new UnityEventForStringFormatFilter ();
 
 [Header ("Settings")]
 [SerializeField] private string format = "";
