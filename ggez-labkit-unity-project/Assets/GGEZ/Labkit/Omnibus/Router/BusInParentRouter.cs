@@ -35,12 +35,12 @@ namespace GGEZ.Omnibus
 Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Router/Bus in Parent Router")
 ]
-public class BusInParentRouter : MonoBehaviour
+public class BusInParentRouter : Router
 {
 
 #region Programming Interface
 
-public void Route (Bus bus)
+public override void Route (Bus bus)
     {
     var list = this.cells.Cells;
     for (int i = 0; i < list.Count; ++i)
@@ -58,6 +58,14 @@ public void Route (Bus bus)
             var cell = (ICell)cells[j];
             cell.Route (this.port, bus);
             }
+        }
+    }
+
+public override void EditorAddCellsForGameObject (GameObject cellGameObject)
+    {
+    if (!this.cells.Cells.Contains (cellGameObject))
+        {
+        this.cells.Cells.Add (cellGameObject);
         }
     }
 

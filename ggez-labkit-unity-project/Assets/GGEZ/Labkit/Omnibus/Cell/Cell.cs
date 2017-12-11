@@ -36,6 +36,27 @@ Serializable
 public class Cell : MonoBehaviour, ICell
 {
 
+[ContextMenu ("Find Bus in Parent")]
+public void ContextMenuFindBusInParent ()
+    {
+    var bus = (Bus)this.gameObject.GetComponentInParent (typeof (Bus));
+    if (bus != null)
+        {
+        this.Route (null, bus);
+        }
+    }
+
+[ContextMenu ("Add to Router in Parent")]
+public void ContextMenuAddToRouterInParent ()
+    {
+    var router = (IRouter)this.gameObject.GetComponentInParent (typeof (IRouter));
+    if (router != null)
+        {
+        router.EditorAddCellsForGameObject (this.gameObject);
+        }
+    }
+
+
 public virtual void OnDidSignal (string pin, object value)
     {
     }

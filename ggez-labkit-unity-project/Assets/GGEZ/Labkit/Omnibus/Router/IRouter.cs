@@ -25,23 +25,17 @@
 
 using System;
 using UnityEngine;
-using UnityEngine.Events;
+using System.Collections.Generic;
 
 namespace GGEZ.Omnibus
 {
 
-[Serializable] public sealed class UnityEventForStringTerminal : UnityEngine.Events.UnityEvent<string> { }
-
-[
-Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Terminal/String Terminal")
-]
-public sealed class StringTerminal : ImplementTerminalForType <int, UnityEventForIntTerminal>
+public interface IRouter
 {
-public override void OnDidSignal (string pin, object value)
-    {
-    base.OnDidSignal (pin, value == null ? null : value.ToString ());
-    }
+void Route (Bus bus);
+void EditorAddCellsForGameObject (GameObject cellGameObject);
 }
 
+
 }
+

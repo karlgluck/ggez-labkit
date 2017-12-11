@@ -35,6 +35,19 @@ namespace GGEZ.Omnibus
 Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Mux/String Mux")
 ]
-public sealed class StringMux : ImplementMuxForType <string, UnityEventForStringMux> { }
+public sealed class StringMux : ImplementMuxForType <string, UnityEventForStringMux>
+{
+public override void OnDidSignal (string pin, object value)
+    {
+    if (pin == Pin.DATA)
+        {
+        base.OnDidSignal (Pin.DATA, value == null ? null : value.ToString ());
+        }
+    else
+        {
+        base.OnDidSignal (pin, value);
+        }
+    }
+}
 
 }

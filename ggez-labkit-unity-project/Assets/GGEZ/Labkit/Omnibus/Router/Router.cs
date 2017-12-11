@@ -25,23 +25,30 @@
 
 using System;
 using UnityEngine;
-using UnityEngine.Events;
+using System.Collections.Generic;
 
 namespace GGEZ.Omnibus
 {
 
-[Serializable] public sealed class UnityEventForStringTerminal : UnityEngine.Events.UnityEvent<string> { }
-
-[
-Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Terminal/String Terminal")
-]
-public sealed class StringTerminal : ImplementTerminalForType <int, UnityEventForIntTerminal>
+public abstract class Router : MonoBehaviour, IRouter
 {
-public override void OnDidSignal (string pin, object value)
+
+public abstract void Route (Bus bus);
+public abstract void EditorAddCellsForGameObject (GameObject gameObject);
+
+[ContextMenu ("Add Cells in Children")]
+public void ContextMenuAddCellsInChildren ()
     {
-    base.OnDidSignal (pin, value == null ? null : value.ToString ());
+    var cells = this.gameObject.GetComponentsInChildren (typeof(Cell), true);
+    for (int i = 0; i < cells.Length; ++i)
+        {
+        this.EditorAddCellsForGameObject (cells[i].gameObject);
+        }
     }
-}
+
 
 }
+
+
+}
+

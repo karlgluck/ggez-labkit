@@ -32,14 +32,14 @@ namespace GGEZ.Omnibus
 {
 
 
-[Serializable] public sealed class UnityEventForFloatToggleModule : UnityEngine.Events.UnityEvent<float> { }
+[Serializable] public sealed class UnityEventForStringFormatModule : UnityEngine.Events.UnityEvent<string> { }
 
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Float Toggle (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Modules/String Format (Module)")
 ]
-public sealed class FloatToggleModule : Cell
+public sealed class StringFormatModule : Cell
 {
 
 #region Programming Interface
@@ -64,12 +64,13 @@ public string Pin
         }
     }
 
-public float FadeTime
+public string Format
     {
-    get { return this.fadeTime; }
+    get { return this.format; }
     set
         {
-        this.fadeTime = Mathf.Max (0.0001f, value);
+        this.format = value;
+        this.updateOutput ();
         }
     }
 
@@ -80,68 +81,42 @@ public float FadeTime
 [SerializeField] private Bus bus;
 [SerializeField] private string pin;
 
-[Space, SerializeField] private UnityEventForFloatToggleModule didSignal = new UnityEventForFloatToggleModule ();
+[Space, SerializeField] private UnityEventForStringFormatModule didSignal = new UnityEventForStringFormatModule ();
 
 [Header ("Settings")]
-[SerializeField] private bool invert;
-[SerializeField] private float fadeTime = 1f;
+[SerializeField] private string format = "";
 
 private Wire inputWire = Wire.CELL_INPUT;
-private float targetValue = 0.5f;
 
-private float _value = 0.5f;
-private float value
+private string input = null;
+private string _output = null;
+private void updateOutput ()
     {
-    get
+    var value = string.IsNullOrEmpty (this.format) ? "" : string.Format (this.format, this.input == null ? null : this.input.ToString ());
+    if (this._output != value)
         {
-        return this._value;
-        }
-    set
-        {
-        if (value == this._value)
-            {
-            return;
-            }
-        this._value = value;
-        this.didSignal.Invoke (value);
+        this.didSignal.Invoke (input);
         }
     }
 
 public override void OnDidSignal (string pin, object value)
     {
 	Debug.Assert (pin == Omnibus.Pin.INPUT);
-#if UNITY_EDITOR
-    if (value == null || !typeof(bool).IsAssignableFrom (value.GetType ()))
-        {
-        throw new System.InvalidCastException ("`value` should be " + typeof(bool).Name);
-        }
-#endif
-    this.targetValue = (this.invert == (bool)value) ? 0f : 1f;
-    this.enabled = true;
+    this.input = value == null ? null : value.ToString ();
+    this.updateOutput ();
     }
 
 public override void Route (string port, Bus bus)
     {
 	this.Bus = bus;
-    if (!this.inputWire.IsAttached && Application.isPlaying)
-        {
-        this.enabled = true;
-        }
     }
 
 void OnEnable ()
     {
-    if (this.inputWire.IsAttached)
-        {
-        return;
-        }
     this.inputWire.Attach (this, this.bus, this.pin);
-
-    this.value = this.targetValue;
-    this.enabled = false;
     }
 
-void OnDestroy ()
+void OnDisable ()
     {
     this.inputWire.Detach ();
     }
@@ -149,13 +124,6 @@ void OnDestroy ()
 void OnValidate ()
     {
 	this.inputWire.Connect (this.bus, this.pin);
-    this.fadeTime = Mathf.Max (0.0001f, this.fadeTime);
-    }
-
-void Update ()
-    {
-	this.value = Mathf.MoveTowards (this.value, this.targetValue, Time.smoothDeltaTime / this.fadeTime);
-	this.enabled = !Mathf.Approximately (this.value, this.targetValue);
     }
 
 }
