@@ -1,4 +1,4 @@
-// This is free and unencumbered software released into the public domain.
+﻿// This is free and unencumbered software released into the public domain.
 //
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -32,14 +32,10 @@ namespace GGEZ.Omnibus
 {
 
 
-[Serializable] public sealed class UnityEventForStringFormatFilter : UnityEngine.Events.UnityEvent<string> { }
+[Serializable] public sealed class UnityEventForFloatTweenFilter : UnityEngine.Events.UnityEvent<float> { }
 
 
-[
-Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Filters/String Format (Filter)")
-]
-public sealed class StringFormatFilter : Cell
+public abstract class FloatTweenFilter : Cell
 {
 
 #region Programming Interface
@@ -64,38 +60,52 @@ public string Pin
         }
     }
 
-public string Format
+public float A
     {
-    get { return this.format; }
+    get { return this.a; }
     set
         {
-        this.format = value;
-        this.updateOutput ();
+        this.a = value;
+        }
+    }
+
+public float B
+    {
+    get { return this.b; }
+    set
+        {
+        this.b = value;
         }
     }
 
 #endregion
 
 
-[Header ("*:" + Omnibus.Pin.INPUT + " (string)")]
+protected abstract float tween (float a, float b, float t);
+
+
+[Header ("*:" + Omnibus.Pin.INPUT + " (float)")]
 [SerializeField] private Bus bus;
 [SerializeField] private string pin;
 
-[Space, SerializeField] private UnityEventForStringFormatFilter didSignal = new UnityEventForStringFormatFilter ();
+[Space, SerializeField] private UnityEventForFloatTweenFilter didSignal = new UnityEventForFloatTweenFilter ();
 
 [Header ("Settings")]
-[SerializeField] private string format = "";
+[SerializeField] private float a = 0f;
+[SerializeField] private float b = 1f;
 
 private Wire inputWire = Wire.CELL_INPUT;
 
-private string input = null;
-private string _output = null;
+private bool hasEmittedOutput;
+private float input = 0f;
+private float _output = 0f;
 private void updateOutput ()
     {
-    var value = string.IsNullOrEmpty (this.format) ? "" : string.Format (this.format, this.input == null ? null : this.input.ToString ());
-    if (this._output != value)
+    var value = this.tween (this.a, this.b, this.input);
+    if (this._output != value || !hasEmittedOutput)
         {
-        this._output = value;
+		this.hasEmittedOutput = true;
+		this._output = value;
         this.didSignal.Invoke (value);
         }
     }
@@ -103,7 +113,13 @@ private void updateOutput ()
 public override void OnDidSignal (string pin, object value)
     {
 	Debug.Assert (pin == Omnibus.Pin.INPUT);
-    this.input = value == null ? null : value.ToString ();
+#if UNITY_EDITOR
+    if (value == null || !typeof(float).IsAssignableFrom (value.GetType ()))
+        {
+        throw new System.InvalidCastException ("`value` should be " + typeof(float).Name);
+        }
+#endif
+	this.input = (float)value;
     this.updateOutput ();
     }
 

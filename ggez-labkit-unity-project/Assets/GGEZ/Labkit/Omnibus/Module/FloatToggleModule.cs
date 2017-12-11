@@ -89,7 +89,7 @@ public float FadeTime
 private Wire inputWire = Wire.CELL_INPUT;
 private float targetValue = 0.5f;
 
-private float _value = 0.5f;
+private float _value = -1f;
 private float value
     {
     get
