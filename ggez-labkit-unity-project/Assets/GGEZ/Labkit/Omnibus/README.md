@@ -5,7 +5,7 @@
  * Hook application-level systems together without creating dependencies
  * Let me manually poke things at runtime
 
-Importantly, Omnibus is for establishing connections. It is *not* intended to replace programming or be an easy language for designers. It is intentional that there is no simple way to hook outputs of one cell to the inputs of another. Write code to do that or use a tool that's built for that purpose. Don't build your game's functional systems in the GUI with Omnibus. Use Omnibus to easily take care of the game state your code's functional systems create.
+Importantly, Omnibus is for establishing connections. It is *not* intended to replace programming or be an easy language for designers. It is intentional that there is no simple way to hook outputs of one cell to the inputs of another. Write code to do that or use a tool that's built for that purpose. Don't build your game's functional systems in the GUI with Omnibus. Use Omnibus to easily represent the game state your code's functional systems create.
 
 ## Terminology
 
@@ -29,7 +29,22 @@ Heavily repurposed from integrated circuit design and computer engineering.
 | Terminal (Cell) | Connects signal to Unity Event                            |
 | Gate (Cell)     | A Terminal with functionality                             |
 | Latch (Cell)    | Connects signal to bus                                    |
+| Filter (Cell)   | Converts a value and some parameters to another value     |
 -------------------------------------------------------------------------------
+
+Handy unused terms:
+
+ * Interconnect
+ * Via
+ * Register
+ * Fabric
+ * Junction
+ * Macroblock
+ * Bridge
+ * Clock
+ * Edge
+ * Flip-Flop
+ * Plug
 
 ## Quick Demo
 
@@ -42,8 +57,3 @@ Heavily repurposed from integrated circuit design and computer engineering.
  6. Hook up the Bus asset you created to the `Bus` property of the `Boolean Via`
  7. Run the scene. Open your Bus asset and toggle the checkbox. Your light will toggle on and off.
 
-## Concepts
-
-A Fub registers itself to a Bus for one or more keys in OnEnable. If a key is in memory, it immediately receives an OnDidChange callback with the key's value. After that:
- * The fub will receive OnDidTrigger if Bus.Trigger is called for that key
- * The fub will receive OnDidChange if Bus.Set is called and with a non-equal value
