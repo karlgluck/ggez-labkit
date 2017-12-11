@@ -33,22 +33,14 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Filters/Float Lerp (Filter)")
+AddComponentMenu ("GGEZ/Omnibus/Filters/Float Inverse Lerp (Filter)")
 ]
-public sealed class FloatLerpFilter : FloatTweenFilter
+public sealed class FloatInverseLerpFilter : FloatTweenFilter
 {
-[SerializeField] private bool clamp = true;
 
 protected override float tween (float a, float b, float t)
     {
-    if (clamp)
-        {
-        return Mathf.Lerp (a, b, t);
-        }
-    else
-        {
-        return Mathf.LerpUnclamped (a, b, t);
-        }
+    return Mathf.InverseLerp (a, b, t);
     }
 }
 
