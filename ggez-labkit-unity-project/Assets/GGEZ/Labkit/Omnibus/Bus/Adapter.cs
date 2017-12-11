@@ -32,22 +32,24 @@ namespace GGEZ.Omnibus
 {
 
 [
-RequireComponent (typeof (Bus))
+RequireComponent (typeof (Bus)),
+DisallowMultipleComponent
 ]
 public sealed partial class Adapter : MonoBehaviour
 {
 
 [SerializeField] private string[] aliases = Pin.StdPinAliases;
 
-private Bus bus;
+[SerializeField, HideInInspector] private Bus bus;
 
 void Awake ()
 	{
-	this.bus = (Bus)this.GetComponent (typeof (Bus));
+    Debug.Assert (this.bus != null);
 	}
 
 void OnValidate ()
 	{
+	this.bus = (Bus)this.GetComponent (typeof (Bus));
     if (this.aliases.Length != Pin.StdPinCount)
         {
         Array.Resize<string> (ref this.aliases, Pin.StdPinCount);
