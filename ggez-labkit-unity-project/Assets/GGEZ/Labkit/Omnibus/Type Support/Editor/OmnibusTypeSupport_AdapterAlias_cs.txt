@@ -1,0 +1,167 @@
+// This is free and unencumbered software released into the public domain.
+//
+// Anyone is free to copy, modify, publish, use, compile, sell, or
+// distribute this software, either in source code form or as a compiled
+// binary, for any purpose, commercial or non-commercial, and by any
+// means.
+//
+// In jurisdictions that recognize copyright laws, the author or authors
+// of this software dedicate any and all copyright interest in the
+// software to the public domain. We make this dedication for the benefit
+// of the public at large and to the detriment of our heirs and
+// successors. We intend this dedication to be an overt act of
+// relinquishment in perpetuity of all present and future rights to this
+// software under copyright law.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+// OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+// ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+//
+// For more information, please refer to <http://unlicense.org/>
+
+using System;
+using UnityEngine;
+
+namespace GGEZ.Omnibus
+{
+
+public sealed partial class Adapter
+{
+
+public void SetA (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_A_Index], value); }
+public void SignalA (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_A_Index], value); }
+public bool Get%UPPERNAME%A (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_A_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%A (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_A_Index], defaultValue); }
+
+public void SetB (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_B_Index], value); }
+public void SignalB (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_B_Index], value); }
+public bool Get%UPPERNAME%B (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_B_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%B (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_B_Index], defaultValue); }
+    
+public void SetC (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_C_Index], value); }
+public void SignalC (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_C_Index], value); }
+public bool Get%UPPERNAME%C (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_C_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%C (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_C_Index], defaultValue); }
+    
+public void SetD (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_D_Index], value); }
+public void SignalD (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_D_Index], value); }
+public bool Get%UPPERNAME%D (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_D_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%D (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_D_Index], defaultValue); }
+    
+public void SetE (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_E_Index], value); }
+public void SignalE (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_E_Index], value); }
+public bool Get%UPPERNAME%E (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_E_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%E (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_E_Index], defaultValue); }
+    
+public void SetF (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_F_Index], value); }
+public void SignalF (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_F_Index], value); }
+public bool Get%UPPERNAME%F (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_F_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%F (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_F_Index], defaultValue); }
+    
+public void SetG (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_G_Index], value); }
+public void SignalG (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_G_Index], value); }
+public bool Get%UPPERNAME%G (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_G_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%G (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_G_Index], defaultValue); }
+    
+public void SetH (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_H_Index], value); }
+public void SignalH (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_H_Index], value); }
+public bool Get%UPPERNAME%H (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_H_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%H (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_H_Index], defaultValue); }
+    
+public void SetI (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_I_Index], value); }
+public void SignalI (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_I_Index], value); }
+public bool Get%UPPERNAME%I (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_I_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%I (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_I_Index], defaultValue); }
+    
+public void SetJ (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_J_Index], value); }
+public void SignalJ (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_J_Index], value); }
+public bool Get%UPPERNAME%J (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_J_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%J (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_J_Index], defaultValue); }
+    
+public void SetK (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_K_Index], value); }
+public void SignalK (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_K_Index], value); }
+public bool Get%UPPERNAME%K (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_K_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%K (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_K_Index], defaultValue); }
+    
+public void SetL (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_L_Index], value); }
+public void SignalL (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_L_Index], value); }
+public bool Get%UPPERNAME%L (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_L_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%L (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_L_Index], defaultValue); }
+    
+public void SetM (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_M_Index], value); }
+public void SignalM (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_M_Index], value); }
+public bool Get%UPPERNAME%M (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_M_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%M (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_M_Index], defaultValue); }
+    
+public void SetN (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_N_Index], value); }
+public void SignalN (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_N_Index], value); }
+public bool Get%UPPERNAME%N (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_N_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%N (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_N_Index], defaultValue); }
+    
+public void SetO (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_O_Index], value); }
+public void SignalO (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_O_Index], value); }
+public bool Get%UPPERNAME%O (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_O_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%O (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_O_Index], defaultValue); }
+    
+public void SetP (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_P_Index], value); }
+public void SignalP (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_P_Index], value); }
+public bool Get%UPPERNAME%P (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_P_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%P (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_P_Index], defaultValue); }
+    
+public void SetQ (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_Q_Index], value); }
+public void SignalQ (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_Q_Index], value); }
+public bool Get%UPPERNAME%Q (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_Q_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%Q (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_Q_Index], defaultValue); }
+    
+public void SetR (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_R_Index], value); }
+public void SignalR (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_R_Index], value); }
+public bool Get%UPPERNAME%R (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_R_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%R (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_R_Index], defaultValue); }
+    
+public void SetS (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_S_Index], value); }
+public void SignalS (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_S_Index], value); }
+public bool Get%UPPERNAME%S (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_S_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%S (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_S_Index], defaultValue); }
+    
+public void SetT (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_T_Index], value); }
+public void SignalT (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_T_Index], value); }
+public bool Get%UPPERNAME%T (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_T_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%T (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_T_Index], defaultValue); }
+    
+public void SetU (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_U_Index], value); }
+public void SignalU (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_U_Index], value); }
+public bool Get%UPPERNAME%U (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_U_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%U (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_U_Index], defaultValue); }
+    
+public void SetV (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_V_Index], value); }
+public void SignalV (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_V_Index], value); }
+public bool Get%UPPERNAME%V (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_V_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%V (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_V_Index], defaultValue); }
+    
+public void SetW (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_W_Index], value); }
+public void SignalW (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_W_Index], value); }
+public bool Get%UPPERNAME%W (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_W_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%W (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_W_Index], defaultValue); }
+    
+public void SetX (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_X_Index], value); }
+public void SignalX (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_X_Index], value); }
+public bool Get%UPPERNAME%X (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_X_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%X (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_X_Index], defaultValue); }
+    
+public void SetY (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_Y_Index], value); }
+public void SignalY (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_Y_Index], value); }
+public bool Get%UPPERNAME%Y (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_Y_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%Y (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_Y_Index], defaultValue); }
+    
+public void SetZ (%CSHARPTYPE% value) { this.bus.SetObject (this.aliases[Pin.Std_Z_Index], value); }
+public void SignalZ (%CSHARPTYPE% value) { this.bus.SignalObject (this.aliases[Pin.Std_Z_Index], value); }
+public bool Get%UPPERNAME%Z (out %CSHARPTYPE% value) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_Z_Index], out value); }
+public %CSHARPTYPE% Get%UPPERNAME%Z (%CSHARPTYPE% defaultValue) { return this.bus.Get%UPPERNAME% (this.aliases[Pin.Std_Z_Index], defaultValue); }
+    
+}
+
+}

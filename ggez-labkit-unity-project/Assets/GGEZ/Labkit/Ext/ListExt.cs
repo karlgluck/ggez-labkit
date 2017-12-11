@@ -32,6 +32,19 @@ namespace GGEZ
 public static partial class ListExt
 {
 
+public static T PopLast<T> (this List<T> self)
+    {
+    if (self.Count > 0)
+        {
+        var index = self.Count - 1;
+        var retval = self[index];
+        self.RemoveAt (index);
+        return retval;
+        }
+    else
+        return default(T);
+    }
+
 public static T Last<T> (this List<T> self)
     {
     return self.Count > 0 ? self[self.Count - 1] : default(T);

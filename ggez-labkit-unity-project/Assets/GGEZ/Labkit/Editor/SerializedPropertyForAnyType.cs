@@ -97,18 +97,11 @@ public static SerializedProperty GetSerializedPropertyFor (Type type, out Script
         // compiler figure out how to handle that.
         tb.SetParent (typeof(ScriptablePropertyForType<>).MakeGenericType(type));
 
-        ConstructorBuilder constructor = tb.DefineDefaultConstructor(MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName);
-
         createdType = tb.CreateType ();
-        // Debug.LogFormat ("Type created is {0}", createdType.FullName);
-
-        // var bb = (ScriptableObjectWithFieldBase)Activator.CreateInstance (createdType);
-        // Debug.Log (bb.GetValue ().GetType ());
 
         backingTypeForType.Add (type, createdType);
         }
     var obj = (ScriptablePropertyBackingObject)ScriptableObject.CreateInstance(createdType);
-    // Debug.LogFormat ("Instance = {0}", obj != null ? "not null" : "NULL");
     fieldBackingObject = obj;
     return new SerializedObject (obj).FindProperty ("value");
     }
