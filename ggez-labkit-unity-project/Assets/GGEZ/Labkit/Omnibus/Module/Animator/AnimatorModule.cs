@@ -32,6 +32,8 @@ using PinToIntDict = System.Collections.Generic.Dictionary<string, int>;
 namespace GGEZ.Omnibus
 {
 
+// This module should probably have an editor that tells you when
+// you're assigning things to names that don't exist in the Animator
 
 [
 Serializable,
