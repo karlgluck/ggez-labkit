@@ -5,6 +5,7 @@
  * Hook application-level systems together without creating dependencies
  * Let me manually poke things at runtime
 
+Importantly, Omnibus is for establishing connections. It is *not* intended to replace programming or be an easy language for designers. It is intentional that there is no simple way to hook outputs of one cell to the inputs of another. Write code to do that or use a tool that's built for that purpose. Don't build your game's functional systems in the GUI with Omnibus. Use Omnibus to easily take care of the game state your code's functional systems create.
 
 ## Terminology
 

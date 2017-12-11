@@ -28,6 +28,15 @@ using UnityEngine;
 using Image = UnityEngine.UI.Image;
 
 
+
+// currently in the junkyard because this module implies that Omnibus
+// is a programming language, which right now it is not. There is
+// intentionally no easy way to hook outputs to the inputs of other
+// cells or modules; write code or new modules to do that, don't build
+// systems in the GUI.
+
+
+
 namespace GGEZ.Omnibus
 {
 
