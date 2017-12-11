@@ -36,7 +36,7 @@ namespace GGEZ.Omnibus
 Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Terminal/String Terminal")
 ]
-public sealed class StringTerminal : ImplementTerminalForType <int, UnityEventForIntTerminal>
+public sealed class StringTerminal : ImplementTerminalForType <string, UnityEventForStringTerminal>
 {
 public override void OnDidSignal (string pin, object value)
     {
