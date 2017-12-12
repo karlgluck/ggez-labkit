@@ -25,30 +25,47 @@
 
 using System;
 using UnityEngine;
+using UnityEngine.Events;
+
 
 namespace GGEZ.Omnibus
 {
 
+[Serializable] public sealed class UnityEventForColorUnityEventTerminal : UnityEngine.Events.UnityEvent<Color> { }
 
-
-public sealed partial class Bus
+[
+Serializable,
+AddComponentMenu ("GGEZ/Omnibus/Terminal/Unity Event/Color Unity Event (Color Terminal)")
+]
+public sealed class ColorUnityEventTerminal : ColorTerminal
 {
 
-public void Set (string key, GameObject value) { this.SetObject (key, value); }
-public void Signal (string key, GameObject value) { this.SignalObject (key, value); }
-public bool GetGameObject (string key, out GameObject value) { return this.getT<GameObject> (key, out value); }
-public GameObject GetGameObject (string key, GameObject defaultValue) { return this.getT<GameObject> (key, defaultValue); }
+#region Programming Interface
+
+public override void Signal (Color value)
+    {
+    this.didSignal.Invoke (value);
+    }
+
+public void AddCallback (UnityAction<Color> action)
+    {
+    this.didSignal.AddListener (action);
+    }
+
+public void RemoveCallback (UnityAction<Color> action)
+    {
+    this.didSignal.RemoveListener (action);
+    }
+
+public void RemoveAllCallbacks ()
+    {
+    this.didSignal.RemoveAllListeners ();
+    }
+
+#endregion
+
+[SerializeField] private UnityEventForColorUnityEventTerminal didSignal = new UnityEventForColorUnityEventTerminal ();
 
 }
-
-
-public sealed partial class SerializedMemoryCell
-{
-
-public GameObject Value_GameObject;
-
-}
-
-
 
 }

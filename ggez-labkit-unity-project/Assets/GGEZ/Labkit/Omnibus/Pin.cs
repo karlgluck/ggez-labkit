@@ -34,6 +34,7 @@ public const string DATA = "DATA";
 public const string SELECT = "SEL";
 public const string ENABLE = "EN";
 public const string CLOCK = "CLK";
+public const string RESET = "RST";
 
 public static bool IsInvalid (string pin)
     {

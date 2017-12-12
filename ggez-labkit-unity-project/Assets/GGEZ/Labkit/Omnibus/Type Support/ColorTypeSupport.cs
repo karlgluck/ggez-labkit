@@ -34,10 +34,10 @@ namespace GGEZ.Omnibus
 public sealed partial class Bus
 {
 
-public void Set (string key, GameObject value) { this.SetObject (key, value); }
-public void Signal (string key, GameObject value) { this.SignalObject (key, value); }
-public bool GetGameObject (string key, out GameObject value) { return this.getT<GameObject> (key, out value); }
-public GameObject GetGameObject (string key, GameObject defaultValue) { return this.getT<GameObject> (key, defaultValue); }
+public void Set (string key, Color value) { this.SetObject (key, value); }
+public void Signal (string key, Color value) { this.SignalObject (key, value); }
+public bool GetColor (string key, out Color value) { return this.getT<Color> (key, out value); }
+public Color GetColor (string key, Color defaultValue) { return this.getT<Color> (key, defaultValue); }
 
 }
 
@@ -45,7 +45,7 @@ public GameObject GetGameObject (string key, GameObject defaultValue) { return t
 public sealed partial class SerializedMemoryCell
 {
 
-public GameObject Value_GameObject;
+public Color Value_Color;
 
 }
 

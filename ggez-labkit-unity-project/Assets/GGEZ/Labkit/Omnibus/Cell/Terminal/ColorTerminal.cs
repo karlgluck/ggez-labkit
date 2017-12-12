@@ -23,32 +23,15 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
 using UnityEngine;
 
 namespace GGEZ.Omnibus
 {
 
 
-
-public sealed partial class Bus
+public abstract class ColorTerminal : OneInputTerminal<Color>
 {
-
-public void Set (string key, GameObject value) { this.SetObject (key, value); }
-public void Signal (string key, GameObject value) { this.SignalObject (key, value); }
-public bool GetGameObject (string key, out GameObject value) { return this.getT<GameObject> (key, out value); }
-public GameObject GetGameObject (string key, GameObject defaultValue) { return this.getT<GameObject> (key, defaultValue); }
-
 }
-
-
-public sealed partial class SerializedMemoryCell
-{
-
-public GameObject Value_GameObject;
-
-}
-
 
 
 }

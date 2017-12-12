@@ -29,26 +29,12 @@ using UnityEngine;
 namespace GGEZ.Omnibus
 {
 
+[Serializable] public sealed class UnityEventForColorUnityEventModule : UnityEngine.Events.UnityEvent<Color> { }
 
-
-public sealed partial class Bus
-{
-
-public void Set (string key, GameObject value) { this.SetObject (key, value); }
-public void Signal (string key, GameObject value) { this.SignalObject (key, value); }
-public bool GetGameObject (string key, out GameObject value) { return this.getT<GameObject> (key, out value); }
-public GameObject GetGameObject (string key, GameObject defaultValue) { return this.getT<GameObject> (key, defaultValue); }
-
-}
-
-
-public sealed partial class SerializedMemoryCell
-{
-
-public GameObject Value_GameObject;
-
-}
-
-
+[
+Serializable,
+AddComponentMenu ("GGEZ/Omnibus/Modules/Unity Event/Color Unity Event (Module)")
+]
+public sealed class ColorUnityEventModule : ImplementUnityEventModuleForType<Color, UnityEventForColorUnityEventModule> { }
 
 }

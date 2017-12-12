@@ -432,11 +432,6 @@ public override void OnInspectorGUI ()
                     int count = wires == null ? 0 : wires.Count;
                     total += count;
                     string foldoutText = key;
-                    // string aliasSuffix;
-                    // if (this.aliasedStandardPinsSuffixes.TryGetValue (key, out aliasSuffix))
-                    //     {
-                    //     foldoutText += aliasSuffix;
-                    //     }
                     if (!this.Foldout (foldoutText, count))
                         {
                         continue;
@@ -458,6 +453,21 @@ public override void OnInspectorGUI ()
                 }
             }
         EditorGUILayout.LabelField ("Total Cells", total.ToString ());
+
+        // This is here so that the dictionary iterator doesn't get out of sync
+        if (this.doManualTriggerAtEndOfLoopFor != null)
+            {
+            string key = this.doManualTriggerAtEndOfLoopFor;
+            this.doManualTriggerAtEndOfLoopFor = null;
+            try
+                {
+                this.manualTrigger (key);
+                }
+            catch (InvalidCastException e)
+                {
+                Debug.LogErrorFormat (e.Message);
+                }
+            }
         }
     
     if (this.serializedObjectForAdapters != null)
@@ -521,19 +531,14 @@ private bool Foldout (string key, int count)
     string plural = count == 1 ? "" : "s";
     if (this.triggerMethod != null && GUI.Button (listenersRect, "Signal " + count.ToString () + " Cell" + plural))
         {
-        try
-            {
-            this.manualTrigger (key);
-            }
-        catch (InvalidCastException e)
-            {
-            Debug.LogErrorFormat (e.Message);
-            }
+        this.doManualTriggerAtEndOfLoopFor = key;
         }
 
     this.foldouts[key] = value;
     return value;
     }
+
+private string doManualTriggerAtEndOfLoopFor;
 
 private void manualTrigger (string key)
     {

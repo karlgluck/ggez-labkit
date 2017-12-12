@@ -25,17 +25,20 @@
 
 using System;
 using UnityEngine;
+using UnityEngine.Events;
+using Image = UnityEngine.UI.Image;
+
 
 namespace GGEZ.Omnibus
 {
 
-[Serializable] public sealed class UnityEventForBooleanUnityEventModule : UnityEngine.Events.UnityEvent<bool> { }
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Unity Event/Boolean Unity Event (Module)")
+RequireComponent (typeof (Image)),
+AddComponentMenu ("GGEZ/Omnibus/Modules/UI.Image/Image Sprite (Module)")
 ]
-public sealed class BooleanUnityEventModule : Cell
+public sealed class ImageSpriteModule : Cell
 {
 
 #region Programming Interface
@@ -58,17 +61,13 @@ public Bus Bus
         }
     }
 
-
 #endregion
 
 [Header ("*:" + Pin.INPUT + "(type)")]
 
 [SerializeField] private Bus bus;
 [SerializeField] private string pin;
-
-[Space]
-[SerializeField] private UnityEventForBooleanUnityEventModule didSignal = new UnityEventForBooleanUnityEventModule ();
-[SerializeField] private UnityEventForBooleanUnityEventModule didSignalNot = new UnityEventForBooleanUnityEventModule ();
+[SerializeField, HideInInspector] private Image image;
 
 private Wire inputWire = Wire.CELL_INPUT;
 
@@ -76,14 +75,12 @@ public override void OnDidSignal (string pin, object value)
     {
     Debug.Assert (pin == Omnibus.Pin.INPUT);
 #if UNITY_EDITOR
-    if (value == null || !typeof(bool).IsAssignableFrom (value.GetType ()))
+    if (value != null && !typeof(Sprite).IsAssignableFrom (value.GetType ()))
         {
-        throw new System.InvalidCastException ("`value` should be " + typeof(bool).Name);
+        throw new System.InvalidCastException ("`value` should be " + typeof(Sprite).Name);
         }
 #endif
-    var boolValue = (bool)value;
-    this.didSignal.Invoke (boolValue);
-    this.didSignalNot.Invoke (!boolValue);
+    this.image.sprite = (Sprite)value;
     }
 
 public override void Route (string port, Bus bus)
@@ -93,6 +90,7 @@ public override void Route (string port, Bus bus)
 
 void OnEnable ()
     {
+    Debug.Assert (this.image != null);
     this.inputWire.Attach (this, this.bus, this.pin);
     }
 
@@ -103,11 +101,10 @@ void OnDisable ()
 
 void OnValidate ()
     {
+    this.image = (Image)this.gameObject.GetComponent (typeof (Image));
     this.inputWire.Connect (this.bus, this.pin);
     }
 
 }
-
-
 
 }
