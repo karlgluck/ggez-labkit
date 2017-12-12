@@ -23,18 +23,19 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
 using UnityEngine;
 
 namespace GGEZ.Omnibus
 {
 
-[Serializable] public sealed class UnityEventForFloatTerminal : UnityEngine.Events.UnityEvent<float> { }
 
 [
-Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Terminal/Float Terminal")
+System.Serializable
 ]
-public sealed class FloatTerminal : ImplementTerminalForType<float, UnityEventForFloatTerminal> { }
+public abstract class FloatTerminal : OneInputTerminal<float>
+{
+
+}
+
 
 }

@@ -23,18 +23,15 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
 using UnityEngine;
 
 namespace GGEZ.Omnibus
 {
 
-[Serializable] public sealed class UnityEventForBooleanTerminal : UnityEngine.Events.UnityEvent<bool> { }
 
-[
-Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Terminal/Boolean Terminal")
-]
-public sealed class BooleanTerminal : ImplementTerminalForType <bool, UnityEventForBooleanTerminal> { }
+public abstract class BooleanTerminal : OneInputTerminal<bool>
+{
+}
+
 
 }

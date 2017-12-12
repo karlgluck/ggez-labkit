@@ -32,8 +32,6 @@ namespace GGEZ.Omnibus
 {
 
 
-[Serializable] public sealed class UnityEventForFloatTweenFilter : UnityEngine.Events.UnityEvent<float> { }
-
 
 public abstract class FloatTweenFilter : Cell
 {
@@ -88,7 +86,7 @@ protected abstract float tween (float a, float b, float t);
 [SerializeField] private Bus bus;
 [SerializeField] private string pin;
 
-[Space, SerializeField] private UnityEventForFloatTweenFilter didSignal = new UnityEventForFloatTweenFilter ();
+[Space, SerializeField] private FloatTerminal terminal;
 
 [Header ("Settings")]
 [SerializeField] private float a = 0f;
@@ -102,11 +100,11 @@ private float _output = 0f;
 private void updateOutput ()
     {
     var value = this.tween (this.a, this.b, this.input);
-    if (this._output != value || !hasEmittedOutput)
+    if (!Mathf.Approximately (this._output, value) || !hasEmittedOutput)
         {
 		this.hasEmittedOutput = true;
 		this._output = value;
-        this.didSignal.Invoke (value);
+        this.terminal.Signal (value);
         }
     }
 
@@ -141,6 +139,7 @@ void OnDisable ()
 void OnValidate ()
     {
 	this.inputWire.Connect (this.bus, this.pin);
+    OneInputTerminal<float>.FindTerminal (this, ref this.terminal);
     }
 
 }

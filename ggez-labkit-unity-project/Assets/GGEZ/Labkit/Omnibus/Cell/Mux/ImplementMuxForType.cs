@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 
 
-public class ImplementMuxForType<T, D> : Cell where D : UnityEvent<T>, new ()
+public class ImplementMuxForType<T, D> : Cell where D : OneInputTerminal<T>
 {
 
 
@@ -82,7 +82,7 @@ public const string SELECT_PORT = "select";
 [SerializeField] private string selectPin;
 
 [Space]
-[SerializeField] private D didSignal = new D ();
+[SerializeField] private D terminal;
 
 public override void OnDidSignal (string pin, object value)
     {
@@ -100,7 +100,7 @@ public override void OnDidSignal (string pin, object value)
                 throw new System.InvalidCastException ("`value` should be " + typeof(T).Name);
                 }
 #endif
-            this.didSignal.Invoke ((T)value);
+            this.terminal.Signal ((T)value);
             break;
 
 #if UNITY_EDITOR
@@ -155,6 +155,7 @@ void OnDisable ()
 void OnValidate ()
     {
     this.refresh ();
+    OneInputTerminal<T>.FindTerminal (this, ref this.terminal);
     }
 
 private void refresh ()

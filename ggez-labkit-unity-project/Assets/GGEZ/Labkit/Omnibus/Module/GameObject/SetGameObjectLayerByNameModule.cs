@@ -73,7 +73,7 @@ public override void OnDidSignal (string pin, object value)
 #if UNITY_EDITOR
 	if (layer == ~0)
 		{
-		Debug.LogWarning ("Layer name " +  value.ToString () + " is invalid");
+		Debug.LogWarning ("Layer name " +  value.ToString () + " is invalid", this);
 		}
 #endif
 	this.gameObject.layer = layer;
@@ -84,7 +84,7 @@ public override void Route (string port, Bus bus)
 	this.Bus = bus;
     }
 
-private Wire input = Wire.CELL_INPUT;
+private Wire input = Wire.CELL_DATA;
 
 void OnEnable ()
     {

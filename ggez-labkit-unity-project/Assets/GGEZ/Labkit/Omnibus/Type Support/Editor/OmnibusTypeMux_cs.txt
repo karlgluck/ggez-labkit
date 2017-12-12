@@ -29,12 +29,10 @@ using UnityEngine;
 namespace GGEZ.Omnibus
 {
 
-[Serializable] public sealed class UnityEventFor%UPPERNAME%Mux : UnityEngine.Events.UnityEvent<%CSHARPTYPE%> { }
-
 [
 Serializable,
 AddComponentMenu ("GGEZ/Omnibus/Mux/%UPPERNAME% Mux")
 ]
-public sealed class %UPPERNAME%Mux : ImplementMuxForType <%CSHARPTYPE%, UnityEventFor%UPPERNAME%Mux> { }
+public sealed class %UPPERNAME%Mux : ImplementMuxForType <%CSHARPTYPE%, %UPPERNAME%Terminal> { }
 
 }

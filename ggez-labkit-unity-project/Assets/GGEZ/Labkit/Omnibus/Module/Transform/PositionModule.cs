@@ -41,7 +41,7 @@ public sealed class PositionModule : Vector3SetsTransformPropertyModule
 
 public override void OnDidSignal (string pin, object value)
     {
-	Debug.Assert (pin == Omnibus.Pin.INPUT);
+    Debug.Assert (pin == Omnibus.Pin.INPUT);
 #if UNITY_EDITOR
     if (value == null || !typeof(Vector3).IsAssignableFrom (value.GetType ()))
         {

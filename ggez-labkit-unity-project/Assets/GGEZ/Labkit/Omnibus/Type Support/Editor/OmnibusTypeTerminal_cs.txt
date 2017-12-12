@@ -23,18 +23,15 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
 using UnityEngine;
 
 namespace GGEZ.Omnibus
 {
 
-[Serializable] public sealed class UnityEventFor%UPPERNAME%Terminal : UnityEngine.Events.UnityEvent<%CSHARPTYPE%> { }
 
-[
-Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Terminal/%UPPERNAME% Terminal")
-]
-public sealed class %UPPERNAME%Terminal : ImplementTerminalForType <%CSHARPTYPE%, UnityEventFor%UPPERNAME%Terminal> { }
+public abstract class %UPPERNAME%Terminal : OneInputTerminal<%CSHARPTYPE%>
+{
+}
+
 
 }

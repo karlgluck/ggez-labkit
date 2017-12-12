@@ -242,6 +242,15 @@ void forceFullRebuildOfAllWires ()
 
 bool updateWireCount ()
     {
+    if (!Application.isPlaying)
+        {
+        for (int i = 0; i < this.wires.Count; ++i)
+            {
+            this.wires[i].Detach ();
+            }
+        this.wires.Clear ();
+        return true;
+        }
     int wiresNeeded = 0;
     wiresNeeded += this.pinToFloatParameters.Keys.Count;
     wiresNeeded += this.pinToLayerWeights.Keys.Count;
@@ -346,6 +355,10 @@ public bool reconnectWiresForAnimatorParameterDictionary (ref int wireIndex, Str
 
 public bool reconnectWiresForLayerDictionary (ref int wireIndex, StringPairs stringPairs, string pinPrefix, Dictionary <string, int> dictionary)
     {
+    if (!Application.isPlaying)
+        {
+        return false;
+        }
     for (int i = 0; i < stringPairs.Keys.Count; ++i)
         {
         var wire = this.wires[wireIndex];

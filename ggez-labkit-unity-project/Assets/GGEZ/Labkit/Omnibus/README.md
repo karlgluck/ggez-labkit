@@ -7,6 +7,9 @@
 
 Importantly, Omnibus is for establishing connections. It is *not* intended to replace programming or be an easy language for designers. It is intentional that there is no simple way to hook outputs of one cell to the inputs of another. Write code to do that or use a tool that's built for that purpose. Don't build your game's functional systems in the GUI with Omnibus. Use Omnibus to easily represent the game state your code's functional systems create.
 
+Cells are either self-contained units called Modules or two-part compound units composed of a Gate or Filter and a Terminal.
+
+
 ## Terminology
 
 Heavily repurposed from integrated circuit design and computer engineering.
@@ -34,6 +37,7 @@ Heavily repurposed from integrated circuit design and computer engineering.
 
 Handy unused terms:
 
+ * Buffer
  * Interconnect
  * Via
  * Register

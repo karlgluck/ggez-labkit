@@ -31,10 +31,15 @@ using GGEZ.Omnibus;
 [
 RequireComponent (typeof (Transform))
 ]
-public class RegisterTransformOnce : MonoBehaviour
+public class RegisterTransformOnce : Cell
 {
 [SerializeField] private UnityEngine.Object bus;
 [SerializeField] private string key;
+
+public override void Route (string port, Bus bus)
+    {
+    this.Bus = bus;
+    }
 
 public Bus Bus
     {

@@ -32,8 +32,6 @@ namespace GGEZ.Omnibus
 {
 
 
-[Serializable] public sealed class UnityEventForStringFormatFilter : UnityEngine.Events.UnityEvent<string> { }
-
 
 [
 Serializable,
@@ -81,7 +79,7 @@ public string Format
 [SerializeField] private Bus bus;
 [SerializeField] private string pin;
 
-[Space, SerializeField] private UnityEventForStringFormatFilter didSignal = new UnityEventForStringFormatFilter ();
+[Space, SerializeField] private OneInputTerminal<string> terminal;
 
 [Header ("Settings")]
 [SerializeField] private string format = "";
@@ -96,7 +94,7 @@ private void updateOutput ()
     if (this._output != value)
         {
         this._output = value;
-        this.didSignal.Invoke (value);
+        this.terminal.Signal (value);
         }
     }
 

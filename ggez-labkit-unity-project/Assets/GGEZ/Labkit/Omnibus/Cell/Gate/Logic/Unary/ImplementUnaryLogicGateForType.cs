@@ -32,8 +32,6 @@ namespace GGEZ.Omnibus
 {
 
 
-[Serializable] public sealed class UnityEventForImplementUnaryLogicGateForType : UnityEngine.Events.UnityEvent<bool> { }
-
 public abstract class ImplementUnaryLogicGateForType<T> : Cell
 {
 
@@ -71,8 +69,7 @@ private Wire wireIn = Wire.CELL_INPUT;
 [SerializeField] private string pin;
 
 [Space]
-[SerializeField] private UnityEventForImplementUnaryLogicGateForType didSignal = new UnityEventForImplementUnaryLogicGateForType ();
-[SerializeField] private UnityEventForImplementUnaryLogicGateForType didSignalNot = new UnityEventForImplementUnaryLogicGateForType ();
+[SerializeField] private BooleanTerminal terminal;
 
 void OnEnable ()
     {
@@ -87,6 +84,7 @@ void OnDisable ()
 void OnValidate ()
     {
     this.wireIn.Connect (this.bus, this.pin);
+    OneInputTerminal<bool>.FindTerminal (this, ref this.terminal);
     }
 
 
@@ -109,8 +107,7 @@ public override void OnDidSignal (string pin, object value)
     int comparator = emittedValue ? 1 : 0;
     if (this.lastEvaluation != comparator)
         {
-        this.didSignal.Invoke (emittedValue);
-        this.didSignalNot.Invoke (!emittedValue);
+        this.terminal.Signal (emittedValue);
         this.lastEvaluation = comparator;
         }
     }
