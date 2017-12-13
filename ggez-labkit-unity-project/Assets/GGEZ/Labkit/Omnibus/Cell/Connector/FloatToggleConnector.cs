@@ -28,6 +28,15 @@ using UnityEngine;
 using Image = UnityEngine.UI.Image;
 
 
+
+// currently in the junkyard because this module implies that Omnibus
+// is a programming language, which right now it is not. There is
+// intentionally no easy way to hook outputs to the inputs of other
+// cells or modules; write code or new modules to do that, don't build
+// systems in the GUI.
+
+
+
 namespace GGEZ.Omnibus
 {
 
@@ -35,10 +44,9 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/UI.Image/Image Alpha Fade Timer (Module)"),
-RequireComponent (typeof (Image))
+AddComponentMenu ("GGEZ/Omnibus/Connectors/Float Toggle Connector")
 ]
-public sealed class ImageAlphaFadeTimerModule : Cell
+public sealed class FloatToggleConnector : Cell
 {
 
 #region Programming Interface
@@ -49,7 +57,7 @@ public Bus Bus
     set
         {
         this.bus = value;
-        this.input.Connect (this.bus, this.pin);
+        this.inputWire.Connect (this.bus, this.pin);
         }
     }
 
@@ -59,16 +67,7 @@ public string Pin
     set
         {
         this.pin = value;
-        this.input.Connect (this.bus, this.pin);
-        }
-    }
-
-public float StayTime
-    {
-    get { return this.stayTime; }
-    set
-        {
-        this.stayTime = Mathf.Max (0.0001f, value);
+        this.inputWire.Connect (this.bus, this.pin);
         }
     }
 
@@ -84,77 +83,86 @@ public float FadeTime
 #endregion
 
 
-[Header ("*:" + Omnibus.Pin.INPUT + " (void)")]
+[Header ("*:" + Omnibus.Pin.INPUT + " (bool)")]
 [SerializeField] private Bus bus;
 [SerializeField] private string pin;
+[Space, SerializeField] private FloatTerminal terminal;
 
 [Header ("Settings")]
-[SerializeField] private float stayTime = 1f;
+[SerializeField] private bool invert;
 [SerializeField] private float fadeTime = 1f;
 
-private Wire input = Wire.CELL_INPUT;
-private Image image;
+private Wire inputWire = Wire.CELL_INPUT;
+private float targetValue = 0.5f;
 
-private float timer = 0.0f;
+private float _value = -1f;
+private float value
+    {
+    get
+        {
+        return this._value;
+        }
+    set
+        {
+        if (value == this._value)
+            {
+            return;
+            }
+        this._value = value;
+        this.terminal.Signal (value);
+        }
+    }
 
 public override void OnDidSignal (string pin, object value)
     {
 	Debug.Assert (pin == Omnibus.Pin.INPUT);
+#if UNITY_EDITOR
+    if (value == null || !typeof(bool).IsAssignableFrom (value.GetType ()))
+        {
+        throw new System.InvalidCastException ("`value` should be " + typeof(bool).Name);
+        }
+#endif
+    this.targetValue = (this.invert == (bool)value) ? 0f : 1f;
     this.enabled = true;
     }
 
 public override void Route (string port, Bus bus)
     {
 	this.Bus = bus;
-    if (!this.input.IsAttached && Application.isPlaying)
+    if (!this.inputWire.IsAttached && Application.isPlaying)
         {
         this.enabled = true;
         }
     }
-    
-void Awake ()
-    {
-    this.image = (Image)this.GetComponent (typeof (Image));
-    }
 
 void OnEnable ()
     {
-    this.timer = 0f;
-    if (this.input.IsAttached)
+    if (this.inputWire.IsAttached)
         {
         return;
         }
-    this.input.Attach (this, this.bus, this.pin);
-    this.image.color = this.image.color.WithA (0f);
+    this.inputWire.Attach (this, this.bus, this.pin);
+
+    this.value = this.targetValue;
     this.enabled = false;
     }
 
 void OnDestroy ()
     {
-    this.input.Detach ();
+    this.inputWire.Detach ();
     }
 
 void OnValidate ()
     {
-	this.input.Connect (this.bus, this.pin);
+	this.inputWire.Connect (this.bus, this.pin);
     this.fadeTime = Mathf.Max (0.0001f, this.fadeTime);
+    OneInputTerminal<float>.FindTerminal (this, ref this.terminal);
     }
 
 void Update ()
     {
-    Color color = this.image.color;
-    this.timer += Time.smoothDeltaTime;
-    if (this.timer < this.stayTime)
-        {
-        color.a = 1f;
-        this.image.color = color;
-        return;
-        }
-    float endTime = this.stayTime + this.fadeTime;
-    float t = Mathf.InverseLerp (this.stayTime, endTime, this.timer);
-    color.a = Mathf.Lerp (1f, 0f, t);
-    this.image.color = color;
-	this.enabled = this.timer < endTime;
+	this.value = Mathf.MoveTowards (this.value, this.targetValue, Time.smoothDeltaTime / this.fadeTime);
+	this.enabled = !Mathf.Approximately (this.value, this.targetValue);
     }
 
 }

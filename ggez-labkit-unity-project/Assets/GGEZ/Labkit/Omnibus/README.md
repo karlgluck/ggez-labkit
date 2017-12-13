@@ -1,13 +1,22 @@
 ﻿
 # Omnibus: Connect all the things!
 
- * Easily create data-driven UI behavior in prefabs
+Omnibus is a tool for establishing connections.
+
+Omnibus **should be used to**:
+
+ * Easily create data-driven behavior in prefabs
  * Hook application-level systems together without creating dependencies
- * Let me manually poke things at runtime
+ * Let you manually inspect and poke values at runtime to see what happens
 
-Importantly, Omnibus is for establishing connections. It is *not* intended to replace programming or be an easy language for designers. It is intentional that there is no simple way to hook outputs of one cell to the inputs of another. Write code to do that or use a tool that's built for that purpose. Don't build your game's functional systems in the GUI with Omnibus. Use Omnibus to easily represent the game state your code's functional systems create.
+Omnibus **should not be used**:
 
-Cells are either self-contained units called Modules or two-part compound units composed of a Gate or Filter and a Terminal.
+ * As a programming replacement (don't write code using Omnibus)
+ * As a designer or artist tool
+
+It is intentional that it isn't straightforward to hook outputs of one cell to the inputs of another. Don't build your game's logical systems in the GUI with Omnibus. Use Omnibus to easily represent the game state your code's functional systems create. If you find yourself needing more complex functionality, write a new cell rather than trying to combine existing cells in clever ways.
+
+Omnibus is still a work in progress :)
 
 
 ## Terminology
@@ -17,7 +26,7 @@ Heavily repurposed from integrated circuit design and computer engineering.
 -------------------------------------------------------------------------------
 | Term            | Omnibus Meaning                                           |
 -------------------------------------------------------------------------------
-| Bus             | Data communication system that ties together cells        |
+| Bus             | Data communication system with memory and events          |
 | Signal          | Events and memory cell changes                            |
 | Cell            | Uses a bus for I/O. Has ports and pins. Uses wires.       |
 | Router          | Connects ports (on cells) to busses                       |
@@ -28,12 +37,21 @@ Heavily repurposed from integrated circuit design and computer engineering.
 | ROM             | Read-Only Memory to initialize the Bus's memory cells     |
 | Module          | A complex cell                                            |
 | Fub             | Functional Unit Block. Collections of other parts.        |
+| Connector       | Muxes, Gates and Filters. Link with a Terminal.           |
+| Terminal (Cell) | Receives a signal from a Connector and does something     |
+| Buffer          | No-op Connector                                           |
 | Mux (Cell)      | Read bus using string from another bus. (Multiplexer)     |
-| Terminal (Cell) | Connects signal to Unity Event                            |
-| Gate (Cell)     | A Terminal with functionality                             |
 | Latch (Cell)    | Connects signal to bus                                    |
-| Filter (Cell)   | Converts a value and some parameters to another value     |
+| Gate (Cell)     | Logic-function Connector                                  |
+| Filter (Cell)   | Parametric Connector                                      |
 -------------------------------------------------------------------------------
+
+Cells generally have:
+ * Self-contained input and output (from bus to Unity), and are called modules
+ * Separate input (connector) and output (terminal) units that hook together and are called compound cells
+
+Other kinds of cells exist:
+ * LatchWritesBusMemoryCell
 
 Handy unused terms:
 
@@ -61,3 +79,6 @@ Handy unused terms:
  6. Hook up the Bus asset you created to the `Bus` property of the `Boolean Via`
  7. Run the scene. Open your Bus asset and toggle the checkbox. Your light will toggle on and off.
 
+# Other Stuff
+
+A system created from Omnibus is theoretically synthesizeable: a purpose-built program should be able to take the codebase for a project and compile it into a version that resolves all types statically. Omnibus isn't made for production but this could possibly provide a route in that way if it matters.

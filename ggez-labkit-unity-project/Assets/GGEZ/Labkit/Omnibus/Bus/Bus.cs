@@ -240,6 +240,26 @@ public void SetNull (string pin)
         }
     }
 
+
+public void SignalNull (string pin)
+    {
+    if (Pin.IsInvalid (pin))
+        {
+        throw new ArgumentException ("pin");
+        }
+    WireList wires;
+    if (!this.connections.TryGetValue (pin, out wires))
+        {
+        return;
+        }
+    for (int i = wires.Count - 1; i >= 0; --i)
+        {
+        wires[i].Signal (null);
+        }
+    }
+
+
+
 #region Templated versions of get/set
 
 bool getT <T> (string pin, out T value)

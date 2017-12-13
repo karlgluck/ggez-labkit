@@ -1,4 +1,4 @@
-﻿// This is free and unencumbered software released into the public domain.
+// This is free and unencumbered software released into the public domain.
 //
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -23,34 +23,33 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using UnityEngine;
-using UnityEditor;
 using System;
-using System.Reflection;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditorInternal;
-using System.Linq;
-using System.IO;
+using UnityEngine;
+using UnityEngine.Events;
 
 
 namespace GGEZ.Omnibus
 {
 
 
-
 [
-CustomEditor(typeof (Adapter), true),
-CanEditMultipleObjects
+Serializable,
+AddComponentMenu ("GGEZ/Omnibus/Terminal/Write to Bus/Float Writes to Bus (Float Terminal)")
 ]
-public sealed class AdapterEditor : Editor
+public sealed class FloatWritesToBusTerminal : FloatTerminal
 {
 
+#region Programming Interface
 
-public override void OnInspectorGUI ()
-	{
-	}
+public override void Signal (float value)
+    {
+    this.bus.Set (pin, value);
+    }
 
+#endregion
+
+[SerializeField] private Bus bus;
+[SerializeField] private string pin;
 
 }
 

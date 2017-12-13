@@ -82,10 +82,6 @@ private ReorderableListCache initialTableCache;
 private ReorderableList runtimeTable;
 private ReorderableListCache runtimeTableCache;
 
-private SerializedProperty aliases;
-private bool aliasesFoldout;
-private Dictionary<string, string> aliasedStandardPinsSuffixes = new Dictionary<string,string> ();
-
 private FieldInfo connectionsField;
 
 private bool enableEditingInitialValuesAtRuntime;
@@ -94,38 +90,6 @@ private string triggerParameterTypeName;
 private MethodInfo triggerMethod;
 private SerializedProperty triggerParameter;
 private Labkit.ScriptablePropertyBackingObject fieldBackingObject;
-
-private SerializedObject serializedObjectForAdapters = null;
-
-void updateAliasedStandardPinsSuffixes ()
-    {
-    this.aliasedStandardPinsSuffixes.Clear ();
-    if (this.aliases != null)
-        {
-        for (int i = 0; i < this.aliases.arraySize; ++i)
-            {
-            var pin = this.aliases.GetArrayElementAtIndex (i).stringValue;
-            if (Pin.IsValid (pin))
-                {
-                string value;
-                if (this.aliasedStandardPinsSuffixes.TryGetValue (pin, out value))
-                    {
-                    value += ", " + Pin.StdPin[i];
-                    }
-                else
-                    {
-                    value = Pin.StdPin[i];
-                    }
-                this.aliasedStandardPinsSuffixes[pin] = value;
-                }
-            }
-
-        foreach (var key in new List<string> (this.aliasedStandardPinsSuffixes.Keys))
-            {
-            this.aliasedStandardPinsSuffixes[key] = "[" + this.aliasedStandardPinsSuffixes[key] + "]";
-            }
-        }
-    }
 
 void OnEnable ()
     {
@@ -160,28 +124,6 @@ void OnEnable ()
     this.runtimeTable.onChangedCallback = (_list) => this.runtimeTableCache.Clear ();
     this.runtimeTable.onReorderCallback = (_list) => this.runtimeTableCache.Clear ();
     this.runtimeTable.elementHeightCallback = this.elementInRuntimeTableHeight;
-
-    List<UnityEngine.Object> adapters = new List<UnityEngine.Object> ();
-    for (int i = 0; i < this.targets.Length; ++i)
-        {
-        var adapter = ((MonoBehaviour)this.targets[i]).GetComponent (typeof (Adapter));
-        if (adapter != null)
-            {
-            adapters.Add (adapter);
-            }
-        }
-    if (adapters.Count > 0)
-        {
-        this.serializedObjectForAdapters = new SerializedObject (adapters.ToArray ());
-        this.aliases = this.serializedObjectForAdapters.FindProperty (Adapter.nameof_aliases);
-        }
-    else
-        {
-        this.serializedObjectForAdapters = null;
-        this.aliases = null;
-        }
-    this.updateAliasedStandardPinsSuffixes ();
-
 
     this.setTriggerParameterType (null);
 
@@ -220,12 +162,6 @@ void drawInitialTableElement (Rect position, int index, bool isActive, bool isFo
     else
         {
         EditorGUI.LabelField (element.NameRect, element.Key);
-        }
-
-    string aliasOf;
-    if (this.aliasedStandardPinsSuffixes.TryGetValue (element.Key, out aliasOf))
-        {
-        EditorGUI.LabelField (element.AdapterAliasRect, aliasOf);
         }
 
     if (element.ValueProperty != null)
@@ -304,12 +240,6 @@ void drawRuntimeTableElement (Rect position, int index, bool isActive, bool isFo
     var element = this.runtimeTableCache.GetOrAddElement (index, position);
     
     EditorGUI.LabelField (element.NameRect, element.Key);
-
-    string aliasOf;
-    if (this.aliasedStandardPinsSuffixes.TryGetValue (element.Key, out aliasOf))
-        {
-        EditorGUI.LabelField (element.AdapterAliasRect, aliasOf);
-        }
 
     if (element.ValueProperty != null)
         {
@@ -470,46 +400,11 @@ public override void OnInspectorGUI ()
             }
         }
     
-    if (this.serializedObjectForAdapters != null)
-        {
-        this.OnAdapterInspectorGUI ();
-        }
-    
     EditorGUILayout.Space ();
 
     if (this.serializedObject.ApplyModifiedProperties ())
         {
         }
-    }
-
-private void OnAdapterInspectorGUI ()
-    {
-    EditorGUILayout.Space ();
-    EditorGUILayout.LabelField ("Adapter", EditorStyles.boldLabel);
-
-    this.serializedObjectForAdapters.UpdateIfRequiredOrScript ();
-    this.aliasesFoldout = EditorGUILayout.Foldout (this.aliasesFoldout, "Aliases");
-    if (this.aliasesFoldout)
-        {
-        EditorGUI.BeginChangeCheck ();
-        EditorGUI.indentLevel++;
-        for (int i = 0; i < Pin.StdPinCount; ++i)
-            {
-            var element = this.aliases.GetArrayElementAtIndex (i);
-            var labelRect = EditorGUILayout.GetControlRect ();
-            var pinRect = new Rect (labelRect);
-            pinRect.xMin += EditorGUIUtility.labelWidth;
-            labelRect.xMax = pinRect.xMin;
-            EditorGUI.LabelField (labelRect, "[" + Pin.StdPin[i] + "]");
-            EditorGUI.PropertyField (pinRect, element, GUIContent.none);
-            }
-        EditorGUI.indentLevel--;
-        if (EditorGUI.EndChangeCheck ())
-            {
-            this.updateAliasedStandardPinsSuffixes ();
-            }
-        }
-    this.serializedObjectForAdapters.ApplyModifiedProperties ();
     }
 
 private Dictionary <string, bool> foldouts = new Dictionary <string, bool> ();
@@ -599,12 +494,6 @@ private class ReorderableListCache
                     position.width - retval.NameRect.width - 5f,
                     retval.Height - 4f
                     );
-            retval.AdapterAliasRect = new Rect (
-                    retval.NameRect.xMax - 28f,
-                    retval.NameRect.yMin,
-                    28f,
-                    EditorGUIUtility.singleLineHeight
-                    );
             retval.Position = position;
             }
         return retval;
@@ -643,7 +532,6 @@ private class ReorderableListCache
         public Rect Position;
         public Rect NameRect;
         public Rect ValueRect;
-        public Rect AdapterAliasRect;
         }
 
     private Dictionary <int, ListElementData> elements = new Dictionary <int, ListElementData> ();
