@@ -111,7 +111,7 @@ public override void Route (string port, Bus bus)
         this.enabled = true;
         }
     }
-    
+
 void Awake ()
     {
     this.image = (Image)this.GetComponent (typeof (Image));
@@ -125,7 +125,9 @@ void OnEnable ()
         return;
         }
     this.input.Attach (this, this.bus, this.pin);
-    this.image.color = this.image.color.WithA (0f);
+    var color = this.image.color;
+    color.a = 0f;
+    this.image.color = color;
     this.enabled = false;
     }
 
