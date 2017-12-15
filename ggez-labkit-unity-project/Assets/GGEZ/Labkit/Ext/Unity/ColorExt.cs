@@ -42,4 +42,35 @@ public static readonly Color ReddishPurple = new Color(204/255f, 121/255f, 167/2
 public static readonly Color White = new Color(255f/255f, 255f/255f, 255f/255f);
 public static readonly Color[] WithPigment = new Color[] { Vermillion, Blue, Orange, ReddishPurple, SkyBlue, Yellow, BluishGreen, };
 }
+
+public static partial class ColorExt
+{
+
+public static Color WithR (this Color self, float r)
+    {
+    return new Color (r, self.g, self.b, self.a);
+    }
+
+public static Color WithG (this Color self, float g)
+    {
+    return new Color (self.r, g, self.b, self.a);
+    }
+
+public static Color WithB (this Color self, float b)
+    {
+    return new Color (self.r, self.g, b, self.a);
+    }
+
+public static Color WithA (this Color self, float a)
+    {
+    return new Color (self.r, self.g, self.b, a);
+    }
+
+public static Color WithRGB (this Color self, Color rgb)
+    {
+    return new Color (rgb.r, rgb.b, rgb.a, self.a);
+    }
+
+}
+
 }
