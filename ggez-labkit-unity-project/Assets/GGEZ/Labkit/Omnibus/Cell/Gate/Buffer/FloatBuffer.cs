@@ -31,7 +31,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Buffer/Float Buffer")
+AddComponentMenu ("GGEZ/Omnibus/Cell/Buffer/Float Buffer")
 ]
 public sealed class FloatBuffer : ImplementBufferForType <float, FloatTerminal> { }
 

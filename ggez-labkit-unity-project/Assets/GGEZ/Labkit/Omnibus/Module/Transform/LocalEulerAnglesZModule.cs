@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Transform/Set localEulerAngles.z (Module)"),
+AddComponentMenu ("GGEZ/Omnibus/Module/Transform/Set localEulerAngles.z (Transform Module)"),
 RequireComponent (typeof (Transform))
 ]
 public sealed class LocalEulerAnglesZModule : FloatSetsTransformPropertyModule

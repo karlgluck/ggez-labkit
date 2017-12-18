@@ -31,7 +31,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Buffer/Boolean Buffer")
+AddComponentMenu ("GGEZ/Omnibus/Cell/Buffer/Boolean Buffer")
 ]
 public sealed class BooleanBuffer : ImplementBufferForType <bool, BooleanTerminal> { }
 

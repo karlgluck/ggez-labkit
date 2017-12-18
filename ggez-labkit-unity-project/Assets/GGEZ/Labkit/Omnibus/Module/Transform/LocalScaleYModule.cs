@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Transform/Set localScale.y (Module)"),
+AddComponentMenu ("GGEZ/Omnibus/Module/Transform/Set localScale.y (Transform Module)"),
 RequireComponent (typeof (Transform))
 ]
 public sealed class LocalScaleYModule : FloatSetsTransformPropertyModule

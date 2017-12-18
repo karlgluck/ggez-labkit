@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Unity Event/Sprite Unity Event (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/UnityEvent/Sprite Unity Event (Module)")
 ]
 public sealed class SpriteUnityEventModule : ImplementUnityEventModuleForType <Sprite, UnityEventForSpriteUnityEventModule> { }
 

@@ -35,7 +35,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Terminal/Unity Event/%UPPERNAME% Unity Event (%UPPERNAME% Terminal)")
+AddComponentMenu ("GGEZ/Omnibus/Terminal/UnityEvent/%UPPERNAME% Unity Event (%UPPERNAME% Terminal)")
 ]
 public sealed class %UPPERNAME%UnityEventTerminal : %UPPERNAME%Terminal
 {

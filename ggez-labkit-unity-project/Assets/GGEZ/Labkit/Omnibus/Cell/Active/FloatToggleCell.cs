@@ -44,9 +44,9 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Connectors/Float Toggle Connector")
+AddComponentMenu ("GGEZ/Omnibus/Cell/Float Toggle (Cell)")
 ]
-public sealed class FloatToggleConnector : Cell
+public sealed class FloatToggleCell : Cell, IInputCell
 {
 
 #region Programming Interface
@@ -156,7 +156,12 @@ void OnValidate ()
     {
 	this.inputWire.Connect (this.bus, this.pin);
     this.fadeTime = Mathf.Max (0.0001f, this.fadeTime);
-    OneInputTerminal<float>.FindTerminal (this, ref this.terminal);
+    this.AttachJunction ();
+    }
+
+public void AttachJunction ()
+    {
+    FloatTerminal.FindTerminal (this, ref this.terminal);
     }
 
 void Update ()

@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Unity Event/Color Unity Event (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/UnityEvent/Color Unity Event (Module)")
 ]
 public sealed class ColorUnityEventModule : ImplementUnityEventModuleForType<Color, UnityEventForColorUnityEventModule> { }
 

@@ -32,7 +32,7 @@ namespace GGEZ.Omnibus
 {
 
 
-public abstract class ImplementBufferForType<T, D> : Cell where D : OneInputTerminal<T>
+public abstract class ImplementBufferForType<T, D> : Cell, IInputCell where D : OneInputTerminal<T>
 {
 
 #region Programming Interface
@@ -82,9 +82,13 @@ void OnDisable ()
 void OnValidate ()
     {
     this.wireIn.Connect (this.bus, this.pin);
-    OneInputTerminal<T>.FindTerminal (this, ref this.terminal);
+    this.AttachJunction ();
     }
 
+public void AttachJunction ()
+    {
+    OneInputTerminal<T>.FindTerminal (this, ref this.terminal);
+    }
 
 public override void Route (string port, Bus bus)
     {

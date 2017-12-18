@@ -31,7 +31,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Gate/Boolean Inverter Unity Event (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/UnityEvent/Boolean Inverter Unity Event (Module)")
 ]
 public sealed class BooleanInverterUnityEventModule : ImplementUnaryLogicUnityEventModuleForType <bool>
 {

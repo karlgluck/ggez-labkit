@@ -35,9 +35,9 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Filters/String Format (Filter)")
+AddComponentMenu ("GGEZ/Omnibus/Cell/Filter/String Format (Filter)")
 ]
-public sealed class StringFormatFilter : Cell
+public sealed class StringFormatFilter : Cell, IInputCell
 {
 
 #region Programming Interface
@@ -79,7 +79,7 @@ public string Format
 [SerializeField] private Bus bus;
 [SerializeField] private string pin;
 
-[Space, SerializeField] private OneInputTerminal<string> terminal;
+[Space, SerializeField] private StringTerminal terminal;
 
 [Header ("Settings")]
 [SerializeField] private string format = "";
@@ -123,8 +123,14 @@ void OnDisable ()
 void OnValidate ()
     {
 	this.inputWire.Connect (this.bus, this.pin);
+    this.AttachJunction ();
     }
 
+public void AttachJunction ()
+    {
+    StringTerminal.FindTerminal (this, ref this.terminal);
+    }
 }
 
 }
+

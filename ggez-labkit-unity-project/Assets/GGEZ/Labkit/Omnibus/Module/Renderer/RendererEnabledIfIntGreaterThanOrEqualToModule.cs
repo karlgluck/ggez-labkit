@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Renderer/Renderer Enable - Int Greater Than or Equal To (Module)"),
+AddComponentMenu ("GGEZ/Omnibus/Module/Renderer/Enabled If Int >= Value (Renderer Module)"),
 RequireComponent (typeof(Renderer))
 ]
 public sealed class RendererEnabledIfIntGreaterThanOrEqualToModule : Cell
@@ -88,13 +88,8 @@ public override void Route (string port, Bus bus)
     }
 
 private Wire input = Wire.CELL_INPUT;
-// [HideInInspector, SerializeField] private new Renderer renderer; // better?
-private new Renderer renderer;
+[HideInInspector, SerializeField] private new Renderer renderer;
 
-void Awake ()
-	{
-	this.renderer = (Renderer)this.GetComponent (typeof (Renderer));
-	}
 
 void OnEnable ()
     {
@@ -109,6 +104,8 @@ void OnDisable ()
 void OnValidate ()
     {
 	this.input.Connect (this.bus, this.pin);
+	this.renderer = (Renderer)this.GetComponent (typeof (Renderer));
+    Debug.Assert (this.renderer != null);
     }
 
 }

@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Transform/Set localScale (Module)"),
+AddComponentMenu ("GGEZ/Omnibus/Module/Transform/Set localScale (Transform Module)"),
 RequireComponent (typeof (Transform))
 ]
 public sealed class LocalScaleModule : Vector3SetsTransformPropertyModule

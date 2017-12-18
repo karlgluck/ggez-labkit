@@ -25,46 +25,37 @@
 
 using System;
 using UnityEngine;
-using UnityEngine.Events;
+using Image = UnityEngine.UI.Image;
 
 
 namespace GGEZ.Omnibus
 {
 
-[Serializable] public sealed class UnityEventForFloatUnityEventTerminal : UnityEngine.Events.UnityEvent<float> { }
+
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Terminal/Unity Event/Float Unity Event (Float Terminal)")
+AddComponentMenu ("GGEZ/Omnibus/Terminal/UI.Image/Image Alpha (Float Terminal)"),
+RequireComponent (typeof (Image))
 ]
-public sealed class FloatUnityEventTerminal : FloatTerminal
+public sealed class ImageAlphaTerminal : FloatTerminal
 {
-
-#region Programming Interface
 
 public override void Signal (float value)
     {
-    this.didSignal.Invoke (value);
+    var color = this.image.color;
+    color.a = value;
+    this.image.color = color;
     }
 
-public void AddCallback (UnityAction<float> action)
+[SerializeField, HideInInspector] private Image image;
+
+new void OnValidate ()
     {
-    this.didSignal.AddListener (action);
+    this.image = (Image)this.GetComponent (typeof (Image));
+    Debug.Assert (this.image != null);
+    base.OnValidate ();
     }
-
-public void RemoveCallback (UnityAction<float> action)
-    {
-    this.didSignal.RemoveListener (action);
-    }
-
-public void RemoveAllCallbacks ()
-    {
-    this.didSignal.RemoveAllListeners ();
-    }
-
-#endregion
-
-[SerializeField] private UnityEventForFloatUnityEventTerminal didSignal = new UnityEventForFloatUnityEventTerminal ();
 
 }
 

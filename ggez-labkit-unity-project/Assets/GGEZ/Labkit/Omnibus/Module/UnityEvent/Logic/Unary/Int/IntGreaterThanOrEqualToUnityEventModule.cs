@@ -31,7 +31,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Gate/Int >= Value Unity Event (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/UnityEvent/Int >= Value Unity Event (Module)")
 ]
 public sealed class IntGreaterThanOrEqualToUnityEventModule : ImplementUnaryLogicUnityEventModuleForType <int>
 {

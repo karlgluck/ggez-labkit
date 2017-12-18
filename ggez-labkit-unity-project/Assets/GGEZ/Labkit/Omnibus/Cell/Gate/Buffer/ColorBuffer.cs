@@ -31,7 +31,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Buffer/Color Buffer")
+AddComponentMenu ("GGEZ/Omnibus/Cell/Buffer/Color Buffer")
 ]
 public sealed class ColorBuffer : ImplementBufferForType <Color, ColorTerminal> { }
 

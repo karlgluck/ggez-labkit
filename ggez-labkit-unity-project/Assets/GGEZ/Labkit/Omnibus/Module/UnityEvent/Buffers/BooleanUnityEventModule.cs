@@ -25,7 +25,6 @@
 
 using System;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace GGEZ.Omnibus
 {
@@ -34,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Unity Event/Boolean Unity Event (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/UnityEvent/Boolean Unity Event (Module)")
 ]
 public sealed class BooleanUnityEventModule : Cell
 {
@@ -59,35 +58,6 @@ public Bus Bus
         }
     }
 
-public void AddCallback (UnityAction<bool> action)
-    {
-    this.didSignal.AddListener (action);
-    }
-
-public void RemoveCallback (UnityAction<bool> action)
-    {
-    this.didSignal.RemoveListener (action);
-    }
-
-public void RemoveAllCallbacks ()
-    {
-    this.didSignal.RemoveAllListeners ();
-    }
-
-public void AddNegativeCallback (UnityAction<bool> action)
-    {
-    this.didSignalNot.AddListener (action);
-    }
-
-public void RemoveNegativeCallback (UnityAction<bool> action)
-    {
-    this.didSignalNot.RemoveListener (action);
-    }
-
-public void RemoveAllNegativeCallbacks ()
-    {
-    this.didSignalNot.RemoveAllListeners ();
-    }
 
 #endregion
 
