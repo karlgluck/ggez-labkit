@@ -70,11 +70,6 @@ private bool writeMux
     get { return EditorPrefs.GetBool ("LabkitTypeSupport_writeMux", true); }
     set { EditorPrefs.SetBool ("LabkitTypeSupport_writeMux", value); }
     }
-private bool writeAdapterAlias
-    {
-    get { return EditorPrefs.GetBool ("LabkitTypeSupport_writeAdapterAlias", true); }
-    set { EditorPrefs.SetBool ("LabkitTypeSupport_writeAdapterAlias", value); }
-    }
 
 [MenuItem ("Labkit/Create/Omnibus Type Support")]
 static void CreateNewOmnibusRegisterType ()
@@ -122,7 +117,6 @@ public void DoWork ()
     if (this.writeUnityEventTerminal) this.write ("OmnibusTypeUnityEventTerminal_cs", "{0}UnityEventTerminal.cs");
     if (this.writeUnityEventModule) this.write ("OmnibusTypeUnityEventModule_cs", "{0}UnityEventModule.cs");
     if (this.writeMux) this.write ("OmnibusTypeMux_cs", "{0}Mux.cs");
-    if (this.writeAdapterAlias) this.write ("OmnibusTypeSupport_AdapterAlias_cs", "{0}TypeAdapterAlias.cs");
     }
 
 private void write (string template, string filenameFormat)
@@ -194,7 +188,6 @@ private void OnGUI()
     GUILayout.BeginHorizontal ();
     this.writeUnityEventModule = GUILayout.Toggle (this.writeUnityEventModule, "UnityEventModule");
     this.writeMux = GUILayout.Toggle (this.writeMux, "Mux");
-    this.writeAdapterAlias = GUILayout.Toggle (this.writeAdapterAlias, "Adapter Alias");
     GUILayout.EndHorizontal ();
 
 

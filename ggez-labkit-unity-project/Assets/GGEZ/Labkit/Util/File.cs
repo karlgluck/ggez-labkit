@@ -37,6 +37,11 @@ private static string getPersistentFilePathFor (Type type)
     return Application.persistentDataPath + "/" + type.FullName + ".json";
     }
 
+public static string DataSingletonPath (Type type)
+    {
+    return getPersistentFilePathFor (type);
+    }
+
 public static void DataSingletonSave (object data)
     {
     string file = getPersistentFilePathFor (data.GetType());

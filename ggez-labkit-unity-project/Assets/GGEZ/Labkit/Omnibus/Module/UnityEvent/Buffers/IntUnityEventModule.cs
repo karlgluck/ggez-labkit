@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Unity Event/Int Unity Event (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/UnityEvent/Int Unity Event (Module)")
 ]
 public sealed class IntUnityEventModule : ImplementUnityEventModuleForType <int, UnityEventForIntUnityEventModule> { }
 

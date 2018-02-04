@@ -38,7 +38,7 @@ public void Set (string key, string value) { this.SetObject (key, value); }
 public void Signal (string key, string value) { this.SignalObject (key, value); }
 public bool GetString (string key, out string value) { return this.getT<string> (key, out value); }
 public string GetString (string key, string defaultValue) { return this.getT<string> (key, defaultValue); }
-public string GetString (string key) { return (string)this.GetObject (key);; }
+public string GetString (string key) { return (string)this.GetObject (key); }
 
 
 }

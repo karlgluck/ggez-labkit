@@ -34,8 +34,8 @@ namespace GGEZ.Omnibus
 public sealed partial class Bus
 {
 
-public void SetSprite (string key, Sprite value) { this.SetObject (key, value); }
-public void SignalSprite (string key, Sprite value) { this.SignalObject (key, value); }
+public void Set (string key, Sprite value) { this.SetObject (key, value); }
+public void Signal (string key, Sprite value) { this.SignalObject (key, value); }
 public bool GetSprite (string key, out Sprite value) { return this.getT<Sprite> (key, out value); }
 public Sprite GetSprite (string key, Sprite defaultValue) { return this.getT<Sprite> (key, defaultValue); }
 

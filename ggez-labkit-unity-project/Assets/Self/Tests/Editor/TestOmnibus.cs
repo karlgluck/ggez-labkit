@@ -44,9 +44,9 @@ public T CreateWithMonoBehaviour<T> () where T : Component
     return retval;
     }
 
-public void CallOnEnable (MonoBehaviour mb)
+public void CallOnEnable (BooleanUnityEventModule mb)
     {
-	typeof(ImplementTerminalForType<bool, UnityEventForBooleanTerminal>).InvokeMember (
+	typeof(BooleanUnityEventModule).InvokeMember (
 		"OnEnable",
 		BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy,
 		null,
@@ -55,9 +55,9 @@ public void CallOnEnable (MonoBehaviour mb)
 		);
     }
 
-public void CallOnDisable (MonoBehaviour mb)
+public void CallOnDisable (BooleanUnityEventModule mb)
     {
-	typeof(ImplementTerminalForType<bool, UnityEventForBooleanTerminal>).InvokeMember (
+	typeof(BooleanUnityEventModule).InvokeMember (
 		"OnDisable",
 		BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy,
 		null,
@@ -71,7 +71,7 @@ public void CellBusAndUnregister ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
-    var firstCell = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var firstCell = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     this.CallOnEnable (firstCell);
     firstCell.Pin = "TestKey";
 
@@ -79,7 +79,7 @@ public void CellBusAndUnregister ()
     firstCell.Bus = bus;
     Assert.AreEqual (bus.GetConnectedKeys ().Count, 1, "added 1 fub");
 
-    var secondCell = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var secondCell = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     this.CallOnEnable (secondCell);
     secondCell.Bus = bus;
     Assert.AreEqual (bus.GetConnectedKeys ().Count, 1, "set bus for fub but no key, so it shouldn't be registered");
@@ -110,7 +110,7 @@ public void CellGetsCalledWhenEnabledThenBusSetAndNotBeforeForMemory ()
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
 	bus.Set ("TestKey", true);
-    var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var fub = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     int incrementWhenCalled = 0;
     fub.AddCallback ( (bool value) => { ++incrementWhenCalled; } );
     fub.Pin = "TestKey";
@@ -131,7 +131,7 @@ public void CellGetsCalledWhenEnabledThenBusSetAndNotBeforeForEvent ()
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
 
-    var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var fub = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     int incrementWhenCalled = 0;
     fub.AddCallback ( (bool value) => { ++incrementWhenCalled; } );
     fub.Pin = "TestKey";
@@ -154,7 +154,7 @@ public void CellGetsCalledWhenEnabledThenKeySetAndNotBeforeForMemory ()
     var bus = gameObject.AddComponent <Bus> ();
 	bus.Set ("TestKey", true);
 
-    var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var fub = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     int incrementWhenCalled = 0;
     fub.AddCallback ( (bool value) => { ++incrementWhenCalled; } );
     fub.Bus = bus;
@@ -176,7 +176,7 @@ public void CellGetsCalledWhenEnabledThenKeySetAndNotBeforeForEvent ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
-    var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var fub = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     int incrementWhenCalled = 0;
     fub.AddCallback ( (bool value) => { ++incrementWhenCalled; } );
     fub.Bus = bus;
@@ -201,7 +201,7 @@ public void CellGetsCalledWhenBusAndKeySetThenEnabledAndNotBefore ()
     var bus = gameObject.AddComponent <Bus> ();
 	bus.Set ("TestKey", true);
 
-    var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var fub = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     int incrementWhenCalled = 0;
     fub.AddCallback ( (bool value) => { ++incrementWhenCalled; } );
     fub.Pin = "TestKey";
@@ -224,7 +224,7 @@ public void CellGetsCalledWithMemoryValueWhenConnected ()
     var bus = gameObject.AddComponent <Bus> ();
 	bus.Set ("TestKey", true);
 
-    var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var fub = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     fub.Pin = "TestKey";
     this.CallOnEnable (fub);
 
@@ -245,7 +245,7 @@ public void CellGetsCalledWhenValueIsChanged ()
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
 	bus.Set ("TestKey", false);
-    var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var fub = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
 
     fub.Pin = "TestKey";
     fub.Bus = bus;
@@ -274,7 +274,7 @@ public void CellGetsCalledWhenKeyIsChanged ()
 	bus.Set ("TestKey", true);
 	bus.Set ("AnotherTestKey", true);
 
-    var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var fub = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     fub.Pin = "TestKey";
     fub.Bus = bus;
     this.CallOnEnable (fub);
@@ -299,7 +299,7 @@ public void CellNotCalledWhenOtherKeyIsChanged ()
 	bus.Set ("TestKey", true);
 	bus.Set ("AnotherTestKey", true);
 
-    var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var fub = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     fub.Pin = "TestKey";
     fub.Bus = bus;
     this.CallOnEnable (fub);
@@ -323,7 +323,7 @@ public void CellNotCalledWhenOtherKeyIsTriggered ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
-    var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var fub = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     fub.Pin = "TestKey";
     fub.Bus = bus;
     this.CallOnEnable (fub);
@@ -345,7 +345,7 @@ public void CellGetsCalledWhenTriggered ()
     {
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
-    var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var fub = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     fub.Pin = "TestKey";
     fub.Bus = bus;
     this.CallOnEnable (fub);
@@ -373,7 +373,7 @@ public void CellGetsCalledWhenBusIsChanged ()
     var secondBus = secondGameObject.AddComponent <Bus> ();
 	secondBus.Set ("TestKey", true);
 
-    var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var fub = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     fub.Pin = "TestKey";
     fub.Bus = firstBus;
     this.CallOnEnable (fub);
@@ -402,11 +402,11 @@ public void ManyCellsGetCalledWhenValueIsChanged ()
     bus.Set ("TestKey", false);
     bus.Set ("SomeDifferentTestKey", false);
 
-    var firstCell = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var firstCell = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     firstCell.Pin = "TestKey";
-    var secondCell = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var secondCell = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     secondCell.Pin = "TestKey";
-    var thirdCell = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var thirdCell = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     thirdCell.Pin = "SomeDifferentTestKey";
 
     firstCell.Bus = bus;
@@ -451,11 +451,11 @@ public void ManyCellsGetCalledWhenEventTriggered ()
     var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
 
-    var firstCell = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var firstCell = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     firstCell.Pin = "TestKey";
-    var secondCell = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var secondCell = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     secondCell.Pin = "TestKey";
-    var thirdCell = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var thirdCell = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     thirdCell.Pin = "SomeDifferentTestKey";
 
     firstCell.Bus = bus;
@@ -499,7 +499,7 @@ public void CellDoesNotCalledWhenValueIsRemoved ()
     var bus = gameObject.AddComponent <Bus> ();
     bus.Set ("TestKey", false);
 
-    var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var fub = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     fub.Pin = "TestKey";
     fub.Bus = bus;
     this.CallOnEnable (fub);
@@ -524,7 +524,7 @@ var gameObject = new GameObject ();
     var bus = gameObject.AddComponent <Bus> ();
     bus.Set ("TestKey", true);
 
-    var fub = CreateWithMonoBehaviour <BooleanTerminal> ();
+    var fub = CreateWithMonoBehaviour <BooleanUnityEventModule> ();
     fub.Pin = "TestKey";
     fub.Bus = bus;
 

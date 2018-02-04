@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/RectTransform/Rect Sets Anchors (Module)"),
+AddComponentMenu ("GGEZ/Omnibus/Module/RectTransform/Rect Sets Anchors (RectTransform Module)"),
 RequireComponent (typeof (RectTransform))
 ]
 public class RectSetsAnchorsModule : Cell

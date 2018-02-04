@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Unity Event/Transform Unity Event (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/UnityEvent/Transform Unity Event (Module)")
 ]
 public sealed class TransformUnityEventModule : ImplementUnityEventModuleForType <Transform, UnityEventForTransformUnityEventModule> { }
 

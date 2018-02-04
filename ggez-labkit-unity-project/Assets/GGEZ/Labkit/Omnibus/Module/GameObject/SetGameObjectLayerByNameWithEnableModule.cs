@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/GameObject/Set gameObject.layer by Name with Enable (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/GameObject/Set gameObject.layer by Name with Enable (Module)")
 ]
 public sealed class SetGameObjectLayerByNameWithEnableModule : Cell
 {

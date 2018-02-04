@@ -30,7 +30,7 @@ namespace GGEZ
 {
 public static partial class Matrix4x4Ext
 {
-static Matrix4x4 PerspectiveOffCenter (
+public static Matrix4x4 PerspectiveOffCenter (
         float left,
         float right,
         float bottom,

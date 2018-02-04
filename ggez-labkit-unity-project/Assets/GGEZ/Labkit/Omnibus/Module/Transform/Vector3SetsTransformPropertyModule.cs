@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Set Transform Position (Module)"),
+AddComponentMenu ("GGEZ/Omnibus/Module/Set Transform Position (Transform Module)"),
 RequireComponent (typeof (Transform))
 ]
 public abstract class Vector3SetsTransformPropertyModule : Cell

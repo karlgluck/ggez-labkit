@@ -34,7 +34,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Unity Event/String Unity Event (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/UnityEvent/String Unity Event (Module)")
 ]
 public sealed class StringUnityEventModule : ImplementUnityEventModuleForType <string, UnityEventForStringUnityEventModule>
 {

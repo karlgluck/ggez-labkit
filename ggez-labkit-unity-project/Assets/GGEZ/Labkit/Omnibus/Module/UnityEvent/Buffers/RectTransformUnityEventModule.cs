@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Unity Event/RectTransform Unity Event (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/UnityEvent/RectTransform Unity Event (Module)")
 ]
 public sealed class RectTransformUnityEventModule : ImplementUnityEventModuleForType <RectTransform, UnityEventForRectTransformUnityEventModule> { }
 

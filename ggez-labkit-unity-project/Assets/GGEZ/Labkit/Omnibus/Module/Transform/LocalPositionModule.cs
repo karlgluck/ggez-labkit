@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Transform/Set localPosition (Module)"),
+AddComponentMenu ("GGEZ/Omnibus/Module/Transform/Set localPosition (Transform Module)"),
 RequireComponent (typeof (Transform))
 ]
 public sealed class LocalPositionModule : Vector3SetsTransformPropertyModule

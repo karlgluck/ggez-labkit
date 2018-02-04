@@ -31,7 +31,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Gate/Float Outside Min-Max Range Unity Event (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/UnityEvent/Float Outside Min-Max Range Unity Event (Module)")
 ]
 public sealed class FloatOutsideRangeUnityEventModule : ImplementUnaryLogicUnityEventModuleForType <float>
 {

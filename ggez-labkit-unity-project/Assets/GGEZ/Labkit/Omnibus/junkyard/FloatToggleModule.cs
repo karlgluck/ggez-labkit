@@ -46,7 +46,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Float Toggle (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/Float Toggle (Module)")
 ]
 public sealed class FloatToggleModule : Cell
 {
@@ -92,7 +92,8 @@ public float FadeTime
 [Space, SerializeField] private UnityEventForFloatToggleModule didSignal = new UnityEventForFloatToggleModule ();
 
 [Header ("Settings")]
-[SerializeField] private bool invert;
+[SerializeField] private float falseValue = 0f;
+[SerializeField] private float trueValue = 1f;
 [SerializeField] private float fadeTime = 1f;
 
 private Wire inputWire = Wire.CELL_INPUT;
@@ -125,7 +126,7 @@ public override void OnDidSignal (string pin, object value)
         throw new System.InvalidCastException ("`value` should be " + typeof(bool).Name);
         }
 #endif
-    this.targetValue = (this.invert == (bool)value) ? 0f : 1f;
+    this.targetValue = (bool)value ? this.trueValue : this.falseValue;
     this.enabled = true;
     }
 
@@ -136,6 +137,11 @@ public override void Route (string port, Bus bus)
         {
         this.enabled = true;
         }
+    }
+
+void Awake ()
+    {
+    this.targetValue = (this.trueValue + this.falseValue) * 0.5f;
     }
 
 void OnEnable ()

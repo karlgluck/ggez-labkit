@@ -33,8 +33,81 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Unity Event/Boolean Unity Event (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/UnityEvent/Boolean Unity Event (Module)")
 ]
-public sealed class BooleanUnityEventModule : ImplementUnityEventModuleForType <bool, UnityEventForBooleanUnityEventModule> { }
+public sealed class BooleanUnityEventModule : Cell
+{
+
+#region Programming Interface
+
+public string Pin
+    {
+    set
+        {
+        this.pin = value;
+        this.inputWire.Connect (this.bus, value);
+        }
+    }
+
+public Bus Bus
+    {
+    set
+        {
+        this.bus = value;
+        this.inputWire.Connect (value, this.pin);
+        }
+    }
+
+
+#endregion
+
+[Header ("*:" + Pin.INPUT + "(type)")]
+
+[SerializeField] private Bus bus;
+[SerializeField] private string pin;
+
+[Space]
+[SerializeField] private UnityEventForBooleanUnityEventModule didSignal = new UnityEventForBooleanUnityEventModule ();
+[SerializeField] private UnityEventForBooleanUnityEventModule didSignalNot = new UnityEventForBooleanUnityEventModule ();
+
+private Wire inputWire = Wire.CELL_INPUT;
+
+public override void OnDidSignal (string pin, object value)
+    {
+    Debug.Assert (pin == Omnibus.Pin.INPUT);
+#if UNITY_EDITOR
+    if (value == null || !typeof(bool).IsAssignableFrom (value.GetType ()))
+        {
+        throw new System.InvalidCastException ("`value` should be " + typeof(bool).Name);
+        }
+#endif
+    var boolValue = (bool)value;
+    this.didSignal.Invoke (boolValue);
+    this.didSignalNot.Invoke (!boolValue);
+    }
+
+public override void Route (string port, Bus bus)
+    {
+    this.Bus = bus;
+    }
+
+void OnEnable ()
+    {
+    this.inputWire.Attach (this, this.bus, this.pin);
+    }
+
+void OnDisable ()
+    {
+    this.inputWire.Detach ();
+    }
+
+void OnValidate ()
+    {
+    this.inputWire.Connect (this.bus, this.pin);
+    }
+
+}
+
+
 
 }

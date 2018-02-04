@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 
 
-public abstract class FloatTweenFilter : Cell
+public abstract class FloatTweenFilter : Cell, IInputCell
 {
 
 #region Programming Interface
@@ -139,9 +139,13 @@ void OnDisable ()
 void OnValidate ()
     {
 	this.inputWire.Connect (this.bus, this.pin);
-    OneInputTerminal<float>.FindTerminal (this, ref this.terminal);
+    this.AttachJunction ();
     }
 
+public void AttachJunction ()
+    {
+    FloatTerminal.FindTerminal (this, ref this.terminal);
+    }
 }
 
 }
