@@ -31,7 +31,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Gate/Float > Value Unity Event (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/UnityEvent/Float > Value Unity Event (Module)")
 ]
 public sealed class FloatGreaterThanUnityEventModule : ImplementUnaryLogicUnityEventModuleForType <float>
 {

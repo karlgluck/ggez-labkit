@@ -46,7 +46,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Float Toggle (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/Float Toggle (Module)")
 ]
 public sealed class FloatToggleModule : Cell
 {

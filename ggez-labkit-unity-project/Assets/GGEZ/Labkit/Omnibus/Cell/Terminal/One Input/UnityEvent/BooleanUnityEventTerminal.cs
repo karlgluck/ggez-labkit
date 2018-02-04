@@ -31,28 +31,29 @@ using UnityEngine.Events;
 namespace GGEZ.Omnibus
 {
 
-[Serializable] public sealed class UnityEventForColorUnityEventTerminal : UnityEngine.Events.UnityEvent<Color> { }
+[Serializable] public sealed class UnityEventForBooleanUnityEventTerminal : UnityEngine.Events.UnityEvent<bool> { }
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Terminal/Unity Event/Color Unity Event (Color Terminal)")
+AddComponentMenu ("GGEZ/Omnibus/Terminal/UnityEvent/Boolean Unity Event (Terminal)")
 ]
-public sealed class ColorUnityEventTerminal : ColorTerminal
+public sealed class BooleanUnityEventTerminal : BooleanTerminal
 {
 
 #region Programming Interface
 
-public override void Signal (Color value)
+public override void Signal (bool value)
     {
     this.didSignal.Invoke (value);
+    this.didSignalNot.Invoke (!value);
     }
 
-public void AddCallback (UnityAction<Color> action)
+public void AddCallback (UnityAction<bool> action)
     {
     this.didSignal.AddListener (action);
     }
 
-public void RemoveCallback (UnityAction<Color> action)
+public void RemoveCallback (UnityAction<bool> action)
     {
     this.didSignal.RemoveListener (action);
     }
@@ -64,7 +65,8 @@ public void RemoveAllCallbacks ()
 
 #endregion
 
-[SerializeField] private UnityEventForColorUnityEventTerminal didSignal = new UnityEventForColorUnityEventTerminal ();
+[SerializeField] private UnityEventForBooleanUnityEventTerminal didSignal = new UnityEventForBooleanUnityEventTerminal ();
+[SerializeField] private UnityEventForBooleanUnityEventTerminal didSignalNot = new UnityEventForBooleanUnityEventTerminal ();
 
 }
 

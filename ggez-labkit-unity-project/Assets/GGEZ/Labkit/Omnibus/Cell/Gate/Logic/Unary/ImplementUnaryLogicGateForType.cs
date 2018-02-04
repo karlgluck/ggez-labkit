@@ -32,7 +32,7 @@ namespace GGEZ.Omnibus
 {
 
 
-public abstract class ImplementUnaryLogicGateForType<T> : Cell
+public abstract class ImplementUnaryLogicGateForType<T> : Cell, IInputCell
 {
 
 #region Programming Interface
@@ -84,9 +84,13 @@ void OnDisable ()
 void OnValidate ()
     {
     this.wireIn.Connect (this.bus, this.pin);
-    OneInputTerminal<bool>.FindTerminal (this, ref this.terminal);
+    this.AttachJunction ();
     }
 
+public void AttachJunction ()
+    {
+    BooleanTerminal.FindTerminal (this, ref this.terminal);
+    }
 
 public override void Route (string port, Bus bus)
     {

@@ -36,7 +36,7 @@ namespace GGEZ.Omnibus
 [
 Serializable,
 RequireComponent (typeof (Image)),
-AddComponentMenu ("GGEZ/Omnibus/Modules/UI.Image/Image Sprite (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/UI.Image/Sprite (Image Module)")
 ]
 public sealed class ImageSpriteModule : Cell
 {

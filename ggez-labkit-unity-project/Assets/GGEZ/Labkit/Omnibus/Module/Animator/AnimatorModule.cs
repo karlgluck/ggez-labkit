@@ -37,7 +37,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Animator/Animator Wrapper (Module)"),
+AddComponentMenu ("GGEZ/Omnibus/Module/Animator/Signal to Parameter Adapter (Animator Module)"),
 RequireComponent (typeof (RectTransform))
 ]
 public sealed class AnimatorModule : Cell

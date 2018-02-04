@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Unity Event/Vector2 Unity Event (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/UnityEvent/Vector2 Unity Event (Module)")
 ]
 public sealed class Vector2UnityEventModule : ImplementUnityEventModuleForType <Vector2, UnityEventForVector2UnityEventModule> { }
 

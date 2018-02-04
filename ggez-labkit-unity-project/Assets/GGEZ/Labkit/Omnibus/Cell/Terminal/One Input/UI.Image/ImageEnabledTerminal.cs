@@ -35,28 +35,24 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Terminal/UI.Image/Image Alpha (Float Terminal)"),
+AddComponentMenu ("GGEZ/Omnibus/Terminal/UI.Image/Image Enabled (Boolean Terminal)"),
 RequireComponent (typeof (Image))
 ]
-public sealed class ImageAlphaTerminal : FloatTerminal
+public sealed class ImageEnabledTerminal : BooleanTerminal
 {
 
-#region Programming Interface
-
-public override void Signal (float value)
+public override void Signal (bool value)
     {
-    var color = this.image.color;
-    color.a = value;
-    this.image.color = color;
+    this.image.enabled = value;
     }
 
-#endregion
+[SerializeField, HideInInspector] private Image image;
 
-private Image image;
-
-void Awake ()
+new void OnValidate ()
     {
     this.image = (Image)this.GetComponent (typeof (Image));
+    Debug.Assert (this.image != null);
+    base.OnValidate ();
     }
 
 }

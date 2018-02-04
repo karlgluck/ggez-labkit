@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Transform/Set localPosition.y (Module)"),
+AddComponentMenu ("GGEZ/Omnibus/Module/Transform/Set localPosition.y (Transform Module)"),
 RequireComponent (typeof (Transform))
 ]
 public sealed class LocalPositionYModule : FloatSetsTransformPropertyModule

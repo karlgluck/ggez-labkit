@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/Unity Event/Float Unity Event (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/UnityEvent/Float Unity Event (Module)")
 ]
 public sealed class FloatUnityEventModule : ImplementUnityEventModuleForType<float, UnityEventForFloatUnityEventModule> { }
 

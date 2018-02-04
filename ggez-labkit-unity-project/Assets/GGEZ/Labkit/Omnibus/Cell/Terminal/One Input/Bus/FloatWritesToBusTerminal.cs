@@ -23,43 +23,30 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
+using System;
 using UnityEngine;
+using UnityEngine.Events;
+
 
 namespace GGEZ.Omnibus
 {
 
 
-public abstract class OneInputTerminal<T> : MonoBehaviour, IOneInputTerminal
+[
+Serializable,
+AddComponentMenu ("GGEZ/Omnibus/Terminal/Write to Bus/Float Writes to Bus (Float Terminal)")
+]
+public sealed class FloatWritesToBusTerminal : FloatTerminal
 {
 
-public void Signal (object value)
+public override void Signal (float value)
     {
-    this.Signal (value);
+    this.bus.Set (pin, value);
     }
 
-public abstract void Signal (T value);
-
-public static void FindTerminal<D> (MonoBehaviour component, ref D terminal) where D : OneInputTerminal<T>
-    {
-    if (terminal != null)
-        {
-        if (terminal.gameObject == null || terminal.gameObject != component.gameObject)
-            {
-            terminal = null;
-            }
-        else
-            {
-            return;
-            }
-        }
-    var discoveredTerminal = (D)component.gameObject.GetComponent (typeof(D));
-    if (discoveredTerminal != null)
-        {
-        terminal = discoveredTerminal;
-        }
-    }
+[SerializeField] private Bus bus;
+[SerializeField] private string pin;
 
 }
-
 
 }

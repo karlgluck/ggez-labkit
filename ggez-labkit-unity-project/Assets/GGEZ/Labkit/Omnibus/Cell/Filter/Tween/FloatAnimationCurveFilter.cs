@@ -32,14 +32,12 @@ namespace GGEZ.Omnibus
 {
 
 
-[Serializable] public sealed class UnityEventForFloatAnimationCurveFilter : UnityEngine.Events.UnityEvent<float> { }
-
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Filters/Float Animation Curve (Filter)")
+AddComponentMenu ("GGEZ/Omnibus/Cell/Filter/Float Animation Curve (Filter)")
 ]
-public abstract class FloatAnimationCurveFilter : Cell
+public sealed class FloatAnimationCurveFilter : Cell
 {
 
 #region Programming Interface
@@ -72,12 +70,12 @@ public string Pin
 [SerializeField] private Bus bus;
 [SerializeField] private string pin;
 
-[Space, SerializeField] private UnityEventForFloatAnimationCurveFilter didSignal = new UnityEventForFloatAnimationCurveFilter ();
-
 [Header ("Settings")]
 [SerializeField] private AnimationCurve curve;
 
 private Wire inputWire = Wire.CELL_INPUT;
+
+[Space, SerializeField] private FloatTerminal terminal;
 
 private bool hasEmittedOutput;
 private float input = 0f;
@@ -89,7 +87,7 @@ private void updateOutput ()
         {
 		this.hasEmittedOutput = true;
 		this._output = value;
-        this.didSignal.Invoke (value);
+        this.terminal.Signal (value);
         }
     }
 
@@ -124,6 +122,12 @@ void OnDisable ()
 void OnValidate ()
     {
 	this.inputWire.Connect (this.bus, this.pin);
+    this.AttachJunction ();
+    }
+
+public void AttachJunction ()
+    {
+    FloatTerminal.FindTerminal (this, ref this.terminal);
     }
 
 }

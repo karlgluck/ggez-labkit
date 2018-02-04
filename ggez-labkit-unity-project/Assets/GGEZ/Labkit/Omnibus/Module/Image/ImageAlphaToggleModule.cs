@@ -35,7 +35,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/UI.Image/Image Alpha Toggle (Module)"),
+AddComponentMenu ("GGEZ/Omnibus/Module/UI.Image/Alpha Toggle (Image Module)"),
 RequireComponent (typeof (Image))
 ]
 public sealed class ImageAlphaToggleModule : Cell

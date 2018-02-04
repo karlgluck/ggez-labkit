@@ -31,25 +31,40 @@ using UnityEngine.Events;
 namespace GGEZ.Omnibus
 {
 
+[Serializable] public sealed class UnityEventForColorUnityEventTerminal : UnityEngine.Events.UnityEvent<Color> { }
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Terminal/Write to Bus/Float Writes to Bus (Float Terminal)")
+AddComponentMenu ("GGEZ/Omnibus/Terminal/UnityEvent/Color Unity Event (Color Terminal)")
 ]
-public sealed class FloatWritesToBusTerminal : FloatTerminal
+public sealed class ColorUnityEventTerminal : ColorTerminal
 {
 
 #region Programming Interface
 
-public override void Signal (float value)
+public override void Signal (Color value)
     {
-    this.bus.Set (pin, value);
+    this.didSignal.Invoke (value);
+    }
+
+public void AddCallback (UnityAction<Color> action)
+    {
+    this.didSignal.AddListener (action);
+    }
+
+public void RemoveCallback (UnityAction<Color> action)
+    {
+    this.didSignal.RemoveListener (action);
+    }
+
+public void RemoveAllCallbacks ()
+    {
+    this.didSignal.RemoveAllListeners ();
     }
 
 #endregion
 
-[SerializeField] private Bus bus;
-[SerializeField] private string pin;
+[SerializeField] private UnityEventForColorUnityEventTerminal didSignal = new UnityEventForColorUnityEventTerminal ();
 
 }
 

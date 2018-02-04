@@ -33,7 +33,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Filters/Float Lerp Angle (Filter)")
+AddComponentMenu ("GGEZ/Omnibus/Cell/Filter/Float Lerp Angle (Filter)")
 ]
 public sealed class FloatLerpAngleFilter : FloatTweenFilter
 {

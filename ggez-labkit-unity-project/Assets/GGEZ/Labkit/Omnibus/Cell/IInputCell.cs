@@ -23,41 +23,16 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
-using UnityEngine;
-using Image = UnityEngine.UI.Image;
-
 
 namespace GGEZ.Omnibus
 {
 
-
-
-[
-Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Terminal/Renderer/Renderer Enabled (Boolean Terminal)"),
-RequireComponent (typeof (Renderer))
-]
-public sealed class RendererEnabledTerminal : BooleanTerminal
+interface IInputCell
 {
 
-#region Programming Interface
-
-public override void Signal (bool value)
-    {
-    this.renderer.enabled = value;
-    }
-
-#endregion
-
-[SerializeField, HideInInspector] private new Renderer renderer;
-
-void OnValidate ()
-    {
-    this.renderer = (Renderer)this.GetComponent (typeof (Renderer));
-    Debug.Assert (this.renderer != null);
-    }
+void AttachJunction ();
 
 }
+
 
 }

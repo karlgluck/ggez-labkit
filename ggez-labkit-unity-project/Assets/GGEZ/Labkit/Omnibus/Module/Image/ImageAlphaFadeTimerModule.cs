@@ -35,7 +35,7 @@ namespace GGEZ.Omnibus
 
 [
 Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Modules/UI.Image/Image Alpha Fade Timer (Module)"),
+AddComponentMenu ("GGEZ/Omnibus/Module/UI.Image/Alpha Fade Timer (Image Module)"),
 RequireComponent (typeof (Image))
 ]
 public sealed class ImageAlphaFadeTimerModule : Cell
@@ -111,7 +111,7 @@ public override void Route (string port, Bus bus)
         this.enabled = true;
         }
     }
-
+    
 void Awake ()
     {
     this.image = (Image)this.GetComponent (typeof (Image));
@@ -125,9 +125,7 @@ void OnEnable ()
         return;
         }
     this.input.Attach (this, this.bus, this.pin);
-    var color = this.image.color;
-    color.a = 0f;
-    this.image.color = color;
+    this.image.color = this.image.color.WithA (0f);
     this.enabled = false;
     }
 

@@ -36,7 +36,7 @@ namespace GGEZ.Omnibus
 [
 Serializable,
 RequireComponent (typeof (Image)),
-AddComponentMenu ("GGEZ/Omnibus/Modules/UI.Image/Image Color (Module)")
+AddComponentMenu ("GGEZ/Omnibus/Module/UI.Image/Color (Image Module)")
 ]
 public sealed class ImageColorModule : Cell
 {

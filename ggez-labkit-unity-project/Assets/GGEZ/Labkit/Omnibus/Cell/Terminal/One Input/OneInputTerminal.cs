@@ -23,51 +23,57 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
 using UnityEngine;
-using UnityEngine.Events;
-
 
 namespace GGEZ.Omnibus
 {
 
-[Serializable] public sealed class UnityEventForBooleanUnityEventTerminal : UnityEngine.Events.UnityEvent<bool> { }
 
-[
-Serializable,
-AddComponentMenu ("GGEZ/Omnibus/Terminal/Unity Event/Boolean Unity Event (Terminal)")
-]
-public sealed class BooleanUnityEventTerminal : BooleanTerminal
+public abstract class OneInputTerminal<T> : MonoBehaviour, IOneInputTerminal
 {
 
-#region Programming Interface
-
-public override void Signal (bool value)
+public void SignalObject (object value)
     {
-    this.didSignal.Invoke (value);
-    this.didSignalNot.Invoke (!value);
+#if UNITY_EDITOR
+    if (value == null ? typeof(T).IsValueType : !typeof(T).IsAssignableFrom (value.GetType ()))
+        {
+        throw new System.InvalidCastException ("`value` should be " + typeof(T).Name);
+        }
+#endif
+    this.Signal ((T)value);
     }
 
-public void AddCallback (UnityAction<bool> action)
+public abstract void Signal (T value);
+
+public static void FindTerminal<D> (MonoBehaviour component, ref D terminal) where D : OneInputTerminal<T>
     {
-    this.didSignal.AddListener (action);
+    if (terminal != null)
+        {
+        if (terminal.gameObject == null || terminal.gameObject != component.gameObject)
+            {
+            terminal = null;
+            }
+        else
+            {
+            return;
+            }
+        }
+    var discoveredTerminal = (D)component.gameObject.GetComponent (typeof(D));
+    if (discoveredTerminal != null)
+        {
+        terminal = discoveredTerminal;
+        }
     }
 
-public void RemoveCallback (UnityAction<bool> action)
+protected void OnValidate ()
     {
-    this.didSignal.RemoveListener (action);
+    foreach (var inputCell in this.gameObject.GetComponents <IInputCell> ())
+        {
+        inputCell.AttachJunction ();
+        }
     }
-
-public void RemoveAllCallbacks ()
-    {
-    this.didSignal.RemoveAllListeners ();
-    }
-
-#endregion
-
-[SerializeField] private UnityEventForBooleanUnityEventTerminal didSignal = new UnityEventForBooleanUnityEventTerminal ();
-[SerializeField] private UnityEventForBooleanUnityEventTerminal didSignalNot = new UnityEventForBooleanUnityEventTerminal ();
 
 }
+
 
 }

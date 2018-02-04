@@ -1,4 +1,4 @@
-﻿// This is free and unencumbered software released into the public domain.
+// This is free and unencumbered software released into the public domain.
 //
 // Anyone is free to copy, modify, publish, use, compile, sell, or
 // distribute this software, either in source code form or as a compiled
@@ -23,17 +23,37 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
+using System;
+using UnityEngine;
+
 
 namespace GGEZ.Omnibus
 {
 
 
-public interface IOneInputTerminal
+
+[
+Serializable,
+AddComponentMenu ("GGEZ/Omnibus/Terminal/Renderer/Renderer Enabled (Boolean Terminal)"),
+RequireComponent (typeof (Renderer))
+]
+public sealed class RendererEnabledTerminal : BooleanTerminal
 {
 
-void Signal (object value);
+public override void Signal (bool value)
+    {
+    this.renderer.enabled = value;
+    }
+
+[SerializeField, HideInInspector] private new Renderer renderer;
+
+new void OnValidate ()
+    {
+    this.renderer = (Renderer)this.GetComponent (typeof (Renderer));
+    Debug.Assert (this.renderer != null);
+    base.OnValidate ();
+    }
 
 }
-
 
 }
