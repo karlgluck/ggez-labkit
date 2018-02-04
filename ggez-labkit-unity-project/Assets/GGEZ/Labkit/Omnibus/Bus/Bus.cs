@@ -31,12 +31,11 @@ using Connections = System.Collections.Generic.Dictionary<string, System.Collect
 using Memory = System.Collections.Generic.Dictionary<string, object>;
 using SerializedMemory = System.Collections.Generic.List<GGEZ.Omnibus.SerializedMemoryCell>;
 using StringCollection = System.Collections.Generic.ICollection<string>;
+using Peripherals = System.Collections.Generic.List<GGEZ.Omnibus.IPeripheral>;
 
 namespace GGEZ.Omnibus
 {
 
-// TODO: add "channels" or maybe "passthru pins" or something like that which do
-// not have values held in this bus but are used exclusively with SignalObject
 
 [
 DisallowMultipleComponent,
@@ -74,6 +73,10 @@ public void Connect (Wire wire)
         wire.Signal (value);
         }
 
+    for (int i = 0; i < this.peripherals.Count; ++i)
+        {
+        this.peripherals[i].OnDidConnect (wire);
+        }
     }
 
 public void Disconnect (Wire wire)
@@ -87,6 +90,10 @@ public void Disconnect (Wire wire)
     if (Pin.IsInvalid (pin))
         {
         throw new InvalidOperationException ("wire.pin is invalid");
+        }
+    for (int i = 0; i < this.peripherals.Count; ++i)
+        {
+        this.peripherals[i].OnWillDisconnect (wire);
         }
     WireList wires;
     if (!this.connections.TryGetValue (pin, out wires))
@@ -144,7 +151,8 @@ public void SetObject (string pin, object value)
         }
 
     object oldValue;
-    if (this.memory.TryGetValue (pin, out oldValue))
+    bool pinHadValueBefore = this.memory.TryGetValue (pin, out oldValue);
+    if (pinHadValueBefore)
         {
         if (object.Equals (oldValue, value))
             {
@@ -210,6 +218,11 @@ public void Unset (string pin)
     if (Pin.IsInvalid (pin))
         {
         throw new ArgumentException ("pin");
+        }
+    object value = null;
+    if (!this.memory.TryGetValue (pin, out value))
+        {
+        return;
         }
     this.memory.Remove (pin);
     }
@@ -294,9 +307,38 @@ public T getT<T> (string pin, T defaultValue)
 #endregion
 
 
+void Awake ()
+    {
+    
+    // Do not put anything here. This is never called for asset busses.
+
+    }
+    
+void Start ()
+    {
+    
+    // Do not put anything here. This is never called for asset busses.
+
+    }
+
+void OnEnable ()
+    {
+    
+    // Do not put anything here. This is never called for asset busses.
+
+    }
+
+void OnDisable ()
+    {
+    
+    // Do not put anything here. This is never called for asset busses.
+
+    }
+
 #region Serialization
 [SerializeField] private SerializedMemory serializedRom = new SerializedMemory ();
 [SerializeField] private SerializedMemory serializedMemory = new SerializedMemory ();
+[SerializeField] private Peripherals peripherals = new Peripherals ();
 
 void ISerializationCallbackReceiver.OnBeforeSerialize ()
     {
@@ -379,10 +421,12 @@ void Reset ()
     this.serializedMemory = new SerializedMemory ();
     this.dirtyKeys.Clear ();
     this.connections.Clear ();
+    this.GetComponents (this.peripherals);
     }
 
 void OnValidate ()
     {
+    this.GetComponents (this.peripherals);
     if (Application.isPlaying)
         {
         foreach (var key in this.dirtyKeys)

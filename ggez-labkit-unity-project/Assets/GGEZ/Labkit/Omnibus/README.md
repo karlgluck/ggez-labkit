@@ -50,7 +50,7 @@ Heavily repurposed from integrated circuit design and computer engineering.
 | Filter          | Parametric function                                       |
 | Port            | Named group of pins on a cell                             |
 | Router          | Connects ports (on cells) to busses                       |
-| Latch (Cell)    | This is being reworked.                                   |
+| Peripheral      | Adds extra functionality to a bus                         |
 -------------------------------------------------------------------------------
 
 Cells are the only things that can receive signals from a bus. Cells form Fubs that are:
@@ -93,3 +93,4 @@ Handy unused terms:
  * Plug
  * Connector
  * Adapter
+ * Latch
