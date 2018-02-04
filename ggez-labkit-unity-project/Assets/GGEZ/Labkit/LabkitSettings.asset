@@ -13,7 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TextureDefaults: 0
   PixelsPerUnit: 16
-  BreakNonPowerOfTwoTextures: 1
+  BreakNonPowerOfTwoTextures: 0
   DisableAccelerometer: 1
   PurpleEditorInPlayMode: 1
   MetaFilesInVersionControl: 1
