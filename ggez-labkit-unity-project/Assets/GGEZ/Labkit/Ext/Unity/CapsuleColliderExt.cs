@@ -55,7 +55,7 @@ public static Collider[] Overlap (this CapsuleCollider self, int layerMask, Quer
     // Run OverlapCapsule
     Vector3 point0 = center + dir * (height * 0.5f - radius);
     Vector3 point1 = center - dir * (height * 0.5f - radius);
-    return Physics.OverlapCapsule (point0, point1, self.radius, layerMask, queryTriggerInteraction);
+    return Physics.OverlapCapsule (point0, point1, radius, layerMask, queryTriggerInteraction);
 
     }
 
@@ -83,7 +83,7 @@ public static Collider[] Overlap (this CapsuleCollider self, int layerMask)
     // Run OverlapCapsule
     Vector3 point0 = center + dir * (height * 0.5f - radius);
     Vector3 point1 = center - dir * (height * 0.5f - radius);
-    return Physics.OverlapCapsule (point0, point1, self.radius, layerMask);
+    return Physics.OverlapCapsule (point0, point1, radius, layerMask);
 
     }
 
@@ -111,7 +111,7 @@ public static Collider[] Overlap (this CapsuleCollider self)
     // Run OverlapCapsule
     Vector3 point0 = center + dir * (height * 0.5f - radius);
     Vector3 point1 = center - dir * (height * 0.5f - radius);
-    return Physics.OverlapCapsule (point0, point1, self.radius);
+    return Physics.OverlapCapsule (point0, point1, radius);
 
     }
 
