@@ -39,14 +39,16 @@ namespace System {
 }
 #endif
 
-namespace FullSerializer.Internal {
+namespace GGEZ.FullSerializer.Internal
+{
     /// <summary>
     /// This wraps reflection types so that it is portable across different Unity runtimes.
     /// </summary>
-    public static class fsPortableReflection {
+    public static class fsPortableReflection
+    {
         public static Type[] EmptyTypes = { };
 
-#region Attribute Queries
+        #region Attribute Queries
 #if USE_TYPEINFO
         public static TAttribute GetAttribute<TAttribute>(Type type)
             where TAttribute : Attribute {
@@ -66,28 +68,32 @@ namespace FullSerializer.Internal {
         /// <summary>
         /// Returns true if the given attribute is defined on the given element.
         /// </summary>
-        public static bool HasAttribute<TAttribute>(MemberInfo element) {
+        public static bool HasAttribute<TAttribute>(MemberInfo element)
+        {
             return HasAttribute(element, typeof(TAttribute));
         }
 
         /// <summary>
         /// Returns true if the given attribute is defined on the given element.
         /// </summary>
-        public static bool HasAttribute<TAttribute>(MemberInfo element, bool shouldCache) {
+        public static bool HasAttribute<TAttribute>(MemberInfo element, bool shouldCache)
+        {
             return HasAttribute(element, typeof(TAttribute), shouldCache);
         }
 
         /// <summary>
         /// Returns true if the given attribute is defined on the given element.
         /// </summary>
-        public static bool HasAttribute(MemberInfo element, Type attributeType) {
+        public static bool HasAttribute(MemberInfo element, Type attributeType)
+        {
             return HasAttribute(element, attributeType, true);
         }
 
         /// <summary>
         /// Returns true if the given attribute is defined on the given element.
         /// </summary>
-        public static bool HasAttribute(MemberInfo element, Type attributeType, bool shouldCache) {
+        public static bool HasAttribute(MemberInfo element, Type attributeType, bool shouldCache)
+        {
             return element.IsDefined(attributeType, true);
         }
 
@@ -98,19 +104,22 @@ namespace FullSerializer.Internal {
         /// <param name="element">The MemberInfo the get the attribute from.</param>
         /// <param name="attributeType">The type of attribute to fetch.</param>
         /// <returns>The attribute or null.</returns>
-        public static Attribute GetAttribute(MemberInfo element, Type attributeType, bool shouldCache) {
-            var query = new AttributeQuery {
+        public static Attribute GetAttribute(MemberInfo element, Type attributeType, bool shouldCache)
+        {
+            var query = new AttributeQuery
+            {
                 MemberInfo = element,
                 AttributeType = attributeType
             };
 
             Attribute attribute;
-            if (_cachedAttributeQueries.TryGetValue(query, out attribute) == false) {
+            if (s_cachedAttributeQueries.TryGetValue(query, out attribute) == false)
+            {
                 var attributes = element.GetCustomAttributes(attributeType, /*inherit:*/ true);
                 if (attributes.Length > 0)
                     attribute = (Attribute)attributes[0];
                 if (shouldCache)
-                    _cachedAttributeQueries[query] = attribute;
+                    s_cachedAttributeQueries[query] = attribute;
             }
 
             return attribute;
@@ -124,37 +133,42 @@ namespace FullSerializer.Internal {
         /// <param name="shouldCache">Should this computation be cached? If this is the only time it will ever be done, don't bother caching.</param>
         /// <returns>The attribute or null.</returns>
         public static TAttribute GetAttribute<TAttribute>(MemberInfo element, bool shouldCache)
-            where TAttribute : Attribute {
-
+            where TAttribute : Attribute
+        {
             return (TAttribute)GetAttribute(element, typeof(TAttribute), shouldCache);
         }
         public static TAttribute GetAttribute<TAttribute>(MemberInfo element)
-            where TAttribute : Attribute {
+            where TAttribute : Attribute
+        {
             return GetAttribute<TAttribute>(element, /*shouldCache:*/true);
         }
-        private struct AttributeQuery {
+        private struct AttributeQuery
+        {
             public MemberInfo MemberInfo;
             public Type AttributeType;
         }
-        private static IDictionary<AttributeQuery, Attribute> _cachedAttributeQueries =
+        private static IDictionary<AttributeQuery, Attribute> s_cachedAttributeQueries =
             new Dictionary<AttributeQuery, Attribute>(new AttributeQueryComparator());
-        private class AttributeQueryComparator : IEqualityComparer<AttributeQuery> {
-            public bool Equals(AttributeQuery x, AttributeQuery y) {
+        private class AttributeQueryComparator : IEqualityComparer<AttributeQuery>
+        {
+            public bool Equals(AttributeQuery x, AttributeQuery y)
+            {
                 return
                     x.MemberInfo == y.MemberInfo &&
                     x.AttributeType == y.AttributeType;
             }
 
-            public int GetHashCode(AttributeQuery obj) {
+            public int GetHashCode(AttributeQuery obj)
+            {
                 return
                     obj.MemberInfo.GetHashCode() +
                     (17 * obj.AttributeType.GetHashCode());
             }
         }
-#endregion
+        #endregion
 
 #if !USE_TYPEINFO
-        private static BindingFlags DeclaredFlags =
+        private static BindingFlags s_declaredFlags =
             BindingFlags.NonPublic |
             BindingFlags.Public |
             BindingFlags.Instance |
@@ -162,11 +176,14 @@ namespace FullSerializer.Internal {
             BindingFlags.DeclaredOnly;
 #endif
 
-        public static PropertyInfo GetDeclaredProperty(this Type type, string propertyName) {
+        public static PropertyInfo GetDeclaredProperty(this Type type, string propertyName)
+        {
             var props = GetDeclaredProperties(type);
 
-            for (int i = 0; i < props.Length; ++i) {
-                if (props[i].Name == propertyName) {
+            for (int i = 0; i < props.Length; ++i)
+            {
+                if (props[i].Name == propertyName)
+                {
                     return props[i];
                 }
             }
@@ -174,11 +191,14 @@ namespace FullSerializer.Internal {
             return null;
         }
 
-        public static MethodInfo GetDeclaredMethod(this Type type, string methodName) {
+        public static MethodInfo GetDeclaredMethod(this Type type, string methodName)
+        {
             var methods = GetDeclaredMethods(type);
 
-            for (int i = 0; i < methods.Length; ++i) {
-                if (methods[i].Name == methodName) {
+            for (int i = 0; i < methods.Length; ++i)
+            {
+                if (methods[i].Name == methodName)
+                {
                     return methods[i];
                 }
             }
@@ -187,16 +207,19 @@ namespace FullSerializer.Internal {
         }
 
 
-        public static ConstructorInfo GetDeclaredConstructor(this Type type, Type[] parameters) {
+        public static ConstructorInfo GetDeclaredConstructor(this Type type, Type[] parameters)
+        {
             var ctors = GetDeclaredConstructors(type);
 
-            for (int i = 0; i < ctors.Length; ++i) {
+            for (int i = 0; i < ctors.Length; ++i)
+            {
                 var ctor = ctors[i];
                 var ctorParams = ctor.GetParameters();
 
                 if (parameters.Length != ctorParams.Length) continue;
 
-                for (int j = 0; j < ctorParams.Length; ++j) {
+                for (int j = 0; j < ctorParams.Length; ++j)
+                {
                     // require an exact match
                     if (ctorParams[j].ParameterType != parameters[j]) continue;
                 }
@@ -207,22 +230,27 @@ namespace FullSerializer.Internal {
             return null;
         }
 
-        public static ConstructorInfo[] GetDeclaredConstructors(this Type type) {
+        public static ConstructorInfo[] GetDeclaredConstructors(this Type type)
+        {
 #if USE_TYPEINFO
             return type.GetTypeInfo().DeclaredConstructors.ToArray();
 #else
-            return type.GetConstructors(DeclaredFlags);
+            return type.GetConstructors(s_declaredFlags);
 #endif
         }
 
-        public static MemberInfo[] GetFlattenedMember(this Type type, string memberName) {
+        public static MemberInfo[] GetFlattenedMember(this Type type, string memberName)
+        {
             var result = new List<MemberInfo>();
 
-            while (type != null) {
+            while (type != null)
+            {
                 var members = GetDeclaredMembers(type);
 
-                for (int i = 0; i < members.Length; ++i) {
-                    if (members[i].Name == memberName) {
+                for (int i = 0; i < members.Length; ++i)
+                {
+                    if (members[i].Name == memberName)
+                    {
                         result.Add(members[i]);
                     }
                 }
@@ -233,12 +261,16 @@ namespace FullSerializer.Internal {
             return result.ToArray();
         }
 
-        public static MethodInfo GetFlattenedMethod(this Type type, string methodName) {
-            while (type != null) {
+        public static MethodInfo GetFlattenedMethod(this Type type, string methodName)
+        {
+            while (type != null)
+            {
                 var methods = GetDeclaredMethods(type);
 
-                for (int i = 0; i < methods.Length; ++i) {
-                    if (methods[i].Name == methodName) {
+                for (int i = 0; i < methods.Length; ++i)
+                {
+                    if (methods[i].Name == methodName)
+                    {
                         return methods[i];
                     }
                 }
@@ -249,12 +281,16 @@ namespace FullSerializer.Internal {
             return null;
         }
 
-        public static IEnumerable<MethodInfo> GetFlattenedMethods(this Type type, string methodName) {
-            while (type != null) {
+        public static IEnumerable<MethodInfo> GetFlattenedMethods(this Type type, string methodName)
+        {
+            while (type != null)
+            {
                 var methods = GetDeclaredMethods(type);
 
-                for (int i = 0; i < methods.Length; ++i) {
-                    if (methods[i].Name == methodName) {
+                for (int i = 0; i < methods.Length; ++i)
+                {
+                    if (methods[i].Name == methodName)
+                    {
                         yield return methods[i];
                     }
                 }
@@ -263,12 +299,16 @@ namespace FullSerializer.Internal {
             }
         }
 
-        public static PropertyInfo GetFlattenedProperty(this Type type, string propertyName) {
-            while (type != null) {
+        public static PropertyInfo GetFlattenedProperty(this Type type, string propertyName)
+        {
+            while (type != null)
+            {
                 var properties = GetDeclaredProperties(type);
 
-                for (int i = 0; i < properties.Length; ++i) {
-                    if (properties[i].Name == propertyName) {
+                for (int i = 0; i < properties.Length; ++i)
+                {
+                    if (properties[i].Name == propertyName)
+                    {
                         return properties[i];
                     }
                 }
@@ -279,11 +319,14 @@ namespace FullSerializer.Internal {
             return null;
         }
 
-        public static MemberInfo GetDeclaredMember(this Type type, string memberName) {
+        public static MemberInfo GetDeclaredMember(this Type type, string memberName)
+        {
             var members = GetDeclaredMembers(type);
 
-            for (int i = 0; i < members.Length; ++i) {
-                if (members[i].Name == memberName) {
+            for (int i = 0; i < members.Length; ++i)
+            {
+                if (members[i].Name == memberName)
+                {
                     return members[i];
                 }
             }
@@ -291,39 +334,44 @@ namespace FullSerializer.Internal {
             return null;
         }
 
-        public static MethodInfo[] GetDeclaredMethods(this Type type) {
+        public static MethodInfo[] GetDeclaredMethods(this Type type)
+        {
 #if USE_TYPEINFO
             return type.GetTypeInfo().DeclaredMethods.ToArray();
 #else
-            return type.GetMethods(DeclaredFlags);
+            return type.GetMethods(s_declaredFlags);
 #endif
         }
 
-        public static PropertyInfo[] GetDeclaredProperties(this Type type) {
+        public static PropertyInfo[] GetDeclaredProperties(this Type type)
+        {
 #if USE_TYPEINFO
             return type.GetTypeInfo().DeclaredProperties.ToArray();
 #else
-            return type.GetProperties(DeclaredFlags);
+            return type.GetProperties(s_declaredFlags);
 #endif
         }
 
-        public static FieldInfo[] GetDeclaredFields(this Type type) {
+        public static FieldInfo[] GetDeclaredFields(this Type type)
+        {
 #if USE_TYPEINFO
             return type.GetTypeInfo().DeclaredFields.ToArray();
 #else
-            return type.GetFields(DeclaredFlags);
+            return type.GetFields(s_declaredFlags);
 #endif
         }
 
-        public static MemberInfo[] GetDeclaredMembers(this Type type) {
+        public static MemberInfo[] GetDeclaredMembers(this Type type)
+        {
 #if USE_TYPEINFO
             return type.GetTypeInfo().DeclaredMembers.ToArray();
 #else
-            return type.GetMembers(DeclaredFlags);
+            return type.GetMembers(s_declaredFlags);
 #endif
         }
 
-        public static MemberInfo AsMemberInfo(Type type) {
+        public static MemberInfo AsMemberInfo(Type type)
+        {
 #if USE_TYPEINFO
             return type.GetTypeInfo();
 #else
@@ -331,7 +379,8 @@ namespace FullSerializer.Internal {
 #endif
         }
 
-        public static bool IsType(MemberInfo member) {
+        public static bool IsType(MemberInfo member)
+        {
 #if USE_TYPEINFO
             return member is TypeInfo;
 #else
@@ -339,7 +388,8 @@ namespace FullSerializer.Internal {
 #endif
         }
 
-        public static Type AsType(MemberInfo member) {
+        public static Type AsType(MemberInfo member)
+        {
 #if USE_TYPEINFO
             return ((TypeInfo)member).AsType();
 #else
@@ -352,13 +402,14 @@ namespace FullSerializer.Internal {
             return type.GetTypeInfo();
         }
 #else
-        public static Type Resolve(this Type type) {
+        public static Type Resolve(this Type type)
+        {
             return type;
         }
 #endif
 
 
-#region Extensions
+        #region Extensions
 
 #if USE_TYPEINFO_EXTENSIONS
         public static bool IsAssignableFrom(this Type parent, Type child) {
@@ -395,6 +446,6 @@ namespace FullSerializer.Internal {
             return type.GetTypeInfo().GenericTypeArguments.ToArray();
         }
 #endif
-#endregion
+        #endregion
     }
 }

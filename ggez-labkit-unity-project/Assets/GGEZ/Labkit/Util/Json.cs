@@ -23,7 +23,7 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using FullSerializer;
+using GGEZ.FullSerializer;
 
 namespace GGEZ
 {

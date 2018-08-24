@@ -1,8 +1,11 @@
-﻿namespace FullSerializer {
+﻿
+namespace GGEZ.FullSerializer
+{
     /// <summary>
     /// Controls how the reflected converter handles member serialization.
     /// </summary>
-    public enum fsMemberSerialization {
+    public enum fsMemberSerialization
+    {
         /// <summary>
         /// Only members with [SerializeField] or [fsProperty] attributes are serialized.
         /// </summary>

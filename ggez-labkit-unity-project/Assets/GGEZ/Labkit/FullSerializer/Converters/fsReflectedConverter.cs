@@ -6,26 +6,31 @@ using System.Collections;
 using System.Reflection;
 #endif
 
-namespace FullSerializer.Internal {
-    public class fsReflectedConverter : fsConverter {
-        public override bool CanProcess(Type type) {
+namespace GGEZ.FullSerializer.Internal
+{
+    public class fsReflectedConverter : fsConverter
+    {
+        public override bool CanProcess(Type type)
+        {
             if (type.Resolve().IsArray ||
-                typeof(ICollection).IsAssignableFrom(type)) {
-
+                typeof(ICollection).IsAssignableFrom(type))
+            {
                 return false;
             }
 
             return true;
         }
 
-        public override fsResult TrySerialize(object instance, out fsData serialized, Type storageType) {
+        public override fsResult TrySerialize(object instance, out fsData serialized, Type storageType)
+        {
             serialized = fsData.CreateDictionary();
             var result = fsResult.Success;
 
             fsMetaType metaType = fsMetaType.Get(Serializer.Config, instance.GetType());
             metaType.EmitAotData();
 
-            for (int i = 0; i < metaType.Properties.Length; ++i) {
+            for (int i = 0; i < metaType.Properties.Length; ++i)
+            {
                 fsMetaProperty property = metaType.Properties[i];
                 if (property.CanRead == false) continue;
 
@@ -34,7 +39,8 @@ namespace FullSerializer.Internal {
                 var itemResult = Serializer.TrySerialize(property.StorageType, property.OverrideConverterType,
                                                          property.Read(instance), out serializedData);
                 result.AddMessages(itemResult);
-                if (itemResult.Failed) {
+                if (itemResult.Failed)
+                {
                     continue;
                 }
 
@@ -44,23 +50,27 @@ namespace FullSerializer.Internal {
             return result;
         }
 
-        public override fsResult TryDeserialize(fsData data, ref object instance, Type storageType) {
+        public override fsResult TryDeserialize(fsData data, ref object instance, Type storageType)
+        {
             var result = fsResult.Success;
 
             // Verify that we actually have an Object
-            if ((result += CheckType(data, fsDataType.Object)).Failed) {
+            if ((result += CheckType(data, fsDataType.Object)).Failed)
+            {
                 return result;
             }
 
             fsMetaType metaType = fsMetaType.Get(Serializer.Config, storageType);
             metaType.EmitAotData();
 
-            for (int i = 0; i < metaType.Properties.Length; ++i) {
+            for (int i = 0; i < metaType.Properties.Length; ++i)
+            {
                 fsMetaProperty property = metaType.Properties[i];
                 if (property.CanWrite == false) continue;
 
                 fsData propertyData;
-                if (data.AsDictionary.TryGetValue(property.JsonName, out propertyData)) {
+                if (data.AsDictionary.TryGetValue(property.JsonName, out propertyData))
+                {
                     object deserializedValue = null;
 
                     // We have to read in the existing value, since we need to support partial
@@ -69,7 +79,8 @@ namespace FullSerializer.Internal {
                     //       Maybe through a new property, ie, Serializer.IsPartialSerialization, which just
                     //       gets set when starting a new serialization? We cannot pipe the information
                     //       through CreateInstance unfortunately.
-                    if (property.CanRead) {
+                    if (property.CanRead)
+                    {
                         deserializedValue = property.Read(instance);
                     }
 
@@ -85,7 +96,8 @@ namespace FullSerializer.Internal {
             return result;
         }
 
-        public override object CreateInstance(fsData data, Type storageType) {
+        public override object CreateInstance(fsData data, Type storageType)
+        {
             fsMetaType metaType = fsMetaType.Get(Serializer.Config, storageType);
             return metaType.CreateInstance();
         }
