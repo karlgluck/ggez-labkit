@@ -69,10 +69,28 @@ static void EssentialAssetsDOTween ()
     UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/27676");
     }
 
+[MenuItem ("Asset Store/Free Essentials/ProBuilder")]
+static void EssentialAssetsProBuilder ()
+    {
+    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/111418");
+    }
+
+[MenuItem ("Asset Store/Free Essentials/ProGrids")]
+static void EssentialAssetsProGrids ()
+    {
+    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/111425");
+    }
+
 [MenuItem ("Asset Store/GGEZ/Perfect Pixel Camera")]
 static void AssetStore_GGEZ_PerfectPixelCamera ()
     {
     UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/100000");
+    }
+
+[MenuItem ("Asset Store/GGEZ/Perfect Pixel Sprite")]
+static void AssetStore_GGEZ_PerfectPixelSprite ()
+    {
+    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/112908");
     }
 
 [MenuItem ("Asset Store/GGEZ/All Assets")]

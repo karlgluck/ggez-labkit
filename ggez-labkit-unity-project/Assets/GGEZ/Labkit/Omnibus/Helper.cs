@@ -30,17 +30,6 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
-/*
-
-TODO:
-
- - Rename Entity to something that makes more sense
- - Split types that aren't related into different files
- - Clean up when things get saved / loaded from JSON to entities
- - Make sure hand-editing JSON works properly
- - Testing for Omnibus features
-
- */
 
 namespace GGEZ.Omnibus
 {
