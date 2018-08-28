@@ -33,7 +33,7 @@ namespace GGEZ.FullSerializer.Internal
 
         public override fsResult TrySerialize(object instance, out fsData serialized, Type storageType)
         {
-            if (Serializer.Config.SerializeEnumsAsInteger)
+            if (Serializer.Config.SerializeEnumsAsInteger || fsPortableReflection.GetAttribute<fsSerializeEnumAsIntegerAttribute>(storageType) != null)
             {
                 serialized = new fsData(Convert.ToInt64(instance));
             }

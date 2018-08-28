@@ -34,66 +34,23 @@ using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
 namespace GGEZ.Omnibus
 {
 
-[AttributeUsage(AttributeTargets.Enum)]
-public class fsUseIntValue : Attribute
-{
-    public static bool IsAppliedTo(Type type)
-    {
-        var attributes = type.GetCustomAttributes(false);
-        for (int i = 0; i < attributes.Length; ++i)
-        {
-            if (attributes[i] is fsUseIntValue)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-}
 
 public static class Serialization
 {
     private static fsSerializer s_serializer;
-    private static fsEnumAsIntConverter s_enumAsIntConverter;
     public static fsSerializer GetSerializer (UnityObjectList objectReferences)
     {
 
         if (s_serializer == null)
         {
             s_serializer = new fsSerializer();
-            s_enumAsIntConverter = new fsEnumAsIntConverter();
-            s_serializer.AddConverter(s_enumAsIntConverter);
+            // would add converters here if we needed to
         }
 
         s_serializer.UnityReferences = objectReferences;
         return s_serializer;
     }
 
-    class fsEnumAsIntConverter : fsConverter
-    {
-        public override bool CanProcess(Type type)
-        {
-            return fsUseIntValue.IsAppliedTo(type);
-        }
-        public override fsResult TryDeserialize(fsData storage, ref object instance, Type storageType)
-        {
-            if(CheckType(storage, fsDataType.Int64).Failed)
-            {
-                Debug.LogError("CheckType for enum failed");
-                Debug.LogError("data = " + storage.ToString());
-                return fsResult.Fail("CheckType for enum failed");
-            }
-            instance = Enum.ToObject(storageType, storage.AsInt64);
-            return fsResult.Success;
-        }
-
-        public override fsResult TrySerialize(object instance, out fsData serialized, Type storageType)
-        {
-            serialized = new fsData((int)instance);
-            return fsResult.Success;
-        }
-
-    }
 }
 
 }

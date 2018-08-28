@@ -25,7 +25,7 @@
 
 using System;
 using UnityEngine;
-
+using GGEZ.FullSerializer;
 
 namespace GGEZ.Omnibus
 {
@@ -48,7 +48,7 @@ namespace GGEZ.Omnibus
         public virtual void OnExit(EntityContainer entity) {}
     }
 
-    [fsUseIntValue]
+    [fsSerializeEnumAsInteger]
     public enum StateIndex : int
     {
         Any = -2,

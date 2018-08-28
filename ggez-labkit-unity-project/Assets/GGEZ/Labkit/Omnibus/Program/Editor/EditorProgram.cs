@@ -27,15 +27,15 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System;
-
+using GGEZ.FullSerializer;
 
 namespace GGEZ.Omnibus
 {
-    [fsUseIntValue]
+    [fsSerializeEnumAsInteger]
     public enum EditorStateIndex : int { Invalid = int.MaxValue }
-    [fsUseIntValue]
+    [fsSerializeEnumAsInteger]
     public enum EditorLayerIndex : int { Invalid = int.MaxValue }
-    [fsUseIntValue]
+    [fsSerializeEnumAsInteger]
     public enum EditorTransitionIndex : int { Invalid = int.MaxValue }
 
     //-------------------------------------------------------------------------

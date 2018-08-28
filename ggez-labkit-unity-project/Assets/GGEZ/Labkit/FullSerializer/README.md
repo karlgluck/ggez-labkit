@@ -4,6 +4,13 @@ Full Serializer is an easy to use and robust JSON serializer that *just works*. 
 
 Best of all, Full Serializer is completely free to use and available under the MIT license!
 
+### A note on what's different
+
+Hi, Karl G here with GGEZ/Labkit. I've made some opt-in modifications to FullSerializer:
+
+ - `Enum` types can be decorated with `[fsSerializeEnumAsInteger]` to force them to write their integer value
+ - `fsSerializer` has a new field field `UnityReferences`. If assigned, objects that derive from `UnityEngine.Object` will use the list to store references inside the JSON instead of serializing the objects themselves. When serializing, the list is an output; when deserializing, the list is an input.
+
 ## Why?
 
 There were no serializers that just work in Unity that are free and target all export platforms. [Full Inspector](http://forum.unity3d.com/threads/224270-Full-Inspector-Inspector-and-serialization-for-structs-dicts-generics-interfaces) needed one, so here it is.
