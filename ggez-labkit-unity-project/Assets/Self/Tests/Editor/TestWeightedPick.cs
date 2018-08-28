@@ -31,7 +31,10 @@ using System.Collections;
 using GGEZ;
 using System.Linq;
 
-public class TestWeightedPick
+namespace GGEZ.Tests
+{
+
+public partial class PickWeightedTests
 {
 
 
@@ -95,5 +98,7 @@ public void PicksByWeightManyElements ()
         }
     }
 
+
+}
 
 }

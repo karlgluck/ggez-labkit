@@ -25,6 +25,7 @@
 
 using System;
 using UnityEngine;
+using GGEZ.FullSerializer;
 
 namespace GGEZ.Omnibus
 {
@@ -82,9 +83,9 @@ namespace GGEZ.Omnibus
     //-------------------------------------------------------------------------
     // Register pointers for inputs and outputs
     //-------------------------------------------------------------------------
-    [PointerType(typeof(object)), fsSerializeEnumsAsInteger]   public enum ObjectPtr : int { Invalid = int.MaxValue }
-    [PointerType(typeof(bool)), fsSerializeEnumsAsInteger]     public enum BoolPtr : int { Invalid = int.MaxValue }
-    [PointerType(typeof(float)), fsSerializeEnumsAsInteger]    public enum FloatPtr : int { Invalid = int.MaxValue }
+    [PointerType(typeof(object)), fsSerializeEnumAsInteger]   public enum ObjectPtr : int { Invalid = int.MaxValue }
+    [PointerType(typeof(bool)), fsSerializeEnumAsInteger]     public enum BoolPtr : int { Invalid = int.MaxValue }
+    [PointerType(typeof(float)), fsSerializeEnumAsInteger]    public enum FloatPtr : int { Invalid = int.MaxValue }
 
     //-------------------------------------------------------------------------
     // References an entity variable

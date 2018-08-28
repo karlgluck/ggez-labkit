@@ -9,9 +9,12 @@ namespace GGEZ
 
 public static class EditorMenuForScriptTemplates
 {
+#if UNITY_EDITOR_WIN
     static readonly string WindowsScriptPath = @"C:\Program Files\Unity\Editor\Data\Resources\ScriptTemplates";
     static readonly string WindowsScriptPathHub = @"C:\Program Files\Unity\Hub\Editor\{0}\Editor\Data\Resources\ScriptTemplates";
+#elif UNITY_EDITOR_OSX
     static readonly string OsxScriptPath = @"/Applications/Unity/Unity.app/Contents/Resources/ScriptTemplates";
+#endif
 
     static readonly string CsharpScriptFileName = @"81-C# Script-NewBehaviourScript.cs.txt";
 

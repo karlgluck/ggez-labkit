@@ -3,20 +3,15 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GGEZ.FullSerializer
-{
-    public partial class fsConverterRegistrar
-    {
+namespace GGEZ.FullSerializer {
+    partial class fsConverterRegistrar {
         public static Internal.DirectConverters.Keyframe_DirectConverter Register_Keyframe_DirectConverter;
     }
 }
 
-namespace GGEZ.FullSerializer.Internal.DirectConverters
-{
-    public class Keyframe_DirectConverter : fsDirectConverter<Keyframe>
-    {
-        protected override fsResult DoSerialize(Keyframe model, Dictionary<string, fsData> serialized)
-        {
+namespace GGEZ.FullSerializer.Internal.DirectConverters {
+    public class Keyframe_DirectConverter : fsDirectConverter<Keyframe> {
+        protected override fsResult DoSerialize(Keyframe model, Dictionary<string, fsData> serialized) {
             var result = fsResult.Success;
 
             result += SerializeMember(serialized, null, "time", model.time);
@@ -28,8 +23,7 @@ namespace GGEZ.FullSerializer.Internal.DirectConverters
             return result;
         }
 
-        protected override fsResult DoDeserialize(Dictionary<string, fsData> data, ref Keyframe model)
-        {
+        protected override fsResult DoDeserialize(Dictionary<string, fsData> data, ref Keyframe model) {
             var result = fsResult.Success;
 
             var t0 = model.time;
@@ -55,8 +49,7 @@ namespace GGEZ.FullSerializer.Internal.DirectConverters
             return result;
         }
 
-        public override object CreateInstance(fsData data, Type storageType)
-        {
+        public override object CreateInstance(fsData data, Type storageType) {
             return new Keyframe();
         }
     }

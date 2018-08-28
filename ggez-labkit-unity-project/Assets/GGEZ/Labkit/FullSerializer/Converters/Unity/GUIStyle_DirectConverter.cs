@@ -3,20 +3,15 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GGEZ.FullSerializer
-{
-    public partial class fsConverterRegistrar
-    {
+namespace GGEZ.FullSerializer {
+    partial class fsConverterRegistrar {
         public static Internal.DirectConverters.GUIStyle_DirectConverter Register_GUIStyle_DirectConverter;
     }
 }
 
-namespace GGEZ.FullSerializer.Internal.DirectConverters
-{
-    public class GUIStyle_DirectConverter : fsDirectConverter<GUIStyle>
-    {
-        protected override fsResult DoSerialize(GUIStyle model, Dictionary<string, fsData> serialized)
-        {
+namespace GGEZ.FullSerializer.Internal.DirectConverters {
+    public class GUIStyle_DirectConverter : fsDirectConverter<GUIStyle> {
+        protected override fsResult DoSerialize(GUIStyle model, Dictionary<string, fsData> serialized) {
             var result = fsResult.Success;
 
             result += SerializeMember(serialized, null, "active", model.active);
@@ -49,8 +44,7 @@ namespace GGEZ.FullSerializer.Internal.DirectConverters
             return result;
         }
 
-        protected override fsResult DoDeserialize(Dictionary<string, fsData> data, ref GUIStyle model)
-        {
+        protected override fsResult DoDeserialize(Dictionary<string, fsData> data, ref GUIStyle model) {
             var result = fsResult.Success;
 
             var t0 = model.active;
@@ -160,8 +154,7 @@ namespace GGEZ.FullSerializer.Internal.DirectConverters
             return result;
         }
 
-        public override object CreateInstance(fsData data, Type storageType)
-        {
+        public override object CreateInstance(fsData data, Type storageType) {
             return new GUIStyle();
         }
     }

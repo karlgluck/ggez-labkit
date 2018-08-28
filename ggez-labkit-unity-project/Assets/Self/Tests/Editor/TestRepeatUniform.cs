@@ -31,19 +31,24 @@ using System.Collections;
 using GGEZ;
 using System.Linq;
 
-public class TestRepeatUniform
+namespace GGEZ.Tests
 {
 
-
-[Test]
-public void RepeatUniformWorksProperly ()
+    public partial class UtilTests
     {
-    int[] inputs  = new int[] { 4, 3, 2, 1, 0, -1, -2, -3, -4 };
-    int[] outputs = new int[] { 1, 0, 2, 1, 0,  2,  1,  0,  2 };
-    for (int i = 0; i < inputs.Length; ++i)
+
+
+    [Test]
+    public void RepeatUniformWorksProperly ()
         {
-        Assert.AreEqual (Util.RepeatUniform (inputs[i], 3), outputs[i], "RepeatUniform ({0}, {1})", inputs[i], outputs[i]);
+        int[] inputs  = new int[] { 4, 3, 2, 1, 0, -1, -2, -3, -4 };
+        int[] outputs = new int[] { 1, 0, 2, 1, 0,  2,  1,  0,  2 };
+        for (int i = 0; i < inputs.Length; ++i)
+            {
+            Assert.AreEqual (Util.RepeatUniform (inputs[i], 3), outputs[i], "RepeatUniform ({0}, {1})", inputs[i], outputs[i]);
+            }
         }
+
     }
 
 }
