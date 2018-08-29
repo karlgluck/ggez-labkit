@@ -27,77 +27,74 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 
-namespace GGEZ
+namespace GGEZ.Labkit
 {
-namespace Labkit
-{
-public static class AssetStoreLinks
-{
-[MenuItem ("Asset Store/Go to Store")]
-static void AssetStore_GoToStore ()
+    public static class AssetStoreLinks
     {
-    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma");
-    }
+        [MenuItem("Asset Store/Go to Store")]
+        private static void AssetStore_GoToStore()
+        {
+            UnityEditorInternal.AssetStore.Open("com.unity3d.kharma");
+        }
 
-[MenuItem ("Asset Store/Free Essentials/Post-Processing Stack")]
-static void EssentialAssetsFreePostProcessingStack ()
-    {
-    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/83912");
-    }
+        [MenuItem("Asset Store/Free Essentials/Post-Processing Stack")]
+        private static void EssentialAssetsFreePostProcessingStack()
+        {
+            UnityEditorInternal.AssetStore.Open("com.unity3d.kharma:content/83912");
+        }
 
-[MenuItem ("Asset Store/Free Essentials/TextMeshPro")]
-static void EssentialAssetsFreeTextMeshPro ()
-    {
-    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/84126");
-    }
+        [MenuItem("Asset Store/Free Essentials/TextMeshPro")]
+        private static void EssentialAssetsFreeTextMeshPro()
+        {
+            UnityEditorInternal.AssetStore.Open("com.unity3d.kharma:content/84126");
+        }
 
-[MenuItem ("Asset Store/Free Essentials/MoonSharp (Lua Scripting)")]
-static void EssentialAssetsMoonSharp ()
-    {
-    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/33776");
-    }
-    
-[MenuItem ("Asset Store/Free Essentials/Console Enhanced")]
-static void EssentialAssetsConsoleEnhanced ()
-    {
-    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/42381");
-    }
-    
-[MenuItem ("Asset Store/Free Essentials/DOTween")]
-static void EssentialAssetsDOTween ()
-    {
-    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/27676");
-    }
+        [MenuItem("Asset Store/Free Essentials/MoonSharp (Lua Scripting)")]
+        private static void EssentialAssetsMoonSharp()
+        {
+            UnityEditorInternal.AssetStore.Open("com.unity3d.kharma:content/33776");
+        }
 
-[MenuItem ("Asset Store/Free Essentials/ProBuilder")]
-static void EssentialAssetsProBuilder ()
-    {
-    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/111418");
-    }
+        [MenuItem("Asset Store/Free Essentials/Console Enhanced")]
+        private static void EssentialAssetsConsoleEnhanced()
+        {
+            UnityEditorInternal.AssetStore.Open("com.unity3d.kharma:content/42381");
+        }
 
-[MenuItem ("Asset Store/Free Essentials/ProGrids")]
-static void EssentialAssetsProGrids ()
-    {
-    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/111425");
-    }
+        [MenuItem("Asset Store/Free Essentials/DOTween")]
+        private static void EssentialAssetsDOTween()
+        {
+            UnityEditorInternal.AssetStore.Open("com.unity3d.kharma:content/27676");
+        }
 
-[MenuItem ("Asset Store/GGEZ/Perfect Pixel Camera")]
-static void AssetStore_GGEZ_PerfectPixelCamera ()
-    {
-    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/100000");
-    }
+        [MenuItem("Asset Store/Free Essentials/ProBuilder")]
+        private static void EssentialAssetsProBuilder()
+        {
+            UnityEditorInternal.AssetStore.Open("com.unity3d.kharma:content/111418");
+        }
 
-[MenuItem ("Asset Store/GGEZ/Perfect Pixel Sprite")]
-static void AssetStore_GGEZ_PerfectPixelSprite ()
-    {
-    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:content/112908");
-    }
+        [MenuItem("Asset Store/Free Essentials/ProGrids")]
+        private static void EssentialAssetsProGrids()
+        {
+            UnityEditorInternal.AssetStore.Open("com.unity3d.kharma:content/111425");
+        }
 
-[MenuItem ("Asset Store/GGEZ/All Assets")]
-static void AssetStore_GGEZ_AllAssets ()
-    {
-    UnityEditorInternal.AssetStore.Open ("com.unity3d.kharma:publisher/31538");
+        [MenuItem("Asset Store/GGEZ/Perfect Pixel Camera")]
+        private static void AssetStore_GGEZ_PerfectPixelCamera()
+        {
+            UnityEditorInternal.AssetStore.Open("com.unity3d.kharma:content/100000");
+        }
+
+        [MenuItem("Asset Store/GGEZ/Perfect Pixel Sprite")]
+        private static void AssetStore_GGEZ_PerfectPixelSprite()
+        {
+            UnityEditorInternal.AssetStore.Open("com.unity3d.kharma:content/112908");
+        }
+
+        [MenuItem("Asset Store/GGEZ/All Assets")]
+        private static void AssetStore_GGEZ_AllAssets()
+        {
+            UnityEditorInternal.AssetStore.Open("com.unity3d.kharma:publisher/31538");
+        }
     }
-}
-}
 }

@@ -28,7 +28,6 @@ using System;
 
 namespace GGEZ.Omnibus
 {
-
     public class Variables
     {
         // This set is for propagating changes in variable values
@@ -38,10 +37,10 @@ namespace GGEZ.Omnibus
         // sleeping on variables in order to transition.
         public HashSet<string> ChangedLastFrame = new HashSet<string>();
 
-        public Dictionary<string, object> Values = new Dictionary<string,object>();
-        public Dictionary<string, object> NextFrameValues = new Dictionary<string,object>();
+        public Dictionary<string, object> Values = new Dictionary<string, object>();
+        public Dictionary<string, object> NextFrameValues = new Dictionary<string, object>();
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
         // InspectorGet that does not set a default value
         public object InspectorGet(string name, Type type)
         {
@@ -75,7 +74,7 @@ namespace GGEZ.Omnibus
             Values[name] = value;
             NextFrameValues[name] = value;
         }
-    #endif
+#endif
 
         public void Set(string name, object value)
         {
@@ -84,7 +83,7 @@ namespace GGEZ.Omnibus
                 !Values.TryGetValue(name, out currentNextFrame)
                 || !object.Equals(currentNextFrame, value);
             NextFrameValues[name] = value;
-            if(different)
+            if (different)
             {
                 Changed.Add(name);
             }
@@ -108,14 +107,13 @@ namespace GGEZ.Omnibus
             return false;
         }
 
-        public void EndFrame ()
+        public void EndFrame()
         {
-            Changed.Clear ();
+            Changed.Clear();
             foreach (var kvp in NextFrameValues)
             {
                 Values[kvp.Key] = kvp.Value;
             }
         }
     }
-
 }

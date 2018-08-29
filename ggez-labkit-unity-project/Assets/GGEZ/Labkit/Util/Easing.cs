@@ -28,74 +28,72 @@ using UnityEngine;
 
 namespace GGEZ
 {
-public static partial class Util
-{
-
-public static float EaseElasticOut (float time, float start, float end, float duration)
+    public static partial class Util
     {
-    if ((time /= duration) == 1)
+        public static float EaseElasticOut(float time, float start, float end, float duration)
         {
-        return start + end;
+            if ((time /= duration) == 1)
+            {
+                return start + end;
+            }
+
+            float p = duration * .3f;
+            float s = p / 4;
+            return (end * Mathf.Pow(2, -10 * time) * Mathf.Sin((time * duration - s) * (2 * Mathf.PI) / p) + end + start);
         }
 
-    float p = duration * .3f;
-    float s = p / 4;
-    return (end * Mathf.Pow (2, -10 * time) * Mathf.Sin((time * duration - s) * (2 * Mathf.PI) / p) + end + start);
-    }
-
-public static float EaseElasticOut2 (float t, float amplitude, float period)
-    {
-    var s = Mathf.Asin (1 / (amplitude = Mathf.Max (1, amplitude))) * (period /= (2 * Mathf.PI));
-    return 1 - amplitude * Mathf.Pow (2, -10 * t) * Mathf.Sin ((t + s) / period);
-    }
-
-public static float EaseJump (float t)
-    {
-    return 4 * t * (1 - t);
-    }
-
-public static float EaseJumpBounce (float t)
-    {
-    float s = 1f;
-    if (0 <= t && t < 4 / 8f)
+        public static float EaseElasticOut2(float t, float amplitude, float period)
         {
-        t = Mathf.InverseLerp (0, 4 / 8f, t);
+            var s = Mathf.Asin(1 / (amplitude = Mathf.Max(1, amplitude))) * (period /= (2 * Mathf.PI));
+            return 1 - amplitude * Mathf.Pow(2, -10 * t) * Mathf.Sin((t + s) / period);
         }
-    else if (t <= 6 / 8f)
+
+        public static float EaseJump(float t)
         {
-        s = 0.4f;
-        t = Mathf.InverseLerp (4 / 8f, 6 / 8f, t);
+            return 4 * t * (1 - t);
         }
-    else
+
+        public static float EaseJumpBounce(float t)
         {
-        s = 0.4f * 0.4f;
-        t = Mathf.InverseLerp (6 / 8f, 1f, t);
+            float s = 1f;
+            if (0 <= t && t < 4 / 8f)
+            {
+                t = Mathf.InverseLerp(0, 4 / 8f, t);
+            }
+            else if (t <= 6 / 8f)
+            {
+                s = 0.4f;
+                t = Mathf.InverseLerp(4 / 8f, 6 / 8f, t);
+            }
+            else
+            {
+                s = 0.4f * 0.4f;
+                t = Mathf.InverseLerp(6 / 8f, 1f, t);
+            }
+            return s * 4 * t * (1 - t);
         }
-    return s * 4 * t * (1 - t);
+
+
+        private static float Approach(
+                float current,
+                float target,
+                float deltaPerSecond,
+                float feather
+                )
+        {
+            float maxDelta = Mathf.Max(0.1f, Mathf.InverseLerp(0f, feather, Mathf.Abs(current - target))) * deltaPerSecond;
+            return Mathf.MoveTowards(current, target, maxDelta * Time.smoothDeltaTime);
+        }
+
+        private static float ApproachAngle(
+                float currentDegrees,
+                float targetDegrees,
+                float deltaPerSecond,
+                float feather
+                )
+        {
+            float maxDelta = Mathf.Max(0.1f, Mathf.InverseLerp(0f, feather, Mathf.Abs(Mathf.DeltaAngle(currentDegrees, targetDegrees)))) * deltaPerSecond;
+            return Mathf.MoveTowardsAngle(currentDegrees, targetDegrees, maxDelta * Time.smoothDeltaTime);
+        }
     }
-
-
-private static float Approach (
-        float current,
-        float target,
-        float deltaPerSecond,
-        float feather
-        )
-    {
-    float maxDelta = Mathf.Max (0.1f, Mathf.InverseLerp (0f, feather, Mathf.Abs (current - target))) * deltaPerSecond;
-    return Mathf.MoveTowards (current, target, maxDelta * Time.smoothDeltaTime);
-    }
-
-private static float ApproachAngle (
-        float currentDegrees,
-        float targetDegrees,
-        float deltaPerSecond,
-        float feather
-        )
-    {
-    float maxDelta = Mathf.Max (0.1f, Mathf.InverseLerp (0f, feather, Mathf.Abs (Mathf.DeltaAngle (currentDegrees, targetDegrees)))) * deltaPerSecond;
-    return Mathf.MoveTowardsAngle (currentDegrees, targetDegrees, maxDelta * Time.smoothDeltaTime);
-    }
-
-}
 }

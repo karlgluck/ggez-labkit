@@ -33,72 +33,66 @@ using System.Linq;
 
 namespace GGEZ.Tests
 {
-
-public partial class PickWeightedTests
-{
-
-
-[Test]
-public void DoesntPickZeroWeight ()
+    public partial class PickWeightedTests
     {
-    var picked = new int[] { 0, 1, 0 }.PickWeighted (RandomExt.UnityRandom, 1, e => e).First ();
-    Assert.AreEqual (picked, 1);
-    }
-
-
-
-[Test]
-public void PicksByWeightTwoElements ()
-    {
-    var timesPicked = new int[2] { 0, 0 };
-    var arrayToPickFrom = new int[] { 1, 2 };
-    const int kIterations = 10000;
-    for (int i = 0; i < kIterations; ++i)
+        [Test]
+        public void DoesntPickZeroWeight()
         {
-        var picked = arrayToPickFrom.PickWeighted (RandomExt.UnityRandom, 1, e => e).First ();
-        timesPicked[picked - 1]++;
+            var picked = new int[] { 0, 1, 0 }.PickWeighted(RandomExt.UnityRandom, 1, e => e).First();
+            Assert.AreEqual(picked, 1);
         }
-    Assert.Greater (timesPicked[1], timesPicked[0], "should pick 2 weight more than 1 weight");
-    Assert.AreEqual (
-            (double)timesPicked[0],
-            (double)timesPicked[1]/2.0,
-            kIterations * 2 / 100.0,
-            "should pick 2 weight about twice as much as 1 weight"
-            );
-    }
 
 
 
-[Test]
-public void PicksByWeightManyElements ()
-    {
-    const int kLength = 100;
-    const int kIterations = 10000;
-    var timesPicked = new int[kLength];
-    var arrayToPickFrom = new int[kLength];
-    int totalWeight = 0;
-    for (int i = 0; i < kLength; ++i)
+        [Test]
+        public void PicksByWeightTwoElements()
         {
-        arrayToPickFrom[i] = i + 1;
-        totalWeight += arrayToPickFrom[i];
+            var timesPicked = new int[2] { 0, 0 };
+            var arrayToPickFrom = new int[] { 1, 2 };
+            const int kIterations = 10000;
+            for (int i = 0; i < kIterations; ++i)
+            {
+                var picked = arrayToPickFrom.PickWeighted(RandomExt.UnityRandom, 1, e => e).First();
+                timesPicked[picked - 1]++;
+            }
+            Assert.Greater(timesPicked[1], timesPicked[0], "should pick 2 weight more than 1 weight");
+            Assert.AreEqual(
+                    (double)timesPicked[0],
+                    (double)timesPicked[1] / 2.0,
+                    kIterations * 2 / 100.0,
+                    "should pick 2 weight about twice as much as 1 weight"
+                    );
         }
-    for (int i = 0; i < kIterations; ++i)
+
+
+
+        [Test]
+        public void PicksByWeightManyElements()
         {
-        var picked = arrayToPickFrom.PickWeighted (RandomExt.UnityRandom, 1, e => e).First ();
-        timesPicked[picked - 1]++;
-        }
-    for (int i = 0; i < kLength; ++i)
-        {
-        Assert.AreEqual (
-                timesPicked[i] / ((double)kIterations),
-                (i + 1) / ((double)totalWeight),
-                kIterations * 1 / 100.0,
-                "weight of " + (i+1)
-                );
+            const int kLength = 100;
+            const int kIterations = 10000;
+            var timesPicked = new int[kLength];
+            var arrayToPickFrom = new int[kLength];
+            int totalWeight = 0;
+            for (int i = 0; i < kLength; ++i)
+            {
+                arrayToPickFrom[i] = i + 1;
+                totalWeight += arrayToPickFrom[i];
+            }
+            for (int i = 0; i < kIterations; ++i)
+            {
+                var picked = arrayToPickFrom.PickWeighted(RandomExt.UnityRandom, 1, e => e).First();
+                timesPicked[picked - 1]++;
+            }
+            for (int i = 0; i < kLength; ++i)
+            {
+                Assert.AreEqual(
+                        timesPicked[i] / ((double)kIterations),
+                        (i + 1) / ((double)totalWeight),
+                        kIterations * 1 / 100.0,
+                        "weight of " + (i + 1)
+                        );
+            }
         }
     }
-
-
-}
-
 }

@@ -32,96 +32,96 @@ using UnityEditor;
 
 namespace GGEZ
 {
-[CustomEditor(typeof(ExampleMonoBehaviour))]
-public class HandleTesterEditor : Editor
-{
-private Tool oldTool = Tool.None;
-
-string lastClickedObject = "";
-
-void OnDisable ()
+    [CustomEditor(typeof(ExampleMonoBehaviour))]
+    public class HandleTesterEditor : Editor
     {
-    this.restoreOldTool ();
-    }
+        private Tool _oldTool = Tool.None;
 
-void restoreOldTool ()
-    {
-    if (this.oldTool != Tool.None)
-        {
-        Tools.current = this.oldTool;
-        this.oldTool = Tool.None;
-        }
-    }
+        private string _lastClickedObject = "";
 
-void OnSceneGUI ()
-    {
-    bool isDrawingToTheFirstSceneView =
-            SceneView.sceneViews != null
-            && SceneView.sceneViews.Count >= 1
-            && SceneView.currentDrawingSceneView != null
-            && object.ReferenceEquals (SceneView.currentDrawingSceneView, SceneView.sceneViews[0]);
-    if (!isDrawingToTheFirstSceneView)
+        private void OnDisable()
         {
-        this.restoreOldTool ();
-        return;
-        }
-    if (Tools.current != Tool.None)
-        {
-        this.oldTool = Tools.current;
-        Tools.current = Tool.None;
-        Tools.viewTool = ViewTool.None;
-        }
-    Camera sceneCamera;
-    Rect sceneCameraScreenRect;
-    if (true)
-        {
-        sceneCamera = SceneView.currentDrawingSceneView.camera;
-        var screenSize = sceneCamera.ViewportToScreenPoint (Vector3.one);
-        sceneCameraScreenRect = new Rect (0f, 0f, screenSize.x, screenSize.y);
+            this.restoreOldTool();
         }
 
-    // SceneView.currentDrawingSceneView.isRotationLocked = true;
-    // SceneView.currentDrawingSceneView.in2DMode = true;
-
-    bool shouldPreventClicksFromPassingThrough = Event.current.type == EventType.Layout;
-    if (shouldPreventClicksFromPassingThrough)
+        private void restoreOldTool()
         {
-        HandleUtility.AddDefaultControl (GUIUtility.GetControlID (this.GetHashCode(), FocusType.Passive));
-        }
-
-    MouseCursor mouseCursorToUse = MouseCursor.Arrow;
-    EditorGUIUtility.AddCursorRect (sceneCameraScreenRect, mouseCursorToUse);
-
-    if (Event.current.type == EventType.MouseDown)
-        {
-        var pickedObject = HandleUtility.PickGameObject (Event.current.mousePosition, false);
-        if (pickedObject != null)
+            if (_oldTool != Tool.None)
             {
-            this.lastClickedObject = pickedObject.name;
-            SceneView.currentDrawingSceneView.ShowNotification (new GUIContent ("You clicked " + this.lastClickedObject));
+                Tools.current = _oldTool;
+                _oldTool = Tool.None;
             }
         }
 
-    Handles.BeginGUI ();
-
-    // Use GUI to draw over the scene view
-
-    GUILayout.BeginArea (sceneCameraScreenRect);
-
-    // Can use EditorGUILayout and GUILayout as normal to draw things over the scene view
-
-    GUILayout.EndArea ();
-
-    Handles.EndGUI ();
-
-    bool shouldStopInputGoingToTheRestOfUnity =
-            Event.current.type != EventType.Repaint
-            && Event.current.type != EventType.Layout
-            && GUIUtility.hotControl == 0;
-    if (shouldStopInputGoingToTheRestOfUnity)
+        private void OnSceneGUI()
         {
-        Event.current.Use ();
+            bool isDrawingToTheFirstSceneView =
+                    SceneView.sceneViews != null
+                    && SceneView.sceneViews.Count >= 1
+                    && SceneView.currentDrawingSceneView != null
+                    && object.ReferenceEquals(SceneView.currentDrawingSceneView, SceneView.sceneViews[0]);
+            if (!isDrawingToTheFirstSceneView)
+            {
+                this.restoreOldTool();
+                return;
+            }
+            if (Tools.current != Tool.None)
+            {
+                _oldTool = Tools.current;
+                Tools.current = Tool.None;
+                Tools.viewTool = ViewTool.None;
+            }
+            Camera sceneCamera;
+            Rect sceneCameraScreenRect;
+            if (true)
+            {
+                sceneCamera = SceneView.currentDrawingSceneView.camera;
+                var screenSize = sceneCamera.ViewportToScreenPoint(Vector3.one);
+                sceneCameraScreenRect = new Rect(0f, 0f, screenSize.x, screenSize.y);
+            }
+
+            // SceneView.currentDrawingSceneView.isRotationLocked = true;
+            // SceneView.currentDrawingSceneView.in2DMode = true;
+
+            bool shouldPreventClicksFromPassingThrough = Event.current.type == EventType.Layout;
+            if (shouldPreventClicksFromPassingThrough)
+            {
+                HandleUtility.AddDefaultControl(GUIUtility.GetControlID(this.GetHashCode(), FocusType.Passive));
+            }
+
+            MouseCursor mouseCursorToUse = MouseCursor.Arrow;
+            EditorGUIUtility.AddCursorRect(sceneCameraScreenRect, mouseCursorToUse);
+
+            if (Event.current.type == EventType.MouseDown)
+            {
+                var pickedObject = HandleUtility.PickGameObject(Event.current.mousePosition, false);
+                if (pickedObject != null)
+                {
+                    _lastClickedObject = pickedObject.name;
+                    SceneView.currentDrawingSceneView.ShowNotification(new GUIContent("You clicked " + _lastClickedObject));
+                }
+            }
+
+            Handles.BeginGUI();
+
+            // Use GUI to draw over the scene view
+
+            GUILayout.BeginArea(sceneCameraScreenRect);
+
+            // Can use EditorGUILayout and GUILayout as normal to draw things over the scene view
+
+            GUILayout.EndArea();
+
+            Handles.EndGUI();
+
+            bool shouldStopInputGoingToTheRestOfUnity =
+                    Event.current.type != EventType.Repaint
+                    && Event.current.type != EventType.Layout
+                    && GUIUtility.hotControl == 0;
+            if (shouldStopInputGoingToTheRestOfUnity)
+            {
+                Event.current.Use();
+            }
         }
     }
-}
 }

@@ -28,16 +28,16 @@ using UnityEngine;
 
 namespace GGEZ
 {
-public static partial class MonoBehaviourExt
-{
-public static Component GetOrAddComponent (this MonoBehaviour self, Type type)
+    public static partial class MonoBehaviourExt
     {
-    var component = self.GetComponent (type);
-    if (component == null)
+        public static Component GetOrAddComponent(this MonoBehaviour self, Type type)
         {
-        component = self.gameObject.AddComponent (type);
+            var component = self.GetComponent(type);
+            if (component == null)
+            {
+                component = self.gameObject.AddComponent(type);
+            }
+            return component;
         }
-    return component;
     }
-}
 }

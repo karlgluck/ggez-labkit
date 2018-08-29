@@ -25,50 +25,49 @@
 
 namespace GGEZ
 {
-public static partial class RandomExt
-{
-public static double Range (double min, double max)
+    public static partial class RandomExt
     {
-    return UnityEngine.Random.value * (max - min) + min;
-    }
-
-private class WrapUnityRandomAsSystemRandom : System.Random
-{
-public override int Next (int minValue, int maxValue)
-    {
-    return UnityEngine.Random.Range (minValue, maxValue);
-    }
-
-public override int Next (int maxValue)
-    {
-    return UnityEngine.Random.Range (0, maxValue);
-    }
-
-public override int Next ()
-    {
-    return UnityEngine.Random.Range (0, int.MaxValue);
-    }
-
-public override void NextBytes (byte[] buffer)
-    {
-    for (int i = 0; i < buffer.Length; ++i)
+        public static double Range(double min, double max)
         {
-        buffer[i] = (byte)UnityEngine.Random.Range (0, byte.MaxValue);
+            return UnityEngine.Random.value * (max - min) + min;
         }
+
+        private class WrapUnityRandomAsSystemRandom : System.Random
+        {
+            public override int Next(int minValue, int maxValue)
+            {
+                return UnityEngine.Random.Range(minValue, maxValue);
+            }
+
+            public override int Next(int maxValue)
+            {
+                return UnityEngine.Random.Range(0, maxValue);
+            }
+
+            public override int Next()
+            {
+                return UnityEngine.Random.Range(0, int.MaxValue);
+            }
+
+            public override void NextBytes(byte[] buffer)
+            {
+                for (int i = 0; i < buffer.Length; ++i)
+                {
+                    buffer[i] = (byte)UnityEngine.Random.Range(0, byte.MaxValue);
+                }
+            }
+
+            public override double NextDouble()
+            {
+                return UnityEngine.Random.value;
+            }
+
+            protected override double Sample()
+            {
+                return UnityEngine.Random.value;
+            }
+        }
+
+        public static readonly System.Random UnityRandom = new WrapUnityRandomAsSystemRandom();
     }
-
-public override double NextDouble ()
-    {
-    return UnityEngine.Random.value;
-    }
-
-protected override double Sample ()
-    {
-    return UnityEngine.Random.value;
-    }
-}
-
-public static readonly System.Random UnityRandom = new WrapUnityRandomAsSystemRandom ();
-
-}
 }

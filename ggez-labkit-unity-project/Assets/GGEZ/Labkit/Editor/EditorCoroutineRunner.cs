@@ -35,81 +35,79 @@ using UnityEditor;
 
 namespace GGEZ
 {
-public class EditorCoroutineRunner
-{
-private static readonly List<IEnumerator> coroutines = new List<IEnumerator>();
-
-public static void StartCoroutine (IEnumerator coroutine)
+    public class EditorCoroutineRunner
     {
-    if (coroutines.Count == 0)
-        {
-        EditorApplication.update += Update;
-        }
-    coroutines.Add(Root(coroutine, coroutines.Count));
-    }
+        private static readonly List<IEnumerator> s_coroutines = new List<IEnumerator>();
 
-private static IEnumerator Root (IEnumerator coroutine, int index)
-    {
-    while (coroutine.MoveNext ())
+        public static void StartCoroutine(IEnumerator coroutine)
         {
-        yield return coroutine.Current;
-        }
-    coroutines[index] = null;
-    }
-
-private static void Update()
-    {
-    int activeCoroutines = 0;
-    int sentinel = 999999;
-    for (int i = coroutines.Count - 1; i >= 0 && sentinel > 0; --i, --sentinel)
-        {
-        var e = coroutines[i];
-        if (e == null)
+            if (s_coroutines.Count == 0)
             {
-            continue;
+                EditorApplication.update += Update;
             }
-        if (e.MoveNext())
+            s_coroutines.Add(Root(coroutine, s_coroutines.Count));
+        }
+
+        private static IEnumerator Root(IEnumerator coroutine, int index)
+        {
+            while (coroutine.MoveNext())
             {
-            ++activeCoroutines;
-            if (e.Current == null)
+                yield return coroutine.Current;
+            }
+            s_coroutines[index] = null;
+        }
+
+        private static void Update()
+        {
+            int activeCoroutines = 0;
+            int sentinel = 999999;
+            for (int i = s_coroutines.Count - 1; i >= 0 && sentinel > 0; --i, --sentinel)
+            {
+                var e = s_coroutines[i];
+                if (e == null)
                 {
+                    continue;
                 }
-            else if (e.Current is WWW)
+                if (e.MoveNext())
                 {
-                coroutines[i] = EditorCoroutineRunner.waitForWWW ((WWW)e.Current, i, e);
+                    ++activeCoroutines;
+                    if (e.Current == null)
+                    {
+                    }
+                    else if (e.Current is WWW)
+                    {
+                        s_coroutines[i] = EditorCoroutineRunner.waitForWWW((WWW)e.Current, i, e);
+                    }
+                    else
+                    {
+                        throw new System.NotImplementedException("EditorCoroutineRunner can't handle " + e.Current.GetType() + " yet. Add this type to EditorCoroutineRunner.cs");
+                    }
                 }
-            else
+                else
                 {
-                throw new System.NotImplementedException ("EditorCoroutineRunner can't handle " + e.Current.GetType() + " yet. Add this type to EditorCoroutineRunner.cs");
+                    ++i;
                 }
             }
-        else
+            if (sentinel == 0)
             {
-            ++i;
+                s_coroutines.Clear();
+                EditorApplication.update -= Update;
+                throw new System.InvalidOperationException("Infinite loop in EditorCoroutineRunner.cs. Be careful when adding new wait conditions!");
+            }
+            if (activeCoroutines == 0)
+            {
+                s_coroutines.Clear();
+                EditorApplication.update -= Update;
             }
         }
-    if (sentinel == 0)
+
+        private static IEnumerator waitForWWW(WWW www, int index, IEnumerator parent)
         {
-        coroutines.Clear ();
-        EditorApplication.update -= Update;
-        throw new System.InvalidOperationException ("Infinite loop in EditorCoroutineRunner.cs. Be careful when adding new wait conditions!");
-        }
-    if (activeCoroutines == 0)
-        {
-        coroutines.Clear ();
-        EditorApplication.update -= Update;
+            while (!www.isDone)
+            {
+                yield return null;
+            }
+            s_coroutines[index] = parent;
         }
     }
-
-private static IEnumerator waitForWWW (WWW www, int index, IEnumerator parent)
-    {
-    while (!www.isDone)
-        {
-        yield return null;
-        }
-    coroutines[index] = parent;
-    }
-
-
-}
 }

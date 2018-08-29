@@ -27,7 +27,7 @@ using UnityEngine;
 
 namespace GGEZ
 {
-class ExampleMonoBehaviour : MonoBehaviour
-{
-}
+    internal class ExampleMonoBehaviour : MonoBehaviour
+    {
+    }
 }

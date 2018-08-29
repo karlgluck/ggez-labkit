@@ -28,36 +28,32 @@ using System.Collections;
 
 namespace GGEZ
 {
-public static partial class SphereColliderExt
-{
-
-
-public static Collider[] Overlap (this SphereCollider self, int layerMask, QueryTriggerInteraction queryTriggerInteraction)
+    public static partial class SphereColliderExt
     {
-    Vector3 center = self.transform.TransformPoint (self.center);
-    Vector3 lossyScale = self.transform.lossyScale;
-    float radius = self.radius * Mathf.Max (lossyScale.x, Mathf.Max (lossyScale.y, lossyScale.z));
-    return Physics.OverlapSphere (center, radius, layerMask, queryTriggerInteraction);
+        public static Collider[] Overlap(this SphereCollider self, int layerMask, QueryTriggerInteraction queryTriggerInteraction)
+        {
+            Vector3 center = self.transform.TransformPoint(self.center);
+            Vector3 lossyScale = self.transform.lossyScale;
+            float radius = self.radius * Mathf.Max(lossyScale.x, Mathf.Max(lossyScale.y, lossyScale.z));
+            return Physics.OverlapSphere(center, radius, layerMask, queryTriggerInteraction);
+        }
+
+
+        public static Collider[] Overlap(this SphereCollider self, int layerMask)
+        {
+            Vector3 center = self.transform.TransformPoint(self.center);
+            Vector3 lossyScale = self.transform.lossyScale;
+            float radius = self.radius * Mathf.Max(lossyScale.x, Mathf.Max(lossyScale.y, lossyScale.z));
+            return Physics.OverlapSphere(center, radius, layerMask);
+        }
+
+
+        public static Collider[] Overlap(this SphereCollider self)
+        {
+            Vector3 center = self.transform.TransformPoint(self.center);
+            Vector3 lossyScale = self.transform.lossyScale;
+            float radius = self.radius * Mathf.Max(lossyScale.x, Mathf.Max(lossyScale.y, lossyScale.z));
+            return Physics.OverlapSphere(center, radius);
+        }
     }
-
-
-public static Collider[] Overlap (this SphereCollider self, int layerMask)
-    {
-    Vector3 center = self.transform.TransformPoint (self.center);
-    Vector3 lossyScale = self.transform.lossyScale;
-    float radius = self.radius * Mathf.Max (lossyScale.x, Mathf.Max (lossyScale.y, lossyScale.z));
-    return Physics.OverlapSphere (center, radius, layerMask);
-    }
-
-
-public static Collider[] Overlap (this SphereCollider self)
-    {
-    Vector3 center = self.transform.TransformPoint (self.center);
-    Vector3 lossyScale = self.transform.lossyScale;
-    float radius = self.radius * Mathf.Max (lossyScale.x, Mathf.Max (lossyScale.y, lossyScale.z));
-    return Physics.OverlapSphere (center, radius);
-    }
-
-
-}
 }

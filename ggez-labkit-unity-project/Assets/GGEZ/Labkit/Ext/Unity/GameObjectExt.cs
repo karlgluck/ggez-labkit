@@ -28,16 +28,16 @@ using UnityEngine;
 
 namespace GGEZ
 {
-public static partial class GameObjectExt
-{
-public static Component GetOrAddComponent (this GameObject self, Type type)
+    public static partial class GameObjectExt
     {
-    var component = self.GetComponent (type);
-    if (component == null)
+        public static Component GetOrAddComponent(this GameObject self, Type type)
         {
-        component = self.AddComponent (type);
+            var component = self.GetComponent(type);
+            if (component == null)
+            {
+                component = self.AddComponent(type);
+            }
+            return component;
         }
-    return component;
     }
-}
 }

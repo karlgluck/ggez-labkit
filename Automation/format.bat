@@ -43,11 +43,11 @@ move files_to_format_quoted.rsp files_to_format.rsp
 
 
 REM Run the formatter
-".\CodeFormatter\CodeFormatter.exe" /copyright:copyright.txt /verbose files_to_format.rsp
-
+".\CodeFormatter\CodeFormatter.exe" /copyright:copyright.txt /c:UNITY_EDITOR,UNITY_EDITOR_WIN /c:UNITY_EDITOR,UNITY_EDITOR_OSX /verbose files_to_format.rsp
 
 
 REM Clean up temporary files
 rd /s /q CodeFormatter
 del files_to_format.rsp
 
+pause

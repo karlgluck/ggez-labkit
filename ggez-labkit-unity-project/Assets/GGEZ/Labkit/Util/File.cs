@@ -29,39 +29,38 @@ using System;
 
 namespace GGEZ
 {
-
-public static partial class Util
-{
-private static string getPersistentFilePathFor (Type type)
+    public static partial class Util
     {
-    return Application.persistentDataPath + "/" + type.FullName + ".json";
-    }
-
-public static string DataSingletonPath (Type type)
-    {
-    return getPersistentFilePathFor (type);
-    }
-
-public static void DataSingletonSave (object data)
-    {
-    string file = getPersistentFilePathFor (data.GetType());
-    System.IO.File.WriteAllText (file, Util.ObjectToJsonPretty (data));
-    }
-
-public static object DataSingletonLoad (Type type)
-    {
-    string file = getPersistentFilePathFor (type);
-    if (!System.IO.File.Exists (file))
+        private static string getPersistentFilePathFor(Type type)
         {
-        return null;
+            return Application.persistentDataPath + "/" + type.FullName + ".json";
         }
-    return Util.JsonToObject (System.IO.File.ReadAllText (file), type);
-    }
 
-public static void DataSingletonDelete (Type type)
-    {
-    string file = getPersistentFilePathFor (type);
-    System.IO.File.Delete (file);
+        public static string DataSingletonPath(Type type)
+        {
+            return getPersistentFilePathFor(type);
+        }
+
+        public static void DataSingletonSave(object data)
+        {
+            string file = getPersistentFilePathFor(data.GetType());
+            System.IO.File.WriteAllText(file, Util.ObjectToJsonPretty(data));
+        }
+
+        public static object DataSingletonLoad(Type type)
+        {
+            string file = getPersistentFilePathFor(type);
+            if (!System.IO.File.Exists(file))
+            {
+                return null;
+            }
+            return Util.JsonToObject(System.IO.File.ReadAllText(file), type);
+        }
+
+        public static void DataSingletonDelete(Type type)
+        {
+            string file = getPersistentFilePathFor(type);
+            System.IO.File.Delete(file);
+        }
     }
-}
 }

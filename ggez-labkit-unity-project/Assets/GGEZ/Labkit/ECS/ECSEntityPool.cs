@@ -26,77 +26,77 @@
 using System;
 using System.Collections;
 using UnityEngine;
+
 namespace GGEZ
 {
-
-//---------------------------------------------------------------------------------------
-// You don't need to explicitly use this class.
-//
-// ECSEntityPool manages pooling of entity game objects via the ECSController's Acquire
-// and Release methods.
-//---------------------------------------------------------------------------------------
-public class ECSEntityPool : MonoBehaviour
-{
-private GameObject prefab;
-private ArrayList available = new ArrayList ();
-private Transform availableContainerTransform;
-
-
-
-public static ECSEntityPool Create (GameObject prefab)
+    //---------------------------------------------------------------------------------------
+    // You don't need to explicitly use this class.
+    //
+    // ECSEntityPool manages pooling of entity game objects via the ECSController's Acquire
+    // and Release methods.
+    //---------------------------------------------------------------------------------------
+    public class ECSEntityPool : MonoBehaviour
     {
-    if (prefab == null)
+        private GameObject _prefab;
+        private ArrayList _available = new ArrayList();
+        private Transform _availableContainerTransform;
+
+
+
+        public static ECSEntityPool Create(GameObject prefab)
         {
-        throw new ArgumentNullException ("prefab");
+            if (prefab == null)
+            {
+                throw new ArgumentNullException("prefab");
+            }
+            var gameObject = new GameObject("Entity Pool: " + prefab.name);
+            GameObject.DontDestroyOnLoad(gameObject);
+            var pool = (ECSEntityPool)gameObject.AddComponent(typeof(ECSEntityPool));
+            pool._prefab = prefab;
+            const bool createAvailableContainer = true;
+            if (createAvailableContainer)
+            {
+                var availableContainer = new GameObject("Available");
+                availableContainer.transform.SetParent(gameObject.transform, false);
+                availableContainer.SetActive(false);
+                pool._availableContainerTransform = availableContainer.transform;
+            }
+            return pool;
         }
-    var gameObject = new GameObject ("Entity Pool: " + prefab.name);
-    GameObject.DontDestroyOnLoad (gameObject);
-    var pool = (ECSEntityPool)gameObject.AddComponent (typeof(ECSEntityPool));
-    pool.prefab = prefab;
-    const bool createAvailableContainer = true;
-    if (createAvailableContainer)
+
+
+
+        public GameObject Acquire(Transform parent, out bool isNew)
         {
-        var availableContainer = new GameObject ("Available");
-        availableContainer.transform.SetParent (gameObject.transform, false);
-        availableContainer.SetActive (false);
-        pool.availableContainerTransform = availableContainer.transform;
+            GameObject instance = null;
+            int availableIndex = _available.Count - 1;
+            isNew = availableIndex < 0;
+            if (isNew)
+            {
+                instance = (GameObject)GameObject.Instantiate(_prefab);
+            }
+            else
+            {
+                instance = (GameObject)_available[availableIndex];
+                _available.RemoveAt(availableIndex);
+            }
+            if (parent != null)
+            {
+                instance.transform.SetParent(parent, false);
+            }
+            return instance;
         }
-    return pool;
+
+
+
+        public void Release(GameObject instance)
+        {
+            if (instance == null)
+            {
+                throw new ArgumentNullException("instance");
+            }
+            instance.transform.SetParent(_availableContainerTransform, false);
+            _available.Add(instance);
+        }
     }
-
-
-
-public GameObject Acquire (Transform parent, out bool isNew)
-    {
-    GameObject instance = null;
-    int availableIndex = this.available.Count - 1;
-    isNew = availableIndex < 0;
-    if (isNew)
-        {
-        instance = (GameObject)GameObject.Instantiate (this.prefab);
-        }
-    else
-        {
-        instance = (GameObject)this.available[availableIndex];
-        this.available.RemoveAt (availableIndex);
-        }
-    if (parent != null)
-        {
-        instance.transform.SetParent (parent, false);
-        }
-    return instance;
-    }
-
-
-
-public void Release (GameObject instance)
-    {
-    if (instance == null)
-        {
-        throw new ArgumentNullException ("instance");
-        }
-    instance.transform.SetParent (this.availableContainerTransform, false);
-    this.available.Add (instance);
-    }
-}
 }

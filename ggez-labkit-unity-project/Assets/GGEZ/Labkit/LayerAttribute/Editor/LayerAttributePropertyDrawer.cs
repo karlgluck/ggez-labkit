@@ -29,18 +29,13 @@ using UnityEditor;
 
 namespace GGEZ
 {
-
-
-[CustomPropertyDrawer (typeof (LayerAttribute))]
-public class LayerAttributeEditor : PropertyDrawer
-{
-   
-public override void OnGUI (Rect position, SerializedProperty property, GUIContent label)
+    [CustomPropertyDrawer(typeof(LayerAttribute))]
+    public class LayerAttributeEditor : PropertyDrawer
     {
-    property.intValue = EditorGUI.LayerField (position, label, property.intValue);
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            property.intValue = EditorGUI.LayerField(position, label, property.intValue);
+        }
     }
-
-}
-
 }
 

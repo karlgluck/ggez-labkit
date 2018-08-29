@@ -27,45 +27,43 @@ using System;
 
 namespace GGEZ.Omnibus
 {
-
-public class Aspect
-{
-    [GGEZ.FullSerializer.fsIgnore]
-    public EntityContainer Entity;
-
-    [GGEZ.FullSerializer.fsIgnore]
-    public Variables Variables;
-
-    [GGEZ.FullSerializer.fsIgnore]
-    public Settings Settings;
-}
-
-[AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-public class VariableAttribute : Attribute
-{
-    public VariableAttribute(string name, object defaultValue, string tooltip = "")
+    public class Aspect
     {
-        Name = name;
-        DefaultValue = defaultValue;
-        Tooltip = name + "\n\n" + tooltip;
-    }
-    public string Name { get; set; }
-    public string Tooltip { get; set; }
-    public object DefaultValue { get; set; }
-}
+        [GGEZ.FullSerializer.fsIgnore]
+        public EntityContainer Entity;
 
-[AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-public class SettingAttribute : Attribute
-{
-    public SettingAttribute(string name, object defaultValue, string tooltip = "")
+        [GGEZ.FullSerializer.fsIgnore]
+        public Variables Variables;
+
+        [GGEZ.FullSerializer.fsIgnore]
+        public Settings Settings;
+    }
+
+    [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
+    public class VariableAttribute : Attribute
     {
-        Name = name;
-        DefaultValue = defaultValue;
-        Tooltip = name + "\n\n" + tooltip;
+        public VariableAttribute(string name, object defaultValue, string tooltip = "")
+        {
+            Name = name;
+            DefaultValue = defaultValue;
+            Tooltip = name + "\n\n" + tooltip;
+        }
+        public string Name { get; set; }
+        public string Tooltip { get; set; }
+        public object DefaultValue { get; set; }
     }
-    public string Name { get; set; }
-    public string Tooltip { get; set; }
-    public object DefaultValue { get; set; }
-}
 
+    [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
+    public class SettingAttribute : Attribute
+    {
+        public SettingAttribute(string name, object defaultValue, string tooltip = "")
+        {
+            Name = name;
+            DefaultValue = defaultValue;
+            Tooltip = name + "\n\n" + tooltip;
+        }
+        public string Name { get; set; }
+        public string Tooltip { get; set; }
+        public object DefaultValue { get; set; }
+    }
 }

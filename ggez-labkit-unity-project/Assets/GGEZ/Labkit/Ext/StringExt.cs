@@ -25,27 +25,27 @@
 
 namespace GGEZ
 {
-public static partial class StringExt
-{
-public static uint GetJenkinsHash (this string self)
+    public static partial class StringExt
     {
-    char[] charArray = self.ToCharArray();
-    uint hash = 0, i = 0;
-    while (i < charArray.Length)
+        public static uint GetJenkinsHash(this string self)
         {
-        hash += charArray[i];
-        hash += (hash << 10);
-        hash ^= (hash >> 6);
-        ++i;
+            char[] charArray = self.ToCharArray();
+            uint hash = 0, i = 0;
+            while (i < charArray.Length)
+            {
+                hash += charArray[i];
+                hash += (hash << 10);
+                hash ^= (hash >> 6);
+                ++i;
+            }
+            hash += (hash << 3);
+            hash ^= (hash >> 11);
+            hash += (hash << 15);
+            return hash;
         }
-    hash += (hash << 3);
-    hash ^= (hash >> 11);
-    hash += (hash << 15);
-    return hash;
+        public static string ToFilename(this string self)
+        {
+            return Util.ToBase62String(self.GetJenkinsHash());
+        }
     }
-public static string ToFilename (this string self)
-    {
-    return Util.ToBase62String (self.GetJenkinsHash ());
-    }
-}
 }

@@ -33,197 +33,194 @@ using GGEZ;
 
 namespace GGEZ
 {
-
-public enum LabkitProjectSettings_TextureDefaults
+    public enum LabkitProjectSettings_TextureDefaults
     {
-    Off,
-    PixelPerfect2D
+        Off,
+        PixelPerfect2D
     };
 
-[InitializeOnLoad]
-public class LabkitProjectSettings : ScriptableObject
-{
-private static LabkitProjectSettings _instance;
-public static LabkitProjectSettings Instance
+    [InitializeOnLoad]
+    public class LabkitProjectSettings : ScriptableObject
     {
-    get
+        private static LabkitProjectSettings s_instance;
+        public static LabkitProjectSettings Instance
         {
-        if (LabkitProjectSettings._instance == null)
+            get
             {
-            LabkitProjectSettings.scanForInstance ();
-            }
-        return LabkitProjectSettings._instance;
-        }
-    }
-
-static LabkitProjectSettings ()
-    {
-    EditorApplication.update += OnLoad;
-    }
-
-static void OnLoad ()
-    {
-    try
-        {
-        LabkitProjectSettings.scanForInstance ();
-        }
-    catch
-        {
-        }
-    if (LabkitProjectSettings._instance != null)
-        {
-        LabkitProjectSettings._instance.ApplySettingsToProject ();
-        }
-    EditorApplication.update -= OnLoad;
-    }
-
-public LabkitProjectSettings_TextureDefaults TextureDefaults = LabkitProjectSettings_TextureDefaults.Off;
-
-[Range (1, 256)]
-public int PixelsPerUnit = 16;
-public bool BreakNonPowerOfTwoTextures = true;
-public bool DisableAccelerometer = true;
-public bool PurpleEditorInPlayMode = true;
-public bool MetaFilesInVersionControl = true;
-public bool DontAutoSimulate2DPhysics = false;
-public bool DontAutoSimulate3DPhysics = false;
-public bool UseVisualStudioCode = false;
-
-
-
-
-public void ApplySettingsToProject ()
-    {
-    if (this.DisableAccelerometer)
-        {
-        UnityEditor.PlayerSettings.accelerometerFrequency = 0;
-        }
-    if (this.PurpleEditorInPlayMode)
-        {
-        EditorPrefs.SetString ("Playmode tint", "Playmode tint;1;0.4;1;1");
-        }
-    if (this.MetaFilesInVersionControl)
-        {
-        UnityEditor.EditorSettings.serializationMode = SerializationMode.ForceText;
-        UnityEditor.EditorSettings.externalVersionControl = "Visible Meta Files";
-        }
-    Physics2D.autoSimulation = !this.DontAutoSimulate2DPhysics;
-    Physics.autoSimulation = !this.DontAutoSimulate3DPhysics;
-    if (this.UseVisualStudioCode)
-        {
-        var vsCodePath = findVisualStudioCode ();
-        if (vsCodePath != null)
-            {
-            EditorPrefs.SetString ("kScriptsDefaultApp", vsCodePath);
-            EditorPrefs.SetString ("kScriptEditorArgs", "$(File)");
+                if (LabkitProjectSettings.s_instance == null)
+                {
+                    LabkitProjectSettings.scanForInstance();
+                }
+                return LabkitProjectSettings.s_instance;
             }
         }
-    }
 
-
-
-
-
-[
-    MenuItem ("Edit/Project Settings/Labkit Settings"),
-    MenuItem ("Labkit/Labkit Settings")
-]
-static void SelectLabkitProjectSettings ()
-    {
-    Selection.SetActiveObjectWithContext (LabkitProjectSettings.Instance, null);
-    }
-
-
-
-
-const string projectSettingsAssetPath = "Assets/GGEZ/Labkit/LabkitSettings.asset";
-
-
-
-
-static void scanForInstance ()
-    {
-    var allAssets = AssetDatabase.LoadAllAssetsAtPath (projectSettingsAssetPath);
-    LabkitProjectSettings settings = null;
-    bool newSettings = allAssets.Length == 0;
-    if (newSettings)
+        static LabkitProjectSettings()
         {
-        string tempAssetPath = AssetDatabase.GenerateUniqueAssetPath ("Assets/Labkit Settings.asset");
-        AssetDatabase.CreateAsset (ScriptableObject.CreateInstance (typeof(LabkitProjectSettings)), tempAssetPath);
-        if (File.Exists (projectSettingsAssetPath))
+            EditorApplication.update += OnLoad;
+        }
+
+        private static void OnLoad()
+        {
+            try
             {
-            File.Delete (projectSettingsAssetPath);
+                LabkitProjectSettings.scanForInstance();
             }
-        File.Move (tempAssetPath, projectSettingsAssetPath);
-        AssetDatabase.Refresh ();
-        allAssets = AssetDatabase.LoadAllAssetsAtPath (projectSettingsAssetPath);
+            catch
+            {
+            }
+            if (LabkitProjectSettings.s_instance != null)
+            {
+                LabkitProjectSettings.s_instance.ApplySettingsToProject();
+            }
+            EditorApplication.update -= OnLoad;
         }
-    if (allAssets.Length == 0)
+
+        public LabkitProjectSettings_TextureDefaults TextureDefaults = LabkitProjectSettings_TextureDefaults.Off;
+
+        [Range(1, 256)]
+        public int PixelsPerUnit = 16;
+        public bool BreakNonPowerOfTwoTextures = true;
+        public bool DisableAccelerometer = true;
+        public bool PurpleEditorInPlayMode = true;
+        public bool MetaFilesInVersionControl = true;
+        public bool DontAutoSimulate2DPhysics = false;
+        public bool DontAutoSimulate3DPhysics = false;
+        public bool UseVisualStudioCode = false;
+
+
+
+
+        public void ApplySettingsToProject()
         {
-        throw new System.InvalidOperationException ("Couldn't load or create settings asset");
+            if (this.DisableAccelerometer)
+            {
+                UnityEditor.PlayerSettings.accelerometerFrequency = 0;
+            }
+            if (this.PurpleEditorInPlayMode)
+            {
+                EditorPrefs.SetString("Playmode tint", "Playmode tint;1;0.4;1;1");
+            }
+            if (this.MetaFilesInVersionControl)
+            {
+                UnityEditor.EditorSettings.serializationMode = SerializationMode.ForceText;
+                UnityEditor.EditorSettings.externalVersionControl = "Visible Meta Files";
+            }
+            Physics2D.autoSimulation = !this.DontAutoSimulate2DPhysics;
+            Physics.autoSimulation = !this.DontAutoSimulate3DPhysics;
+            if (this.UseVisualStudioCode)
+            {
+                var vsCodePath = findVisualStudioCode();
+                if (vsCodePath != null)
+                {
+                    EditorPrefs.SetString("kScriptsDefaultApp", vsCodePath);
+                    EditorPrefs.SetString("kScriptEditorArgs", "$(File)");
+                }
+            }
         }
-    settings = allAssets[0] as LabkitProjectSettings;
-    if (newSettings)
+
+
+
+
+
+        [
+            MenuItem("Edit/Project Settings/Labkit Settings"),
+            MenuItem("Labkit/Labkit Settings")
+        ]
+        private static void SelectLabkitProjectSettings()
         {
-        initializeNewSettings (settings);
+            Selection.SetActiveObjectWithContext(LabkitProjectSettings.Instance, null);
         }
-    LabkitProjectSettings._instance = settings;
-    }
 
 
 
-static void initializeNewSettings (LabkitProjectSettings settings)
-    {
-    var vsCodePath = findVisualStudioCode ();
-    if (vsCodePath != null)
+
+        private const string projectSettingsAssetPath = "Assets/GGEZ/Labkit/LabkitSettings.asset";
+
+
+
+
+        private static void scanForInstance()
         {
-        settings.UseVisualStudioCode = true;
+            var allAssets = AssetDatabase.LoadAllAssetsAtPath(projectSettingsAssetPath);
+            LabkitProjectSettings settings = null;
+            bool newSettings = allAssets.Length == 0;
+            if (newSettings)
+            {
+                string tempAssetPath = AssetDatabase.GenerateUniqueAssetPath("Assets/Labkit Settings.asset");
+                AssetDatabase.CreateAsset(ScriptableObject.CreateInstance(typeof(LabkitProjectSettings)), tempAssetPath);
+                if (File.Exists(projectSettingsAssetPath))
+                {
+                    File.Delete(projectSettingsAssetPath);
+                }
+                File.Move(tempAssetPath, projectSettingsAssetPath);
+                AssetDatabase.Refresh();
+                allAssets = AssetDatabase.LoadAllAssetsAtPath(projectSettingsAssetPath);
+            }
+            if (allAssets.Length == 0)
+            {
+                throw new System.InvalidOperationException("Couldn't load or create settings asset");
+            }
+            settings = allAssets[0] as LabkitProjectSettings;
+            if (newSettings)
+            {
+                initializeNewSettings(settings);
+            }
+            LabkitProjectSettings.s_instance = settings;
         }
-    }
 
-public static bool CanFindVisualStudioCode ()
-    {
-    return findVisualStudioCode () != null;
-    }
 
+
+        private static void initializeNewSettings(LabkitProjectSettings settings)
+        {
+            var vsCodePath = findVisualStudioCode();
+            if (vsCodePath != null)
+            {
+                settings.UseVisualStudioCode = true;
+            }
+        }
+
+        public static bool CanFindVisualStudioCode()
+        {
+            return findVisualStudioCode() != null;
+        }
 
 #if UNITY_EDITOR_WIN
-static string findVisualStudioCode ()
-    {
-    var possiblePaths = new string[] {
+        static string findVisualStudioCode()
+        {
+            var possiblePaths = new string[] {
             (Environment.GetEnvironmentVariable("ProgramFiles") ?? "") + @"\Microsoft VS Code\Code.exe",
             (Environment.GetEnvironmentVariable("ProgramFiles") ?? "") + @"\Microsoft VS Code Insiders\Code.exe",
             (Environment.GetEnvironmentVariable("ProgramFiles(x86)") ?? "") + @"\Microsoft VS Code\Code.exe",
             (Environment.GetEnvironmentVariable("ProgramFiles(x86)") ?? "") + @"\Microsoft VS Code Insiders\Code.exe",
             };
-    foreach (var path in possiblePaths)
-        {
-        if (System.IO.File.Exists (path))
+            foreach (var path in possiblePaths)
             {
-            return path;
+                if (System.IO.File.Exists(path))
+                {
+                    return path;
+                }
             }
+            return null;
         }
-    return null;
-    }
 
 #elif UNITY_EDITOR_OSX
 
-static string findVisualStudioCode ()
-    {
-    var possiblePaths = new string[] {
+        static string findVisualStudioCode()
+        {
+            var possiblePaths = new string[] {
             "/Applications/Visual Studio Code.app",
             "/Applications/Visual Studio Code - Insiders.app",
             };
-    foreach (var path in possiblePaths)
-        {
-        if (System.IO.Directory.Exists (path))
+            foreach (var path in possiblePaths)
             {
-            return path;
+                if (System.IO.Directory.Exists(path))
+                {
+                    return path;
+                }
             }
+            return null;
         }
-    return null;
-    }
 #endif
-
-}
+    }
 }

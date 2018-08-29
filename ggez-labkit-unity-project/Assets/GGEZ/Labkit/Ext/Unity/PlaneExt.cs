@@ -29,78 +29,76 @@ using UnityEngine;
 
 namespace GGEZ
 {
-public static partial class PlaneExt
-{
-    private static readonly Plane s_groundPlane = new Plane(Vector3.up, 0f);
-
-    public static bool IntersectGroundPlane(Vector3 origin, Vector3 direction, out float distance)
+    public static partial class PlaneExt
     {
-        return s_groundPlane.Raycast(new Ray(origin, direction), out distance);
-    }
+        private static readonly Plane s_groundPlane = new Plane(Vector3.up, 0f);
 
-    public static bool IntersectGroundPlane(Ray ray, out float distance)
-    {
-        return s_groundPlane.Raycast(ray, out distance);
-    }
-
-    public static bool IntersectGroundPlane(Vector3 origin, Vector3 direction, out float distance, out Vector3 point)
-    {
-        if (s_groundPlane.Raycast(new Ray(origin, direction), out distance))
+        public static bool IntersectGroundPlane(Vector3 origin, Vector3 direction, out float distance)
         {
-            point = origin + direction * distance;
-            return true;
+            return s_groundPlane.Raycast(new Ray(origin, direction), out distance);
         }
-        point = origin;
-        return false;
-    }
 
-    public static bool IntersectGroundPlane(Ray ray, out float distance, out Vector3 point)
-    {
-        if (s_groundPlane.Raycast(ray, out distance))
+        public static bool IntersectGroundPlane(Ray ray, out float distance)
         {
-            point = ray.origin + ray.direction * distance;
-            return true;
+            return s_groundPlane.Raycast(ray, out distance);
         }
-        point = ray.origin;
-        return false;
-    }
 
-    public static bool IntersectPlane(this Plane self, Plane other, out Vector3 linePoint, out Vector3 lineDirection)
-    {
-        Debug.LogError("No unit tests for PlaneExt.IntersectPlane");
-        lineDirection = Vector3.Cross(self.normal, other.normal);
-        Vector3 perpendicularToOtherPlane = Vector3.Cross(other.normal, lineDirection);
-        float perpendicularity = Vector3.Dot(self.normal, perpendicularToOtherPlane);
-        if (Mathf.Abs(perpendicularity) > 0.005f)
+        public static bool IntersectGroundPlane(Vector3 origin, Vector3 direction, out float distance, out Vector3 point)
         {
-            Vector3 pointOnOtherPlane = other.normal * other.distance;
-            Vector3 offset = self.normal * self.distance - pointOnOtherPlane;
-            linePoint = pointOnOtherPlane + (Vector3.Dot(self.normal, offset) / perpendicularity) * perpendicularToOtherPlane;
-            return true;
-        }
-        else
-        {
-            linePoint = Vector3.zero;
+            if (s_groundPlane.Raycast(new Ray(origin, direction), out distance))
+            {
+                point = origin + direction * distance;
+                return true;
+            }
+            point = origin;
             return false;
         }
-    }
 
-    // TODO: unit tests
-    public static bool IntersectLine(this Plane self, Vector3 point, Vector3 direction, out float distance, out Vector3 intersection)
-    {
-        Debug.LogError("No unit tests for PlaneExt.IntersectLine");
-        Vector3 normal = self.normal;
-        var perpendicularity = Vector3.Dot(direction, normal);
-        if (perpendicularity == 0f)
+        public static bool IntersectGroundPlane(Ray ray, out float distance, out Vector3 point)
         {
-            distance = 0f;
-            intersection = point;
+            if (s_groundPlane.Raycast(ray, out distance))
+            {
+                point = ray.origin + ray.direction * distance;
+                return true;
+            }
+            point = ray.origin;
             return false;
         }
-        distance = (Vector3.Dot(self.distance * self.normal - point, normal) / perpendicularity);
-        intersection = point + direction * distance;
-        return true;
-    }
-}
 
+        public static bool IntersectPlane(this Plane self, Plane other, out Vector3 linePoint, out Vector3 lineDirection)
+        {
+            Debug.LogError("No unit tests for PlaneExt.IntersectPlane");
+            lineDirection = Vector3.Cross(self.normal, other.normal);
+            Vector3 perpendicularToOtherPlane = Vector3.Cross(other.normal, lineDirection);
+            float perpendicularity = Vector3.Dot(self.normal, perpendicularToOtherPlane);
+            if (Mathf.Abs(perpendicularity) > 0.005f)
+            {
+                Vector3 pointOnOtherPlane = other.normal * other.distance;
+                Vector3 offset = self.normal * self.distance - pointOnOtherPlane;
+                linePoint = pointOnOtherPlane + (Vector3.Dot(self.normal, offset) / perpendicularity) * perpendicularToOtherPlane;
+                return true;
+            }
+            else
+            {
+                linePoint = Vector3.zero;
+                return false;
+            }
+        }
+
+        public static bool IntersectLine(this Plane self, Vector3 point, Vector3 direction, out float distance, out Vector3 intersection)
+        {
+            Debug.LogError("No unit tests for PlaneExt.IntersectLine");
+            Vector3 normal = self.normal;
+            var perpendicularity = Vector3.Dot(direction, normal);
+            if (perpendicularity == 0f)
+            {
+                distance = 0f;
+                intersection = point;
+                return false;
+            }
+            distance = (Vector3.Dot(self.distance * self.normal - point, normal) / perpendicularity);
+            intersection = point + direction * distance;
+            return true;
+        }
+    }
 }

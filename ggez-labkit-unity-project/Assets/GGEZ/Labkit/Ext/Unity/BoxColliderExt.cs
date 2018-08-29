@@ -28,33 +28,29 @@ using System.Collections;
 
 namespace GGEZ
 {
-public static partial class BoxColliderExt
-{
-
-
-public static Collider[] Overlap (this BoxCollider self, int layerMask, QueryTriggerInteraction queryTriggerInteraction)
+    public static partial class BoxColliderExt
     {
-    Vector3 center = self.transform.TransformPoint (self.center);
-    Vector3 halfExtents = Vector3.Scale (self.size, self.transform.lossyScale) * 0.5f;
-    return Physics.OverlapBox (center, halfExtents, self.transform.rotation, layerMask, queryTriggerInteraction);
+        public static Collider[] Overlap(this BoxCollider self, int layerMask, QueryTriggerInteraction queryTriggerInteraction)
+        {
+            Vector3 center = self.transform.TransformPoint(self.center);
+            Vector3 halfExtents = Vector3.Scale(self.size, self.transform.lossyScale) * 0.5f;
+            return Physics.OverlapBox(center, halfExtents, self.transform.rotation, layerMask, queryTriggerInteraction);
+        }
+
+
+        public static Collider[] Overlap(this BoxCollider self, int layerMask)
+        {
+            Vector3 center = self.transform.TransformPoint(self.center);
+            Vector3 halfExtents = Vector3.Scale(self.size, self.transform.lossyScale) * 0.5f;
+            return Physics.OverlapBox(center, halfExtents, self.transform.rotation, layerMask);
+        }
+
+
+        public static Collider[] Overlap(this BoxCollider self)
+        {
+            Vector3 center = self.transform.TransformPoint(self.center);
+            Vector3 halfExtents = Vector3.Scale(self.size, self.transform.lossyScale) * 0.5f;
+            return Physics.OverlapBox(center, halfExtents, self.transform.rotation);
+        }
     }
-
-
-public static Collider[] Overlap (this BoxCollider self, int layerMask)
-    {
-    Vector3 center = self.transform.TransformPoint (self.center);
-    Vector3 halfExtents = Vector3.Scale (self.size, self.transform.lossyScale) * 0.5f;
-    return Physics.OverlapBox (center, halfExtents, self.transform.rotation, layerMask);
-    }
-
-
-public static Collider[] Overlap (this BoxCollider self)
-    {
-    Vector3 center = self.transform.TransformPoint (self.center);
-    Vector3 halfExtents = Vector3.Scale (self.size, self.transform.lossyScale) * 0.5f;
-    return Physics.OverlapBox (center, halfExtents, self.transform.rotation);
-    }
-
-
-}
 }

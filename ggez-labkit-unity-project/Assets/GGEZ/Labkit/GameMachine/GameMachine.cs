@@ -26,166 +26,164 @@
 using System.Collections;
 using System;
 using System.Reflection;
+
 namespace GGEZ
 {
+    /*
 
-/*
+    you can "call up" by dynamic dispatch
+    - can replace your own state machine with another
+    - can invoke a sub-state machine
+    - interrupts can pull control out of a sub-state machine, but run in their parents' context
+    - state machine has an "exit" queue that can have functions added to it dynamically. All will be
+        called, in sequence, if the state machine is being shut down (e.g. because of superstate transition)
 
-you can "call up" by dynamic dispatch
-- can replace your own state machine with another
-- can invoke a sub-state machine
-- interrupts can pull control out of a sub-state machine, but run in their parents' context
-- state machine has an "exit" queue that can have functions added to it dynamically. All will be
-    called, in sequence, if the state machine is being shut down (e.g. because of superstate transition)
+        */
+    public class NewGameMachine
+    {
+        // public void Main ()
+        //     {
+        //     // Delegate d = null;
+        //     // d.Method.Invoke (object, parameters)
+        //     this.gameMachine.PushInterrupt ("LostNetworkConnection");
+        //     this.gameMachine.PopInterrupt ("LostNetworkConection");
+        //     this.gameMachine.PushInterrupt ("OnExit");
+        //     }
+
+        // public IEnumerator LostNetworkConnection ()
+        //     {
+        //     this.gameMachine.PopAll ();
+        //     this.gameMachine.Push ("ReconnectToGame");
+        //     }
+
+        // public IEnumerator OnExit ()
+        //     {
+
+        //     }
+    }
+
+    //---------------------------------------------------------------------------------------
+    // The GameMachine is an implementation of my Inverted Coroutines concept. It is designed
+    // to be used with an EventPipe, but the two classes are not dependent on each other.
+    //
+    // The goal is to let coroutines govern high-level state logic, and yield when they need
+    // to wait for some other process to do something.
+    //
+    // If you have dynamic dispatch methods named Handle and a main Run coroutine,
+    // use this snippet in a MonoBehaviour to start the GameMachine:
+    /*
+
+    void Start ()
+        {
+        this.StartCoroutine (GameMachine.Start (this.Run(), GameMachine.CreateDynamicDispatchDelegate (this, "Handle")));
+        }
 
     */
-public class NewGameMachine
-{
-// public void Main ()
-//     {
-//     // Delegate d = null;
-//     // d.Method.Invoke (object, parameters)
-//     this.gameMachine.PushInterrupt ("LostNetworkConnection");
-//     this.gameMachine.PopInterrupt ("LostNetworkConection");
-//     this.gameMachine.PushInterrupt ("OnExit");
-//     }
+    //---------------------------------------------------------------------------------------
 
-// public IEnumerator LostNetworkConnection ()
-//     {
-//     this.gameMachine.PopAll ();
-//     this.gameMachine.Push ("ReconnectToGame");
-//     }
-
-// public IEnumerator OnExit ()
-//     {
-
-//     }
-}
-
-//---------------------------------------------------------------------------------------
-// The GameMachine is an implementation of my Inverted Coroutines concept. It is designed
-// to be used with an EventPipe, but the two classes are not dependent on each other.
-//
-// The goal is to let coroutines govern high-level state logic, and yield when they need
-// to wait for some other process to do something.
-//
-// If you have dynamic dispatch methods named Handle and a main Run coroutine,
-// use this snippet in a MonoBehaviour to start the GameMachine:
-/*
-
-void Start ()
+    public sealed class GameMachine
     {
-    this.StartCoroutine (GameMachine.Start (this.Run(), GameMachine.CreateDynamicDispatchDelegate (this, "Handle")));
-    }
+        private IEnumerator _codePointer;
+        private Func<object, IEnumerator> _dynamicDispatch;
 
-*/
-//---------------------------------------------------------------------------------------
+        private GameMachine()
+        {
+        }
 
-public sealed class GameMachine
-{
-private IEnumerator codePointer;
-private Func<object, IEnumerator> dynamicDispatch;
-
-private GameMachine ()
-    {
-    }
-
-public static IEnumerator Start (IEnumerator codePointer, Func<object, IEnumerator> dynamicDispatch)
-    {
-    return new GameMachine () {
-            codePointer = codePointer,
-            dynamicDispatch = dynamicDispatch,
+        public static IEnumerator Start(IEnumerator codePointer, Func<object, IEnumerator> dynamicDispatch)
+        {
+            return new GameMachine()
+            {
+                _codePointer = codePointer,
+                _dynamicDispatch = dynamicDispatch,
             }.run();
-    }
+        }
 
-public class GameMachineGoSub
-    {
-    internal IEnumerator CodePointer;
-    }
-
-public static GameMachineGoSub GoSub (IEnumerator codePointer)
-    {
-    return new GameMachineGoSub
+        public class GameMachineGoSub
         {
-        CodePointer = codePointer,
-        };
-    }
+            internal IEnumerator CodePointer;
+        }
 
-public class GameMachineGoTo
-    {
-    public Func<IEnumerator> Code;
-    }
-
-public static GameMachineGoTo GoTo (Func<IEnumerator> code)
-    {
-    return new GameMachineGoTo
+        public static GameMachineGoSub GoSub(IEnumerator codePointer)
+        {
+            return new GameMachineGoSub
             {
-            Code = code
+                CodePointer = codePointer,
             };
-    }
+        }
 
-IEnumerator run ()
-    {
-    while (this.codePointer.MoveNext ())
+        public class GameMachineGoTo
         {
-        object retval = this.codePointer.Current;
-        var requestGoSub = retval as GameMachineGoSub;
-        if (requestGoSub != null)
+            public Func<IEnumerator> Code;
+        }
+
+        public static GameMachineGoTo GoTo(Func<IEnumerator> code)
+        {
+            return new GameMachineGoTo
             {
-            var sub = new GameMachine ()
+                Code = code
+            };
+        }
+
+        private IEnumerator run()
+        {
+            while (_codePointer.MoveNext())
+            {
+                object retval = _codePointer.Current;
+                var requestGoSub = retval as GameMachineGoSub;
+                if (requestGoSub != null)
+                {
+                    var sub = new GameMachine()
                     {
-                    codePointer = requestGoSub.CodePointer,
-                    dynamicDispatch = this.dynamicDispatch,
+                        _codePointer = requestGoSub.CodePointer,
+                        _dynamicDispatch = _dynamicDispatch,
                     };
-            var subCodePointer = sub.run();
-            while (subCodePointer.MoveNext())
-                {
-                yield return subCodePointer.Current;
+                    var subCodePointer = sub.run();
+                    while (subCodePointer.MoveNext())
+                    {
+                        yield return subCodePointer.Current;
+                    }
+                    continue;
                 }
-            continue;
-            }
-        var requestGoTo = retval as GameMachineGoTo;
-        if (requestGoTo != null)
-            {
-            this.codePointer = requestGoTo.Code.Invoke ();
-            continue;
-            }
-        if (retval != null)
-            {
-            var queryCodePointer = (IEnumerator)dynamicDispatch (retval);
-            if (queryCodePointer == null)
+                var requestGoTo = retval as GameMachineGoTo;
+                if (requestGoTo != null)
                 {
-                continue;
+                    _codePointer = requestGoTo.Code.Invoke();
+                    continue;
                 }
-            while (queryCodePointer.MoveNext())
+                if (retval != null)
                 {
-                yield return queryCodePointer.Current;
+                    var queryCodePointer = (IEnumerator)_dynamicDispatch(retval);
+                    if (queryCodePointer == null)
+                    {
+                        continue;
+                    }
+                    while (queryCodePointer.MoveNext())
+                    {
+                        yield return queryCodePointer.Current;
+                    }
+                    continue;
                 }
-            continue;
-            }
-        else
-            {
-            yield return null;
+                else
+                {
+                    yield return null;
+                }
             }
         }
-    }
 
-public static Func<object, IEnumerator> CreateDynamicDispatchDelegate (object target, string methodName)
-    {
-    return delegate (object parameter)
+        public static Func<object, IEnumerator> CreateDynamicDispatchDelegate(object target, string methodName)
         {
-        var method = target.GetType().GetMethod (
-                methodName,
-                BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
-                null,
-                new Type[] { parameter.GetType() },
-                null
-                );
-        return (IEnumerator)method.Invoke (target, new object[] { parameter });
-        };
+            return delegate (object parameter)
+                {
+                    var method = target.GetType().GetMethod(
+                    methodName,
+                    BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
+                    null,
+                    new Type[] { parameter.GetType() },
+                    null
+                    );
+                    return (IEnumerator)method.Invoke(target, new object[] { parameter });
+                };
+        }
     }
-}
-
-
-
 }

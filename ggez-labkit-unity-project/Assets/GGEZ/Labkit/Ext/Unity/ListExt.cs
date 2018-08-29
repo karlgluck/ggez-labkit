@@ -28,22 +28,22 @@ using System.Collections.Generic;
 
 namespace GGEZ
 {
-public static partial class ListExt
-{
-public static T Pick<T> (this List<T> self)
+    public static partial class ListExt
     {
-    return self[Random.Range (0, self.Count)];
-    }
-
-public static void Shuffle<T> (this List<T> self)
-    {
-    for (int i = self.Count - 1; i > 0; --i)
+        public static T Pick<T>(this List<T> self)
         {
-        int j = Random.Range (0, i);
-        var temp = self[i];
-        self[i] = self[j];
-        self[j] = temp;
+            return self[Random.Range(0, self.Count)];
+        }
+
+        public static void Shuffle<T>(this List<T> self)
+        {
+            for (int i = self.Count - 1; i > 0; --i)
+            {
+                int j = Random.Range(0, i);
+                var temp = self[i];
+                self[i] = self[j];
+                self[j] = temp;
+            }
         }
     }
-}
 }

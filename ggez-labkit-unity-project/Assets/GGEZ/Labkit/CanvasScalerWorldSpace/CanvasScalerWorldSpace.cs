@@ -27,68 +27,64 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 namespace GGEZ
 {
-
-//----------------------------------------------------------------------
-// Replaces the normal CanvasScaler 
-//----------------------------------------------------------------------
-[ExecuteInEditMode, RequireComponent (typeof(Canvas)), RequireComponent (typeof(RectTransform))]
-public class CanvasScalerWorldSpace : MonoBehaviour
-{
-
-public Camera Camera;
-public float Depth;
-public float Width, Height;
-
-[Range(0f,1f)]
-public float MatchWidthOrHeight;
-
-[Header ("Note: Set Sprite Pixels Per Unit to match this!")]
-public float ReferencePixelsPerUnit = 200f;
-
-
-void Update ()
+    //----------------------------------------------------------------------
+    // Replaces the normal CanvasScaler 
+    //----------------------------------------------------------------------
+    [ExecuteInEditMode, RequireComponent(typeof(Canvas)), RequireComponent(typeof(RectTransform))]
+    public class CanvasScalerWorldSpace : MonoBehaviour
     {
+        public Camera Camera;
+        public float Depth;
+        public float Width, Height;
 
-    if (this.Camera == null)
+        [Range(0f, 1f)]
+        public float MatchWidthOrHeight;
+
+        [Header("Note: Set Sprite Pixels Per Unit to match this!")]
+        public float ReferencePixelsPerUnit = 200f;
+
+
+        private void Update()
         {
-        return;
+            if (this.Camera == null)
+            {
+                return;
+            }
+
+            this.enabled = false;
+
+            Vector2 halfIntendedSize = new Vector2(0.5f * this.Width, 0.5f * this.Height);
+
+            this.transform.localScale = Vector3.one;
+            this.Depth = Mathf.Clamp(
+                    this.Depth,
+                    this.Camera.nearClipPlane,
+                    this.Camera.farClipPlane
+                    );
+            var bl = this.Camera.ViewportToWorldPoint(new Vector3(0f, 0f, this.Depth));
+            var br = this.Camera.ViewportToWorldPoint(new Vector3(1f, 0f, this.Depth));
+            var tr = this.Camera.ViewportToWorldPoint(new Vector3(1f, 1f, this.Depth));
+            this.transform.SetPositionAndRotation(
+                    (bl + tr) * 0.5f,
+                    Quaternion.LookRotation(Vector3.Cross(tr - br, bl - br))
+                    );
+            var halfWidthAndHeight = 0.5f * (this.transform.InverseTransformPoint(tr) - this.transform.InverseTransformPoint(bl));
+
+            var rectTransform = (RectTransform)this.transform;
+            rectTransform.anchorMin = rectTransform.anchorMax = Vector2.zero;
+            rectTransform.pivot = Vector2.one * 0.5f;
+            rectTransform.offsetMax = halfIntendedSize;
+            rectTransform.offsetMin = -halfIntendedSize;
+
+            float scale = Mathf.Lerp(halfWidthAndHeight.x / halfIntendedSize.x, halfWidthAndHeight.y / halfIntendedSize.y, this.MatchWidthOrHeight);
+            this.transform.localScale = new Vector3(scale, scale, 1f);
+
+            var canvas = (Canvas)this.GetComponent(typeof(Canvas));
+            canvas.scaleFactor = 1f;
+            canvas.referencePixelsPerUnit = this.ReferencePixelsPerUnit;
         }
-
-    this.enabled = false;
-
-    Vector2 halfIntendedSize = new Vector2 (0.5f * this.Width, 0.5f * this.Height);
-
-    this.transform.localScale = Vector3.one;
-    this.Depth = Mathf.Clamp (
-            this.Depth,
-            this.Camera.nearClipPlane,
-            this.Camera.farClipPlane
-            );
-    var bl = this.Camera.ViewportToWorldPoint (new Vector3 (0f, 0f, this.Depth));
-    var br = this.Camera.ViewportToWorldPoint (new Vector3 (1f, 0f, this.Depth));
-    var tr = this.Camera.ViewportToWorldPoint (new Vector3 (1f, 1f, this.Depth));
-    this.transform.SetPositionAndRotation (
-            (bl + tr) * 0.5f,
-            Quaternion.LookRotation (Vector3.Cross (tr - br, bl - br))
-            );
-    var halfWidthAndHeight = 0.5f * (this.transform.InverseTransformPoint (tr) - this.transform.InverseTransformPoint (bl));
-
-    var rectTransform = (RectTransform)this.transform;
-    rectTransform.anchorMin = rectTransform.anchorMax = Vector2.zero;
-    rectTransform.pivot = Vector2.one * 0.5f;
-    rectTransform.offsetMax = halfIntendedSize;
-    rectTransform.offsetMin = -halfIntendedSize;
-
-    float scale = Mathf.Lerp (halfWidthAndHeight.x / halfIntendedSize.x, halfWidthAndHeight.y / halfIntendedSize.y, this.MatchWidthOrHeight);
-    this.transform.localScale = new Vector3(scale, scale, 1f);
-
-    var canvas = (Canvas)this.GetComponent (typeof(Canvas));
-    canvas.scaleFactor = 1f;
-    canvas.referencePixelsPerUnit = this.ReferencePixelsPerUnit;
     }
-}
-
-
 }

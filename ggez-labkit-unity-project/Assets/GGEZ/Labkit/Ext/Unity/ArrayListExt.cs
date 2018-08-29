@@ -28,22 +28,22 @@ using System.Collections;
 
 namespace GGEZ
 {
-public static partial class ArrayListExt
-{
-public static object Pick (this ArrayList self)
+    public static partial class ArrayListExt
     {
-    return self[Random.Range (0, self.Count)];
-    }
-
-public static void Shuffle (this ArrayList self)
-    {
-    for (int i = self.Count - 1; i > 0; --i)
+        public static object Pick(this ArrayList self)
         {
-        int j = Random.Range (0, i);
-        var temp = self[i];
-        self[i] = self[j];
-        self[j] = temp;
+            return self[Random.Range(0, self.Count)];
+        }
+
+        public static void Shuffle(this ArrayList self)
+        {
+            for (int i = self.Count - 1; i > 0; --i)
+            {
+                int j = Random.Range(0, i);
+                var temp = self[i];
+                self[i] = self[j];
+                self[j] = temp;
+            }
         }
     }
-}
 }

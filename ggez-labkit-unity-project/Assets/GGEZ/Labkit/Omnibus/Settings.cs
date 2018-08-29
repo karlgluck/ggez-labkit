@@ -28,7 +28,6 @@ using System;
 
 namespace GGEZ.Omnibus
 {
-
     //-------------------------------------------------------------------------
     // Settings
     //
@@ -40,9 +39,9 @@ namespace GGEZ.Omnibus
         public SettingsAsset InheritFrom;
 
         /// All of the values in this Settings object. TODO: valuetypes as separate dictionaries.
-        public Dictionary<string, object> Values = new Dictionary<string,object>();
+        public Dictionary<string, object> Values = new Dictionary<string, object>();
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
 
         // InspectorGet that does not set a default value
         public object InspectorGet(string name, Type type)
@@ -76,7 +75,7 @@ namespace GGEZ.Omnibus
             Values[name] = value;
         }
 
-    #endif
+#endif
 
         public object Get(string name)
         {
@@ -87,7 +86,5 @@ namespace GGEZ.Omnibus
             }
             return value;
         }
-
     }
-
 }

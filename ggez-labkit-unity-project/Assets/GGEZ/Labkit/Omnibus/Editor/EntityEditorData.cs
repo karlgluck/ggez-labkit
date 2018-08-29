@@ -127,9 +127,9 @@ namespace GGEZ.Omnibus
             // Deserialize
             //-------------------------------------------------
             var serializer = Serialization.GetSerializer(Entity.References);
-            Dictionary<string,object> deserialized = new Dictionary<string,object>();
+            Dictionary<string, object> deserialized = new Dictionary<string, object>();
             {
-                fsData   data;
+                fsData data;
                 fsResult result;
 
                 if (EditorAsset.Data != null)
@@ -160,7 +160,7 @@ namespace GGEZ.Omnibus
             //-------------------------------------------------
             if (deserialized.ContainsKey("Variables"))
             {
-                var variables = deserialized["Variables"] as Dictionary<string,object>;
+                var variables = deserialized["Variables"] as Dictionary<string, object>;
                 _variables = InspectableDictionaryKeyValuePair.GetDictionaryKeyValuePairs(variables);
             }
 
@@ -256,13 +256,13 @@ namespace GGEZ.Omnibus
             }
 
             // Holds data to be written to the entity asset
-            Dictionary<string,object> serialized = new Dictionary<string,object>();
+            Dictionary<string, object> serialized = new Dictionary<string, object>();
 
             //-------------------------------------------------------------
             // Write Variables
             //-------------------------------------------------------------
             {
-                var variables = new Dictionary<string,object>();
+                var variables = new Dictionary<string, object>();
                 for (int i = 0; i < _variables.Length; ++i)
                 {
                     variables.Add(_variables[i].Key, _variables[i].Value);
@@ -358,7 +358,7 @@ namespace GGEZ.Omnibus
                     --worklistPointer;
                     while (worklistPointer >= 0)
                     {
-                        int cell  = worklist[worklistPointer];
+                        int cell = worklist[worklistPointer];
                         int depth = depths[worklistPointer];
                         --worklistPointer;
 
@@ -397,7 +397,7 @@ namespace GGEZ.Omnibus
                         // reuse arrays that are already the right size :)
                         cellRemap = worklist;
                         var originalCellIndex = depths;
-                        for(int i = 0; i < EditorCells.Count; ++i)
+                        for (int i = 0; i < EditorCells.Count; ++i)
                         {
                             originalCellIndex[i] = i;
                         }
@@ -454,7 +454,7 @@ namespace GGEZ.Omnibus
                                 if (pointerTypeAttribute.Type.IsValueType)
                                 {
                                     foundAttribute = true;
-                                    value = Activator.CreateInstance (pointerTypeAttribute.Type);
+                                    value = Activator.CreateInstance(pointerTypeAttribute.Type);
                                 }
                                 break;
                             }
@@ -468,7 +468,7 @@ namespace GGEZ.Omnibus
                         cellOutputToRegister[registerKey] = register;
                         registers.Add(value);
                         wire.Register = register;
-                        cellsThatReadRegister.Add(new HashSet<EditorCellIndex>(){ wire.WriteCell.Index });
+                        cellsThatReadRegister.Add(new HashSet<EditorCellIndex>() { wire.WriteCell.Index });
                     }
                 }
                 int[][] cellsThatReadRegisterOutput = new int[cellsThatReadRegister.Count][];
@@ -532,7 +532,6 @@ namespace GGEZ.Omnibus
             // Compile the program
             //-------------------------------------------------------------
             {
-
                 // Identify entrypoints and assign them to layers
                 List<HashSet<EditorStateIndex>> layersBuilder = new List<HashSet<EditorStateIndex>>();
                 for (int i = 0; i < EditorStates.Count; ++i)
@@ -547,7 +546,7 @@ namespace GGEZ.Omnibus
                     if (editorState.SpecialState == EditorSpecialStateType.LayerEnter)
                     {
                         editorState.Layer = (EditorLayerIndex)layersBuilder.Count;
-                        layersBuilder.Add(new HashSet<EditorStateIndex>(){ editorState.Index });
+                        layersBuilder.Add(new HashSet<EditorStateIndex>() { editorState.Index });
                     }
                 }
 
@@ -655,7 +654,7 @@ namespace GGEZ.Omnibus
                             var transitionExpression = new List<Transition.Operator>();
                             exprWorklist.Clear();
                             exprWorklist.Add(editorTransition.Expression);
-                            while(exprWorklist.Count > 0)
+                            while (exprWorklist.Count > 0)
                             {
                                 int exprIndex = exprWorklist.Count - 1;
                                 var expr = exprWorklist[exprIndex];
@@ -663,36 +662,34 @@ namespace GGEZ.Omnibus
                                 exprWorklist.AddRange(expr.Subexpressions);
                                 switch (expr.Type)
                                 {
+                                    case EditorTransitionExpressionType.False:
+                                        transitionExpression.Insert(0, Transition.Operator.False);
+                                        break;
 
-                                case EditorTransitionExpressionType.False:
-                                    transitionExpression.Insert(0, Transition.Operator.False);
-                                    break;
+                                    case EditorTransitionExpressionType.True:
+                                        transitionExpression.Insert(0, Transition.Operator.True);
+                                        break;
 
-                                case EditorTransitionExpressionType.True:
-                                    transitionExpression.Insert(0, Transition.Operator.True);
-                                    break;
+                                    case EditorTransitionExpressionType.Trigger:
+                                        {
+                                            transitionTriggers.Insert(0, expr.Trigger);
+                                            transitionExpression.Insert(0, Transition.Operator.Push);
+                                        }
+                                        break;
 
-                                case EditorTransitionExpressionType.Trigger:
-                                    {
-                                    transitionTriggers.Insert(0, expr.Trigger);
-                                    transitionExpression.Insert(0, Transition.Operator.Push);
-                                    }
-                                    break;
+                                    case EditorTransitionExpressionType.And:
+                                        for (int i = 1; i < expr.Subexpressions.Count; ++i)
+                                        {
+                                            transitionExpression.Insert(0, Transition.Operator.And);
+                                        }
+                                        break;
 
-                                case EditorTransitionExpressionType.And:
-                                    for(int i = 1; i < expr.Subexpressions.Count; ++i)
-                                    {
-                                        transitionExpression.Insert(0, Transition.Operator.And);
-                                    }
-                                    break;
-
-                                case EditorTransitionExpressionType.Or:
-                                    for(int i = 1; i < expr.Subexpressions.Count; ++i)
-                                    {
-                                        transitionExpression.Insert(0, Transition.Operator.Or);
-                                    }
-                                    break;
-
+                                    case EditorTransitionExpressionType.Or:
+                                        for (int i = 1; i < expr.Subexpressions.Count; ++i)
+                                        {
+                                            transitionExpression.Insert(0, Transition.Operator.Or);
+                                        }
+                                        break;
                                 }
                             }
 
@@ -768,7 +765,6 @@ namespace GGEZ.Omnibus
             // the wires. We can use this to inspect a running circuit!
             //-----------------------------------------------------------------
             {
-
                 // By not clearing, the serializer will reuse the previous set of references
                 // _circuitContainer.References.Clear();
 

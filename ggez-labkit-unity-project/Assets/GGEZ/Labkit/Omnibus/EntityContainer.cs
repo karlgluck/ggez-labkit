@@ -32,10 +32,8 @@ using GGEZ.FullSerializer;
 
 namespace GGEZ.Omnibus
 {
-
     public partial class EntityContainer : MonoBehaviour
     {
-
         // The entity that controls the lifespan of this entity
         public EntityContainer Owner;
 
@@ -81,7 +79,7 @@ namespace GGEZ.Omnibus
         //---------------------------------------------------------------------
         // Awake (Unity)
         //---------------------------------------------------------------------
-        void Awake()
+        private void Awake()
         {
             Load();
         }
@@ -91,7 +89,7 @@ namespace GGEZ.Omnibus
         //---------------------------------------------------------------------
         // Update (Unity)
         //---------------------------------------------------------------------
-        void Update()
+        private void Update()
         {
             const int kMaxTransitionsPerFrame = 10;
 
@@ -122,11 +120,11 @@ namespace GGEZ.Omnibus
                         {
                             switch (expression[k])
                             {
-                                case Transition.Operator.And:   evaluation.Push (evaluation.Pop() & evaluation.Pop()); break;
-                                case Transition.Operator.Or:    evaluation.Push (evaluation.Pop() | evaluation.Pop()); break;
-                                case Transition.Operator.Push:  evaluation.Push (Triggers[(int)transition.Triggers[triggerPtr++]]); break;
-                                case Transition.Operator.True:  evaluation.Push (true); break;
-                                case Transition.Operator.False: evaluation.Push (false); break;
+                                case Transition.Operator.And: evaluation.Push(evaluation.Pop() & evaluation.Pop()); break;
+                                case Transition.Operator.Or: evaluation.Push(evaluation.Pop() | evaluation.Pop()); break;
+                                case Transition.Operator.Push: evaluation.Push(Triggers[(int)transition.Triggers[triggerPtr++]]); break;
+                                case Transition.Operator.True: evaluation.Push(true); break;
+                                case Transition.Operator.False: evaluation.Push(false); break;
                             }
                         }
 
@@ -234,12 +232,12 @@ namespace GGEZ.Omnibus
             //-------------------------------------------------
             // Assets
             //-------------------------------------------------
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (Asset == null)
             {
                 Asset = Helper.FindAssetInPrefab<EntityAsset>(this);
             }
-        #endif
+#endif
             if (Asset == null)
             {
                 gameObject.SetActive(false);
@@ -250,9 +248,9 @@ namespace GGEZ.Omnibus
             // Deserialize
             //-------------------------------------------------
             var serializer = Serialization.GetSerializer(References);
-            Dictionary<string,object> deserialized = new Dictionary<string,object>();
+            Dictionary<string, object> deserialized = new Dictionary<string, object>();
             {
-                fsData   data;
+                fsData data;
                 fsResult result;
 
                 if (Asset.Data != null)
@@ -283,20 +281,20 @@ namespace GGEZ.Omnibus
             //-------------------------------------------------
             if (deserialized.ContainsKey("Variables"))
             {
-                Variables.NextFrameValues = deserialized["Variables"] as Dictionary<string,object>;
-                Variables.Values = new Dictionary<string,object>(deserialized["Variables"] as Dictionary<string,object>);
+                Variables.NextFrameValues = deserialized["Variables"] as Dictionary<string, object>;
+                Variables.Values = new Dictionary<string, object>(deserialized["Variables"] as Dictionary<string, object>);
             }
 
             //-------------------------------------------------
             // Settings
             //-------------------------------------------------
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (SettingsAsset == null)
             {
                 SettingsAsset = Helper.FindAssetInPrefab<SettingsAsset>(this);
                 // TODO: add link to the prefab if found here
             }
-        #endif
+#endif
             if (SettingsAsset != null)
             {
                 Settings = SettingsAsset.Settings;
@@ -448,12 +446,12 @@ namespace GGEZ.Omnibus
             {
                 return;
             }
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (pointer < 0 || pointer >= _registers.Length)
             {
                 throw new ArgumentOutOfRangeException("pointer");
             }
-    #endif
+#endif
             if (object.Equals(_registers[pointer], value))
             {
                 return;
@@ -482,5 +480,4 @@ namespace GGEZ.Omnibus
             Triggers[(int)trigger] = true;
         }
     }
-
 }

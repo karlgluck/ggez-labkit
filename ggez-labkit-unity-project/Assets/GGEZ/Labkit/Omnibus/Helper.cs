@@ -33,65 +33,61 @@ using UnityEditor;
 
 namespace GGEZ.Omnibus
 {
-
-public static class Helper
-{
-
-    //-----------------------------------------------------
-    // FindAssetInPrefab
-    //-----------------------------------------------------
-    public static T FindAssetInPrefab<T>(UnityEngine.Object obj) where T : ScriptableObject
+    public static class Helper
     {
+        //-----------------------------------------------------
+        // FindAssetInPrefab
+        //-----------------------------------------------------
+        public static T FindAssetInPrefab<T>(UnityEngine.Object obj) where T : ScriptableObject
+        {
 #if UNITY_EDITOR
-		var prefab = PrefabUtility.GetCorrespondingObjectFromSource(obj);
-		if (prefab == null)
-		{
-			return null;
-		}
-		var prefabPath = AssetDatabase.GetAssetPath(prefab);
-		T settings = AssetDatabase.LoadAssetAtPath<T>(prefabPath);
-		if (settings == null)
-		{
-			settings = ScriptableObject.CreateInstance<T>();
-			AssetDatabase.AddObjectToAsset(settings, prefabPath);
-			settings.name = typeof(T).Name;
-            AssetDatabase.Refresh();
-		}
-		return settings;
+            var prefab = PrefabUtility.GetCorrespondingObjectFromSource(obj);
+            if (prefab == null)
+            {
+                return null;
+            }
+            var prefabPath = AssetDatabase.GetAssetPath(prefab);
+            T settings = AssetDatabase.LoadAssetAtPath<T>(prefabPath);
+            if (settings == null)
+            {
+                settings = ScriptableObject.CreateInstance<T>();
+                AssetDatabase.AddObjectToAsset(settings, prefabPath);
+                settings.name = typeof(T).Name;
+                AssetDatabase.Refresh();
+            }
+            return settings;
 #else
-        throw new InvalidOperationException();
+            throw new InvalidOperationException();
 #endif
+        }
+
+        //     //-----------------------------------------------------
+        //     // LinkAssetInPrefab
+        //     //-----------------------------------------------------
+        //     public static void LinkAssetInPrefab<T>(MonoBehaviour component, string fieldName) where T : ScriptableObject
+        //     {
+        // #if UNITY_EDITOR
+        // 		var prefab = PrefabUtility.GetCorrespondingObjectFromSource(component);
+        // 		if (prefab == null)
+        // 		{
+        //             return;
+        // 		}
+        // 		var prefabPath = AssetDatabase.GetAssetPath(prefab);
+        // 		T settings = AssetDatabase.LoadAssetAtPath<T>(prefabPath);
+        // 		if (settings == null)
+        // 		{
+        // 			settings = ScriptableObject.CreateInstance<T>();
+        // 			AssetDatabase.AddObjectToAsset(settings, prefabPath);
+        // 			settings.name = typeof(T).Name;
+        //             AssetDatabase.Refresh();
+        // 		}
+        //         var componentType = component.GetType();
+        //         var field = componentType.GetField(fieldName);
+        //         field.SetValue(component, settings);
+        //         field.SetValue((prefab as GameObject).GetComponent(componentType), settings);
+        // #else
+        //         throw new InvalidOperationException();
+        // #endif
+        //     }
     }
-
-//     //-----------------------------------------------------
-//     // LinkAssetInPrefab
-//     //-----------------------------------------------------
-//     public static void LinkAssetInPrefab<T>(MonoBehaviour component, string fieldName) where T : ScriptableObject
-//     {
-// #if UNITY_EDITOR
-// 		var prefab = PrefabUtility.GetCorrespondingObjectFromSource(component);
-// 		if (prefab == null)
-// 		{
-//             return;
-// 		}
-// 		var prefabPath = AssetDatabase.GetAssetPath(prefab);
-// 		T settings = AssetDatabase.LoadAssetAtPath<T>(prefabPath);
-// 		if (settings == null)
-// 		{
-// 			settings = ScriptableObject.CreateInstance<T>();
-// 			AssetDatabase.AddObjectToAsset(settings, prefabPath);
-// 			settings.name = typeof(T).Name;
-//             AssetDatabase.Refresh();
-// 		}
-//         var componentType = component.GetType();
-//         var field = componentType.GetField(fieldName);
-//         field.SetValue(component, settings);
-//         field.SetValue((prefab as GameObject).GetComponent(componentType), settings);
-// #else
-//         throw new InvalidOperationException();
-// #endif
-//     }
-
-}
-
 }

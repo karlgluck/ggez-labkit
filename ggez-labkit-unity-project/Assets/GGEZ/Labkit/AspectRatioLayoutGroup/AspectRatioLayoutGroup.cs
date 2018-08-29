@@ -22,69 +22,65 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 // 
 // For more information, please refer to <http://unlicense.org/>
+
 namespace GGEZ
 {
+    using System.Collections;
+    using System.Collections.Generic;
+    using UnityEngine;
 
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-//----------------------------------------------------------------------
-// Add this component into the Unity UI to make a LayoutGroup that
-// preserves the aspect-ratio size of its members. Remember to add
-// the LayoutElement component to children!
-//----------------------------------------------------------------------
-[RequireComponent (typeof(RectTransform))]
-public class AspectRatioLayoutGroup : UnityEngine.UI.GridLayoutGroup
-{
-[UnityEngine.SerializeField]
-public float AspectRatio = .75f;
-
-new void OnValidate ()
+    //----------------------------------------------------------------------
+    // Add this component into the Unity UI to make a LayoutGroup that
+    // preserves the aspect-ratio size of its members. Remember to add
+    // the LayoutElement component to children!
+    //----------------------------------------------------------------------
+    [RequireComponent(typeof(RectTransform))]
+    public class AspectRatioLayoutGroup : UnityEngine.UI.GridLayoutGroup
     {
-    this.AspectRatio = Mathf.Max (this.AspectRatio, 0f);
-    this.updateCellSize ();
-    base.OnValidate ();
-    }
+        [UnityEngine.SerializeField]
+        public float AspectRatio = .75f;
 
-void updateCellSize ()
-    {
-    if (constraint == Constraint.FixedColumnCount)
+        private new void OnValidate()
         {
-        float cellWidth = (this.rectTransform.rect.width - this.padding.horizontal) / this.constraintCount;
-        base.cellSize = new Vector2 (cellWidth, cellWidth / this.AspectRatio);
+            this.AspectRatio = Mathf.Max(this.AspectRatio, 0f);
+            this.updateCellSize();
+            base.OnValidate();
         }
-    else if (constraint == Constraint.FixedRowCount)
+
+        private void updateCellSize()
         {
-        float cellHeight = (this.rectTransform.rect.height - this.padding.vertical) / this.constraintCount;
-        base.cellSize = new Vector2 (cellHeight * this.AspectRatio, cellHeight);
+            if (constraint == Constraint.FixedColumnCount)
+            {
+                float cellWidth = (this.rectTransform.rect.width - this.padding.horizontal) / this.constraintCount;
+                base.cellSize = new Vector2(cellWidth, cellWidth / this.AspectRatio);
+            }
+            else if (constraint == Constraint.FixedRowCount)
+            {
+                float cellHeight = (this.rectTransform.rect.height - this.padding.vertical) / this.constraintCount;
+                base.cellSize = new Vector2(cellHeight * this.AspectRatio, cellHeight);
+            }
+            this.SetDirty();
         }
-    this.SetDirty ();
-    }
 
-new void OnRectTransformDimensionsChange ()
-    {
-    this.updateCellSize ();
-    base.OnRectTransformDimensionsChange();
-    }
-
-public void ResizePanel (int itemCount)
-    {
-    var sizeDelta = this.rectTransform.sizeDelta;
-    if (constraint == Constraint.FixedColumnCount)
+        private new void OnRectTransformDimensionsChange()
         {
-        sizeDelta.y = (cellSize.y * itemCount) / (float)constraintCount;
+            this.updateCellSize();
+            base.OnRectTransformDimensionsChange();
         }
-    else if (constraint == Constraint.FixedRowCount)
+
+        public void ResizePanel(int itemCount)
         {
-        sizeDelta.x = (cellSize.x * itemCount) / (float)constraintCount;
+            var sizeDelta = this.rectTransform.sizeDelta;
+            if (constraint == Constraint.FixedColumnCount)
+            {
+                sizeDelta.y = (cellSize.y * itemCount) / (float)constraintCount;
+            }
+            else if (constraint == Constraint.FixedRowCount)
+            {
+                sizeDelta.x = (cellSize.x * itemCount) / (float)constraintCount;
+            }
+            this.rectTransform.sizeDelta = sizeDelta;
         }
-    this.rectTransform.sizeDelta = sizeDelta;
     }
-
-}
-
-
-
 }
 

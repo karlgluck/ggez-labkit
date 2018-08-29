@@ -79,11 +79,11 @@ namespace GGEZ.Omnibus
             }
         }
 
-        public IDraggable DragPosition ()
+        public IDraggable DragPosition()
         {
             return new DraggablePosition() { EditorState = this, Position = Position.position };
         }
-        class DraggablePosition : IDraggable
+        private class DraggablePosition : IDraggable
         {
             public EditorState EditorState;
             public Vector2 Position;
@@ -93,11 +93,11 @@ namespace GGEZ.Omnibus
             }
         }
 
-        public IDraggable DragSize ()
+        public IDraggable DragSize()
         {
             return new DraggableSize() { EditorState = this, Size = Position.size };
         }
-        class DraggableSize : IDraggable
+        private class DraggableSize : IDraggable
         {
             public EditorState EditorState;
             public Vector2 Size;
@@ -132,12 +132,12 @@ namespace GGEZ.Omnibus
         public EditorStateIndex From;
         public EditorStateIndex To;
 
-        public IDraggable DragExpressionAnchor ()
+        public IDraggable DragExpressionAnchor()
         {
             return new DraggablePosition() { EditorTransition = this, ExpressionAnchor = ExpressionAnchor };
         }
 
-        class DraggablePosition : IDraggable
+        private class DraggablePosition : IDraggable
         {
             public EditorTransition EditorTransition;
             public Vector2 ExpressionAnchor;
@@ -164,7 +164,6 @@ namespace GGEZ.Omnibus
 
         // Used for Type == EditorTransitionExpressionType.And / ...Or
         public List<EditorTransitionExpression> Subexpressions = new List<EditorTransitionExpression>();
-
     }
 
     //--------------------------------
@@ -195,6 +194,4 @@ namespace GGEZ.Omnibus
             return member.GetCustomAttributes(typeof(HasSubexpressionsAttribute), false).Length > 0;
         }
     }
-
-
 }

@@ -31,175 +31,175 @@ using System.Text.RegularExpressions;
 
 namespace GGEZ
 {
-public static class Csv
-{
-static string SPLIT_RE = @",(?=(?:[^""]*""[^""]*"")*(?![^""]*""))";
-static string LINE_SPLIT_RE = @"\r\n|\n\r|\n|\r";
-static char[] TRIM_CHARS = { '\"' };
-
-public delegate string GetCsvCell(int index, string label);
-
-
-public static GetCsvCell ReadCsv(string text, out int length)
+    public static class Csv
     {
-    return _readCsv (text, out length, false);
-    }
+        private static string s_SPLIT_RE = @",(?=(?:[^""]*""[^""]*"")*(?![^""]*""))";
+        private static string s_LINE_SPLIT_RE = @"\r\n|\n\r|\n|\r";
+        private static char[] s_TRIM_CHARS = { '\"' };
 
-public static GetCsvCell ReadCsvTransposed (string text, out int length)
-    {
-    return _readCsv (text, out length, true);
-    }
+        public delegate string GetCsvCell(int index, string label);
 
-public static GetCsvCell ReadCsv (string text, out int length, bool transposed)
-    {
-    return _readCsv (text, out length, transposed);
-    }
 
-internal static GetCsvCell _readCsv (string text, out int length, bool transpose)
-    {
-    var lines = Regex.Split (text, LINE_SPLIT_RE);
-
-    if (lines.Length <= 1)
+        public static GetCsvCell ReadCsv(string text, out int length)
         {
-        length = 0;
-        return delegate (int row, string column)
-            {
-            throw new System.ArgumentOutOfRangeException ("No data in this CSV");
-            };
+            return _readCsv(text, out length, false);
         }
 
-    var firstLine = Regex.Split (lines[0], SPLIT_RE);
-
-    var labelToIndex = new Dictionary<string, int>();
-    string[,] data;
-
-    if (transpose)
+        public static GetCsvCell ReadCsvTransposed(string text, out int length)
         {
-        data = new string[firstLine.Length - 1, lines.Length];
+            return _readCsv(text, out length, true);
         }
-    else
+
+        public static GetCsvCell ReadCsv(string text, out int length, bool transposed)
         {
-        data = new string[lines.Length - 1, firstLine.Length];
-        for (var i = 0; i < firstLine.Length; ++i)
+            return _readCsv(text, out length, transposed);
+        }
+
+        internal static GetCsvCell _readCsv(string text, out int length, bool transpose)
+        {
+            var lines = Regex.Split(text, s_LINE_SPLIT_RE);
+
+            if (lines.Length <= 1)
             {
-            labelToIndex[firstLine[i]] = i;
+                length = 0;
+                return delegate (int row, string column)
+                    {
+                        throw new System.ArgumentOutOfRangeException("No data in this CSV");
+                    };
             }
-        }
 
-    var lineSplitRegex = new Regex(SPLIT_RE);
-    var currentRow = 0;
+            var firstLine = Regex.Split(lines[0], s_SPLIT_RE);
 
-    for (var i = 0; i < lines.Length; i++)
-        {
-        if (!transpose && i == 0)
-            {
-            continue;
-            }
-        var values = lineSplitRegex.Split(lines[i]);
-        if (values.Length == 0 || values[0] == "") continue;
-        for (var j = 0; j < firstLine.Length && j < values.Length; ++j)
-            {
-            string value = values[j];
-            if (transpose && j == 0)
-                {
-                labelToIndex[value] = i;
-                continue;
-                }
-            value = value.Trim (TRIM_CHARS).Replace ("\\", "");
+            var labelToIndex = new Dictionary<string, int>();
+            string[,] data;
+
             if (transpose)
-                {
-                data[j-1, i] = value;
-                }
+            {
+                data = new string[firstLine.Length - 1, lines.Length];
+            }
             else
+            {
+                data = new string[lines.Length - 1, firstLine.Length];
+                for (var i = 0; i < firstLine.Length; ++i)
                 {
-                data[currentRow, j] = value;
+                    labelToIndex[firstLine[i]] = i;
                 }
             }
-        ++currentRow;
-        }
 
-    if (transpose)
-        {
-        length = firstLine.Length - 1;
-        }
-    else
-        {
-        length = currentRow;
-        }
+            var lineSplitRegex = new Regex(s_SPLIT_RE);
+            var currentRow = 0;
 
-    int lengthCaptured = length;
-    GetCsvCell retval = delegate (int index, string label)
-        {
-        if (index < 0 || index >= lengthCaptured)
+            for (var i = 0; i < lines.Length; i++)
             {
-            throw new System.ArgumentOutOfRangeException ("Index out of range");
-            }
-        int labelIndex;
-        if (!labelToIndex.TryGetValue (label, out labelIndex))
-            {
-            throw new System.ArgumentException ("Unknown label: " + label);
-            }
-        return data[index, labelIndex];
-        };
-
-    return retval;
-    }
-
-public static object CsvEntryToObject (int index, GetCsvCell getCsvCell, Type type)
-    {
-    var retval = Activator.CreateInstance (type);
-    var fields = type.GetFields (BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
-    foreach (FieldInfo field in fields)
-        {
-        if (field.FieldType.IsArray)
-            {
-            ArrayList arrayContents = new ArrayList ();
-            try
+                if (!transpose && i == 0)
                 {
-                int i = 0;
-                const int ArrayMaxLength = 9999;
-                while (i < ArrayMaxLength)
+                    continue;
+                }
+                var values = lineSplitRegex.Split(lines[i]);
+                if (values.Length == 0 || values[0] == "") continue;
+                for (var j = 0; j < firstLine.Length && j < values.Length; ++j)
+                {
+                    string value = values[j];
+                    if (transpose && j == 0)
                     {
-                    arrayContents.Add (getCsvCell (index, field.Name + "[" + i + "]"));
-                    ++i;
+                        labelToIndex[value] = i;
+                        continue;
+                    }
+                    value = value.Trim(s_TRIM_CHARS).Replace("\\", "");
+                    if (transpose)
+                    {
+                        data[j - 1, i] = value;
+                    }
+                    else
+                    {
+                        data[currentRow, j] = value;
                     }
                 }
-            catch (Exception)
+                ++currentRow;
+            }
+
+            if (transpose)
+            {
+                length = firstLine.Length - 1;
+            }
+            else
+            {
+                length = currentRow;
+            }
+
+            int lengthCaptured = length;
+            GetCsvCell retval = delegate (int index, string label)
                 {
+                    if (index < 0 || index >= lengthCaptured)
+                    {
+                        throw new System.ArgumentOutOfRangeException("Index out of range");
+                    }
+                    int labelIndex;
+                    if (!labelToIndex.TryGetValue(label, out labelIndex))
+                    {
+                        throw new System.ArgumentException("Unknown label: " + label);
+                    }
+                    return data[index, labelIndex];
+                };
+
+            return retval;
+        }
+
+        public static object CsvEntryToObject(int index, GetCsvCell getCsvCell, Type type)
+        {
+            var retval = Activator.CreateInstance(type);
+            var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+            foreach (FieldInfo field in fields)
+            {
+                if (field.FieldType.IsArray)
+                {
+                    ArrayList arrayContents = new ArrayList();
+                    try
+                    {
+                        int i = 0;
+                        const int ArrayMaxLength = 9999;
+                        while (i < ArrayMaxLength)
+                        {
+                            arrayContents.Add(getCsvCell(index, field.Name + "[" + i + "]"));
+                            ++i;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+                    if (arrayContents.Count == 0)
+                    {
+                        continue;
+                    }
+                    Type elementType = field.FieldType.GetElementType();
+                    var array = (Array)Array.CreateInstance(elementType, arrayContents.Count);
+                    for (int i = 0; i < arrayContents.Count; ++i)
+                    {
+                        try
+                        {
+                            array.SetValue(Convert.ChangeType(arrayContents[i], elementType), i);
+                        }
+                        catch (System.Exception)
+                        {
+                        }
+                    }
+                    field.SetValue(retval, array);
+                    continue;
                 }
-            if (arrayContents.Count == 0)
-                {
-                continue;
-                }
-            Type elementType = field.FieldType.GetElementType ();
-            var array = (Array)Array.CreateInstance (elementType, arrayContents.Count);
-            for (int i = 0; i < arrayContents.Count; ++i)
-                {
+
                 try
-                    {
-                    array.SetValue (Convert.ChangeType (arrayContents[i], elementType), i);
-                    }
-                catch (System.Exception)
-                    {
-                    }
+                {
+                    string cell = getCsvCell(index, field.Name);
+                    field.SetValue(retval, Convert.ChangeType(cell, field.FieldType));
                 }
-            field.SetValue (retval, array);
-            continue;
-            }
-
-        try
-            {
-            string cell = getCsvCell (index, field.Name);
-            field.SetValue (retval, Convert.ChangeType (cell, field.FieldType));
-            }
-        catch (System.Exception)
-            {
+                catch (System.Exception)
+                {
 #if UNITY
             UnityEngine.Debug.LogFormat ("Couldn't set object.{0} = ({1})'{2}'", field.Name, field.FieldType.Name, cell);
 #endif
+                }
             }
+            return retval;
         }
-    return retval;
     }
-}
 }

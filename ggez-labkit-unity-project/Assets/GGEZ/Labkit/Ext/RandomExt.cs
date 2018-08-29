@@ -30,61 +30,60 @@ using System.Collections.Generic;
 
 namespace GGEZ
 {
-public static partial class RandomExt
-{
-
-public static T Pick<T> (this Random self, T[] array)
+    public static partial class RandomExt
     {
-    return array[self.Next (0, array.Length)];
-    }
-
-public static object Pick (this Random self, ArrayList arrayList)
-    {
-    return arrayList[self.Next (0, arrayList.Count)];
-    }
-
-public static T Pick<T> (this Random self, List<T> list)
-    {
-    return list[self.Next (0, list.Count)];
-    }
-
-public static void Shuffle (this Random self, Array array)
-    {
-    int n = array.Length;
-    while (n > 1)
+        public static T Pick<T>(this Random self, T[] array)
         {
-        int k = self.Next (0, n);
-        --n;
-        object temp = array.GetValue (n);
-        array.SetValue (array.GetValue(k), n);
-        array.SetValue (temp, k);
+            return array[self.Next(0, array.Length)];
+        }
+
+        public static object Pick(this Random self, ArrayList arrayList)
+        {
+            return arrayList[self.Next(0, arrayList.Count)];
+        }
+
+        public static T Pick<T>(this Random self, List<T> list)
+        {
+            return list[self.Next(0, list.Count)];
+        }
+
+        public static void Shuffle(this Random self, Array array)
+        {
+            int n = array.Length;
+            while (n > 1)
+            {
+                int k = self.Next(0, n);
+                --n;
+                object temp = array.GetValue(n);
+                array.SetValue(array.GetValue(k), n);
+                array.SetValue(temp, k);
+            }
+        }
+
+        public static void Shuffle(this Random self, ArrayList arrayList)
+        {
+            int n = arrayList.Count;
+            while (n > 1)
+            {
+                int k = self.Next(0, n);
+                --n;
+                object temp = arrayList[n];
+                arrayList[n] = arrayList[k];
+                arrayList[k] = temp;
+            }
+        }
+
+        public static void Shuffle<T>(this Random self, List<T> list)
+        {
+            int n = list.Count;
+            while (n > 1)
+            {
+                int k = self.Next(0, n);
+                --n;
+                T temp = list[n];
+                list[n] = list[k];
+                list[k] = temp;
+            }
         }
     }
-
-public static void Shuffle (this Random self, ArrayList arrayList)
-    {
-    int n = arrayList.Count;
-    while (n > 1)
-        {
-        int k = self.Next (0, n);
-        --n;
-        object temp = arrayList[n];
-        arrayList[n] = arrayList[k];
-        arrayList[k] = temp;
-        }
-    }
-
-public static void Shuffle<T> (this Random self, List<T> list)
-    {
-    int n = list.Count;
-    while (n > 1)
-        {
-        int k = self.Next (0, n);
-        --n;
-        T temp = list[n];
-        list[n] = list[k];
-        list[k] = temp;
-        }
-    }
-}
 }

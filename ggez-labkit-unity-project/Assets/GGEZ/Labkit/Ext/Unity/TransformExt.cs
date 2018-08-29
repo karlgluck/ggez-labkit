@@ -24,31 +24,30 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using UnityEngine;
- 
-public static partial class TransformExt 
+
+public static partial class TransformExt
 {
-public static void DestroySiblings (this Transform self)
+    public static void DestroySiblings(this Transform self)
     {
-    var parent = self.parent;
-    var childrenOfParent = parent.childCount;
-    for (int ci = childrenOfParent-1; ci >= 0; --ci)
+        var parent = self.parent;
+        var childrenOfParent = parent.childCount;
+        for (int ci = childrenOfParent - 1; ci >= 0; --ci)
         {
-        var child = parent.GetChild (ci);
-        if (object.ReferenceEquals (child, self))
+            var child = parent.GetChild(ci);
+            if (object.ReferenceEquals(child, self))
             {
-            continue;
+                continue;
             }
-        GameObject.Destroy (child.gameObject);
+            GameObject.Destroy(child.gameObject);
         }
     }
 
-public static void DestroyChildren (this Transform self)
+    public static void DestroyChildren(this Transform self)
     {
-    for (int ci = self.childCount-1; ci >= 0; --ci)
+        for (int ci = self.childCount - 1; ci >= 0; --ci)
         {
-        var child = self.GetChild (ci);
-        GameObject.Destroy (child.gameObject);
+            var child = self.GetChild(ci);
+            GameObject.Destroy(child.gameObject);
         }
     }
-
 }

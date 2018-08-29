@@ -29,31 +29,31 @@ using System.Collections;
 
 namespace GGEZ
 {
-public static partial class ArrayExt
-{
-public static T Last<T> (this T[] self)
+    public static partial class ArrayExt
     {
-    return self.Length > 0 ? self[self.Length - 1] : default(T);
-    }
-
-public static T SafeIndex<T>(this T[] self, int i)
-    {
-    if (self != null)
+        public static T Last<T>(this T[] self)
         {
-        int max = self.Length - 1;
-        if (max >= 0)
-            {
-            return self[i < 0 ? 0 : (i > max ? max : i)];
-            }
+            return self.Length > 0 ? self[self.Length - 1] : default(T);
         }
-    return default(T);
-    }
 
-public static void Swap<T> (this T[] self, int i, int j)
-    {
-    T temp = self[i];
-    self[i] = self[j];
-    self[j] = temp;
+        public static T SafeIndex<T>(this T[] self, int i)
+        {
+            if (self != null)
+            {
+                int max = self.Length - 1;
+                if (max >= 0)
+                {
+                    return self[i < 0 ? 0 : (i > max ? max : i)];
+                }
+            }
+            return default(T);
+        }
+
+        public static void Swap<T>(this T[] self, int i, int j)
+        {
+            T temp = self[i];
+            self[i] = self[j];
+            self[j] = temp;
+        }
     }
-}
 }

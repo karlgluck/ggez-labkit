@@ -32,7 +32,6 @@ using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
 
 namespace GGEZ.Omnibus
 {
-
     public class EntityAsset : ScriptableObject
     {
         public string Json = "{}";
@@ -40,5 +39,4 @@ namespace GGEZ.Omnibus
         [System.NonSerialized]
         public fsData Data;
     }
-
 }

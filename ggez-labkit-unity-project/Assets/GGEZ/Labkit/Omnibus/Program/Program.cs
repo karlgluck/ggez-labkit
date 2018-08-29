@@ -29,23 +29,22 @@ using GGEZ.FullSerializer;
 
 namespace GGEZ.Omnibus
 {
-
     //-------------------------------------------------------------------------
     // Script
     //-------------------------------------------------------------------------
     public class Script
     {
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
         public Script Clone()
         {
             return MemberwiseClone() as Script;
         }
-    #endif
+#endif
 
-        public virtual void Acquire(EntityContainer entity) {}
-        public virtual void OnEnter(EntityContainer entity) {}
-        public virtual void OnUpdate(EntityContainer entity) {}
-        public virtual void OnExit(EntityContainer entity) {}
+        public virtual void Acquire(EntityContainer entity) { }
+        public virtual void OnEnter(EntityContainer entity) { }
+        public virtual void OnUpdate(EntityContainer entity) { }
+        public virtual void OnExit(EntityContainer entity) { }
     }
 
     [fsSerializeEnumAsInteger]

@@ -30,100 +30,97 @@ using System.Collections.Generic;
 
 namespace GGEZ
 {
-
-[
-CreateAssetMenu(fileName = "New Google Spreadsheet.asset", menuName="GGEZ/Google Spreadsheet")
-]
-public class GoogleSpreadsheetDataSource : ScriptableObject
-{
-public string Url;
-
-public bool DataIsColumns = false;
-
-[TextArea]
-public string LocalAssetCsvText;
-
-
-private int entries;
-private Csv.GetCsvCell getCellCallback;
-
-
-
-public bool makeSureDataExists ()
+    [
+    CreateAssetMenu(fileName = "New Google Spreadsheet.asset", menuName = "GGEZ/Google Spreadsheet")
+    ]
+    public class GoogleSpreadsheetDataSource : ScriptableObject
     {
-    if (this.entries > 0 && this.getCellCallback != null)
-        {
-        return true;
-        }
-    if (this.LocalAssetCsvText == null)
-        {
-        return false;
-        }
-    this.getCellCallback = Csv.ReadCsv (this.LocalAssetCsvText, out this.entries, this.DataIsColumns);
-    return (this.entries > 0 && this.getCellCallback != null);
-    }
+        public string Url;
+
+        public bool DataIsColumns = false;
+
+        [TextArea]
+        public string LocalAssetCsvText;
+
+
+        private int _entries;
+        private Csv.GetCsvCell _getCellCallback;
 
 
 
-
-public IEnumerator<Func<string, string>> GetObjects ()
-    {
-    if (!this.makeSureDataExists ())
+        public bool makeSureDataExists()
         {
-        throw new InvalidOperationException ("No data exists for " + this.name);
-        }
-    for (int i = 0; i < this.entries; ++i)
-        {
-        yield return delegate (string property)
+            if (_entries > 0 && _getCellCallback != null)
             {
-            return this.getCellCallback (i, property);
-            };
+                return true;
+            }
+            if (this.LocalAssetCsvText == null)
+            {
+                return false;
+            }
+            _getCellCallback = Csv.ReadCsv(this.LocalAssetCsvText, out _entries, this.DataIsColumns);
+            return (_entries > 0 && _getCellCallback != null);
         }
-    }
 
 
 
 
-public IEnumerator<object> GetObjects (Type objectType)
-    {
-    if (!this.makeSureDataExists ())
+        public IEnumerator<Func<string, string>> GetObjects()
         {
-        throw new InvalidOperationException ("No data exists for " + this.name);
+            if (!this.makeSureDataExists())
+            {
+                throw new InvalidOperationException("No data exists for " + this.name);
+            }
+            for (int i = 0; i < _entries; ++i)
+            {
+                yield return delegate (string property)
+                    {
+                        return _getCellCallback(i, property);
+                    };
+            }
         }
-    for (int i = 0; i < this.entries; ++i)
+
+
+
+
+        public IEnumerator<object> GetObjects(Type objectType)
         {
-        yield return Csv.CsvEntryToObject (i, this.getCellCallback, objectType);
+            if (!this.makeSureDataExists())
+            {
+                throw new InvalidOperationException("No data exists for " + this.name);
+            }
+            for (int i = 0; i < _entries; ++i)
+            {
+                yield return Csv.CsvEntryToObject(i, _getCellCallback, objectType);
+            }
         }
-    }
 
 
 
 
 
-public IEnumerator LoadFromWebOrCache ()
-    {
+        public IEnumerator LoadFromWebOrCache()
+        {
 #if UNITY_EDITOR
-    UnityEditor.EditorUtility.SetDirty (this);
+            UnityEditor.EditorUtility.SetDirty(this);
 #endif
 
-    BytesBlob downloadedBytes = new BytesBlob ();
-    IEnumerator downloadEnumerator = Util.DownloadOrReadCacheAsync (this.Url, downloadedBytes);
-    while (downloadEnumerator.MoveNext ())
-        {
-        yield return downloadEnumerator.Current;
-        }
-
-    if (downloadedBytes.Bytes != null)
-        {
-        var csv = downloadedBytes.GetBytesAsString ();
-        if (!Application.isPlaying)
+            BytesBlob downloadedBytes = new BytesBlob();
+            IEnumerator downloadEnumerator = Util.DownloadOrReadCacheAsync(this.Url, downloadedBytes);
+            while (downloadEnumerator.MoveNext())
             {
-            this.LocalAssetCsvText = csv;
+                yield return downloadEnumerator.Current;
             }
-        this.getCellCallback = Csv.ReadCsv (csv, out this.entries, this.DataIsColumns);
+
+            if (downloadedBytes.Bytes != null)
+            {
+                var csv = downloadedBytes.GetBytesAsString();
+                if (!Application.isPlaying)
+                {
+                    this.LocalAssetCsvText = csv;
+                }
+                _getCellCallback = Csv.ReadCsv(csv, out _entries, this.DataIsColumns);
+            }
         }
-
     }
-}
-
 }

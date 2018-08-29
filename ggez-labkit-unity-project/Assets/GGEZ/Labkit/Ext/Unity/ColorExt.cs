@@ -28,49 +28,45 @@ using System.Collections;
 
 namespace GGEZ
 {
-public static partial class ColorblindSafeColors
-{
-
-public static readonly Color Orange = new Color(230/255f, 159/255f, 0f/255f);
-public static readonly Color Black = new Color(0f/255f, 0f/255f, 0f/255f);
-public static readonly Color SkyBlue = new Color(86f/255f, 180f/255f, 233f/255f);
-public static readonly Color BluishGreen = new Color(0f/255f, 158f/255f, 115/255f);
-public static readonly Color Yellow = new Color(240f/255f, 228f/255f, 66f/255f);
-public static readonly Color Blue = new Color(0/255f, 114/255f, 178/255f);
-public static readonly Color Vermillion = new Color(213/255f, 94/255f, 0f/255f);
-public static readonly Color ReddishPurple = new Color(204/255f, 121/255f, 167/255f);
-public static readonly Color White = new Color(255f/255f, 255f/255f, 255f/255f);
-public static readonly Color[] WithPigment = new Color[] { Vermillion, Blue, Orange, ReddishPurple, SkyBlue, Yellow, BluishGreen, };
-}
-
-public static partial class ColorExt
-{
-
-public static Color WithR (this Color self, float r)
+    public static partial class ColorblindSafeColors
     {
-    return new Color (r, self.g, self.b, self.a);
+        public static readonly Color Orange = new Color(230 / 255f, 159 / 255f, 0f / 255f);
+        public static readonly Color Black = new Color(0f / 255f, 0f / 255f, 0f / 255f);
+        public static readonly Color SkyBlue = new Color(86f / 255f, 180f / 255f, 233f / 255f);
+        public static readonly Color BluishGreen = new Color(0f / 255f, 158f / 255f, 115 / 255f);
+        public static readonly Color Yellow = new Color(240f / 255f, 228f / 255f, 66f / 255f);
+        public static readonly Color Blue = new Color(0 / 255f, 114 / 255f, 178 / 255f);
+        public static readonly Color Vermillion = new Color(213 / 255f, 94 / 255f, 0f / 255f);
+        public static readonly Color ReddishPurple = new Color(204 / 255f, 121 / 255f, 167 / 255f);
+        public static readonly Color White = new Color(255f / 255f, 255f / 255f, 255f / 255f);
+        public static readonly Color[] WithPigment = new Color[] { Vermillion, Blue, Orange, ReddishPurple, SkyBlue, Yellow, BluishGreen, };
     }
 
-public static Color WithG (this Color self, float g)
+    public static partial class ColorExt
     {
-    return new Color (self.r, g, self.b, self.a);
+        public static Color WithR(this Color self, float r)
+        {
+            return new Color(r, self.g, self.b, self.a);
+        }
+
+        public static Color WithG(this Color self, float g)
+        {
+            return new Color(self.r, g, self.b, self.a);
+        }
+
+        public static Color WithB(this Color self, float b)
+        {
+            return new Color(self.r, self.g, b, self.a);
+        }
+
+        public static Color WithA(this Color self, float a)
+        {
+            return new Color(self.r, self.g, self.b, a);
+        }
+
+        public static Color WithRGB(this Color self, Color rgb)
+        {
+            return new Color(rgb.r, rgb.b, rgb.a, self.a);
+        }
     }
-
-public static Color WithB (this Color self, float b)
-    {
-    return new Color (self.r, self.g, b, self.a);
-    }
-
-public static Color WithA (this Color self, float a)
-    {
-    return new Color (self.r, self.g, self.b, a);
-    }
-
-public static Color WithRGB (this Color self, Color rgb)
-    {
-    return new Color (rgb.r, rgb.b, rgb.a, self.a);
-    }
-
-}
-
 }

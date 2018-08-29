@@ -33,24 +33,19 @@ using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
 
 namespace GGEZ.Omnibus
 {
-
-
-public static class Serialization
-{
-    private static fsSerializer s_serializer;
-    public static fsSerializer GetSerializer (UnityObjectList objectReferences)
+    public static class Serialization
     {
-
-        if (s_serializer == null)
+        private static fsSerializer s_serializer;
+        public static fsSerializer GetSerializer(UnityObjectList objectReferences)
         {
-            s_serializer = new fsSerializer();
-            // would add converters here if we needed to
+            if (s_serializer == null)
+            {
+                s_serializer = new fsSerializer();
+                // would add converters here if we needed to
+            }
+
+            s_serializer.UnityReferences = objectReferences;
+            return s_serializer;
         }
-
-        s_serializer.UnityReferences = objectReferences;
-        return s_serializer;
     }
-
-}
-
 }

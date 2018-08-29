@@ -25,61 +25,62 @@
 
 using UnityEngine;
 
-
-[
-    RequireComponent (typeof(SpriteRenderer))
-]
-public class ColorSwapSpriteRenderer : MonoBehaviour
+namespace GGEZ
 {
-private SpriteRenderer spriteRenderer;
-private Texture2D colorSwapTexture;
-private bool dirty;
+    [
+        RequireComponent(typeof(SpriteRenderer))
+    ]
+    public class ColorSwapSpriteRenderer : MonoBehaviour
+    {
+        private SpriteRenderer _spriteRenderer;
+        private Texture2D _colorSwapTexture;
+        private bool _dirty;
 
 #if UNITY_EDITOR
-public bool Override;
-public Color[] Colors = new Color[256];
+        public bool Override;
+        public Color[] Colors = new Color[256];
 #endif
 
-public void Awake ()
-    {
-    this.spriteRenderer = (SpriteRenderer)this.GetComponent (typeof(SpriteRenderer));
-
-    const int kPaletteWidth = 256;
-
-    this.colorSwapTexture  = new Texture2D (kPaletteWidth, 1, TextureFormat.RGBA32, false, false);
-    this.colorSwapTexture.filterMode = FilterMode.Point;
-
-    for (int i = 0; i < kPaletteWidth; ++i)
+        public void Awake()
         {
-        this.colorSwapTexture.SetPixel (i, 0, Color.clear);
-        }
-    this.colorSwapTexture.Apply();
+            _spriteRenderer = (SpriteRenderer)this.GetComponent(typeof(SpriteRenderer));
 
-    this.spriteRenderer.material.SetTexture ("_SwapTex", this.colorSwapTexture);
-    }
+            const int kPaletteWidth = 256;
 
-public void SwapColor (int index, Color color)
-    {
-    this.colorSwapTexture.SetPixel (index, 0, color);
-    this.dirty = true;
-    }
+            _colorSwapTexture = new Texture2D(kPaletteWidth, 1, TextureFormat.RGBA32, false, false);
+            _colorSwapTexture.filterMode = FilterMode.Point;
 
-void Update ()
-    {
-#if UNITY_EDITOR
-    if (this.Override)
-        {
-        for (int i = 0; i < this.Colors.Length; ++i)
+            for (int i = 0; i < kPaletteWidth; ++i)
             {
-            this.SwapColor (i, this.Colors[i]);
+                _colorSwapTexture.SetPixel(i, 0, Color.clear);
+            }
+            _colorSwapTexture.Apply();
+
+            _spriteRenderer.material.SetTexture("_SwapTex", _colorSwapTexture);
+        }
+
+        public void SwapColor(int index, Color color)
+        {
+            _colorSwapTexture.SetPixel(index, 0, color);
+            _dirty = true;
+        }
+
+        private void Update()
+        {
+#if UNITY_EDITOR
+            if (this.Override)
+            {
+                for (int i = 0; i < this.Colors.Length; ++i)
+                {
+                    this.SwapColor(i, this.Colors[i]);
+                }
+            }
+#endif
+            if (_dirty)
+            {
+                _colorSwapTexture.Apply();
+                _dirty = false;
             }
         }
-#endif
-    if (this.dirty)
-        {
-        this.colorSwapTexture.Apply ();
-        this.dirty = false;
-        }
     }
-
 }

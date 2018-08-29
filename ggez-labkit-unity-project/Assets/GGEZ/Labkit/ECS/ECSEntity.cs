@@ -27,62 +27,62 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 namespace GGEZ
 {
-
-//---------------------------------------------------------------------------------------
-// Component attached to all game objects used to represent ECS entities.
-//
-// Every ECSBaseComponent holds a reference to this object. You probably don't need to
-// use this class directly. However, if you want to use the Id field, it is guaranteed to
-// be unique among active objects in the current execution. However, it can be recycled
-// when objects are released and re-acquired.
-//---------------------------------------------------------------------------------------
-public class ECSEntity : MonoBehaviour
-{
-public int Id;
-
-public bool IdIsValid
+    //---------------------------------------------------------------------------------------
+    // Component attached to all game objects used to represent ECS entities.
+    //
+    // Every ECSBaseComponent holds a reference to this object. You probably don't need to
+    // use this class directly. However, if you want to use the Id field, it is guaranteed to
+    // be unique among active objects in the current execution. However, it can be recycled
+    // when objects are released and re-acquired.
+    //---------------------------------------------------------------------------------------
+    public class ECSEntity : MonoBehaviour
     {
-    get
+        public int Id;
+
+        public bool IdIsValid
         {
-        return this.Id >= 0;
-        }
-    }
-
-[System.NonSerialized]
-internal ECSEntityPool Pool;
-
-
-
-public ECSBaseComponent[] GetComponents ()
-    {
-    Debug.LogWarningFormat ("ECSEntity.GetComponents() is slow and should not be used frequently");
-    var components = this.gameObject.GetComponents (typeof(ECSBaseComponent));
-    return (ECSBaseComponent[])Array.ConvertAll (components, (e) => (ECSBaseComponent)e);
-    }
-
-
-
-public static int GetId (GameObject gameObject)
-    {
-    var entity = (ECSEntity)gameObject.GetComponent (typeof(ECSEntity));
-    if (entity == null)
-        {
-        throw new System.InvalidOperationException ("GameObject is not an entity");
-        }
-    if (!entity.IdIsValid)
-        {
-        if (!gameObject.activeSelf)
+            get
             {
-            throw new System.InvalidOperationException ("Entity is in the 'Available' pool; are you holding an old reference?");
-            }
-        else
-            {
-            throw new System.InvalidOperationException ("Entity hasn't been assigned an ID; is it a prefab?");
+                return this.Id >= 0;
             }
         }
-    return entity.Id;
+
+        [System.NonSerialized]
+        internal ECSEntityPool Pool;
+
+
+
+        public ECSBaseComponent[] GetComponents()
+        {
+            Debug.LogWarningFormat("ECSEntity.GetComponents() is slow and should not be used frequently");
+            var components = this.gameObject.GetComponents(typeof(ECSBaseComponent));
+            return (ECSBaseComponent[])Array.ConvertAll(components, (e) => (ECSBaseComponent)e);
+        }
+
+
+
+        public static int GetId(GameObject gameObject)
+        {
+            var entity = (ECSEntity)gameObject.GetComponent(typeof(ECSEntity));
+            if (entity == null)
+            {
+                throw new System.InvalidOperationException("GameObject is not an entity");
+            }
+            if (!entity.IdIsValid)
+            {
+                if (!gameObject.activeSelf)
+                {
+                    throw new System.InvalidOperationException("Entity is in the 'Available' pool; are you holding an old reference?");
+                }
+                else
+                {
+                    throw new System.InvalidOperationException("Entity hasn't been assigned an ID; is it a prefab?");
+                }
+            }
+            return entity.Id;
+        }
     }
-}
 }

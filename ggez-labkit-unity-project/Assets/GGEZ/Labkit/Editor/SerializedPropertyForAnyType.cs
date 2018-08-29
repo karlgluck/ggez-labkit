@@ -32,85 +32,76 @@ using System;
 using System.Reflection.Emit;
 
 
-namespace GGEZ
+namespace GGEZ.Labkit
 {
-namespace Labkit
-{
-
-[Serializable]
-public abstract class ScriptablePropertyBackingObject : ScriptableObject
-{
-public abstract object GetValue ();
-}
-
-[Serializable]
-public class ScriptablePropertyForType<T> : ScriptablePropertyBackingObject
-{
-public T value;
-public override object GetValue ()
+    [Serializable]
+    public abstract class ScriptablePropertyBackingObject : ScriptableObject
     {
-    return this.value;
-    }
-}
-
-//----------------------------------------------------------------------
-// Generates a field named "value" of the provided type on an object
-// so that Unity's SerializedProperty can be used to access that value.
-// This makes it so that we can take advantage of custom property
-// drawers.
-//
-// It is the caller's responsibility to dispose of the SerializedObject
-// when it is done using the property. Also, remember that the object's
-// value (from ScriptableObjectWithFieldBase.GetValue) will not update
-// until the property's serializedObject's ApplyModifiedPropertiesWithoutUndo
-// method is called.
-//
-// This is only for use in editor mode.
-//----------------------------------------------------------------------
-public static class SerializedPropertyExt
-{
-
-public static SerializedProperty GetSerializedPropertyFor (Type type, out ScriptablePropertyBackingObject fieldBackingObject)
-    {
-    string typeName = "SerializedPropertyFor" + type.Name;
-    Type createdType = null;
-    if (backingTypeForType.TryGetValue (type, out createdType))
-        {
-        // Debug.LogFormat ("Type looked up is {0}", createdType.FullName);
-        }
-    else
-        {
-        var an = new AssemblyName (typeName);
-        AssemblyBuilder assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly (an, AssemblyBuilderAccess.Run);
-        ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule("MainModule");
-        TypeBuilder tb = moduleBuilder.DefineType (typeName,
-                TypeAttributes.Public |
-                TypeAttributes.Class |
-                TypeAttributes.AutoClass |
-                TypeAttributes.AnsiClass |
-                TypeAttributes.BeforeFieldInit |
-                TypeAttributes.AutoLayout,
-                null);
-
-        // Derive from a generic class instead of doing a dynamic implementation
-        // because the type used might need boxing and it's easier to have the
-        // compiler figure out how to handle that.
-        tb.SetParent (typeof(ScriptablePropertyForType<>).MakeGenericType(type));
-
-        createdType = tb.CreateType ();
-
-        backingTypeForType.Add (type, createdType);
-        }
-    var obj = (ScriptablePropertyBackingObject)ScriptableObject.CreateInstance(createdType);
-    fieldBackingObject = obj;
-    return new SerializedObject (obj).FindProperty ("value");
+        public abstract object GetValue();
     }
 
-private static Dictionary <Type, Type> backingTypeForType = new Dictionary <Type, Type> ();
+    [Serializable]
+    public class ScriptablePropertyForType<T> : ScriptablePropertyBackingObject
+    {
+        public T value;
+        public override object GetValue()
+        {
+            return this.value;
+        }
+    }
 
+    //----------------------------------------------------------------------
+    // Generates a field named "value" of the provided type on an object
+    // so that Unity's SerializedProperty can be used to access that value.
+    // This makes it so that we can take advantage of custom property
+    // drawers.
+    //
+    // It is the caller's responsibility to dispose of the SerializedObject
+    // when it is done using the property. Also, remember that the object's
+    // value (from ScriptableObjectWithFieldBase.GetValue) will not update
+    // until the property's serializedObject's ApplyModifiedPropertiesWithoutUndo
+    // method is called.
+    //
+    // This is only for use in editor mode.
+    //----------------------------------------------------------------------
+    public static class SerializedPropertyExt
+    {
+        public static SerializedProperty GetSerializedPropertyFor(Type type, out ScriptablePropertyBackingObject fieldBackingObject)
+        {
+            string typeName = "SerializedPropertyFor" + type.Name;
+            Type createdType = null;
+            if (s_backingTypeForType.TryGetValue(type, out createdType))
+            {
+                // Debug.LogFormat ("Type looked up is {0}", createdType.FullName);
+            }
+            else
+            {
+                var an = new AssemblyName(typeName);
+                AssemblyBuilder assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(an, AssemblyBuilderAccess.Run);
+                ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule("MainModule");
+                TypeBuilder tb = moduleBuilder.DefineType(typeName,
+                        TypeAttributes.Public |
+                        TypeAttributes.Class |
+                        TypeAttributes.AutoClass |
+                        TypeAttributes.AnsiClass |
+                        TypeAttributes.BeforeFieldInit |
+                        TypeAttributes.AutoLayout,
+                        null);
 
+                // Derive from a generic class instead of doing a dynamic implementation
+                // because the type used might need boxing and it's easier to have the
+                // compiler figure out how to handle that.
+                tb.SetParent(typeof(ScriptablePropertyForType<>).MakeGenericType(type));
 
+                createdType = tb.CreateType();
 
-}
-}
+                s_backingTypeForType.Add(type, createdType);
+            }
+            var obj = (ScriptablePropertyBackingObject)ScriptableObject.CreateInstance(createdType);
+            fieldBackingObject = obj;
+            return new SerializedObject(obj).FindProperty("value");
+        }
+
+        private static Dictionary<Type, Type> s_backingTypeForType = new Dictionary<Type, Type>();
+    }
 }

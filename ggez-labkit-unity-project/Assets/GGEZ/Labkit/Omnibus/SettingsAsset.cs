@@ -35,7 +35,7 @@ namespace GGEZ.Omnibus
     //-----------------------------------------------------------------------------
     // SettingsAsset
     //-----------------------------------------------------------------------------
-    [CreateAssetMenu(menuName="GGEZ/Omnibus/Settings", fileName="New Settings.asset")]
+    [CreateAssetMenu(menuName = "GGEZ/Omnibus/Settings", fileName = "New Settings.asset")]
     public class SettingsAsset : ScriptableObject, ISerializationCallbackReceiver
     {
         //-----------------------------------------------------------------
@@ -64,9 +64,9 @@ namespace GGEZ.Omnibus
             References.Clear();
             var serializer = Serialization.GetSerializer(References);
             fsData data;
-            Dictionary<string,object> serialized = new Dictionary<string,object>();
+            Dictionary<string, object> serialized = new Dictionary<string, object>();
             serialized["Values"] = Settings.Values;
-            fsResult result = serializer.TrySerialize(typeof(Dictionary<string,object>), serialized, out data);
+            fsResult result = serializer.TrySerialize(typeof(Dictionary<string, object>), serialized, out data);
             if (result.Failed)
             {
                 Debug.LogError(result, this);
@@ -84,7 +84,7 @@ namespace GGEZ.Omnibus
         public void OnAfterDeserialize()
         {
             var serializer = Serialization.GetSerializer(References);
-            Dictionary<string,object> deserialized = new Dictionary<string,object>();
+            Dictionary<string, object> deserialized = new Dictionary<string, object>();
             fsData data = fsJsonParser.Parse(Json);
             fsResult result = serializer.TryDeserialize(data, ref deserialized);
             if (result.Failed)
@@ -94,10 +94,9 @@ namespace GGEZ.Omnibus
             }
             else
             {
-                Settings.Values = new Dictionary<string,object>(deserialized["Values"] as Dictionary<string,object>);
+                Settings.Values = new Dictionary<string, object>(deserialized["Values"] as Dictionary<string, object>);
             }
             Settings.InheritFrom = InheritFrom;
         }
     }
-
 }

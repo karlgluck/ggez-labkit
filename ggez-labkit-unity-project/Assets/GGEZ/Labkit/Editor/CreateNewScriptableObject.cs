@@ -27,84 +27,78 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 
-namespace GGEZ
+namespace GGEZ.Labkit
 {
-namespace Labkit
-{
-
-public static class CreateNewScriptableObject
-{
-
-[MenuItem ("Labkit/Create/ScriptableObject")]
-static void LabkitNewScriptableObject ()
+    public static class CreateNewScriptableObject
     {
-    string path = EditorUtility.SaveFilePanelInProject (
-            "New Scriptable Object",
-            "NewScriptableObject.cs",
-            "cs",
-            "Create a source file for the ScriptableObject"
-            );
-    if (string.IsNullOrEmpty (path))
+        [MenuItem("Labkit/Create/ScriptableObject")]
+        private static void LabkitNewScriptableObject()
         {
-        return;
+            string path = EditorUtility.SaveFilePanelInProject(
+                    "New Scriptable Object",
+                    "NewScriptableObject.cs",
+                    "cs",
+                    "Create a source file for the ScriptableObject"
+                    );
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+
+            string newAssetName = System.IO.Path.GetFileNameWithoutExtension(path);
+            LabkitEditorUtility.WriteFileUsingTemplate(
+                    "ScriptableObject_So",
+                    path,
+                    "%NEWASSETNAME% " + newAssetName
+                    );
+
+            string editorPath = Path.Combine(Path.GetDirectoryName(path), "Editor");
+            Directory.CreateDirectory(editorPath);
+            LabkitEditorUtility.WriteFileUsingTemplate(
+                    "ScriptableObject_SoEditor",
+                    Path.Combine(editorPath, newAssetName + "Editor.cs"),
+                    "%NEWASSETNAME% " + newAssetName
+                    );
         }
 
-    string newAssetName = System.IO.Path.GetFileNameWithoutExtension (path);
-    LabkitEditorUtility.WriteFileUsingTemplate (
-            "ScriptableObject_So",
-            path,
-            "%NEWASSETNAME% " + newAssetName
-            );
-
-    string editorPath = Path.Combine (Path.GetDirectoryName (path), "Editor");
-    Directory.CreateDirectory (editorPath);
-    LabkitEditorUtility.WriteFileUsingTemplate (
-            "ScriptableObject_SoEditor",
-            Path.Combine (editorPath, newAssetName + "Editor.cs"),
-            "%NEWASSETNAME% " + newAssetName
-            );
-    }
-
-[MenuItem ("Labkit/Create/MonoBehaviour with Settings")]
-static void LabkitNewControllerClass ()
-    {
-    string path = EditorUtility.SaveFilePanelInProject (
-            "New MonoBehaviour with Settings",
-            "NewMonoBehaviour.cs",
-            "cs",
-            "Create a source file for the MonoBehaviour"
-            );
-    if (string.IsNullOrEmpty (path))
+        [MenuItem("Labkit/Create/MonoBehaviour with Settings")]
+        private static void LabkitNewControllerClass()
         {
-        return;
+            string path = EditorUtility.SaveFilePanelInProject(
+                    "New MonoBehaviour with Settings",
+                    "NewMonoBehaviour.cs",
+                    "cs",
+                    "Create a source file for the MonoBehaviour"
+                    );
+            if (string.IsNullOrEmpty(path))
+            {
+                return;
+            }
+
+            string newAssetName = System.IO.Path.GetFileNameWithoutExtension(path);
+            LabkitEditorUtility.WriteFileUsingTemplate(
+                    "MonoBehaviourWithSettings_Mb",
+                    path,
+                    "%NEWASSETNAME% " + newAssetName
+                    );
+            LabkitEditorUtility.WriteFileUsingTemplate(
+                    "MonoBehaviourWithSettings_MbSo",
+                    Path.Combine(Path.GetDirectoryName(path), newAssetName + "Settings.cs"),
+                    "%NEWASSETNAME% " + newAssetName
+                    );
+
+            string editorPath = Path.Combine(Path.GetDirectoryName(path), "Editor");
+            Directory.CreateDirectory(editorPath);
+            LabkitEditorUtility.WriteFileUsingTemplate(
+                    "MonoBehaviourWithSettings_MbEditor",
+                    Path.Combine(editorPath, newAssetName + "Editor.cs"),
+                    "%NEWASSETNAME% " + newAssetName
+                    );
+            LabkitEditorUtility.WriteFileUsingTemplate(
+                    "MonoBehaviourWithSettings_MbSoEditor",
+                    Path.Combine(editorPath, newAssetName + "SettingsEditor.cs"),
+                    "%NEWASSETNAME% " + newAssetName
+                    );
         }
-
-    string newAssetName = System.IO.Path.GetFileNameWithoutExtension (path);
-    LabkitEditorUtility.WriteFileUsingTemplate (
-            "MonoBehaviourWithSettings_Mb",
-            path,
-            "%NEWASSETNAME% " + newAssetName
-            );
-    LabkitEditorUtility.WriteFileUsingTemplate (
-            "MonoBehaviourWithSettings_MbSo",
-            Path.Combine (Path.GetDirectoryName (path), newAssetName + "Settings.cs"),
-            "%NEWASSETNAME% " + newAssetName
-            );
-
-    string editorPath = Path.Combine (Path.GetDirectoryName (path), "Editor");
-    Directory.CreateDirectory (editorPath);
-    LabkitEditorUtility.WriteFileUsingTemplate (
-            "MonoBehaviourWithSettings_MbEditor",
-            Path.Combine (editorPath, newAssetName + "Editor.cs"),
-            "%NEWASSETNAME% " + newAssetName
-            );
-    LabkitEditorUtility.WriteFileUsingTemplate (
-            "MonoBehaviourWithSettings_MbSoEditor",
-            Path.Combine (editorPath, newAssetName + "SettingsEditor.cs"),
-            "%NEWASSETNAME% " + newAssetName
-            );
     }
-
-}
-}
 }

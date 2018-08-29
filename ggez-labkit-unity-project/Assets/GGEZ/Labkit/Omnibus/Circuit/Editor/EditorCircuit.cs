@@ -30,7 +30,6 @@ using System.Collections.Generic;
 
 namespace GGEZ.Omnibus
 {
-
     public enum EditorCellIndex : int { Invalid = int.MaxValue }
 
     //-------------------------------------------------------------------------
@@ -69,11 +68,11 @@ namespace GGEZ.Omnibus
             return false;
         }
 
-        public IDraggable DragPosition ()
+        public IDraggable DragPosition()
         {
             return new DraggablePosition() { EditorCell = this, Position = Position.position };
         }
-        class DraggablePosition : IDraggable
+        private class DraggablePosition : IDraggable
         {
             public EditorCell EditorCell;
             public Vector2 Position;
@@ -83,11 +82,11 @@ namespace GGEZ.Omnibus
             }
         }
 
-        public IDraggable DragSize ()
+        public IDraggable DragSize()
         {
             return new DraggableSize() { EditorCell = this, Size = Position.size };
         }
-        class DraggableSize : IDraggable
+        private class DraggableSize : IDraggable
         {
             public EditorCell EditorCell;
             public Vector2 Size;
@@ -96,7 +95,6 @@ namespace GGEZ.Omnibus
                 set { EditorCell.Position.size = OmnibusEditorUtility.SnapToGrid(Size + value); }
             }
         }
-
     }
 
     //-------------------------------------------------------------------------
@@ -118,5 +116,4 @@ namespace GGEZ.Omnibus
     {
         Vector2 Offset { set; }
     }
-
 }

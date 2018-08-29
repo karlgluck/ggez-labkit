@@ -28,18 +28,18 @@ using UnityEditor;
 
 namespace GGEZ
 {
-[CustomEditor(typeof (GoogleSpreadsheetDataSource))]
-public class DesignDataEditor : Editor
-{
-public override void OnInspectorGUI ()
+    [CustomEditor(typeof(GoogleSpreadsheetDataSource))]
+    public class DesignDataEditor : Editor
     {
-    var designData = (GoogleSpreadsheetDataSource)target;
-    if (GUILayout.Button ("Download from Web"))
+        public override void OnInspectorGUI()
         {
-        EditorCoroutineRunner.StartCoroutine (designData.LoadFromWebOrCache ());
-        }
+            var designData = (GoogleSpreadsheetDataSource)target;
+            if (GUILayout.Button("Download from Web"))
+            {
+                EditorCoroutineRunner.StartCoroutine(designData.LoadFromWebOrCache());
+            }
 
-    DrawDefaultInspector();
+            DrawDefaultInspector();
+        }
     }
-}
 }

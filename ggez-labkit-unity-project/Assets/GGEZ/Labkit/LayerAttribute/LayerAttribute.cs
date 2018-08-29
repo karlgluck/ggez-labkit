@@ -28,10 +28,5 @@ using UnityEngine;
 
 namespace GGEZ
 {
-
-
-public class LayerAttribute : PropertyAttribute { }
-
-
-
+    public class LayerAttribute : PropertyAttribute { }
 }

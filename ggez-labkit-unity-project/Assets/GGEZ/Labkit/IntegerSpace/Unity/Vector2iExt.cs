@@ -27,31 +27,30 @@ using UnityEngine;
 
 namespace GGEZ
 {
-public static partial class Vector2iExt
-{
-
-public static Vector2 ToVector2 (this Vector2i self)
+    public static partial class Vector2iExt
     {
-    return new Vector2 (self.x, self.y);
-    }
+        public static Vector2 ToVector2(this Vector2i self)
+        {
+            return new Vector2(self.x, self.y);
+        }
 
-public static Vector2 ToTileCenterVector2 (this Vector2i self)
-    {
-    return new Vector2 (0.5f + self.x, 0.5f + self.y);
-    }
+        public static Vector2 ToTileCenterVector2(this Vector2i self)
+        {
+            return new Vector2(0.5f + self.x, 0.5f + self.y);
+        }
 
-public static Vector2i ToVector2i (this Vector2 self)
-    {
-    return new Vector2i (Mathf.FloorToInt (self.x), Mathf.FloorToInt (self.y));
-    }
+        public static Vector2i ToVector2i(this Vector2 self)
+        {
+            return new Vector2i(Mathf.FloorToInt(self.x), Mathf.FloorToInt(self.y));
+        }
 
-public static Vector2 Lerpf (Vector2i a, Vector2i b, float t)
-    {
-    return new Vector2 () {
-            x = (b.x - a.x) * t + a.x,
-            y = (b.y - a.y) * t + a.y,
+        public static Vector2 Lerpf(Vector2i a, Vector2i b, float t)
+        {
+            return new Vector2()
+            {
+                x = (b.x - a.x) * t + a.x,
+                y = (b.y - a.y) * t + a.y,
             };
+        }
     }
-
-}
 }

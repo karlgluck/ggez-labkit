@@ -27,18 +27,18 @@ using UnityEngine;
 
 namespace GGEZ
 {
-public static partial class ObjectExt
-{
-public static Object FindByName (this Object[] self, string name)
+    public static partial class ObjectExt
     {
-    for (int i = 0; i < self.Length; ++i)
+        public static Object FindByName(this Object[] self, string name)
         {
-        if (self[i].name.Equals (name))
+            for (int i = 0; i < self.Length; ++i)
             {
-            return self[i];
+                if (self[i].name.Equals(name))
+                {
+                    return self[i];
+                }
             }
+            return null;
         }
-    return null;
     }
-}
 }

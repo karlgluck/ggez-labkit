@@ -27,54 +27,54 @@ using UnityEngine;
 
 namespace GGEZ
 {
-public static partial class Util
-{
-static readonly char[] base62Alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
-public static string ToBase62String (ulong number)
+    public static partial class Util
     {
-    var n = number;
-    ulong basis = 62;
-    var ret = "";
-    while (n > 0)
+        private static readonly char[] s_base62Alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
+        public static string ToBase62String(ulong number)
         {
-        var temp = n % basis;
-        ret = base62Alphabet[(int)temp] + ret;
-        n = (n / basis);
+            var n = number;
+            ulong basis = 62;
+            var ret = "";
+            while (n > 0)
+            {
+                var temp = n % basis;
+                ret = s_base62Alphabet[(int)temp] + ret;
+                n = (n / basis);
+            }
+            return ret;
         }
-    return ret;
-    }
 
 
-//----------------------------------------------------------------------
-// RepeatUniform doesn't mirror when crossing from positive to negative.
-//
-// Normally:
-//       [4 .. -4] % 3 ==> [1, 0, 2, 1, 0, -1, -2, 0, -1]
-//
-// Instead:
-//       RepeatUniform ([4 .. -4], 3) ==> [1, 0, 2, 1, 0, 2, 1, 0, 2]
-//
-// Using RepeatUniform makes the zero-boundary disappear. This is
-// useful for things like camera controls.
-//----------------------------------------------------------------------
-public static int RepeatUniform (int number, int range)
-    {
-    var retval = number % range;
-    if (retval < 0)
+        //----------------------------------------------------------------------
+        // RepeatUniform doesn't mirror when crossing from positive to negative.
+        //
+        // Normally:
+        //       [4 .. -4] % 3 ==> [1, 0, 2, 1, 0, -1, -2, 0, -1]
+        //
+        // Instead:
+        //       RepeatUniform ([4 .. -4], 3) ==> [1, 0, 2, 1, 0, 2, 1, 0, 2]
+        //
+        // Using RepeatUniform makes the zero-boundary disappear. This is
+        // useful for things like camera controls.
+        //----------------------------------------------------------------------
+        public static int RepeatUniform(int number, int range)
         {
-        retval += range;
+            var retval = number % range;
+            if (retval < 0)
+            {
+                retval += range;
+            }
+            return retval;
         }
-    return retval;
-    }
 
-public static float RepeatUniform (float number, float range)
-    {
-    var retval = number - ((int)(number/range))*range;
-    if (retval < 0)
+        public static float RepeatUniform(float number, float range)
         {
-        retval += range;
+            var retval = number - ((int)(number / range)) * range;
+            if (retval < 0)
+            {
+                retval += range;
+            }
+            return retval;
         }
-    return retval;
     }
-}
 }

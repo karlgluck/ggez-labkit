@@ -28,212 +28,212 @@ using System.Collections;
 
 namespace GGEZ
 {
-public static partial class ArrayListExt
-{
-public static void RemoveByReference (this ArrayList self, object toRemove)
+    public static partial class ArrayListExt
     {
-    for (int i = self.Count - 1; i >= 0; --i)
+        public static void RemoveByReference(this ArrayList self, object toRemove)
         {
-        if (object.ReferenceEquals (self[i], toRemove))
+            for (int i = self.Count - 1; i >= 0; --i)
             {
-            self.RemoveAt (i);
+                if (object.ReferenceEquals(self[i], toRemove))
+                {
+                    self.RemoveAt(i);
+                }
             }
         }
-    }
 
-public static void RemoveOneByReference (this ArrayList self, object toRemove)
-    {
-    for (int i = self.Count - 1; i >= 0; --i)
+        public static void RemoveOneByReference(this ArrayList self, object toRemove)
         {
-        if (object.ReferenceEquals (self[i], toRemove))
+            for (int i = self.Count - 1; i >= 0; --i)
             {
-            self.RemoveAt (i);
-            return;
+                if (object.ReferenceEquals(self[i], toRemove))
+                {
+                    self.RemoveAt(i);
+                    return;
+                }
             }
         }
-    }
 
-public static object Last (this ArrayList self)
-    {
-    return self.Count > 0 ? self[self.Count - 1] : null;
-    }
-
-public static T Last<T> (this ArrayList self)
-    {
-    return (T)self.Last ();
-    }
-
-public static T SafeIndex<T> (this ArrayList self, int i)
-    {
-    return (T)self.SafeIndex(i);
-    }
-
-public static object SafeIndex (this ArrayList self, int i)
-    {
-    if (self != null)
+        public static object Last(this ArrayList self)
         {
-        int max = self.Count - 1;
-        if (max >= 0)
-            {
-            return self[i < 0 ? 0 : (i > max ? max : i)];
-            }
+            return self.Count > 0 ? self[self.Count - 1] : null;
         }
-    return null;
-    }
 
-public static void Swap (this ArrayList self, int i, int j)
-    {
-    object temp = self[i];
-    self[i] = self[j];
-    self[j] = temp;
-    }
-
-public static bool HasNullGap (this ArrayList self)
-    {
-    if (self.Count <= 1)
+        public static T Last<T>(this ArrayList self)
         {
-        return false;
+            return (T)self.Last();
         }
-    object last = self[0];
-    for (int i = 1; i < self.Count; ++i)
+
+        public static T SafeIndex<T>(this ArrayList self, int i)
         {
-        object current = self[i];
-        if (current != null && last == null)
-            {
-            return true;
-            }
-        last = current;
+            return (T)self.SafeIndex(i);
         }
-    return false;
-    }
 
-public static object GetNextNonNullElement (this ArrayList self, ref int index)
-    {
-    return self.GetNextNonNullElement (ref index, self.Count);
-    }
-
-public static object GetNextNonNullElement (this ArrayList self, ref int index, int end)
-    {
-    while (index < end)
+        public static object SafeIndex(this ArrayList self, int i)
         {
-        object retval = self[index];
-        if (retval != null)
+            if (self != null)
             {
-            return retval;
+                int max = self.Count - 1;
+                if (max >= 0)
+                {
+                    return self[i < 0 ? 0 : (i > max ? max : i)];
+                }
             }
-        ++index;
+            return null;
         }
-    return null;
-    }
 
-public static void RemoveNullElementsStable (this ArrayList self)
-    {
-    int offset = 0;
-    for (int i = 0; i < self.Count; ++i)
+        public static void Swap(this ArrayList self, int i, int j)
         {
-        object element = self[i];
-        if (element == null)
-            {
-            ++offset;
-            }
-        else if (offset > 0)
-            {
-            self[i - offset] = element;
-            }
+            object temp = self[i];
+            self[i] = self[j];
+            self[j] = temp;
         }
-    self.RemoveRange (self.Count - offset, offset);
-    }
 
-public static int BinarySearch (this ArrayList self, System.Func<object, int> compare)
-    {
-    return self.BinarySearch (compare, 0, self.Count-1);
-    }
-
-public static int BinarySearch (this ArrayList self, System.Func<object, int> compare, int min, int max)
-    {
-    while (min <= max)
+        public static bool HasNullGap(this ArrayList self)
         {
-        int mid = (min + max) / 2;
-        int comparison = compare (self[mid]);
-        if (comparison == 0)
+            if (self.Count <= 1)
             {
-            return mid;
+                return false;
             }
-        else if (comparison < 0)
+            object last = self[0];
+            for (int i = 1; i < self.Count; ++i)
             {
-            max = mid - 1;
+                object current = self[i];
+                if (current != null && last == null)
+                {
+                    return true;
+                }
+                last = current;
             }
-        else
-            {
-            min = mid + 1;
-            }
+            return false;
         }
-    return -1;
-    }
 
-public static int LinearSearchNullSafe (this ArrayList self, System.Func<object, int> compare)
-    {
-    for (int i = 0; i < self.Count; ++i)
+        public static object GetNextNonNullElement(this ArrayList self, ref int index)
         {
-        object element = self[i];
-        if (element == null)
-            {
-            continue;
-            }
-        int comparison = compare (element);
-        if (comparison == 0)
-            {
-            return i;
-            }
-        if (comparison > 0)
-            {
-            break;
-            }
+            return self.GetNextNonNullElement(ref index, self.Count);
         }
-    return -1;
-    }
 
-public static int BinaryInsert (this ArrayList self, System.Func<object, int> compare)
-    {
-    return self.BinaryInsert (compare, 0, self.Count-1);
-    }
-
-public static int BinaryInsert (this ArrayList self, System.Func<object, int> compare, int min, int max)
-    {
-    while (min <= max)
+        public static object GetNextNonNullElement(this ArrayList self, ref int index, int end)
         {
-        int mid = (min + max) / 2;
-        int comparison = compare (self[mid]);
-        if (comparison < 0)
+            while (index < end)
             {
-            max = mid - 1;
+                object retval = self[index];
+                if (retval != null)
+                {
+                    return retval;
+                }
+                ++index;
             }
-        else
-            {
-            min = mid + 1;
-            }
+            return null;
         }
-    return min;
-    }
 
-public static void BinaryInsert (this ArrayList self, System.IComparable element)
-    {
-    int min = 0;
-    int max = self.Count - 1;
-    while (min <= max)
+        public static void RemoveNullElementsStable(this ArrayList self)
         {
-        int mid = (min + max) / 2;
-        int comparison = element.CompareTo ((System.IComparable)self[mid]);
-        if (comparison < 0)
+            int offset = 0;
+            for (int i = 0; i < self.Count; ++i)
             {
-            max = mid - 1;
+                object element = self[i];
+                if (element == null)
+                {
+                    ++offset;
+                }
+                else if (offset > 0)
+                {
+                    self[i - offset] = element;
+                }
             }
-        else
-            {
-            min = mid + 1;
-            }
+            self.RemoveRange(self.Count - offset, offset);
         }
-    self.Insert (min, element);
+
+        public static int BinarySearch(this ArrayList self, System.Func<object, int> compare)
+        {
+            return self.BinarySearch(compare, 0, self.Count - 1);
+        }
+
+        public static int BinarySearch(this ArrayList self, System.Func<object, int> compare, int min, int max)
+        {
+            while (min <= max)
+            {
+                int mid = (min + max) / 2;
+                int comparison = compare(self[mid]);
+                if (comparison == 0)
+                {
+                    return mid;
+                }
+                else if (comparison < 0)
+                {
+                    max = mid - 1;
+                }
+                else
+                {
+                    min = mid + 1;
+                }
+            }
+            return -1;
+        }
+
+        public static int LinearSearchNullSafe(this ArrayList self, System.Func<object, int> compare)
+        {
+            for (int i = 0; i < self.Count; ++i)
+            {
+                object element = self[i];
+                if (element == null)
+                {
+                    continue;
+                }
+                int comparison = compare(element);
+                if (comparison == 0)
+                {
+                    return i;
+                }
+                if (comparison > 0)
+                {
+                    break;
+                }
+            }
+            return -1;
+        }
+
+        public static int BinaryInsert(this ArrayList self, System.Func<object, int> compare)
+        {
+            return self.BinaryInsert(compare, 0, self.Count - 1);
+        }
+
+        public static int BinaryInsert(this ArrayList self, System.Func<object, int> compare, int min, int max)
+        {
+            while (min <= max)
+            {
+                int mid = (min + max) / 2;
+                int comparison = compare(self[mid]);
+                if (comparison < 0)
+                {
+                    max = mid - 1;
+                }
+                else
+                {
+                    min = mid + 1;
+                }
+            }
+            return min;
+        }
+
+        public static void BinaryInsert(this ArrayList self, System.IComparable element)
+        {
+            int min = 0;
+            int max = self.Count - 1;
+            while (min <= max)
+            {
+                int mid = (min + max) / 2;
+                int comparison = element.CompareTo((System.IComparable)self[mid]);
+                if (comparison < 0)
+                {
+                    max = mid - 1;
+                }
+                else
+                {
+                    min = mid + 1;
+                }
+            }
+            self.Insert(min, element);
+        }
     }
-}
 }

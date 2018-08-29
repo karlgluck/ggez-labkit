@@ -29,39 +29,38 @@ using UnityEngine;
 
 namespace GGEZ
 {
-public static partial class RectExt
-{
-public static Vector2[] GetVertices (this Rect self)
+    public static partial class RectExt
     {
-    return new Vector2[] {
+        public static Vector2[] GetVertices(this Rect self)
+        {
+            return new Vector2[] {
             new Vector2 (self.xMin, self.yMin),
             new Vector2 (self.xMin, self.yMax),
             new Vector2 (self.xMax, self.yMax),
             new Vector2 (self.xMax, self.yMin),
             };
-    }
+        }
 
-public static Rect ContractedBy (this Rect self, float margin)
-    {
-    float twiceMargin = margin * 2;
-    return new Rect (
-            self.x + margin,
-            self.y + margin,
-            self.width - twiceMargin,
-            self.height - twiceMargin
-            );
-    }
+        public static Rect ContractedBy(this Rect self, float margin)
+        {
+            float twiceMargin = margin * 2;
+            return new Rect(
+                    self.x + margin,
+                    self.y + margin,
+                    self.width - twiceMargin,
+                    self.height - twiceMargin
+                    );
+        }
 
-public static Rect ExpandedBy (this Rect self, float margin)
-    {
-    float twiceMargin = margin * 2;
-    return new Rect (
-            self.x - margin,
-            self.y - margin,
-            self.width + twiceMargin,
-            self.height + twiceMargin
-            );
+        public static Rect ExpandedBy(this Rect self, float margin)
+        {
+            float twiceMargin = margin * 2;
+            return new Rect(
+                    self.x - margin,
+                    self.y - margin,
+                    self.width + twiceMargin,
+                    self.height + twiceMargin
+                    );
+        }
     }
-
-}
 }

@@ -26,23 +26,23 @@
 
 using System;
 using UnityEngine;
+
 namespace GGEZ
 {
+    //----------------------------------------------------------------------
+    // All your components should derive from ECSBaseComponent. To make it
+    // easy, derive your own base component from ECSBaseComponent and have
+    // each other component type derive from your own base class.
+    //----------------------------------------------------------------------
 
-//----------------------------------------------------------------------
-// All your components should derive from ECSBaseComponent. To make it
-// easy, derive your own base component from ECSBaseComponent and have
-// each other component type derive from your own base class.
-//----------------------------------------------------------------------
-
-public class ECSBaseComponent : MonoBehaviour, IComparable
-{
-[System.NonSerialized]
-public ECSEntity Entity;
-
-public int CompareTo (object other)
+    public class ECSBaseComponent : MonoBehaviour, IComparable
     {
-    return this.Entity.Id - ((ECSBaseComponent)other).Entity.Id;
+        [System.NonSerialized]
+        public ECSEntity Entity;
+
+        public int CompareTo(object other)
+        {
+            return this.Entity.Id - ((ECSBaseComponent)other).Entity.Id;
+        }
     }
-}
 }

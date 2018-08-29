@@ -28,93 +28,83 @@ using System.Collections;
 
 namespace GGEZ
 {
-public static partial class CapsuleColliderExt
-{
-
-
-public static Collider[] Overlap (this CapsuleCollider self, int layerMask, QueryTriggerInteraction queryTriggerInteraction)
+    public static partial class CapsuleColliderExt
     {
-        
-    // Get a unit vector in the target direction
-    var axis = new Vector3 (self.direction == 0 ? 1f : 0f, self.direction == 1 ? 1f : 0f, self.direction == 2 ? 1f : 0f);
-    Vector3 scale = self.transform.lossyScale;
+        public static Collider[] Overlap(this CapsuleCollider self, int layerMask, QueryTriggerInteraction queryTriggerInteraction)
+        {
+            // Get a unit vector in the target direction
+            var axis = new Vector3(self.direction == 0 ? 1f : 0f, self.direction == 1 ? 1f : 0f, self.direction == 2 ? 1f : 0f);
+            Vector3 scale = self.transform.lossyScale;
 
-    // Get components on the orthogonal axes
-    var v = Vector3.Scale (Vector3.one - axis, scale);
+            // Get components on the orthogonal axes
+            var v = Vector3.Scale(Vector3.one - axis, scale);
 
-    // Find the biggest one for the radius
-    var radius = self.radius * Mathf.Max (v.x, v.y, v.z);
+            // Find the biggest one for the radius
+            var radius = self.radius * Mathf.Max(v.x, v.y, v.z);
 
-    // Scale the height by the axis
-    var height = Vector3.Dot (axis, scale) * self.height;
+            // Scale the height by the axis
+            var height = Vector3.Dot(axis, scale) * self.height;
 
-    // Convert to world-space
-    var center = self.transform.TransformPoint (self.center);
-    var dir = height < radius * 2f ? Vector3.zero : self.transform.TransformDirection (axis);
+            // Convert to world-space
+            var center = self.transform.TransformPoint(self.center);
+            var dir = height < radius * 2f ? Vector3.zero : self.transform.TransformDirection(axis);
 
-    // Run OverlapCapsule
-    Vector3 point0 = center + dir * (height * 0.5f - radius);
-    Vector3 point1 = center - dir * (height * 0.5f - radius);
-    return Physics.OverlapCapsule (point0, point1, radius, layerMask, queryTriggerInteraction);
+            // Run OverlapCapsule
+            Vector3 point0 = center + dir * (height * 0.5f - radius);
+            Vector3 point1 = center - dir * (height * 0.5f - radius);
+            return Physics.OverlapCapsule(point0, point1, radius, layerMask, queryTriggerInteraction);
+        }
 
+
+        public static Collider[] Overlap(this CapsuleCollider self, int layerMask)
+        {
+            // Get a unit vector in the target direction
+            var axis = new Vector3(self.direction == 0 ? 1f : 0f, self.direction == 1 ? 1f : 0f, self.direction == 2 ? 1f : 0f);
+            Vector3 scale = self.transform.lossyScale;
+
+            // Get components on the orthogonal axes
+            var v = Vector3.Scale(Vector3.one - axis, scale);
+
+            // Find the biggest one for the radius
+            var radius = self.radius * Mathf.Max(v.x, v.y, v.z);
+
+            // Scale the height by the axis
+            var height = Vector3.Dot(axis, scale) * self.height;
+
+            // Convert to world-space
+            var center = self.transform.TransformPoint(self.center);
+            var dir = height < radius * 2f ? Vector3.zero : self.transform.TransformDirection(axis);
+
+            // Run OverlapCapsule
+            Vector3 point0 = center + dir * (height * 0.5f - radius);
+            Vector3 point1 = center - dir * (height * 0.5f - radius);
+            return Physics.OverlapCapsule(point0, point1, radius, layerMask);
+        }
+
+
+        public static Collider[] Overlap(this CapsuleCollider self)
+        {
+            // Get a unit vector in the target direction
+            var axis = new Vector3(self.direction == 0 ? 1f : 0f, self.direction == 1 ? 1f : 0f, self.direction == 2 ? 1f : 0f);
+            Vector3 scale = self.transform.lossyScale;
+
+            // Get components on the orthogonal axes
+            var v = Vector3.Scale(Vector3.one - axis, scale);
+
+            // Find the biggest one for the radius
+            var radius = self.radius * Mathf.Max(v.x, v.y, v.z);
+
+            // Scale the height by the axis
+            var height = Vector3.Dot(axis, scale) * self.height;
+
+            // Convert to world-space
+            var center = self.transform.TransformPoint(self.center);
+            var dir = height < radius * 2f ? Vector3.zero : self.transform.TransformDirection(axis);
+
+            // Run OverlapCapsule
+            Vector3 point0 = center + dir * (height * 0.5f - radius);
+            Vector3 point1 = center - dir * (height * 0.5f - radius);
+            return Physics.OverlapCapsule(point0, point1, radius);
+        }
     }
-
-
-public static Collider[] Overlap (this CapsuleCollider self, int layerMask)
-    {
-        
-    // Get a unit vector in the target direction
-    var axis = new Vector3 (self.direction == 0 ? 1f : 0f, self.direction == 1 ? 1f : 0f, self.direction == 2 ? 1f : 0f);
-    Vector3 scale = self.transform.lossyScale;
-
-    // Get components on the orthogonal axes
-    var v = Vector3.Scale (Vector3.one - axis, scale);
-
-    // Find the biggest one for the radius
-    var radius = self.radius * Mathf.Max (v.x, v.y, v.z);
-
-    // Scale the height by the axis
-    var height = Vector3.Dot (axis, scale) * self.height;
-
-    // Convert to world-space
-    var center = self.transform.TransformPoint (self.center);
-    var dir = height < radius * 2f ? Vector3.zero : self.transform.TransformDirection (axis);
-
-    // Run OverlapCapsule
-    Vector3 point0 = center + dir * (height * 0.5f - radius);
-    Vector3 point1 = center - dir * (height * 0.5f - radius);
-    return Physics.OverlapCapsule (point0, point1, radius, layerMask);
-
-    }
-
-
-public static Collider[] Overlap (this CapsuleCollider self)
-    {
-        
-    // Get a unit vector in the target direction
-    var axis = new Vector3 (self.direction == 0 ? 1f : 0f, self.direction == 1 ? 1f : 0f, self.direction == 2 ? 1f : 0f);
-    Vector3 scale = self.transform.lossyScale;
-
-    // Get components on the orthogonal axes
-    var v = Vector3.Scale (Vector3.one - axis, scale);
-
-    // Find the biggest one for the radius
-    var radius = self.radius * Mathf.Max (v.x, v.y, v.z);
-
-    // Scale the height by the axis
-    var height = Vector3.Dot (axis, scale) * self.height;
-
-    // Convert to world-space
-    var center = self.transform.TransformPoint (self.center);
-    var dir = height < radius * 2f ? Vector3.zero : self.transform.TransformDirection (axis);
-
-    // Run OverlapCapsule
-    Vector3 point0 = center + dir * (height * 0.5f - radius);
-    Vector3 point1 = center - dir * (height * 0.5f - radius);
-    return Physics.OverlapCapsule (point0, point1, radius);
-
-    }
-
-
-}
 }

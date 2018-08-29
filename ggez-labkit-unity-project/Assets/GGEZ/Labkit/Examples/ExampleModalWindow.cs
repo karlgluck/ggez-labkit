@@ -28,47 +28,46 @@ using UnityEditor;
 
 namespace Examples
 {
-class ExampleModalEditorWindow : EditorWindow
-{
-public static EditorWindow CreateAndShow ()
+    internal class ExampleModalEditorWindow : EditorWindow
     {
-    var window = ExampleModalEditorWindow.CreateInstance<ExampleModalEditorWindow> ();
-    Vector2 size = new Vector2 (400f, 180f);
-    window.ShowAsDropDown (new Rect (Screen.width/2f-size.x/2f, Screen.height/2 - size.y/2f, 1f, 1f), size);
-    window.titleContent = new GUIContent ("Window Title");
-    return window;
-    }
-
-protected virtual void OnLostFocus ()
-    {
-    this.Close ();
-    }
-
-private void OnGUI()
-    {
-    const float titleHeight = 35f;
-
-    GUILayout.BeginArea (new Rect(0, 0, this.position.width, this.position.height));
-    GUIStyle titleStyle = new GUIStyle ("Toolbar");
-    titleStyle.fontSize = 12;
-    titleStyle.fontStyle = FontStyle.Bold;
-
-    titleStyle.alignment = TextAnchor.MiddleCenter;
-    GUILayout.BeginHorizontal (titleStyle, GUILayout.Height (titleHeight));
-    GUILayout.Label (this.titleContent, titleStyle, GUILayout.ExpandWidth (true));
-    GUILayout.EndHorizontal ();
-
-    GUILayout.Space (16f);
-
-    if (GUILayout.Button ("OK"))
+        public static EditorWindow CreateAndShow()
         {
-        this.Close ();
+            var window = ExampleModalEditorWindow.CreateInstance<ExampleModalEditorWindow>();
+            Vector2 size = new Vector2(400f, 180f);
+            window.ShowAsDropDown(new Rect(Screen.width / 2f - size.x / 2f, Screen.height / 2 - size.y / 2f, 1f, 1f), size);
+            window.titleContent = new GUIContent("Window Title");
+            return window;
         }
 
-    GUILayout.FlexibleSpace ();
+        protected virtual void OnLostFocus()
+        {
+            this.Close();
+        }
 
-    GUILayout.EndArea ();
+        private void OnGUI()
+        {
+            const float titleHeight = 35f;
+
+            GUILayout.BeginArea(new Rect(0, 0, this.position.width, this.position.height));
+            GUIStyle titleStyle = new GUIStyle("Toolbar");
+            titleStyle.fontSize = 12;
+            titleStyle.fontStyle = FontStyle.Bold;
+
+            titleStyle.alignment = TextAnchor.MiddleCenter;
+            GUILayout.BeginHorizontal(titleStyle, GUILayout.Height(titleHeight));
+            GUILayout.Label(this.titleContent, titleStyle, GUILayout.ExpandWidth(true));
+            GUILayout.EndHorizontal();
+
+            GUILayout.Space(16f);
+
+            if (GUILayout.Button("OK"))
+            {
+                this.Close();
+            }
+
+            GUILayout.FlexibleSpace();
+
+            GUILayout.EndArea();
+        }
     }
-}
-
 }
