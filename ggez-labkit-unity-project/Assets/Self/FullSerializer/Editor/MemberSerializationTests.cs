@@ -41,5 +41,30 @@ namespace GGEZ.FullSerializer.Tests {
             Assert.AreEqual(model1.Serialized2, model2.Serialized2);
             Assert.AreEqual(0, model2.NotSerialized0);
         }
+
+        public class ClassWithCharMember
+        {
+            public char A;
+        }
+
+        [Test]
+        public void TestCharMember() {
+
+            var model1 = new ClassWithCharMember {
+                A = 'A',
+            };
+
+            fsData data;
+
+            var serializer = new fsSerializer();
+            Assert.IsTrue(serializer.TrySerialize(model1, out data).Succeeded);
+
+            ClassWithCharMember model2 = null;
+            Assert.IsTrue(serializer.TryDeserialize(data, ref model2).Succeeded);
+
+            Debug.Log(fsJsonPrinter.PrettyJson(data));
+
+            Assert.AreEqual(model1.A, model2.A);
+        }
     }
 }

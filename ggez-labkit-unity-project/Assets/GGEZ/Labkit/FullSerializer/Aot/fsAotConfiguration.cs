@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace GGEZ.FullSerializer {
-    [CreateAssetMenu(menuName = "Full Serializer AOT Configuration")]
+    [CreateAssetMenu(menuName = "GGEZ/FullSerializer/AOT Configuration")]
     public class fsAotConfiguration : ScriptableObject {
         public enum AotState {
             Default, Enabled, Disabled

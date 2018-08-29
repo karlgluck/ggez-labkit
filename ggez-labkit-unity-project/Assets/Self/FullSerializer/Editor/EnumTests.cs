@@ -11,6 +11,14 @@ namespace GGEZ.FullSerializer.Tests {
     }
 
     [Flags]
+    public enum DefinedFlagsWithOverlap {
+        A = 1 << 0,
+        B = 1 << 1,
+        AnB = 1 << 0 | 1 << 1,
+        C = 1 << 5,
+    }
+
+    [Flags]
     public enum DefinedFlagsUint : uint {
         A = 1 << 0,
         B = 1 << 1,
@@ -64,6 +72,17 @@ namespace GGEZ.FullSerializer.Tests {
             DoTest(RegularFlags.A | RegularFlags.B);
             DoTest(RegularFlags.A | RegularFlags.C);
             DoTest(RegularFlags.A | RegularFlags.B | RegularFlags.C);
+        }
+
+        [Test]
+        public void TestDefinedFlagsWithOverlapEnum() {
+            DoTest(DefinedFlagsWithOverlap.A);
+            DoTest(DefinedFlagsWithOverlap.B);
+            DoTest(DefinedFlagsWithOverlap.AnB);
+            DoTest(DefinedFlagsWithOverlap.C);
+            DoTest(DefinedFlagsWithOverlap.A | DefinedFlagsWithOverlap.B);
+            DoTest(DefinedFlagsWithOverlap.A | DefinedFlagsWithOverlap.C);
+            DoTest(DefinedFlagsWithOverlap.AnB | DefinedFlagsWithOverlap.C);
         }
 
         [Test]

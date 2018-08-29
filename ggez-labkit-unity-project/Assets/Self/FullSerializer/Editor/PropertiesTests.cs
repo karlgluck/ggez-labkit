@@ -13,6 +13,15 @@ namespace GGEZ.FullSerializer.Tests {
             public int Setter { set { _setValue = value; } }
         }
 
+        public class InheritedIgnoredPropertyBase {
+            [fsIgnore]
+            public virtual int IgnoredProperty { get; set; }
+        }
+
+        public class InheritedIgnoredProperty : InheritedIgnoredPropertyBase {
+            public override int IgnoredProperty { get; set; }
+        }
+
         [Test]
         public void TestSerializeReadOnlyProperty() {
             var model = new Model();
@@ -49,6 +58,19 @@ namespace GGEZ.FullSerializer.Tests {
             var serializer = new fsSerializer();
             serializer.Config.EnablePropertySerialization = false;
             Assert.IsTrue( serializer.TrySerialize( model, out data ).Succeeded );
+
+            var expected = fsData.CreateDictionary(); // Should just be empty dictionary.
+            Assert.AreEqual( expected, data );
+        }
+
+        [Test]
+        public void TestIgnoreIsInheritedForProperties() {
+            var model = new InheritedIgnoredProperty();
+
+            fsData data;
+
+            var serializer = new fsSerializer();
+            Assert.IsTrue(serializer.TrySerialize(model, out data).Succeeded);
 
             var expected = fsData.CreateDictionary(); // Should just be empty dictionary.
             Assert.AreEqual( expected, data );

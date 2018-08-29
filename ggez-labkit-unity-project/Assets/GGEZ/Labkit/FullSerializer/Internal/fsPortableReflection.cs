@@ -88,7 +88,9 @@ namespace GGEZ.FullSerializer.Internal {
         /// Returns true if the given attribute is defined on the given element.
         /// </summary>
         public static bool HasAttribute(MemberInfo element, Type attributeType, bool shouldCache) {
-            return element.IsDefined(attributeType, true);
+            // changed from base FullSerializer because otherwise inherited attributes are ignored on properties
+            // https://github.com/jacobdufault/fullserializer/issues/148
+            return Attribute.IsDefined(element, attributeType, /* inherit: */ true);
         }
 
         /// <summary>
@@ -109,7 +111,9 @@ namespace GGEZ.FullSerializer.Internal {
 
             Attribute attribute;
             if (_cachedAttributeQueries.TryGetValue(query, out attribute) == false) {
-                var attributes = element.GetCustomAttributes(attributeType, /*inherit:*/ true);
+                // changed from base FullSerializer because otherwise inherited attributes are ignored on properties
+                // https://github.com/jacobdufault/fullserializer/issues/148
+                var attributes = Attribute.GetCustomAttributes(element, attributeType, /*inherit:*/ true);
                 if (attributes.Any())
                     attribute = (Attribute)attributes.First();
                 if (shouldCache)

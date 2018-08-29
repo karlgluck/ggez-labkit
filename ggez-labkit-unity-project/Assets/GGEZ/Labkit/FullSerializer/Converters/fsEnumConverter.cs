@@ -37,7 +37,10 @@ namespace GGEZ.FullSerializer.Internal {
                 bool first = true;
                 foreach (var value in Enum.GetValues(storageType)) {
                     long integralValue = Convert.ToInt64(value);
-                    bool isSet = (instanceValue & integralValue) != 0;
+
+                    // Fixed bug if values of a flagged enum overlap
+                    // https://github.com/jacobdufault/fullserializer/issues/146
+                    bool isSet = instanceValue == integralValue || (integralValue != 0 && (instanceValue & integralValue) == integralValue);
 
                     if (isSet) {
                         if (first == false) result.Append(",");
@@ -58,7 +61,6 @@ namespace GGEZ.FullSerializer.Internal {
             if (data.IsString) {
                 string[] enumValues = data.AsString.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-                long instanceValue = 0;
                 for (int i = 0; i < enumValues.Length; ++i) {
                     string enumValue = enumValues[i];
 
@@ -67,12 +69,41 @@ namespace GGEZ.FullSerializer.Internal {
                     if (ArrayContains(Enum.GetNames(storageType), enumValue) == false) {
                         return fsResult.Fail("Cannot find enum name " + enumValue + " on type " + storageType);
                     }
+                }
+                
+                // Special-case the ulong backing type because anything else
+                // can be deserialized as a long.
 
-                    long flagValue = (long)Convert.ChangeType(Enum.Parse(storageType, enumValue), typeof(long));
-                    instanceValue |= flagValue;
+                var underlyingType = Enum.GetUnderlyingType(storageType);
+
+                if (underlyingType == typeof(ulong))
+                {
+                    ulong instanceValue = 0;
+
+                    for (var i = 0; i < enumValues.Length; ++i)
+                    {
+                        var enumValue = enumValues[i];
+                        var flagValue = (ulong)Convert.ChangeType(Enum.Parse(storageType, enumValue), typeof(ulong));
+                        instanceValue |= flagValue;
+                    }
+
+                    instance = Enum.ToObject(storageType, (object)instanceValue);
+                }
+                else
+                {
+                    long instanceValue = 0;
+
+                    for (var i = 0; i < enumValues.Length; ++i)
+                    {
+                        var enumValue = enumValues[i];
+                        var flagValue = (long)Convert.ChangeType(Enum.Parse(storageType, enumValue), typeof(long));
+                        instanceValue |= flagValue;
+                    }
+
+                    instance = Enum.ToObject(storageType, (object)instanceValue);
                 }
 
-                instance = Enum.ToObject(storageType, (object)instanceValue);
+
                 return fsResult.Success;
             }
             else if (data.IsInt64) {

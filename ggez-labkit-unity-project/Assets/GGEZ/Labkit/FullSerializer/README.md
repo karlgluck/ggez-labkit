@@ -4,12 +4,20 @@ Full Serializer is an easy to use and robust JSON serializer that *just works*. 
 
 Best of all, Full Serializer is completely free to use and available under the MIT license!
 
-### A note on what's different
+### A note on what's different in GGEZ.FullSerializer
 
-Hi, Karl G here with GGEZ/Labkit. I've made some opt-in modifications to FullSerializer:
+Hi, Karl G here with GGEZ/Labkit. First up, I've added some shiny new opt-in modifications to FullSerializer:
 
- - `Enum` types can be decorated with `[fsSerializeEnumAsInteger]` to force them to write their integer value
  - `fsSerializer` has a new field field `UnityReferences`. If assigned, objects that derive from `UnityEngine.Object` will use the list to store references inside the JSON instead of serializing the objects themselves. When serializing, the list is an output; when deserializing, the list is an input.
+ - `Enum` types can be decorated with `[fsSerializeEnumAsInteger]` to force them to write their integer value
+
+Also included are a variety of fixes for issues raised on GitHub:
+
+ - [Inherited attributes are ignored on properties](https://github.com/jacobdufault/fullserializer/issues/148)
+ - [Deprecation warning in Unity 2017.2+](https://github.com/jacobdufault/fullserializer/pull/153)
+ - [Bug in EnumConvertor if values of a flagged enum overlap](https://github.com/jacobdufault/fullserializer/issues/146)
+ - [Char member fails to deserialize](https://github.com/jacobdufault/fullserializer/issues/137)
+ - [Unit test failing: TestDeserializeInvalidTypeInfo](https://github.com/jacobdufault/fullserializer/issues/122)
 
 ## Why?
 

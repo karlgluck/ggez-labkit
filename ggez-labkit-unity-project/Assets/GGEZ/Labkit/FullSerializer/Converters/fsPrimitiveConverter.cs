@@ -116,7 +116,13 @@ namespace GGEZ.FullSerializer.Internal {
 
             if (UseString(storageType)) {
                 if ((result += CheckType(storage, fsDataType.String)).Succeeded) {
-                    instance = storage.AsString;
+                    var str = storage.AsString;
+
+                    if (storageType == typeof(char)) {
+                        instance = str.Length > 0 ? str[0] : default(char);
+                    } else {
+                        instance = str;
+                    }
                 }
                 return result;
             }
