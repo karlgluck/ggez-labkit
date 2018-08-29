@@ -206,10 +206,6 @@ public static float DistanceToLineSegmentSquared (this Vector2 self, Vector2 a, 
         }
     }
 
-
-
-
-
 public static bool IsInside (this Vector2 self, Vector2[] polygonBoundary)
     {
     int i = 0, j = 1;

@@ -41,6 +41,18 @@ public static void RemoveByReference (this ArrayList self, object toRemove)
         }
     }
 
+public static void RemoveOneByReference (this ArrayList self, object toRemove)
+    {
+    for (int i = self.Count - 1; i >= 0; --i)
+        {
+        if (object.ReferenceEquals (self[i], toRemove))
+            {
+            self.RemoveAt (i);
+            return;
+            }
+        }
+    }
+
 public static object Last (this ArrayList self)
     {
     return self.Count > 0 ? self[self.Count - 1] : null;
