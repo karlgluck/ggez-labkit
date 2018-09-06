@@ -67,6 +67,11 @@ namespace GGEZ.FullSerializer {
             if (data.IsDictionary == false) return false;
             return data.AsDictionary.ContainsKey(Key_ObjectReference);
         }
+        private static bool IsUnityObjectReference(fsData data)
+        {
+            if (data.IsDictionary == false) return false;
+            return data.AsDictionary.ContainsKey(Key_UnityObjectReference);
+        }
         private static bool IsObjectDefinition(fsData data) {
             if (data.IsDictionary == false) return false;
             return data.AsDictionary.ContainsKey(Key_ObjectDefinition);
@@ -257,6 +262,7 @@ namespace GGEZ.FullSerializer {
         /// A cache from type to the set of processors that are interested in it.
         /// </summary>
         private Dictionary<Type, List<fsObjectProcessor>> _cachedProcessors;
+        private List<fsObjectProcessor> _cachedNullProcessors;
 
         /// <summary>
         /// Converters that can be used for type registration.
@@ -330,6 +336,7 @@ namespace GGEZ.FullSerializer {
             _cachedConverterTypeInstances = new Dictionary<Type, fsBaseConverter>();
             _cachedConverters = new Dictionary<Type, fsBaseConverter>();
             _cachedProcessors = new Dictionary<Type, List<fsObjectProcessor>>();
+            _cachedNullProcessors = new List<fsObjectProcessor>();
 
             _references = new fsCyclicReferenceManager();
             _lazyReferenceWriter = new fsLazyCycleDefinitionWriter();
@@ -440,6 +447,11 @@ namespace GGEZ.FullSerializer {
         /// </summary>
         private List<fsObjectProcessor> GetProcessors(Type type) {
             List<fsObjectProcessor> processors;
+
+            if (type == null)
+            {
+                return _cachedNullProcessors;
+            }
 
             // Check to see if the user has defined a custom processor for the
             // type. If they have, then we don't need to scan through all of the
@@ -803,6 +815,25 @@ namespace GGEZ.FullSerializer {
             // deserializing a cyclic type that is inherited. If that is the
             // case, then if we handle references after inheritances we will try
             // to create an object instance for an abstract/interface type.
+
+            // First check to see if this is a Unity object. If so, we need to look up the reference in
+            // the list provided to us by the caller.
+            if (IsUnityObjectReference(data))
+            {
+                if (_unityReferences.Enabled)
+                {
+                    int refId = (int)data.AsDictionary[Key_UnityObjectReference].AsInt64;
+                    result = _unityReferences.GetUnityObject(refId);
+                    processors = GetProcessors(null);
+                    return fsResult.Success;
+                }
+                else
+                {
+                    result = null;
+                    processors = GetProcessors(null);
+                    return fsResult.Fail("Data was serialized with UnityReferences but none were provided for deserialization");
+                }
+            }
 
             // While object construction should technically be two-pass, we can
             // do it in one pass because of how serialization happens. We
