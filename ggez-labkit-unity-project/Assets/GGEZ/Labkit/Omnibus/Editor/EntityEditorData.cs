@@ -784,7 +784,7 @@ namespace GGEZ.Omnibus
             //-----------------------------------------------------------------
             // Mark everything we changed as needing to be saved
             //-----------------------------------------------------------------
-            var prefab = PrefabUtility.GetCorrespondingObjectFromSource(Entity);
+            // var prefab = PrefabUtility.GetCorrespondingObjectFromSource(Entity);
             // EditorUtility.SetDirty(prefab);
             // EditorUtility.SetDirty(Entity.gameObject);
             // EditorUtility.SetDirty(EditorAsset);

@@ -44,6 +44,7 @@ namespace GGEZ.Omnibus
             window.Show();
         }
 
+        [MenuItem("Window/Omnibus Editor")]
         public static void OpenEmpty()
         {
             Open(null);
@@ -918,7 +919,7 @@ namespace GGEZ.Omnibus
             //-------------------------------------------------
             if (IsCreatingTransition)
             {
-                OmnibusEditorUtility.DrawBezier(_scrollPosition + _scrollAnchor + _creatingTransitionStartPoint, _scrollPosition + _scrollAnchor + _creatingTransitionEndPoint, Vector2.zero, Vector2.zero, false);
+                OmnibusEditorUtility.DrawBezier(_scrollPosition + _scrollAnchor + _creatingTransitionStartPoint, _scrollPosition + _scrollAnchor + _creatingTransitionEndPoint, Vector2.zero, Vector2.zero, _creatingTransitionHoveringEndPoint);
             }
 
 

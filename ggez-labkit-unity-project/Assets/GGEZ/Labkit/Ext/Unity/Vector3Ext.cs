@@ -76,6 +76,14 @@ namespace GGEZ
             return new Vector2(self.x, self.z);
         }
 
+        public static Vector2 ToPitchYaw(this Vector3 self)
+        {
+            float yaw = Mathf.Rad2Deg * Mathf.Atan2(self.x, self.z);
+            // negative because left-handed (negative pitch rotates `forward` toward `up`)
+            float pitch = -Mathf.Rad2Deg * Mathf.Atan2(self.y, Mathf.Sqrt(self.x * self.x + self.z * self.z));
+            return new Vector2(pitch, yaw);
+        }
+
         public static Vector3 NormalizedOrZero(this Vector3 self, float minimumMagnitude)
         {
             float magnitude = self.magnitude;

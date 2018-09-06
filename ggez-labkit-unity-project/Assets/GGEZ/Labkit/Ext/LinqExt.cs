@@ -31,16 +31,25 @@ namespace System.Linq
 {
     public static partial class LinqExt
     {
+        /// <summary>
+        /// Returns some number of elements randomly chosen without replacement from the input
+        /// enumerable. Elements that are assigned a higher weight by computeWeight are more
+        /// likely to be chosen.
+        /// </summary>
+        /// <param name="self">Input enumerable</param>
+        /// <param name="random">Random number generator. Try RandomExt.UnityRandom if you don't have one.</param>
+        /// <param name="numberToSelect">How many elements to return</param>
+        /// <param name="computeWeight">Assigns a weight value >= 0 to each element.</param>
         public static IEnumerable<TFirst> PickWeighted<TFirst>(
-                this IEnumerable<TFirst> first,
+                this IEnumerable<TFirst> self,
                 Random random,
                 int numberToSelect,
                 Func<TFirst, int> computeWeight
                 )
         {
-            if (first == null) throw new System.ArgumentNullException("first");
-            if (random == null) throw new System.ArgumentNullException("random");
-            if (computeWeight == null) throw new System.ArgumentNullException("computeWeight");
+            if (self == null) throw new ArgumentNullException("first");
+            if (random == null) throw new ArgumentNullException("random");
+            if (computeWeight == null) throw new ArgumentNullException("computeWeight");
             if (numberToSelect <= 0)
             {
                 yield break;
@@ -48,12 +57,16 @@ namespace System.Linq
             List<TFirst> objects = new List<TFirst>();
             List<int> weights = new List<int>();
             int sumOfWeights = 0;
-            using (IEnumerator<TFirst> e1 = first.GetEnumerator())
+            using (IEnumerator<TFirst> e1 = self.GetEnumerator())
             {
                 while (e1.MoveNext())
                 {
                     TFirst o1 = e1.Current;
                     int weight = computeWeight(o1);
+                    if (weight < 0)
+                    {
+                        throw new InvalidOperationException("Assigned weight must be >= 0");
+                    }
                     sumOfWeights += weight;
                     objects.Add(o1);
                     weights.Add(weight);
@@ -92,8 +105,15 @@ namespace System.Linq
         }
 
 
+        /// <summary>
+        /// Reorganizes the input such that the output is in descending tree order. For
+        /// any element E at index i in the returned list, each element that depends on E
+        /// will be at index j > i.
+        /// </summary>
+        /// <param name="self">Elements to sort</param>
+        /// <param name="dependenciesOf">Function that maps any element in the input to its immediate dependencies.</param>
         public static IEnumerable<T> SortByDependencies<T>(
-                this IEnumerable<T> source,
+                this IEnumerable<T> self,
                 System.Func<T, IEnumerable<T>> dependenciesOf
                 )
         {
@@ -101,7 +121,7 @@ namespace System.Linq
             var visited = new HashSet<T>();
             var worklist = new Stack<T>();
 
-            foreach (var inputItem in source)
+            foreach (var inputItem in self)
             {
                 if (sorted.Contains(inputItem))
                 {

@@ -9,6 +9,10 @@ namespace GGEZ.FullSerializer {
     }
 }
 
+// Disable warning about tangentMode being deprecated. The new way of handling
+// tangents requires the UnityEditor namespace so we can't use it.
+#pragma warning disable 0618
+
 namespace GGEZ.FullSerializer.Internal.DirectConverters {
     public class Keyframe_DirectConverter : fsDirectConverter<Keyframe> {
         protected override fsResult DoSerialize(Keyframe model, Dictionary<string, fsData> serialized) {
@@ -54,4 +58,7 @@ namespace GGEZ.FullSerializer.Internal.DirectConverters {
         }
     }
 }
+
+#pragma warning restore 0618
+
 #endif

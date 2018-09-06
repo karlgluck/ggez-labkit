@@ -424,7 +424,6 @@ namespace GGEZ.Omnibus
                 case EntityRelationship.Target: return (Targets.Length > 0) ? Targets[0].Variables : null;
                 default: throw new InvalidProgramException("EntityRelationship " + relationship + " not handled");
             }
-            return null;
         }
 
         //-----------------------------------------------------
