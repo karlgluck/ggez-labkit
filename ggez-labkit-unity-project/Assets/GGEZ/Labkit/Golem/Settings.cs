@@ -41,6 +41,21 @@ namespace GGEZ.Labkit
         /// All of the values in this Settings object. TODO: valuetypes as separate dictionaries.
         public Dictionary<string, object> Values = new Dictionary<string, object>();
 
+        public IEnumerable<string> Keys ()
+        {
+            foreach (var key in Values.Keys)
+            {
+                yield return key;
+            }
+            if (InheritFrom != null)
+            {
+                foreach (var key in InheritFrom.Settings.Keys())
+                {
+                    yield return key;
+                }
+            }
+        }
+
 #if UNITY_EDITOR
 
         // InspectorGet that does not set a default value
@@ -85,6 +100,26 @@ namespace GGEZ.Labkit
                 return InheritFrom.Settings.Get(name);
             }
             return value;
+        }
+
+        public object Get(string name, Type type)
+        {
+            if (name != null)
+            {
+                object value;
+                if (!Values.TryGetValue(name, out value) && InheritFrom != null)
+                {
+                    return InheritFrom.Settings.Get(name, type);
+                }
+            }
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

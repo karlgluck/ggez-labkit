@@ -38,6 +38,8 @@ namespace GGEZ.Labkit
     {
         public string Json = "{}";
 
+        public SettingsAsset InheritSettingsFrom;
+
         [System.NonSerialized]
         public fsData Data;
     }

@@ -87,6 +87,7 @@ namespace GGEZ.Labkit
             }
         }
 
+
         //-----------------------------------------------------
         // cellNameStyle
         //-----------------------------------------------------
@@ -102,6 +103,110 @@ namespace GGEZ.Labkit
                     s_cellNameStyle.fontStyle = FontStyle.Bold;
                 }
                 return s_cellNameStyle;
+            }
+        }
+
+        private static bool s_hasActiveDropdown;
+        private static int s_activeDropdownControlId;
+        private static object s_activeDropdownControlValue;
+        private static bool s_hasDropdownControlValueChanged;
+        private static int s_dropdownMenuSentinel;
+
+
+        /// <summary>
+        /// Invoked by Dropdown to fill the content of a menu in the context of selecting a new value.
+        /// Use FillDropdownAddSetValueItem and/or FillDropdownGetSetValueCallback during this function.
+        /// </summary>
+        /// <param name="value">Current value passed to Dropdown</param>
+        /// <param name="menu">Menu to be filled out</param>
+        /// <param name="context">The value of context passed to Dropdown</param>
+        public delegate void FillDropdownMenu(object value, GenericMenu menu, object[] context);
+
+        /// <summary>
+        ///     Creates a button that pops a full generic dropdown menu. The menu has access to all the normal menu
+        ///     functionality. It also has access to an additional AddSetValueItem function that will cause this Dropdown
+        ///     to return a new value in-line to its caller, just like EditorGUI.Popup and EditorGUI.EnumPopup.
+        /// </summary>
+        /// <param name="position">Where to draw the button for the dropdown.</param>
+        /// <param name="content">Content for the button.</param>
+        /// <param name="value">Current value. Returned unless changed by the menu.</param>
+        /// <param name="fillDropdownMenuCallback">Invoked when the user clicks the dropdown button.</param>
+        /// <param name="context">Argument(s) passed as the context parameter to fillDropdownMenuCallback.</param>
+        public static object Dropdown(Rect position, GUIContent content, object value, FillDropdownMenu fillDropdownMenuCallback, params object[] context)
+        {
+            var controlId = GUIUtility.GetControlID(FocusType.Keyboard);
+            if (EditorGUI.DropdownButton(position, content, FocusType.Keyboard, EditorStyles.popup))
+            {
+                ++s_dropdownMenuSentinel;
+                s_hasActiveDropdown = true;
+                s_activeDropdownControlId = controlId;
+                s_activeDropdownControlValue = value;
+                s_hasDropdownControlValueChanged = false;
+
+                s_dropdownMenuSentinel = -s_dropdownMenuSentinel;
+                try
+                {
+                    var menu = new GenericMenu();
+                    fillDropdownMenuCallback(value, menu, context);
+                    menu.DropDown(position);
+                }
+                finally
+                {
+                    s_dropdownMenuSentinel = -s_dropdownMenuSentinel;
+                }
+            }
+            if (s_hasActiveDropdown && s_activeDropdownControlId == controlId)
+            {
+                if (s_hasDropdownControlValueChanged)
+                {
+                    s_hasActiveDropdown = false;
+                    value = s_activeDropdownControlValue;
+                    s_hasDropdownControlValueChanged = false;
+                }
+            }
+            return value;
+        }
+
+        public static void FillDropdownAddSetValueItem(GenericMenu menu, GUIContent content, bool on, object newValue)
+        {
+            bool isDropdownBeingFilled = s_dropdownMenuSentinel < 0;
+            if (!isDropdownBeingFilled)
+            {
+                throw new InvalidOperationException("Only call FillDropdownAddSetValueItem from inside Dropdown callback");
+            }
+            menu.AddItem(content, on, DropdownMenuFunction, new DropdownMenuFunctionData(s_dropdownMenuSentinel, newValue));
+        }
+
+        public static void FillDropdownGetSetValueCallback(object newValue, out GenericMenu.MenuFunction2 func, out object param)
+        {
+            bool isDropdownBeingFilled = s_dropdownMenuSentinel < 0;
+            if (!isDropdownBeingFilled)
+            {
+                throw new InvalidOperationException("Only call FillDropdownGetSetValueCallback from inside Dropdown callback");
+            }
+            func = DropdownMenuFunction;
+            param = new DropdownMenuFunctionData(s_dropdownMenuSentinel, newValue);
+        }
+
+        private class DropdownMenuFunctionData
+        {
+            public readonly int Sentinel;
+            public readonly object Value;
+
+            public DropdownMenuFunctionData(int sentinel, object value)
+            {
+                Sentinel = sentinel;
+                Value = value;
+            }
+        }
+
+        private static void DropdownMenuFunction(object arg)
+        {
+            var data = (DropdownMenuFunctionData)arg;
+            if (data.Sentinel == s_dropdownMenuSentinel)
+            {
+                s_activeDropdownControlValue = data.Value;
+                s_hasDropdownControlValueChanged = true;
             }
         }
 
@@ -314,6 +419,20 @@ namespace GGEZ.Labkit
             }
         }
 
+        private static GUIStyle s_settingToggleStyle;
+
+        public static GUIStyle SettingToggleStyle
+        {
+            get
+            {
+                if (s_settingToggleStyle == null)
+                {
+                    s_settingToggleStyle = new GUIStyle(EditorStyles.toggle);
+                }
+                return s_settingToggleStyle;
+            }
+        }
+
         //-----------------------------------------------------
         // GridTexture
         //-----------------------------------------------------
@@ -327,6 +446,22 @@ namespace GGEZ.Labkit
                     s_gridTexture = GolemEditorUtility.GenerateGridTexture(GridSize * 10, GridSize, new Color(0.9f, 0.9f, 0.9f), new Color(0.8f, 0.8f, 0.8f));
                 }
                 return s_gridTexture;
+            }
+        }
+
+        //-----------------------------------------------------
+        // NoSettingGUIContent
+        //-----------------------------------------------------
+        private static GUIContent s_noSettingGUIContent;
+        public static GUIContent NoSettingGUIContent
+        {
+            get
+            {
+                if (s_noSettingGUIContent == null)
+                {
+                    s_noSettingGUIContent = new GUIContent(" No Setting", EditorGUIUtility.FindTexture("d_console.erroricon.sml"));
+                }
+                return s_noSettingGUIContent;
             }
         }
 
@@ -856,9 +991,11 @@ namespace GGEZ.Labkit
     public class RepresentsAttribute : Attribute
     {
         public Type Type;
-        public RepresentsAttribute(Type type)
+        public bool CanUseSettings;
+        public RepresentsAttribute(Type type, bool canUseSettings = true)
         {
             Type = type;
+            CanUseSettings = canUseSettings;
         }
     }
 
@@ -875,11 +1012,11 @@ namespace GGEZ.Labkit
         [Represents(typeof(Vector2))] Vector2,
         [Represents(typeof(Vector3))] Vector3,
         [Represents(typeof(UnityEngine.Object))] UnityObject,
-        [Represents(typeof(SettingRef))] SettingRef,
-        [Represents(typeof(VariableRef))] VariableRef,
+        [Represents(typeof(SettingRef), false)] SettingRef,
+        [Represents(typeof(VariableRef), false)] VariableRef,
         [Represents(typeof(Enum))] Enum,
         [Represents(typeof(KeyCode))] KeyCode,
-        [Represents(typeof(Trigger))] TriggerRef,
+        [Represents(typeof(Trigger), false)] TriggerRef,
 
         Invalid = int.MaxValue,
     }
@@ -889,6 +1026,7 @@ namespace GGEZ.Labkit
     public static partial class InspectableTypeExt
     {
         private static Dictionary<Type, InspectableType> s_typeToInspectableType;
+        private static HashSet<InspectableType> s_typesThatCanUseSettings = new HashSet<InspectableType>();
         public static InspectableType GetInspectableTypeOf(Type type)
         {
             // If we haven't built our type-map for the enum yet, do it now
@@ -906,6 +1044,10 @@ namespace GGEZ.Labkit
                     foreach (RepresentsAttribute attribute in attributes)
                     {
                         s_typeToInspectableType.Add(attribute.Type, value);
+                        if (attribute.CanUseSettings)
+                        {
+                            s_typesThatCanUseSettings.Add(value);
+                        }
                     }
                 }
             }
@@ -928,6 +1070,11 @@ namespace GGEZ.Labkit
 
             Debug.LogWarning(type.Name + " is not an InspectableType");
             return InspectableType.Invalid;
+        }
+
+        public static bool CanUseSetting(InspectableType inspectableType)
+        {
+            return s_typesThatCanUseSettings.Contains(inspectableType);
         }
     }
 
@@ -1182,11 +1329,13 @@ namespace GGEZ.Labkit
         {
             public readonly InspectableType Type;
             public readonly FieldInfo FieldInfo;
+            public readonly bool CanUseSetting;
 
-            public Field(InspectableType type, FieldInfo fieldInfo)
+            public Field(InspectableType type, FieldInfo fieldInfo, bool canUseSetting)
             {
                 Type = type;
                 FieldInfo = fieldInfo;
+                CanUseSetting = canUseSetting;
             }
         }
 
@@ -1207,7 +1356,8 @@ namespace GGEZ.Labkit
                     var inspectableType = InspectableTypeExt.GetInspectableTypeOf(fields[i].FieldType);
                     if (inspectableType != InspectableType.Invalid)
                     {
-                        returnedFields[j++] = new Field(inspectableType, fields[i]);
+                        bool canUseSetting = InspectableTypeExt.CanUseSetting(inspectableType);
+                        returnedFields[j++] = new Field(inspectableType, fields[i], canUseSetting);
                     }
                 }
                 Array.Resize(ref returnedFields, j);

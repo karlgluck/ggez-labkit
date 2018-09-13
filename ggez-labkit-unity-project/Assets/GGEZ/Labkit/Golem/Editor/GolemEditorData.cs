@@ -55,7 +55,7 @@ namespace GGEZ.Labkit
         //---------------------------------------------------------------------
         // Load (static)
         //---------------------------------------------------------------------
-        public static GolemEditorData Load(Golem entity)
+        public static GolemEditorData Load(Golem golem)
         {
             // // Only load prefab instances
             // bool isPrefab = PrefabUtility.GetPrefabType(entity) == PrefabType.PrefabInstance;
@@ -64,7 +64,7 @@ namespace GGEZ.Labkit
             //     return null;
             // }
 
-            GolemEditorAsset editorAsset = entity.EditorAsset as GolemEditorAsset;
+            GolemEditorAsset editorAsset = golem.EditorAsset as GolemEditorAsset;
             if (editorAsset == null)
             {
                 // editorAsset = Helper.FindAssetInPrefab<EntityEditorAsset>(entity);
@@ -73,17 +73,17 @@ namespace GGEZ.Labkit
             }
             editorAsset.hideFlags = HideFlags.DontSaveInBuild;
 
-            var editorData = entity.EditorData as GolemEditorData;
+            var editorData = golem.EditorData as GolemEditorData;
             if (editorData == null)
             {
                 editorData = new GolemEditorData();
             }
-            editorData.Golem = entity;
+            editorData.Golem = golem;
             editorData.EditorAsset = editorAsset;
-            entity.EditorData = editorData;
-            entity.EditorAsset = editorAsset;
+            golem.EditorData = editorData;
+            golem.EditorAsset = editorAsset;
 
-            entity.Load();
+            golem.Load();
             editorData.Load();
 
             return editorData;
@@ -91,6 +91,8 @@ namespace GGEZ.Labkit
 
         public Golem Golem;
         public GolemEditorAsset EditorAsset;
+
+        public Settings Settings;
 
         // Aspects
         //------------------
@@ -155,6 +157,16 @@ namespace GGEZ.Labkit
                     return;
                 }
             }
+
+            //-------------------------------------------------
+            // Settings
+            //-------------------------------------------------
+            Settings = new Settings();
+            if (deserialized.ContainsKey("Settings"))
+            {
+                Settings.Values = deserialized["Settings"] as Dictionary<string, object>;
+            }
+            Settings.InheritFrom = EditorAsset.InheritSettingsFrom;
 
             //-------------------------------------------------
             // Variables
@@ -258,6 +270,13 @@ namespace GGEZ.Labkit
 
             // Holds data to be written to the entity asset
             Dictionary<string, object> serialized = new Dictionary<string, object>();
+
+            //-------------------------------------------------------------
+            // Write Settings
+            //-------------------------------------------------------------
+            {
+                serialized["Settings"] = new Dictionary<string, object>(Settings.Values);
+            }
 
             //-------------------------------------------------------------
             // Write Variables
@@ -627,7 +646,18 @@ namespace GGEZ.Labkit
                         {
                             int scriptIndex = scripts.Count;
                             stateScripts[j] = scriptIndex;
-                            scripts.Add(editorScripts[j].Script.Clone());
+                            var editorScript = editorScripts[j];
+                            var script = editorScript.Script.Clone();
+                            Type scriptType = script.GetType();
+                            foreach (var keyValuePair in editorScript.FieldsUsingSettings)
+                            {
+                                Debug.Assert(keyValuePair.Key != null);
+                                Debug.Assert(keyValuePair.Value != null);
+                                FieldInfo fieldInfo = scriptType.GetField(keyValuePair.Key);
+                                object valueFromSettings = Settings.Get(keyValuePair.Value, fieldInfo.FieldType);
+                                fieldInfo.SetValue(script, valueFromSettings);
+                            }
+                            scripts.Add(script);
                         }
                         int stateIndex = states.Count;
                         editorState.CompiledIndex = (StateIndex)states.Count;

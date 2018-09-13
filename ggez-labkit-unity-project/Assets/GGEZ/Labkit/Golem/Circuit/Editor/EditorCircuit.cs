@@ -43,6 +43,7 @@ namespace GGEZ.Labkit
         public List<EditorWire> Inputs = new List<EditorWire>();
         public List<EditorWire> Outputs = new List<EditorWire>();
         public Rect Position;
+        public Dictionary<string,string> FieldsUsingSettings = new Dictionary<string,string>();
 
         public bool HasInputWire(string name)
         {

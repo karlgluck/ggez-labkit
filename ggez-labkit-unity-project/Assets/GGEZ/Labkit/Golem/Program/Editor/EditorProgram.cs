@@ -117,6 +117,7 @@ namespace GGEZ.Labkit
         //       individual scripts while editing!
 
         public Script Script;
+        public Dictionary<string,string> FieldsUsingSettings = new Dictionary<string,string>();
     }
 
     //-------------------------------------------------------------------------

@@ -969,9 +969,46 @@ namespace GGEZ.Labkit
                         var position = new Rect(labelRect);
                         position.xMin = position.xMin + Mathf.Min(EditorGUIUtility.labelWidth, position.width / 2f);
                         labelRect.xMax = position.xMin;
-                        EditorGUI.LabelField(labelRect, fields[j].FieldInfo.Name);
                         var fieldInfo = fields[j];
-                        fieldInfo.FieldInfo.SetValue(editorScript.Script, GolemEditorUtility.EditorGUIField(position, fieldInfo.Type, fieldInfo.FieldInfo.FieldType, fieldInfo.FieldInfo.GetValue(editorScript.Script)));
+                        bool hasSetting = false;
+                        string setting = null;
+                        string fieldName = fieldInfo.FieldInfo.Name;
+                        if (fieldInfo.CanUseSetting)
+                        {
+                            hasSetting = editorScript.FieldsUsingSettings.TryGetValue(fieldName, out setting);
+                            if (hasSetting != EditorGUI.ToggleLeft(labelRect, fields[j].FieldInfo.Name, hasSetting))
+                            {
+                                if (hasSetting)
+                                {
+                                    editorScript.FieldsUsingSettings.Remove(fieldName);
+                                }
+                                hasSetting = !hasSetting;
+                            }
+                        }
+                        else
+                        {
+                            EditorGUI.LabelField(labelRect, fields[j].FieldInfo.Name);
+                        }
+                        object value;
+                        if (hasSetting)
+                        {
+                            setting = (string)GolemEditorUtility.Dropdown(
+                                    position,
+                                    setting == null ? GolemEditorUtility.NoSettingGUIContent : new GUIContent(setting),
+                                    setting,
+                                    FillDropdownForPickingSetting,
+                                    _editable.Settings,
+                                    fieldInfo.FieldInfo.FieldType
+                                    );
+                            editorScript.FieldsUsingSettings[fieldName] = setting;
+                            value = _editable.Settings.Get(setting, fieldInfo.FieldInfo.FieldType);
+                        }
+                        else
+                        {
+                            value = fieldInfo.FieldInfo.GetValue(editorScript.Script);
+                            value = GolemEditorUtility.EditorGUIField(position, fieldInfo.Type, fieldInfo.FieldInfo.FieldType, value);
+                        }
+                        fieldInfo.FieldInfo.SetValue(editorScript.Script, value);
                     }
                 }
 
@@ -1238,6 +1275,18 @@ namespace GGEZ.Labkit
                 _editable.Save();
                 Repaint();
                 _shouldWrite = false;
+            }
+        }
+
+        private void FillDropdownForPickingSetting(object currentValue, GenericMenu menu, object[] context)
+        {
+            var settings = (Settings)context[0];
+            var settingType = context[1] as Type;
+            menu.AddItem(new GUIContent("New " + settingType.Name + " Setting..."), false, () => {});
+            menu.AddSeparator("");
+            foreach (var key in settings.Keys().ToArray())
+            {
+                GolemEditorUtility.FillDropdownAddSetValueItem(menu, new GUIContent(key), key == (string)currentValue, key);
             }
         }
 
