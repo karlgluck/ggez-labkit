@@ -1294,11 +1294,13 @@ namespace GGEZ.Labkit
         {
             public readonly InspectableType Type;
             public readonly FieldInfo FieldInfo;
+            public readonly bool CanUseSetting;
 
-            public Field(InspectableType type, FieldInfo fieldInfo)
+            public Field(InspectableType type, FieldInfo fieldInfo, bool canUseSetting)
             {
                 Type = type;
                 FieldInfo = fieldInfo;
+                CanUseSetting = canUseSetting;
             }
         }
 
@@ -1340,7 +1342,8 @@ namespace GGEZ.Labkit
                     var inspectableType = InspectableTypeExt.GetInspectableTypeOf(fields[i].FieldType);
                     if (inspectableType != InspectableType.Invalid)
                     {
-                        returnedFields[j++] = new Field(inspectableType, fields[i]);
+                        bool canUseSetting = InspectableTypeExt.CanUseSetting(inspectableType);
+                        returnedFields[j++] = new Field(inspectableType, fields[i], canUseSetting);
                     }
                 }
                 Array.Resize(ref returnedFields, j);

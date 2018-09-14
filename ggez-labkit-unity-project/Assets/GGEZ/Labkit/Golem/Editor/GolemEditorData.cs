@@ -506,9 +506,11 @@ namespace GGEZ.Labkit
                 // Write out all of the cells in the traversal order
                 //---------------------------------------------------------
                 Cell[] cells = new Cell[EditorCells.Count];
+                HashSet<string> fieldNamesToRemove = new HashSet<string>();
                 for (int i = 0; i < EditorCells.Count; ++i)
                 {
-                    var cell = EditorCells[i].Cell.Clone();
+                    var editorCell = EditorCells[i];
+                    var cell = editorCell.Cell.Clone();
                     cells[cellRemap[i]] = cell;
                     var cellType = cell.GetType();
 
@@ -527,17 +529,40 @@ namespace GGEZ.Labkit
                     //-------------------------------------------------
                     // Set the register indices for every active I/O
                     //-------------------------------------------------
-                    var inputs = EditorCells[i].Inputs;
+                    var inputs = editorCell.Inputs;
                     for (int j = 0; j < inputs.Count; ++j)
                     {
                         string registerKey = inputs[j].ReadCell.Index + ".{" + inputs[j].ReadField + "}";
                         cellType.GetField(inputs[j].WriteField).SetValue(cell, cellOutputToRegister[registerKey]);
                     }
-                    var outputs = EditorCells[i].Outputs;
+                    var outputs = editorCell.Outputs;
                     for (int j = 0; j < outputs.Count; ++j)
                     {
                         string registerKey = outputs[j].ReadCell.Index + ".{" + outputs[j].ReadField + "}";
                         cellType.GetField(outputs[j].ReadField).SetValue(cell, cellOutputToRegister[registerKey]);
+                    }
+
+                    //-------------------------------------------------
+                    // Apply settings values
+                    //-------------------------------------------------
+                    fieldNamesToRemove.Clear();
+                    foreach (var keyValuePair in editorCell.FieldsUsingSettings)
+                    {
+                        Debug.Assert(keyValuePair.Key != null);
+                        FieldInfo fieldInfo = cellType.GetField(keyValuePair.Key);
+                        if (fieldInfo == null)
+                        {
+                            fieldNamesToRemove.Add(keyValuePair.Key);
+                        }
+                        else
+                        {
+                            object valueFromSettings = Settings.Get(keyValuePair.Value, fieldInfo.FieldType);
+                            fieldInfo.SetValue(cell, valueFromSettings);
+                        }
+                    }
+                    foreach (string name in fieldNamesToRemove)
+                    {
+                        editorCell.FieldsUsingSettings.Remove(name);
                     }
                 }
 

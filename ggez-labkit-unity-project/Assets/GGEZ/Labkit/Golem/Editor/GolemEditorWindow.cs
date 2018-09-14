@@ -901,13 +901,14 @@ namespace GGEZ.Labkit
                 var fields = inspectableCellType.Fields;
                 for (int i = 0; i < fields.Length; ++i)
                 {
-                    var labelRect = EditorGUILayout.GetControlRect();
-                    var position = new Rect(labelRect);
-                    position.xMin = position.xMin + Mathf.Min(EditorGUIUtility.labelWidth, position.width / 2f);
-                    labelRect.xMax = position.xMin;
-                    EditorGUI.LabelField(labelRect, fields[i].FieldInfo.Name);
                     var fieldInfo = fields[i];
-                    fieldInfo.FieldInfo.SetValue(editorCell.Cell, GolemEditorUtility.EditorGUIField(position, fieldInfo.Type, fieldInfo.FieldInfo.FieldType, fieldInfo.FieldInfo.GetValue(editorCell.Cell)));
+                    EditorGUILayoutInspectableFieldWithSettings(
+                        fieldInfo.CanUseSetting,
+                        fieldInfo.Type,
+                        fieldInfo.FieldInfo,
+                        editorCell.Cell,
+                        editorCell.FieldsUsingSettings
+                        );
                 }
 
                 GolemEditorUtility.EndNode();
@@ -965,55 +966,8 @@ namespace GGEZ.Labkit
                     var fields = inspectableType.Fields;
                     for (int j = 0; j < fields.Length; ++j)
                     {
-                        var labelRect = EditorGUILayout.GetControlRect();
-                        var position = new Rect(labelRect);
-                        position.xMin = position.xMin + Mathf.Min(EditorGUIUtility.labelWidth, position.width / 2f);
-                        labelRect.xMax = position.xMin;
                         var fieldInfo = fields[j];
-                        bool hasSetting = false;
-                        string setting = null;
-                        string fieldName = fieldInfo.FieldInfo.Name;
-                        if (fieldInfo.CanUseSetting)
-                        {
-                            hasSetting = editorScript.FieldsUsingSettings.TryGetValue(fieldName, out setting);
-                            if (hasSetting != EditorGUI.ToggleLeft(labelRect, fields[j].FieldInfo.Name, hasSetting))
-                            {
-                                if (hasSetting)
-                                {
-                                    editorScript.FieldsUsingSettings.Remove(fieldName);
-                                }
-                                hasSetting = !hasSetting;
-                            }
-                        }
-                        else
-                        {
-                            EditorGUI.LabelField(labelRect, fields[j].FieldInfo.Name);
-                        }
-                        object value;
-                        if (hasSetting)
-                        {
-                            Type fieldType = fieldInfo.FieldInfo.FieldType;
-                            if (!_editable.Settings.Contains(setting, fieldType))
-                            {
-                                setting = null;
-                            }
-                            setting = (string)GolemEditorUtility.Dropdown(
-                                    position,
-                                    setting == null ? GolemEditorUtility.NoSettingGUIContent : new GUIContent(setting),
-                                    setting,
-                                    FillDropdownForPickingSetting,
-                                    _editable.Settings,
-                                    fieldType
-                                    );
-                            editorScript.FieldsUsingSettings[fieldName] = setting;
-                            value = _editable.Settings.Get(setting, fieldType);
-                        }
-                        else
-                        {
-                            value = fieldInfo.FieldInfo.GetValue(editorScript.Script);
-                            value = GolemEditorUtility.EditorGUIField(position, fieldInfo.Type, fieldInfo.FieldInfo.FieldType, value);
-                        }
-                        fieldInfo.FieldInfo.SetValue(editorScript.Script, value);
+                        EditorGUILayoutInspectableFieldWithSettings(fieldInfo.CanUseSetting, fieldInfo.Type, fieldInfo.FieldInfo, editorScript.Script, editorScript.FieldsUsingSettings);
                     }
                 }
 
@@ -1281,6 +1235,58 @@ namespace GGEZ.Labkit
                 Repaint();
                 _shouldWrite = false;
             }
+        }
+
+        private void EditorGUILayoutInspectableFieldWithSettings(bool canUseSetting, InspectableType inspectableType, FieldInfo fieldInfo, object target, Dictionary<string,string> fieldsUsingSettings)
+        {
+            var labelRect = EditorGUILayout.GetControlRect();
+            var position = new Rect(labelRect);
+            position.xMin = position.xMin + Mathf.Min(EditorGUIUtility.labelWidth, position.width / 2f);
+            labelRect.xMax = position.xMin;
+            bool hasSetting = false;
+            string setting = null;
+            string fieldName = fieldInfo.Name;
+            if (canUseSetting)
+            {
+                hasSetting = fieldsUsingSettings.TryGetValue(fieldName, out setting);
+                if (hasSetting != EditorGUI.ToggleLeft(labelRect, fieldInfo.Name, hasSetting))
+                {
+                    if (hasSetting)
+                    {
+                        fieldsUsingSettings.Remove(fieldName);
+                    }
+                    hasSetting = !hasSetting;
+                }
+            }
+            else
+            {
+                EditorGUI.LabelField(labelRect, fieldInfo.Name);
+            }
+            object value;
+            if (hasSetting)
+            {
+                Type fieldType = fieldInfo.FieldType;
+                if (!_editable.Settings.Contains(setting, fieldType))
+                {
+                    setting = null;
+                }
+                setting = (string)GolemEditorUtility.Dropdown(
+                        position,
+                        setting == null ? GolemEditorUtility.NoSettingGUIContent : new GUIContent(setting),
+                        setting,
+                        FillDropdownForPickingSetting,
+                        _editable.Settings,
+                        fieldType
+                        );
+                fieldsUsingSettings[fieldName] = setting;
+                value = _editable.Settings.Get(setting, fieldType);
+            }
+            else
+            {
+                value = fieldInfo.GetValue(target);
+                value = GolemEditorUtility.EditorGUIField(position, inspectableType, fieldInfo.FieldType, value);
+            }
+            fieldInfo.SetValue(target, value);
         }
 
         /// <summary>
