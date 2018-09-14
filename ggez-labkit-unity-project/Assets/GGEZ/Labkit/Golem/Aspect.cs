@@ -34,9 +34,6 @@ namespace GGEZ.Labkit
 
         [GGEZ.FullSerializer.fsIgnore]
         public Variables Variables;
-
-        [GGEZ.FullSerializer.fsIgnore]
-        public Settings Settings;
     }
 
     [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
@@ -53,7 +50,7 @@ namespace GGEZ.Labkit
         public object DefaultValue { get; set; }
     }
 
-    [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
     public class SettingAttribute : Attribute
     {
         public SettingAttribute(string name, object defaultValue, string tooltip = "")

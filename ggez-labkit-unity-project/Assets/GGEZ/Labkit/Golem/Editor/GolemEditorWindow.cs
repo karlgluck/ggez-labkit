@@ -992,16 +992,21 @@ namespace GGEZ.Labkit
                         object value;
                         if (hasSetting)
                         {
+                            Type fieldType = fieldInfo.FieldInfo.FieldType;
+                            if (!_editable.Settings.Contains(setting, fieldType))
+                            {
+                                setting = null;
+                            }
                             setting = (string)GolemEditorUtility.Dropdown(
                                     position,
                                     setting == null ? GolemEditorUtility.NoSettingGUIContent : new GUIContent(setting),
                                     setting,
                                     FillDropdownForPickingSetting,
                                     _editable.Settings,
-                                    fieldInfo.FieldInfo.FieldType
+                                    fieldType
                                     );
                             editorScript.FieldsUsingSettings[fieldName] = setting;
-                            value = _editable.Settings.Get(setting, fieldInfo.FieldInfo.FieldType);
+                            value = _editable.Settings.Get(setting, fieldType);
                         }
                         else
                         {
@@ -1278,16 +1283,74 @@ namespace GGEZ.Labkit
             }
         }
 
+        /// <summary>
+        ///     Adds entries to the menu that appears when the user clicks a
+        ///     settings dropdown. These values are pulled from the settings
+        ///     for this golem and all settings up the inheritance chain.
+        /// </summary>
         private void FillDropdownForPickingSetting(object currentValue, GenericMenu menu, object[] context)
         {
-            var settings = (Settings)context[0];
+            string currentKey = (string)currentValue;
+            var settings = context[0] as Settings;
             var settingType = context[1] as Type;
-            menu.AddItem(new GUIContent("New " + settingType.Name + " Setting..."), false, () => {});
-            menu.AddSeparator("");
-            foreach (var key in settings.Keys().ToArray())
+
+            object setValueCallbackContext = GolemEditorUtility.GetFillDropdownSetValueCallbackContext();
+            string newSettingString = "New " + settingType.Name + " Setting...";
+
+            HashSet<string> encounteredSettings = new HashSet<string>();
+
+            Settings current = settings;
+            bool needsRootSeparator = false;
+            bool isSelf = true;
+            while (current != null)
             {
-                GolemEditorUtility.FillDropdownAddSetValueItem(menu, new GUIContent(key), key == (string)currentValue, key);
+                if (needsRootSeparator)
+                {
+                    menu.AddSeparator("");
+                    needsRootSeparator = false;
+                }
+
+                string prefix = isSelf ? "" : (current.Name + "/");
+                menu.AddItem(new GUIContent(prefix + newSettingString), false, FillDropdownNewSetting, new object[]{current, settingType, setValueCallbackContext});
+
+                var enumerator = current.Values.GetEnumerator();
+                if (enumerator.MoveNext())
+                {
+                    menu.AddSeparator(prefix);
+                    do
+                    {
+                        string name = enumerator.Current.Name;
+                        if (settingType.IsAssignableFrom(enumerator.Current.Type))
+                        {
+                            if (encounteredSettings.Contains(name))
+                            {
+                                menu.AddDisabledItem(new GUIContent(prefix + name + " (overridden)"));
+                            }
+                            else
+                            {
+                                GolemEditorUtility.FillDropdownAddSetValueItem(menu, new GUIContent(prefix + name), currentKey == name, name);
+                            }
+                        }
+                        encounteredSettings.Add(name);
+                    } while (enumerator.MoveNext());
+                }
+
+                current = current.InheritFrom == null ? null : current.InheritFrom.Settings;
+                needsRootSeparator = needsRootSeparator || isSelf;
+                isSelf = false;
             }
+        }
+
+        private static void FillDropdownNewSetting(object contextParam)
+        {
+            var context = contextParam as object[];
+            var settings = context[0] as Settings;
+            var settingType = context[1] as Type;
+            var setValueCallbackContext = context[2];
+
+            string newSettingName = Guid.NewGuid().ToString();
+            settings.Add(newSettingName, settingType);
+            GolemEditorUtility.FillDropdownSetValueCallback(newSettingName, setValueCallbackContext);
         }
 
         private void removeTransitionAt(EditorTransitionIndex indexToRemove)

@@ -18,22 +18,13 @@ public class JoystickAspect : Aspect
     public Transform joystick;
 
     [Setting("Joystick.DeadZone", 5f, "Moving the mouse fewer than this many pixels from center does nothing")]
-    public float DeadZone
-    {
-        get { return (float)Settings.Get("Joystick.DeadZone"); }
-    }
+    public float DeadZone;
 
     [Setting("Joystick.Limit", 155f, "Description")]
-    public float Limit
-    {
-        get { return (float)Settings.Get("Joystick.Limit"); }
-    }
+    public float Limit;
 
     [Setting("Joystick.AngleThreshold", 55f, "Description")]
-    public float AngleThreshold
-    {
-        get { return (float)Settings.Get("Joystick.AngleThreshold"); }
-    }
+    public float AngleThreshold;
 
     public bool JoystickActive;
     public int JoystickURDL;
@@ -150,25 +141,6 @@ public class ReadFloatVariable : Cell
 
 
 
-[RequireSettings]
-public class ReadFloatSetting : Cell
-{
-    public SettingRef Setting;
-    [Out] public FloatPtr Output;
-
-    public override void Acquire(Golem entity, ref bool running)
-    {
-        running = true;
-    }
-
-    public override void Update(Golem entity, bool dirty, ref bool running)
-    {
-        entity.Set(Output, (float)entity.Read(Setting));
-    #if !UNITY_EDITOR
-        running = false;
-    #endif
-    }
-}
 
 public class FloatConstant : Cell
 {

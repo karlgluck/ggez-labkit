@@ -43,9 +43,6 @@ namespace GGEZ.Labkit
     public class RequireVariablesAttribute : Attribute { }
 
     [AttributeUsage(AttributeTargets.Class)]
-    public class RequireSettingsAttribute : Attribute { }
-
-    [AttributeUsage(AttributeTargets.Class)]
     public class RequireAspectAttribute : Attribute
     {
         public Type AspectType;

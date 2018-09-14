@@ -41,10 +41,10 @@ namespace GGEZ.Labkit
     public class GolemAspectEditorData
     {
         public FieldInfo Field;
-        public Aspect _aspect;
+        public Aspect Aspect;
         public InspectableFieldInfo[] _aspectFields;
         public InspectableVariablePropertyInfo[] _aspectVariables;
-        public InspectableSettingPropertyInfo[] _aspectSettings;
+        // public InspectableSettingPropertyInfo[] _aspectSettings;
     }
 
     //-------------------------------------------------------------------------
@@ -92,14 +92,17 @@ namespace GGEZ.Labkit
         public Golem Golem;
         public GolemEditorAsset EditorAsset;
 
+        [System.NonSerialized]
         public Settings Settings;
 
         // Aspects
         //------------------
+        [System.NonSerialized]
         public List<GolemAspectEditorData> EditorAspects = new List<GolemAspectEditorData>();
 
         // Variables
         //------------------
+        [System.NonSerialized]
         public InspectableDictionaryKeyValuePair[] _variables = new InspectableDictionaryKeyValuePair[0];
 
         // Circuit
@@ -161,12 +164,14 @@ namespace GGEZ.Labkit
             //-------------------------------------------------
             // Settings
             //-------------------------------------------------
-            Settings = new Settings();
             if (deserialized.ContainsKey("Settings"))
             {
-                Settings.Values = deserialized["Settings"] as Dictionary<string, object>;
+                Settings = new Settings(Golem, EditorAsset.InheritSettingsFrom, deserialized["Settings"] as List<Settings.Setting>);
             }
-            Settings.InheritFrom = EditorAsset.InheritSettingsFrom;
+            else
+            {
+                Settings = new Settings(Golem, EditorAsset.InheritSettingsFrom);
+            }
 
             //-------------------------------------------------
             // Variables
@@ -195,10 +200,10 @@ namespace GGEZ.Labkit
                     }
                     var item = new GolemAspectEditorData();
                     item.Field = aspectField;
-                    item._aspect = aspect;
+                    item.Aspect = aspect;
                     item._aspectFields = InspectableFieldInfo.GetFields(aspect);
                     item._aspectVariables = InspectableVariablePropertyInfo.GetVariableProperties(aspect);
-                    item._aspectSettings = InspectableSettingPropertyInfo.GetSettingProperties(aspect);
+                    // item._aspectSettings = InspectableSettingPropertyInfo.GetSettingProperties(aspect);
                     EditorAspects.Add(item);
                 }
             }
@@ -272,13 +277,6 @@ namespace GGEZ.Labkit
             Dictionary<string, object> serialized = new Dictionary<string, object>();
 
             //-------------------------------------------------------------
-            // Write Settings
-            //-------------------------------------------------------------
-            {
-                serialized["Settings"] = new Dictionary<string, object>(Settings.Values);
-            }
-
-            //-------------------------------------------------------------
             // Write Variables
             //-------------------------------------------------------------
             {
@@ -297,7 +295,7 @@ namespace GGEZ.Labkit
                 for (int i = 0; i < EditorAspects.Count; ++i)
                 {
                     var editorAspect = EditorAspects[i];
-                    aspects[editorAspect.Field.Name] = editorAspect._aspect;
+                    aspects[editorAspect.Field.Name] = editorAspect.Aspect;
                 }
                 serialized["Aspects"] = aspects;
             }
@@ -621,6 +619,7 @@ namespace GGEZ.Labkit
                 List<Script> scripts = new List<Script>();
                 List<State> states = new List<State>();
                 var exprWorklist = new List<EditorTransitionExpression>();
+                HashSet<string> fieldNamesToRemove = new HashSet<string>();
                 for (int layerIndex = 0; layerIndex < layersBuilder.Count; ++layerIndex)
                 {
                     var editorStates = layersBuilder[layerIndex];
@@ -649,13 +648,28 @@ namespace GGEZ.Labkit
                             var editorScript = editorScripts[j];
                             var script = editorScript.Script.Clone();
                             Type scriptType = script.GetType();
+                            fieldNamesToRemove.Clear();
                             foreach (var keyValuePair in editorScript.FieldsUsingSettings)
                             {
                                 Debug.Assert(keyValuePair.Key != null);
                                 Debug.Assert(keyValuePair.Value != null);
                                 FieldInfo fieldInfo = scriptType.GetField(keyValuePair.Key);
-                                object valueFromSettings = Settings.Get(keyValuePair.Value, fieldInfo.FieldType);
-                                fieldInfo.SetValue(script, valueFromSettings);
+                                if (fieldInfo == null)
+                                {
+                                    // This field doesn't exist anymore. It might have been removed
+                                    // from the script or there is bad data; either way, just remove
+                                    // the key.
+                                    fieldNamesToRemove.Add(keyValuePair.Key);
+                                }
+                                else
+                                {
+                                    object valueFromSettings = Settings.Get(keyValuePair.Value, fieldInfo.FieldType);
+                                    fieldInfo.SetValue(script, valueFromSettings);
+                                }
+                            }
+                            foreach (string name in fieldNamesToRemove)
+                            {
+                                editorScript.FieldsUsingSettings.Remove(name);
                             }
                             scripts.Add(script);
                         }
@@ -805,12 +819,14 @@ namespace GGEZ.Labkit
                 serialized["EditorWires"] = EditorWires;
                 serialized["EditorStates"] = EditorStates;
                 serialized["EditorTransitions"] = EditorTransitions;
+                serialized["Settings"] = Settings.Values;
+
                 fsData data;
                 serializer.TrySerialize(serialized, out data);
                 EditorAsset.Json = fsJsonPrinter.PrettyJson(data);
                 EditorAsset.Data = data;
                 EditorUtility.SetDirty(EditorAsset);
-                Debug.Log("References: " + Golem.References.Count + " @ " + Golem.References.GetHashCode());
+                // Debug.Log("References: " + Golem.References.Count + " @ " + Golem.References.GetHashCode());
             }
 
             //-----------------------------------------------------------------

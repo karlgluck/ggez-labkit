@@ -29,6 +29,7 @@ using System.Reflection;
 using GGEZ.FullSerializer;
 using System.Collections.Generic;
 using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
+using UnityEditor;
 
 namespace GGEZ.Labkit
 {
@@ -54,7 +55,17 @@ namespace GGEZ.Labkit
         // Runtime
         //-----------------------------------------------------------------
         [System.NonSerialized]
-        public Settings Settings = new Settings();
+        public Settings Settings;
+
+        void Reset()
+        {
+            Settings = new Settings(this, InheritFrom);
+        }
+
+        void OnEnable()
+        {
+            name = System.IO.Path.GetFileNameWithoutExtension(AssetDatabase.GetAssetPath(this));
+        }
 
         //-----------------------------------------------------
         // OnBeforeSerialize
@@ -90,13 +101,12 @@ namespace GGEZ.Labkit
             if (result.Failed)
             {
                 Debug.LogError(result, this);
-                Settings = new Settings();
+                Settings = new Settings(this, InheritFrom);
             }
             else
             {
-                Settings.Values = new Dictionary<string, object>(deserialized["Values"] as Dictionary<string, object>);
+                Settings = new Settings(this, InheritFrom, deserialized["Values"] as List<Settings.Setting>);
             }
-            Settings.InheritFrom = InheritFrom;
         }
     }
 }

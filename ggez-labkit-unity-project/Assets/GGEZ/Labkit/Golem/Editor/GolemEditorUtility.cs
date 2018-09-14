@@ -111,6 +111,7 @@ namespace GGEZ.Labkit
         private static object s_activeDropdownControlValue;
         private static bool s_hasDropdownControlValueChanged;
         private static int s_dropdownMenuSentinel;
+        private static bool s_isDropdownBeingFilled;
 
 
         /// <summary>
@@ -143,16 +144,16 @@ namespace GGEZ.Labkit
                 s_activeDropdownControlValue = value;
                 s_hasDropdownControlValueChanged = false;
 
-                s_dropdownMenuSentinel = -s_dropdownMenuSentinel;
                 try
                 {
+                    s_isDropdownBeingFilled = true;
                     var menu = new GenericMenu();
                     fillDropdownMenuCallback(value, menu, context);
                     menu.DropDown(position);
                 }
                 finally
                 {
-                    s_dropdownMenuSentinel = -s_dropdownMenuSentinel;
+                    s_isDropdownBeingFilled = false;
                 }
             }
             if (s_hasActiveDropdown && s_activeDropdownControlId == controlId)
@@ -162,30 +163,20 @@ namespace GGEZ.Labkit
                     s_hasActiveDropdown = false;
                     value = s_activeDropdownControlValue;
                     s_hasDropdownControlValueChanged = false;
+                    GUI.changed = true;
                 }
             }
             return value;
         }
 
+
         public static void FillDropdownAddSetValueItem(GenericMenu menu, GUIContent content, bool on, object newValue)
         {
-            bool isDropdownBeingFilled = s_dropdownMenuSentinel < 0;
-            if (!isDropdownBeingFilled)
+            if (!s_isDropdownBeingFilled)
             {
                 throw new InvalidOperationException("Only call FillDropdownAddSetValueItem from inside Dropdown callback");
             }
             menu.AddItem(content, on, DropdownMenuFunction, new DropdownMenuFunctionData(s_dropdownMenuSentinel, newValue));
-        }
-
-        public static void FillDropdownGetSetValueCallback(object newValue, out GenericMenu.MenuFunction2 func, out object param)
-        {
-            bool isDropdownBeingFilled = s_dropdownMenuSentinel < 0;
-            if (!isDropdownBeingFilled)
-            {
-                throw new InvalidOperationException("Only call FillDropdownGetSetValueCallback from inside Dropdown callback");
-            }
-            func = DropdownMenuFunction;
-            param = new DropdownMenuFunctionData(s_dropdownMenuSentinel, newValue);
         }
 
         private class DropdownMenuFunctionData
@@ -206,6 +197,30 @@ namespace GGEZ.Labkit
             if (data.Sentinel == s_dropdownMenuSentinel)
             {
                 s_activeDropdownControlValue = data.Value;
+                s_hasDropdownControlValueChanged = true;
+                // probably need to dispatch a refresh event here to force the update to get called
+            }
+        }
+
+        public static object GetFillDropdownSetValueCallbackContext()
+        {
+            if (!s_isDropdownBeingFilled)
+            {
+                throw new InvalidOperationException("Only call FillDropdownGetSetValueCallback from inside Dropdown callback");
+            }
+            return s_dropdownMenuSentinel;
+        }
+
+        public static void FillDropdownSetValueCallback(object value, object context)
+        {
+            if (context == null)
+            {
+                throw new System.ArgumentNullException("context");
+            }
+            int sentinel = (int)context;
+            if (sentinel == s_dropdownMenuSentinel)
+            {
+                s_activeDropdownControlValue = value;
                 s_hasDropdownControlValueChanged = true;
             }
         }
@@ -1027,6 +1042,7 @@ namespace GGEZ.Labkit
     {
         private static Dictionary<Type, InspectableType> s_typeToInspectableType;
         private static HashSet<InspectableType> s_typesThatCanUseSettings = new HashSet<InspectableType>();
+        private static Type[] s_representedType;
         public static InspectableType GetInspectableTypeOf(Type type)
         {
             // If we haven't built our type-map for the enum yet, do it now
@@ -1036,6 +1052,7 @@ namespace GGEZ.Labkit
                 var enumType = typeof(InspectableType);
                 var enumValues = Enum.GetValues(enumType);
                 var enumNames = Enum.GetNames(enumType);
+                s_representedType = new Type[enumValues.Length];
                 for (int i = 0; i < enumValues.Length; ++i)
                 {
                     var value = (InspectableType)enumValues.GetValue(i);
@@ -1043,6 +1060,7 @@ namespace GGEZ.Labkit
                     var attributes = member[0].GetCustomAttributes(typeof(RepresentsAttribute), false);
                     foreach (RepresentsAttribute attribute in attributes)
                     {
+                        s_representedType[(int)value] = attribute.Type;
                         s_typeToInspectableType.Add(attribute.Type, value);
                         if (attribute.CanUseSettings)
                         {
@@ -1072,10 +1090,22 @@ namespace GGEZ.Labkit
             return InspectableType.Invalid;
         }
 
+        public static Type GetRepresentedType(InspectableType inspectableType)
+        {
+            int index = (int)inspectableType;
+            if (index < 0 || index >= s_representedType.Length)
+            {
+                return null;
+            }
+            return s_representedType[index];
+        }
+
         public static bool CanUseSetting(InspectableType inspectableType)
         {
             return s_typesThatCanUseSettings.Contains(inspectableType);
         }
+
+
     }
 
     //-----------------------------------------------------------------------------
@@ -1153,49 +1183,49 @@ namespace GGEZ.Labkit
     }
 
 
-    //-----------------------------------------------------------------------------
+    // //-----------------------------------------------------------------------------
+    // //
+    // //-----------------------------------------------------------------------------
+    // public struct InspectableSettingPropertyInfo
+    // {
+    //     public readonly InspectableType Type;
+    //     public readonly PropertyInfo PropertyInfo;
+    //     public readonly SettingAttribute SettingAttribute;
 
-    //-----------------------------------------------------------------------------
-    public struct InspectableSettingPropertyInfo
-    {
-        public readonly InspectableType Type;
-        public readonly PropertyInfo PropertyInfo;
-        public readonly SettingAttribute SettingAttribute;
+    //     public InspectableSettingPropertyInfo(InspectableType type, PropertyInfo propertyInfo, SettingAttribute settingAttribute)
+    //     {
+    //         Type = type;
+    //         PropertyInfo = propertyInfo;
+    //         SettingAttribute = settingAttribute;
+    //     }
 
-        public InspectableSettingPropertyInfo(InspectableType type, PropertyInfo propertyInfo, SettingAttribute settingAttribute)
-        {
-            Type = type;
-            PropertyInfo = propertyInfo;
-            SettingAttribute = settingAttribute;
-        }
-
-        public static InspectableSettingPropertyInfo[] GetSettingProperties(object target)
-        {
-            var properties = target.GetType().GetProperties();
-            var retval = new InspectableSettingPropertyInfo[properties.Length];
-            int j = 0;
-            for (int i = 0; i < properties.Length; ++i)
-            {
-                var attributes = properties[i].GetCustomAttributes(typeof(SettingAttribute), false);
-                SettingAttribute settingAttribute = null;
-                for (int k = 0; k < attributes.Length && settingAttribute == null; ++k)
-                {
-                    settingAttribute = attributes[k] as SettingAttribute;
-                }
-                if (settingAttribute == null)
-                {
-                    continue;
-                }
-                var inspectableType = InspectableTypeExt.GetInspectableTypeOf(properties[i].PropertyType);
-                if (inspectableType != InspectableType.Invalid)
-                {
-                    retval[j++] = new InspectableSettingPropertyInfo(inspectableType, properties[i], attributes[0] as SettingAttribute);
-                }
-            }
-            Array.Resize(ref retval, j);
-            return retval;
-        }
-    }
+    //     public static InspectableSettingPropertyInfo[] GetSettingProperties(object target)
+    //     {
+    //         var properties = target.GetType().GetProperties();
+    //         var retval = new InspectableSettingPropertyInfo[properties.Length];
+    //         int j = 0;
+    //         for (int i = 0; i < properties.Length; ++i)
+    //         {
+    //             var attributes = properties[i].GetCustomAttributes(typeof(SettingAttribute), false);
+    //             SettingAttribute settingAttribute = null;
+    //             for (int k = 0; k < attributes.Length && settingAttribute == null; ++k)
+    //             {
+    //                 settingAttribute = attributes[k] as SettingAttribute;
+    //             }
+    //             if (settingAttribute == null)
+    //             {
+    //                 continue;
+    //             }
+    //             var inspectableType = InspectableTypeExt.GetInspectableTypeOf(properties[i].PropertyType);
+    //             if (inspectableType != InspectableType.Invalid)
+    //             {
+    //                 retval[j++] = new InspectableSettingPropertyInfo(inspectableType, properties[i], attributes[0] as SettingAttribute);
+    //             }
+    //         }
+    //         Array.Resize(ref retval, j);
+    //         return retval;
+    //     }
+    // }
 
     //-----------------------------------------------------------------------------
     //-----------------------------------------------------------------------------

@@ -70,13 +70,6 @@ namespace GGEZ.Labkit
         public Variables Variables = new Variables();
 
         //---------------------------------------------------------------------
-        // Settings
-        //---------------------------------------------------------------------
-        public SettingsAsset SettingsAsset;
-        [System.NonSerialized]
-        public Settings Settings;
-
-        //---------------------------------------------------------------------
         // Awake (Unity)
         //---------------------------------------------------------------------
         private void Awake()
@@ -286,21 +279,6 @@ namespace GGEZ.Labkit
             }
 
             //-------------------------------------------------
-            // Settings
-            //-------------------------------------------------
-#if UNITY_EDITOR
-            if (SettingsAsset == null)
-            {
-                SettingsAsset = Helper.FindAssetInPrefab<SettingsAsset>(this);
-                // TODO: add link to the prefab if found here
-            }
-#endif
-            if (SettingsAsset != null)
-            {
-                Settings = SettingsAsset.Settings;
-            }
-
-            //-------------------------------------------------
             // Aspects
             //-------------------------------------------------
             if (deserialized.ContainsKey("Aspects"))
@@ -312,7 +290,6 @@ namespace GGEZ.Labkit
                     var aspect = kvp.Value;
                     aspect.Golem = this;
                     aspect.Variables = Variables;
-                    aspect.Settings = Settings;
                     var field = thisType.GetField(kvp.Key);
                     if (field == null)
                     {
@@ -380,14 +357,6 @@ namespace GGEZ.Labkit
         private bool[] _dirty;
         private bool[] _running;
         public Cell[] Cells;
-
-        //-----------------------------------------------------
-        // Read() for settings
-        //-----------------------------------------------------
-        public object Read(SettingRef setting)
-        {
-            return Settings.Get(setting.Name);
-        }
 
         //-----------------------------------------------------
         // Variable read/writes used by Cells
