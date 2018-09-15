@@ -275,7 +275,7 @@ namespace GGEZ.Labkit
             if (deserialized.ContainsKey("Variables"))
             {
                 Variables.NextFrameValues = deserialized["Variables"] as Dictionary<string, object>;
-                Variables.Values = new Dictionary<string, object>(deserialized["Variables"] as Dictionary<string, object>);
+                Variables.Values = new Dictionary<string, object>(Variables.NextFrameValues);
             }
 
             //-------------------------------------------------

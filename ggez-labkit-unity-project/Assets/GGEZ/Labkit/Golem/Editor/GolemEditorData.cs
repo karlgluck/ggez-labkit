@@ -127,7 +127,7 @@ namespace GGEZ.Labkit
             Debug.Assert(Golem != null);
             Debug.Assert(EditorAsset != null);
             Debug.Assert(EditorAsset == Golem.EditorAsset);
-            Debug.Log("References = " + Golem.References.Count());
+            // Debug.Log("References = " + Golem.References.Count());
 
             //-------------------------------------------------
             // Deserialize

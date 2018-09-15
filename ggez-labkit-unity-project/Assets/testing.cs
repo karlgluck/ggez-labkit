@@ -32,7 +32,7 @@ public class JoystickAspect : Aspect
     public bool JoystickTouch;
     public bool RawActionButtonInput;
 
-    [Variable("Joystick.Show", true, "Whether the joystick is displayed on screen")]
+    [Variable("ShowJoystick", true, "Whether the joystick is displayed on screen")]
     public bool Show
     {
         get { return (bool)Variables.Get("ShowJoystick"); }
