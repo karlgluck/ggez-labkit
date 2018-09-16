@@ -9,8 +9,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 94a1b500f85054702a616c3e115a349e, type: 3}
-  m_Name: Settings
+  m_Name: ParentSettings
   m_EditorClassIdentifier: 
   InheritFrom: {fileID: 0}
-  Json: '{}'
+  Json: '{"Values":{"$content":[{"Type":"System.Single","Name":"Threshold","Value":{"$content":5.0,"$type":"System.Single"}},{"Type":"System.Single","Name":"DeadZone","Value":{"$content":15.0,"$type":"System.Single"}},{"Type":"System.Single","Name":"Limit","Value":{"$content":155.0,"$type":"System.Single"}}],"$type":"System.Collections.Generic.List`1[[GGEZ.Labkit.Settings+Setting,
+    Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]"}}'
   References: []

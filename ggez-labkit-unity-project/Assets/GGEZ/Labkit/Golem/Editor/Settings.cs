@@ -76,7 +76,7 @@ namespace GGEZ.Labkit
 
         public bool Contains(string name, Type type)
         {
-            if (name == null)
+            if (name == null || type == null)
             {
                 return false;
             }

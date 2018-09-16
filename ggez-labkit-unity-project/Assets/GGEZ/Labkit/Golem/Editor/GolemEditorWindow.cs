@@ -905,6 +905,7 @@ namespace GGEZ.Labkit
                     var fieldInfo = fields[i];
                     GolemEditorUtility.EditorGUILayoutGolemField(
                         fieldInfo.Type,
+                        fieldInfo.SpecificType,
                         fieldInfo.FieldInfo,
                         editorCell.Cell,
                         editorCell.FieldsUsingSettings,
@@ -968,7 +969,14 @@ namespace GGEZ.Labkit
                     for (int j = 0; j < fields.Length; ++j)
                     {
                         var fieldInfo = fields[j];
-                        GolemEditorUtility.EditorGUILayoutGolemField(fieldInfo.Type, fieldInfo.FieldInfo, editorScript.Script, editorScript.FieldsUsingSettings, _editable);
+                        GolemEditorUtility.EditorGUILayoutGolemField(
+                                fieldInfo.Type,
+                                fieldInfo.SpecificType,
+                                fieldInfo.FieldInfo,
+                                editorScript.Script,
+                                editorScript.FieldsUsingSettings,
+                                _editable
+                                );
                     }
                 }
                 GolemEditorUtility.EndNode();

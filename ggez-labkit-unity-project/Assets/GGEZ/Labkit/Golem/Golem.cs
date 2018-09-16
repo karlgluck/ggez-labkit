@@ -375,7 +375,6 @@ namespace GGEZ.Labkit
 
         public void Write(VariableRef variable, object value)
         {
-            // Debug.Log("" + variable.Relationship + "[" + variable.Name + "] = " + value);
             Variables variables = getVariables(variable.Relationship);
             if (variables != null)
             {
@@ -425,7 +424,7 @@ namespace GGEZ.Labkit
                 return;
             }
             _registers[pointer] = value;
-            var outputs = _cellsThatReadRegister[pointer];
+            int[] outputs = _cellsThatReadRegister[pointer];
             for (int i = 0; i < outputs.Length; ++i)
             {
                 _dirty[outputs[i]] = true;

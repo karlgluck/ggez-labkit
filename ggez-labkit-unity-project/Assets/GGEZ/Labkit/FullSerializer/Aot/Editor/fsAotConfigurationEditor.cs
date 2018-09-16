@@ -20,7 +20,7 @@ namespace GGEZ.FullSerializer {
 		}
 
 		private static void LogCandidateTypes() {
-			Debug.Log("There are " + fsAotCompilationManager.AotCandidateTypes.Count + " candidate types");
+			// Debug.Log("There are " + fsAotCompilationManager.AotCandidateTypes.Count + " candidate types");
 			foreach (fsAotConfiguration target in Resources.FindObjectsOfTypeAll<fsAotConfiguration>()) {
 				var seen = new HashSet<string>(target.aotTypes.Select(t => t.FullTypeName));
 				foreach (Type type in fsAotCompilationManager.AotCandidateTypes) {

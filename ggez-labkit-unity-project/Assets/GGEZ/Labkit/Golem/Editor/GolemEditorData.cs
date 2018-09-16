@@ -139,13 +139,17 @@ namespace GGEZ.Labkit
         [System.NonSerialized]
         public List<EditorTransition> EditorTransitions = new List<EditorTransition>();
 
-        public bool ContainsVariable(string name)
+        public bool ContainsVariable(string name, Type type)
         {
+            if (name == null || type == null)
+            {
+                return false;
+            }
             for (int i = 0; i < EditorVariables.Count; ++i)
             {
                 if (EditorVariables[i].Name == name)
                 {
-                    return true;
+                    return type.IsAssignableFrom(EditorVariables[i].Type);
                 }
             }
             return false;

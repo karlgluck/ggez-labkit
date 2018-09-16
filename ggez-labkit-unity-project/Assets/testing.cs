@@ -63,11 +63,23 @@ public partial class Golem
 
 public class PositionAspect : GGEZ.Labkit.Aspect
 {
-    [Variable("Position", "The location of this object in 3d space")]
-    public Vector3 Position
+    [Variable("X", "The location of this object in 3d space")]
+    public float X
     {
-        get { return (Vector3)Variables.Get("Position"); }
-        set { Variables.Set("Position", value); }
+        get { return (float)Variables.Get("X"); }
+        set { Variables.Set("X", value); }
+    }
+    [Variable("Y", "The location of this object in 3d space")]
+    public float Y
+    {
+        get { return (float)Variables.Get("Y"); }
+        set { Variables.Set("Y", value); }
+    }
+    [Variable("Z", "The location of this object in 3d space")]
+    public float Z
+    {
+        get { return (float)Variables.Get("Z"); }
+        set { Variables.Set("Z", value); }
     }
 }
 
@@ -303,6 +315,7 @@ public class SetVariableToTimeInState : Script
 
 public class AddDeltaTimeToVariable : Script
 {
+    [VariableType(typeof(float))]
     public VariableRef Variable;
 
     public override void OnUpdate(Golem entity)

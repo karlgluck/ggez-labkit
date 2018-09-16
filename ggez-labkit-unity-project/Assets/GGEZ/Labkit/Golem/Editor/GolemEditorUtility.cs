@@ -128,17 +128,6 @@ namespace GGEZ.Labkit
             return retval;
         }
 
-        /// <summary>
-        /// Dropdown field to select a variable's name
-        /// </summary>
-        public static bool DropdownField(Rect position, GUIContent content, VariableRef variable)
-        {
-            object objectValue = variable.Name;
-            bool retval = DropdownField(position, content, ref objectValue);
-            variable.Name = (string)objectValue;
-            return retval;
-        }
-
         public static bool DropdownField(Rect position, GUIContent content, ref object value)
         {
             var controlId = GUIUtility.GetControlID(FocusType.Keyboard);
@@ -294,27 +283,52 @@ namespace GGEZ.Labkit
             }
         }
 
-        
         public static void EditorGUILayoutGolemField(
                 InspectableType inspectableType,
+                Type specificType,
                 FieldInfo fieldInfo,
                 object target,
                 Dictionary<string,string> fieldsUsingSettings,
                 GolemEditorData golemEditorData
                 )
         {
-            var labelRect = EditorGUILayout.GetControlRect();
-            var position = new Rect(labelRect);
-            position.xMin = position.xMin + Mathf.Min(EditorGUIUtility.labelWidth, position.width / 2f);
-            labelRect.xMax = position.xMin;
+            Rect position = EditorGUILayout.GetControlRect();
+            EditorGUIGolemField(position, inspectableType, specificType, fieldInfo, target, fieldsUsingSettings, golemEditorData);
+        }
+        
+        public static void EditorGUIGolemField(
+                Rect position,
+                InspectableType inspectableType,
+                Type specificType,
+                FieldInfo fieldInfo,
+                object target,
+                Dictionary<string,string> fieldsUsingSettings,
+                GolemEditorData golemEditorData
+                )
+        {
+            if (target == null)
+            {
+                throw new ArgumentNullException("target");
+            }
+            if (fieldsUsingSettings == null)
+            {
+                throw new ArgumentNullException("fieldsUsingSettings");
+            }
+            if (golemEditorData == null)
+            {
+                throw new ArgumentNullException("golemEditorData");
+            }
+            string fieldName = fieldInfo.Name;
+            Rect labelRect = new Rect(position);
+            Rect valueRect = new Rect(position);
+            valueRect.xMin = valueRect.xMin + Mathf.Min(EditorGUIUtility.labelWidth, valueRect.width / 2f);
+            labelRect.xMax = valueRect.xMin;
             bool hasSetting = false;
             string setting = null;
-            string fieldName = fieldInfo.Name;
-            bool canUseSetting = InspectableTypeExt.CanUseSetting(inspectableType);
-            if (canUseSetting)
+            if (InspectableTypeExt.CanUseSetting(inspectableType))
             {
                 hasSetting = fieldsUsingSettings.TryGetValue(fieldName, out setting);
-                if (hasSetting != EditorGUI.ToggleLeft(labelRect, fieldInfo.Name, hasSetting))
+                if (hasSetting != EditorGUI.ToggleLeft(labelRect, fieldName, hasSetting))
                 {
                     if (hasSetting)
                     {
@@ -325,21 +339,24 @@ namespace GGEZ.Labkit
             }
             else
             {
-                EditorGUI.LabelField(labelRect, fieldInfo.Name);
+                EditorGUI.LabelField(labelRect, fieldName);
             }
             object value;
             if (hasSetting)
             {
-                Type fieldType = fieldInfo.FieldType;
-                if (!golemEditorData.Settings.Contains(setting, fieldType))
+                if (!golemEditorData.Settings.Contains(setting, specificType))
                 {
                     setting = null;
                 }
-                if (GolemEditorUtility.DropdownField(position, setting == null ? GolemEditorUtility.NoSettingGUIContent : new GUIContent(setting), ref setting))
+                if (specificType == null)
+                {
+                    EditorGUI.DropdownButton(valueRect, TypeNotSetErrorGUIContent, FocusType.Keyboard);
+                }
+                else if (GolemEditorUtility.DropdownField(valueRect, setting == null ? GolemEditorUtility.NoSettingGUIContent : new GUIContent(setting), ref setting))
                 {
                     GenericMenu menu = new GenericMenu();
 
-                    string newSettingString = "New " + fieldType.Name + " Setting...";
+                    string newSettingString = "New " + specificType.Name + " Setting...";
 
                     HashSet<string> encounteredSettings = new HashSet<string>();
                     object handle = GolemEditorUtility.GetActiveDropdownFieldHandle();
@@ -356,7 +373,12 @@ namespace GGEZ.Labkit
                         }
 
                         string prefix = isSelf ? "" : (current.Name + "/");
-                        menu.AddItem(new GUIContent(prefix + newSettingString), false, SetDropdownFieldValueToNewSetting, new object[]{handle, current, fieldType});
+                        menu.AddItem(
+                                new GUIContent(prefix + newSettingString),
+                                false,
+                                SetDropdownFieldValueToNewSetting,
+                                new object[]{handle, current, specificType}
+                                );
 
                         var enumerator = current.Values.GetEnumerator();
                         if (enumerator.MoveNext())
@@ -365,7 +387,7 @@ namespace GGEZ.Labkit
                             do
                             {
                                 string name = enumerator.Current.Name;
-                                if (fieldType.IsAssignableFrom(enumerator.Current.Type))
+                                if (specificType.IsAssignableFrom(enumerator.Current.Type))
                                 {
                                     if (encounteredSettings.Contains(name))
                                     {
@@ -389,10 +411,10 @@ namespace GGEZ.Labkit
                         needsRootSeparator = needsRootSeparator || isSelf;
                         isSelf = false;
                     }
-                    menu.DropDown(position);
+                    menu.DropDown(valueRect);
                 }
                 fieldsUsingSettings[fieldName] = setting;
-                value = golemEditorData.Settings.Get(setting, fieldType);
+                value = golemEditorData.Settings.Get(setting, specificType);
             }
             else
             {
@@ -400,55 +422,74 @@ namespace GGEZ.Labkit
                 switch (inspectableType)
                 {
                     default:
-                        value = EditorGUIField(position, inspectableType, fieldInfo.FieldType, value);
+                        value = EditorGUIField(valueRect, inspectableType, specificType, value);
                         break;
 
                     case InspectableType.VariableRef:
                     {
                         VariableRef reference = (VariableRef)value;
 
-                        Rect left = position, right = position;
-                        float leftSize = position.width * 0.3f;
+                        Rect left = valueRect, right = valueRect;
+                        float leftSize = valueRect.width * 0.3f;
                         left.xMax = left.xMin + leftSize;
                         right.xMin = left.xMax;
                         reference.Relationship = (EntityRelationship)EditorGUI.EnumPopup(left, reference.Relationship);
 
-                        if (golemEditorData == null)
+                        string variableName = golemEditorData.ContainsVariable(reference.Name, specificType) ? reference.Name : null;
+
+                        GUIContent content;
+                        bool typeNotSet = specificType == null;
+                        EditorGUI.BeginDisabledGroup(typeNotSet);
+                        if (typeNotSet)
                         {
-                            reference.Name = EditorGUI.TextField(right, reference.Name);
+                            content = GolemEditorUtility.TypeNotSetErrorGUIContent;
+                        }
+                        else if (variableName == null)
+                        {
+                            content = GolemEditorUtility.NoVariableErrorGUIContent;
                         }
                         else
                         {
-                            string variableName = golemEditorData.ContainsVariable(reference.Name) ? reference.Name : null;
-                            var content = variableName == null ? GolemEditorUtility.NoVariableGUIContent : new GUIContent(reference.Name);
-                            if (DropdownField(right, content, reference))
-                            {
-                                GenericMenu menu = new GenericMenu();
-                                var variables = golemEditorData.EditorVariables;
-                                if (variables.Count == 0)
-                                {
-                                    menu.AddDisabledItem(new GUIContent("Add an Aspect to create variables"));
-                                }
-                                else
-                                {
-                                    ActiveDropdownFieldHandle handle = GetActiveDropdownFieldHandle();
-                                    for (int i = 0; i < variables.Count; ++i)
-                                    {
-                                        var variable = variables[i];
-                                        foreach (Type aspectType in variable.SourceAspects)
-                                        {
-                                            menu.AddItem(
-                                                new GUIContent(aspectType.Name + "/" + variable.Name),
-                                                variable.Name == variableName,
-                                                SetDropdownFieldValueMenuFunction2,
-                                                new object[]{ handle, variable.Name }
-                                                );
-                                        }
-                                    }
-                                }
-                                menu.DropDown(right);
-                            }
+                            content = new GUIContent(reference.Name);
                         }
+
+                        if (DropdownField(right, content, ref variableName))
+                        {
+                            GenericMenu menu = new GenericMenu();
+                            var variables = golemEditorData.EditorVariables;
+                            int variablesAdded = 0;
+                            ActiveDropdownFieldHandle handle = GetActiveDropdownFieldHandle();
+
+                            for (int i = 0; i < variables.Count; ++i)
+                            {
+                                var variable = variables[i];
+
+                                if (!specificType.IsAssignableFrom(variable.Type))
+                                {
+                                    continue;
+                                }
+
+                                foreach (Type aspectType in variable.SourceAspects)
+                                {
+                                    ++variablesAdded;
+                                    menu.AddItem(
+                                        new GUIContent(aspectType.Name + "/" + variable.Name),
+                                        variable.Name == variableName,
+                                        SetDropdownFieldValueMenuFunction2,
+                                        new object[]{ handle, variable.Name }
+                                        );
+                                }
+                            }
+
+                            if (variablesAdded == 0)
+                            {
+                                menu.AddDisabledItem(new GUIContent("Add an Aspect to create variables"));
+                            }
+
+                            menu.DropDown(right);
+                        }
+                        EditorGUI.EndDisabledGroup();
+                        reference.Name = variableName;
                         value = reference;
                         break;
                     }
@@ -623,16 +664,29 @@ namespace GGEZ.Labkit
         //-----------------------------------------------------
         // NoVariableGUIContent
         //-----------------------------------------------------
-        private static GUIContent s_noVariableGUIContent;
-        public static GUIContent NoVariableGUIContent
+        private static GUIContent s_noVariableErrorGUIContent;
+        public static GUIContent NoVariableErrorGUIContent
         {
             get
             {
-                if (s_noVariableGUIContent == null)
+                if (s_noVariableErrorGUIContent == null)
                 {
-                    s_noVariableGUIContent = new GUIContent(" No Variable", EditorGUIUtility.FindTexture("d_console.erroricon.sml"));
+                    s_noVariableErrorGUIContent = new GUIContent(" No Variable", EditorGUIUtility.FindTexture("d_console.erroricon.sml"));
                 }
-                return s_noVariableGUIContent;
+                return s_noVariableErrorGUIContent;
+            }
+        }
+
+        private static GUIContent s_typeNotSetErrorGUIContent;
+        public static GUIContent TypeNotSetErrorGUIContent
+        {
+            get
+            {
+                if (s_typeNotSetErrorGUIContent == null)
+                {
+                    s_typeNotSetErrorGUIContent = new GUIContent(" Type Not Set", EditorGUIUtility.FindTexture("d_console.erroricon.sml"));
+                }
+                return s_typeNotSetErrorGUIContent;
             }
         }
 
@@ -1245,6 +1299,25 @@ namespace GGEZ.Labkit
             return InspectableType.Invalid;
         }
 
+        public static Type GetSpecificType(InspectableType inspectableType, FieldInfo fieldInfo)
+        {
+            if (inspectableType == InspectableType.VariableRef)
+            {
+                var targetTypeAttributes = fieldInfo.GetCustomAttributes(typeof(VariableTypeAttribute), false);
+                if (targetTypeAttributes.Length > 0)
+                {
+                    var typeAttribute = targetTypeAttributes[0] as VariableTypeAttribute;
+                    return typeAttribute.Type;
+                }
+                Debug.LogError("Field " + fieldInfo.Name + " in " + fieldInfo.DeclaringType.Name + " is not annotated with a variable type");
+                return null;
+            }
+            else
+            {
+                return fieldInfo.FieldType;
+            }
+        }
+
         public static Type GetRepresentedType(InspectableType inspectableType)
         {
             int index = (int)inspectableType;
@@ -1267,31 +1340,34 @@ namespace GGEZ.Labkit
     //-----------------------------------------------------------------------------
     public struct InspectableFieldInfo
     {
-        public readonly InspectableType Type;
+        public readonly InspectableType InspectableType;
+        public readonly Type SpecificType;
         public readonly FieldInfo FieldInfo;
         public readonly bool WantsSetting;
 
-        public InspectableFieldInfo(InspectableType type, FieldInfo fieldInfo, bool wantsSetting)
+        public InspectableFieldInfo(InspectableType inspectableType, Type specificType, FieldInfo fieldInfo, bool wantsSetting)
         {
-            Type = type;
+            InspectableType = inspectableType;
+            SpecificType = specificType;
             FieldInfo = fieldInfo;
             WantsSetting = wantsSetting;
         }
 
         public static InspectableFieldInfo[] GetFields(object target)
         {
-            var fields = target.GetType().GetFields(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
+            FieldInfo[] fields = target.GetType().GetFields(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
             var retval = new InspectableFieldInfo[fields.Length];
             int j = 0;
             for (int i = 0; i < fields.Length; ++i)
             {
-                var inspectableType = InspectableTypeExt.GetInspectableTypeOf(fields[i].FieldType);
+                InspectableType inspectableType = InspectableTypeExt.GetInspectableTypeOf(fields[i].FieldType);
                 if (inspectableType == InspectableType.Invalid)
                 {
                     continue;
                 }
                 bool wantsSetting = SettingAttribute.IsDeclaredOn(fields[i]);
-                retval[j++] = new InspectableFieldInfo(inspectableType, fields[i], wantsSetting);
+                Type specificType = InspectableTypeExt.GetSpecificType(inspectableType, fields[i]);
+                retval[j++] = new InspectableFieldInfo(inspectableType, specificType, fields[i], wantsSetting);
             }
             Array.Resize(ref retval, j);
             return retval;
@@ -1342,49 +1418,6 @@ namespace GGEZ.Labkit
     }
 
 
-    // //-----------------------------------------------------------------------------
-    // //
-    // //-----------------------------------------------------------------------------
-    // public struct InspectableSettingPropertyInfo
-    // {
-    //     public readonly InspectableType Type;
-    //     public readonly PropertyInfo PropertyInfo;
-    //     public readonly SettingAttribute SettingAttribute;
-
-    //     public InspectableSettingPropertyInfo(InspectableType type, PropertyInfo propertyInfo, SettingAttribute settingAttribute)
-    //     {
-    //         Type = type;
-    //         PropertyInfo = propertyInfo;
-    //         SettingAttribute = settingAttribute;
-    //     }
-
-    //     public static InspectableSettingPropertyInfo[] GetSettingProperties(object target)
-    //     {
-    //         var properties = target.GetType().GetProperties();
-    //         var retval = new InspectableSettingPropertyInfo[properties.Length];
-    //         int j = 0;
-    //         for (int i = 0; i < properties.Length; ++i)
-    //         {
-    //             var attributes = properties[i].GetCustomAttributes(typeof(SettingAttribute), false);
-    //             SettingAttribute settingAttribute = null;
-    //             for (int k = 0; k < attributes.Length && settingAttribute == null; ++k)
-    //             {
-    //                 settingAttribute = attributes[k] as SettingAttribute;
-    //             }
-    //             if (settingAttribute == null)
-    //             {
-    //                 continue;
-    //             }
-    //             var inspectableType = InspectableTypeExt.GetInspectableTypeOf(properties[i].PropertyType);
-    //             if (inspectableType != InspectableType.Invalid)
-    //             {
-    //                 retval[j++] = new InspectableSettingPropertyInfo(inspectableType, properties[i], attributes[0] as SettingAttribute);
-    //             }
-    //         }
-    //         Array.Resize(ref retval, j);
-    //         return retval;
-    //     }
-    // }
 
     //-----------------------------------------------------------------------------
     //-----------------------------------------------------------------------------
@@ -1452,11 +1485,13 @@ namespace GGEZ.Labkit
         public struct Field
         {
             public readonly InspectableType Type;
+            public readonly Type SpecificType;
             public readonly FieldInfo FieldInfo;
 
-            public Field(InspectableType type, FieldInfo fieldInfo)
+            public Field(InspectableType type, Type targetType, FieldInfo fieldInfo)
             {
                 Type = type;
+                SpecificType = targetType;
                 FieldInfo = fieldInfo;
             }
         }
@@ -1499,7 +1534,8 @@ namespace GGEZ.Labkit
                     var inspectableType = InspectableTypeExt.GetInspectableTypeOf(fields[i].FieldType);
                     if (inspectableType != InspectableType.Invalid)
                     {
-                        returnedFields[j++] = new Field(inspectableType, fields[i]);
+                        var targetType = InspectableTypeExt.GetSpecificType(inspectableType, fields[i]);
+                        returnedFields[j++] = new Field(inspectableType, targetType, fields[i]);
                     }
                 }
                 Array.Resize(ref returnedFields, j);
@@ -1517,11 +1553,13 @@ namespace GGEZ.Labkit
         public struct Field
         {
             public readonly InspectableType Type;
+            public readonly Type SpecificType;
             public readonly FieldInfo FieldInfo;
 
-            public Field(InspectableType type, FieldInfo fieldInfo)
+            public Field(InspectableType type, Type specificType, FieldInfo fieldInfo)
             {
                 Type = type;
+                SpecificType = specificType;
                 FieldInfo = fieldInfo;
             }
         }
@@ -1543,7 +1581,8 @@ namespace GGEZ.Labkit
                     var inspectableType = InspectableTypeExt.GetInspectableTypeOf(fields[i].FieldType);
                     if (inspectableType != InspectableType.Invalid)
                     {
-                        returnedFields[j++] = new Field(inspectableType, fields[i]);
+                        var specificType = InspectableTypeExt.GetSpecificType(inspectableType, fields[i]);
+                        returnedFields[j++] = new Field(inspectableType, specificType, fields[i]);
                     }
                 }
                 Array.Resize(ref returnedFields, j);

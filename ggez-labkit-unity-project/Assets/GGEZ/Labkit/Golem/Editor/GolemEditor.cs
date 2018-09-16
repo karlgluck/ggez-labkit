@@ -157,7 +157,8 @@ namespace GGEZ.Labkit
                     {
                         InspectableFieldInfo fieldInfo = aspectFields[i];
                         GolemEditorUtility.EditorGUILayoutGolemField(
-                            fieldInfo.Type,
+                            fieldInfo.InspectableType,
+                            fieldInfo.SpecificType,
                             fieldInfo.FieldInfo,
                             editableAspect.Aspect,
                             editableAspect.FieldsUsingSettings,
