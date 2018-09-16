@@ -110,51 +110,46 @@ namespace GGEZ.Labkit
         private static int s_activeDropdownControlId;
         private static object s_activeDropdownControlValue;
         private static bool s_hasDropdownControlValueChanged;
-        private static int s_dropdownMenuSentinel;
-        private static bool s_isDropdownBeingFilled;
-
+        private static int s_activeDropdownHandle;
 
         /// <summary>
-        /// Invoked by Dropdown to fill the content of a menu in the context of selecting a new value.
-        /// Use FillDropdownAddSetValueItem and/or FillDropdownGetSetValueCallback during this function.
+        ///     Works like EditorGUI.DropdownButton, only this function assists the caller in
+        ///     directly returning a new value in the same pattern as other GUI functions.
         /// </summary>
-        /// <param name="value">Current value passed to Dropdown</param>
-        /// <param name="menu">Menu to be filled out</param>
-        /// <param name="context">The value of context passed to Dropdown</param>
-        public delegate void FillDropdownMenu(object value, GenericMenu menu, object[] context);
-
-        /// <summary>
-        ///     Creates a button that pops a full generic dropdown menu. The menu has access to all the normal menu
-        ///     functionality. It also has access to an additional AddSetValueItem function that will cause this Dropdown
-        ///     to return a new value in-line to its caller, just like EditorGUI.Popup and EditorGUI.EnumPopup.
-        /// </summary>
-        /// <param name="position">Where to draw the button for the dropdown.</param>
+        /// <param name="position">Where to draw the button for the dropdown button.</param>
         /// <param name="content">Content for the button.</param>
         /// <param name="value">Current value. Returned unless changed by the menu.</param>
-        /// <param name="fillDropdownMenuCallback">Invoked when the user clicks the dropdown button.</param>
-        /// <param name="context">Argument(s) passed as the context parameter to fillDropdownMenuCallback.</param>
-        public static object Dropdown(Rect position, GUIContent content, object value, FillDropdownMenu fillDropdownMenuCallback, params object[] context)
+        /// <returns>True if the button was clicked</returns>
+        public static bool DropdownField<T>(Rect position, GUIContent content, ref T value)
+        {
+            object objectValue = value;
+            bool retval = DropdownField(position, content, ref objectValue);
+            value = (T)objectValue;
+            return retval;
+        }
+
+        /// <summary>
+        /// Dropdown field to select a variable's name
+        /// </summary>
+        public static bool DropdownField(Rect position, GUIContent content, VariableRef variable)
+        {
+            object objectValue = variable.Name;
+            bool retval = DropdownField(position, content, ref objectValue);
+            variable.Name = (string)objectValue;
+            return retval;
+        }
+
+        public static bool DropdownField(Rect position, GUIContent content, ref object value)
         {
             var controlId = GUIUtility.GetControlID(FocusType.Keyboard);
             if (EditorGUI.DropdownButton(position, content, FocusType.Keyboard, EditorStyles.popup))
             {
-                ++s_dropdownMenuSentinel;
+                ++s_activeDropdownHandle;
                 s_hasActiveDropdown = true;
                 s_activeDropdownControlId = controlId;
                 s_activeDropdownControlValue = value;
                 s_hasDropdownControlValueChanged = false;
-
-                try
-                {
-                    s_isDropdownBeingFilled = true;
-                    var menu = new GenericMenu();
-                    fillDropdownMenuCallback(value, menu, context);
-                    menu.DropDown(position);
-                }
-                finally
-                {
-                    s_isDropdownBeingFilled = false;
-                }
+                return true;
             }
             if (s_hasActiveDropdown && s_activeDropdownControlId == controlId)
             {
@@ -166,63 +161,48 @@ namespace GGEZ.Labkit
                     GUI.changed = true;
                 }
             }
-            return value;
+            return false;
         }
 
+        public enum ActiveDropdownFieldHandle : int { Invalid = int.MaxValue }
 
-        public static void FillDropdownAddSetValueItem(GenericMenu menu, GUIContent content, bool on, object newValue)
+        /// <summary>
+        ///     If DropdownField returns true, use this method to get a handle that can
+        ///     be later passed to SetDropdownFieldValue to set the value the original
+        ///     DropdownField will return.
+        /// </summary>
+        /// <seealso cref="SetDropdownFieldValue"></seealso>
+        public static ActiveDropdownFieldHandle GetActiveDropdownFieldHandle()
         {
-            if (!s_isDropdownBeingFilled)
-            {
-                throw new InvalidOperationException("Only call FillDropdownAddSetValueItem from inside Dropdown callback");
-            }
-            menu.AddItem(content, on, DropdownMenuFunction, new DropdownMenuFunctionData(s_dropdownMenuSentinel, newValue));
+            return s_hasActiveDropdown ? (ActiveDropdownFieldHandle)s_activeDropdownHandle : ActiveDropdownFieldHandle.Invalid;
         }
 
-        private class DropdownMenuFunctionData
+        /// <summary>
+        ///     In response to DropdownField returning true, use this method to set the new value
+        ///     that the field should return.
+        /// </summary>
+        /// <seealso cref="GetActiveDropdownFieldHandle"></seealso>
+        public static void SetDropdownFieldValue(ActiveDropdownFieldHandle handle, object value)
         {
-            public readonly int Sentinel;
-            public readonly object Value;
-
-            public DropdownMenuFunctionData(int sentinel, object value)
-            {
-                Sentinel = sentinel;
-                Value = value;
-            }
-        }
-
-        private static void DropdownMenuFunction(object arg)
-        {
-            var data = (DropdownMenuFunctionData)arg;
-            if (data.Sentinel == s_dropdownMenuSentinel)
-            {
-                s_activeDropdownControlValue = data.Value;
-                s_hasDropdownControlValueChanged = true;
-                // probably need to dispatch a refresh event here to force the update to get called
-            }
-        }
-
-        public static object GetFillDropdownSetValueCallbackContext()
-        {
-            if (!s_isDropdownBeingFilled)
-            {
-                throw new InvalidOperationException("Only call FillDropdownGetSetValueCallback from inside Dropdown callback");
-            }
-            return s_dropdownMenuSentinel;
-        }
-
-        public static void FillDropdownSetValueCallback(object value, object context)
-        {
-            if (context == null)
-            {
-                throw new System.ArgumentNullException("context");
-            }
-            int sentinel = (int)context;
-            if (sentinel == s_dropdownMenuSentinel)
+            if ((int)handle == s_activeDropdownHandle && s_hasActiveDropdown)
             {
                 s_activeDropdownControlValue = value;
                 s_hasDropdownControlValueChanged = true;
             }
+        }
+
+        /// <summary>
+        ///     A helper function for GenericMenu.AddItem that calls
+        ///     SetDropdownFieldValue.
+        /// </summary>
+        /// <param name="contextParam">= new object[] { ActiveDropdownFieldHandle, object }</param>
+        /// <seealso cref="SetDropdownFieldValue"></seealso>
+        /// <seealso cref="GetActiveDropdownFieldHandle"></seealso>
+        public static void SetDropdownFieldValueMenuFunction2(object contextParam)
+        {
+            var context = contextParam as object[];
+            var handle = (GolemEditorUtility.ActiveDropdownFieldHandle)context[0];
+            GolemEditorUtility.SetDropdownFieldValue(handle, context[1]);
         }
 
         //-----------------------------------------------------
@@ -239,24 +219,9 @@ namespace GGEZ.Labkit
                 case InspectableType.String: return EditorGUI.TextField(position, (string)value);
                 case InspectableType.Rect: return EditorGUI.RectField(position, (Rect)value);
                 case InspectableType.Color: return EditorGUI.ColorField(position, (Color)value);
-                case InspectableType.SettingRef:
-                    {
-                        // TODO: make this a dropdown based on all settings that have been seen in the editor
-                        SettingRef reference = (SettingRef)value;
-                        reference.Name = EditorGUI.TextField(position, reference.Name);
-                        return reference;
-                    }
                 case InspectableType.VariableRef:
                     {
-                        // TODO: make this a dropdown based on all variables that have been seen in the editor
-                        Rect left = position, right = position;
-                        float halfSize = position.width * 0.5f;
-                        left.xMax -= halfSize;
-                        right.xMin += halfSize;
-                        VariableRef reference = (VariableRef)value;
-                        reference.Relationship = (EntityRelationship)EditorGUI.EnumPopup(left, reference.Relationship);
-                        reference.Name = EditorGUI.TextField(right, reference.Name);
-                        return reference;
+                        throw new InvalidOperationException("Use EditorGUIGolemField to edit a VariableRef");
                     }
                 case InspectableType.Vector2:
                     {
@@ -327,6 +292,181 @@ namespace GGEZ.Labkit
 
                 default: return value;
             }
+        }
+
+        
+        public static void EditorGUILayoutGolemField(
+                InspectableType inspectableType,
+                FieldInfo fieldInfo,
+                object target,
+                Dictionary<string,string> fieldsUsingSettings,
+                GolemEditorData golemEditorData
+                )
+        {
+            var labelRect = EditorGUILayout.GetControlRect();
+            var position = new Rect(labelRect);
+            position.xMin = position.xMin + Mathf.Min(EditorGUIUtility.labelWidth, position.width / 2f);
+            labelRect.xMax = position.xMin;
+            bool hasSetting = false;
+            string setting = null;
+            string fieldName = fieldInfo.Name;
+            bool canUseSetting = InspectableTypeExt.CanUseSetting(inspectableType);
+            if (canUseSetting)
+            {
+                hasSetting = fieldsUsingSettings.TryGetValue(fieldName, out setting);
+                if (hasSetting != EditorGUI.ToggleLeft(labelRect, fieldInfo.Name, hasSetting))
+                {
+                    if (hasSetting)
+                    {
+                        fieldsUsingSettings.Remove(fieldName);
+                    }
+                    hasSetting = !hasSetting;
+                }
+            }
+            else
+            {
+                EditorGUI.LabelField(labelRect, fieldInfo.Name);
+            }
+            object value;
+            if (hasSetting)
+            {
+                Type fieldType = fieldInfo.FieldType;
+                if (!golemEditorData.Settings.Contains(setting, fieldType))
+                {
+                    setting = null;
+                }
+                if (GolemEditorUtility.DropdownField(position, setting == null ? GolemEditorUtility.NoSettingGUIContent : new GUIContent(setting), ref setting))
+                {
+                    GenericMenu menu = new GenericMenu();
+
+                    string newSettingString = "New " + fieldType.Name + " Setting...";
+
+                    HashSet<string> encounteredSettings = new HashSet<string>();
+                    object handle = GolemEditorUtility.GetActiveDropdownFieldHandle();
+
+                    Settings current = golemEditorData.Settings;
+                    bool needsRootSeparator = false;
+                    bool isSelf = true;
+                    while (current != null)
+                    {
+                        if (needsRootSeparator)
+                        {
+                            menu.AddSeparator("");
+                            needsRootSeparator = false;
+                        }
+
+                        string prefix = isSelf ? "" : (current.Name + "/");
+                        menu.AddItem(new GUIContent(prefix + newSettingString), false, SetDropdownFieldValueToNewSetting, new object[]{handle, current, fieldType});
+
+                        var enumerator = current.Values.GetEnumerator();
+                        if (enumerator.MoveNext())
+                        {
+                            menu.AddSeparator(prefix);
+                            do
+                            {
+                                string name = enumerator.Current.Name;
+                                if (fieldType.IsAssignableFrom(enumerator.Current.Type))
+                                {
+                                    if (encounteredSettings.Contains(name))
+                                    {
+                                        menu.AddDisabledItem(new GUIContent(prefix + name + " (overridden)"));
+                                    }
+                                    else
+                                    {
+                                        menu.AddItem(
+                                            new GUIContent(prefix + name),
+                                            setting == name,
+                                            GolemEditorUtility.SetDropdownFieldValueMenuFunction2,
+                                            new object[]{ handle, name }
+                                            );
+                                    }
+                                }
+                                encounteredSettings.Add(name);
+                            } while (enumerator.MoveNext());
+                        }
+
+                        current = current.InheritFrom == null ? null : current.InheritFrom.Settings;
+                        needsRootSeparator = needsRootSeparator || isSelf;
+                        isSelf = false;
+                    }
+                    menu.DropDown(position);
+                }
+                fieldsUsingSettings[fieldName] = setting;
+                value = golemEditorData.Settings.Get(setting, fieldType);
+            }
+            else
+            {
+                value = fieldInfo.GetValue(target);
+                switch (inspectableType)
+                {
+                    default:
+                        value = EditorGUIField(position, inspectableType, fieldInfo.FieldType, value);
+                        break;
+
+                    case InspectableType.VariableRef:
+                    {
+                        VariableRef reference = (VariableRef)value;
+
+                        Rect left = position, right = position;
+                        float leftSize = position.width * 0.3f;
+                        left.xMax = left.xMin + leftSize;
+                        right.xMin = left.xMax;
+                        reference.Relationship = (EntityRelationship)EditorGUI.EnumPopup(left, reference.Relationship);
+
+                        if (golemEditorData == null)
+                        {
+                            reference.Name = EditorGUI.TextField(right, reference.Name);
+                        }
+                        else
+                        {
+                            string variableName = golemEditorData.ContainsVariable(reference.Name) ? reference.Name : null;
+                            var content = variableName == null ? GolemEditorUtility.NoVariableGUIContent : new GUIContent(reference.Name);
+                            if (DropdownField(right, content, reference))
+                            {
+                                GenericMenu menu = new GenericMenu();
+                                var variables = golemEditorData.EditorVariables;
+                                if (variables.Count == 0)
+                                {
+                                    menu.AddDisabledItem(new GUIContent("Add an Aspect to create variables"));
+                                }
+                                else
+                                {
+                                    ActiveDropdownFieldHandle handle = GetActiveDropdownFieldHandle();
+                                    for (int i = 0; i < variables.Count; ++i)
+                                    {
+                                        var variable = variables[i];
+                                        foreach (Type aspectType in variable.SourceAspects)
+                                        {
+                                            menu.AddItem(
+                                                new GUIContent(aspectType.Name + "/" + variable.Name),
+                                                variable.Name == variableName,
+                                                SetDropdownFieldValueMenuFunction2,
+                                                new object[]{ handle, variable.Name }
+                                                );
+                                        }
+                                    }
+                                }
+                                menu.DropDown(right);
+                            }
+                        }
+                        value = reference;
+                        break;
+                    }
+                }
+            }
+            fieldInfo.SetValue(target, value);
+        }
+
+        private static void SetDropdownFieldValueToNewSetting(object contextParam)
+        {
+            var context = contextParam as object[];
+            var handle = (GolemEditorUtility.ActiveDropdownFieldHandle)context[0];
+            var settings = context[1] as Settings;
+            var settingType = context[2] as Type;
+
+            string newSettingName = Guid.NewGuid().ToString();
+            settings.Add(newSettingName, settingType);
+            GolemEditorUtility.SetDropdownFieldValue(handle, newSettingName);
         }
 
         //-----------------------------------------------------
@@ -477,6 +617,22 @@ namespace GGEZ.Labkit
                     s_noSettingGUIContent = new GUIContent(" No Setting", EditorGUIUtility.FindTexture("d_console.erroricon.sml"));
                 }
                 return s_noSettingGUIContent;
+            }
+        }
+
+        //-----------------------------------------------------
+        // NoVariableGUIContent
+        //-----------------------------------------------------
+        private static GUIContent s_noVariableGUIContent;
+        public static GUIContent NoVariableGUIContent
+        {
+            get
+            {
+                if (s_noVariableGUIContent == null)
+                {
+                    s_noVariableGUIContent = new GUIContent(" No Variable", EditorGUIUtility.FindTexture("d_console.erroricon.sml"));
+                }
+                return s_noVariableGUIContent;
             }
         }
 
@@ -1005,8 +1161,8 @@ namespace GGEZ.Labkit
     //-----------------------------------------------------------------------------
     public class RepresentsAttribute : Attribute
     {
-        public Type Type;
-        public bool CanUseSettings;
+        public readonly Type Type;
+        public readonly bool CanUseSettings;
         public RepresentsAttribute(Type type, bool canUseSettings = true)
         {
             Type = type;
@@ -1027,7 +1183,6 @@ namespace GGEZ.Labkit
         [Represents(typeof(Vector2))] Vector2,
         [Represents(typeof(Vector3))] Vector3,
         [Represents(typeof(UnityEngine.Object))] UnityObject,
-        [Represents(typeof(SettingRef), false)] SettingRef,
         [Represents(typeof(VariableRef), false)] VariableRef,
         [Represents(typeof(Enum))] Enum,
         [Represents(typeof(KeyCode))] KeyCode,
@@ -1114,11 +1269,13 @@ namespace GGEZ.Labkit
     {
         public readonly InspectableType Type;
         public readonly FieldInfo FieldInfo;
+        public readonly bool WantsSetting;
 
-        public InspectableFieldInfo(InspectableType type, FieldInfo fieldInfo)
+        public InspectableFieldInfo(InspectableType type, FieldInfo fieldInfo, bool wantsSetting)
         {
             Type = type;
             FieldInfo = fieldInfo;
+            WantsSetting = wantsSetting;
         }
 
         public static InspectableFieldInfo[] GetFields(object target)
@@ -1129,10 +1286,12 @@ namespace GGEZ.Labkit
             for (int i = 0; i < fields.Length; ++i)
             {
                 var inspectableType = InspectableTypeExt.GetInspectableTypeOf(fields[i].FieldType);
-                if (inspectableType != InspectableType.Invalid)
+                if (inspectableType == InspectableType.Invalid)
                 {
-                    retval[j++] = new InspectableFieldInfo(inspectableType, fields[i]);
+                    continue;
                 }
+                bool wantsSetting = SettingAttribute.IsDeclaredOn(fields[i]);
+                retval[j++] = new InspectableFieldInfo(inspectableType, fields[i], wantsSetting);
             }
             Array.Resize(ref retval, j);
             return retval;
@@ -1294,13 +1453,11 @@ namespace GGEZ.Labkit
         {
             public readonly InspectableType Type;
             public readonly FieldInfo FieldInfo;
-            public readonly bool CanUseSetting;
 
-            public Field(InspectableType type, FieldInfo fieldInfo, bool canUseSetting)
+            public Field(InspectableType type, FieldInfo fieldInfo)
             {
                 Type = type;
                 FieldInfo = fieldInfo;
-                CanUseSetting = canUseSetting;
             }
         }
 
@@ -1342,8 +1499,7 @@ namespace GGEZ.Labkit
                     var inspectableType = InspectableTypeExt.GetInspectableTypeOf(fields[i].FieldType);
                     if (inspectableType != InspectableType.Invalid)
                     {
-                        bool canUseSetting = InspectableTypeExt.CanUseSetting(inspectableType);
-                        returnedFields[j++] = new Field(inspectableType, fields[i], canUseSetting);
+                        returnedFields[j++] = new Field(inspectableType, fields[i]);
                     }
                 }
                 Array.Resize(ref returnedFields, j);
@@ -1362,13 +1518,11 @@ namespace GGEZ.Labkit
         {
             public readonly InspectableType Type;
             public readonly FieldInfo FieldInfo;
-            public readonly bool CanUseSetting;
 
-            public Field(InspectableType type, FieldInfo fieldInfo, bool canUseSetting)
+            public Field(InspectableType type, FieldInfo fieldInfo)
             {
                 Type = type;
                 FieldInfo = fieldInfo;
-                CanUseSetting = canUseSetting;
             }
         }
 
@@ -1389,8 +1543,7 @@ namespace GGEZ.Labkit
                     var inspectableType = InspectableTypeExt.GetInspectableTypeOf(fields[i].FieldType);
                     if (inspectableType != InspectableType.Invalid)
                     {
-                        bool canUseSetting = InspectableTypeExt.CanUseSetting(inspectableType);
-                        returnedFields[j++] = new Field(inspectableType, fields[i], canUseSetting);
+                        returnedFields[j++] = new Field(inspectableType, fields[i]);
                     }
                 }
                 Array.Resize(ref returnedFields, j);

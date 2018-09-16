@@ -17,14 +17,14 @@ public class JoystickAspect : Aspect
     public Transform joystickRoot;
     public Transform joystick;
 
-    [Setting("Joystick.DeadZone", 5f, "Moving the mouse fewer than this many pixels from center does nothing")]
-    public float DeadZone;
+    [Setting]
+    public float DeadZone = 5f;
 
-    [Setting("Joystick.Limit", 155f, "Description")]
-    public float Limit;
+    [Setting]
+    public float Limit = 155f;
 
-    [Setting("Joystick.AngleThreshold", 55f, "Description")]
-    public float AngleThreshold;
+    [Setting]
+    public float AngleThreshold = 55f;
 
     public bool JoystickActive;
     public int JoystickURDL;
@@ -32,7 +32,7 @@ public class JoystickAspect : Aspect
     public bool JoystickTouch;
     public bool RawActionButtonInput;
 
-    [Variable("ShowJoystick", true, "Whether the joystick is displayed on screen")]
+    [Variable("ShowJoystick", "Whether the joystick is displayed on screen")]
     public bool Show
     {
         get { return (bool)Variables.Get("ShowJoystick"); }
@@ -58,6 +58,24 @@ namespace GGEZ.Labkit
 public partial class Golem
 {
     public FishingRodAspect FishingRodAspect;
+}
+}
+
+public class PositionAspect : GGEZ.Labkit.Aspect
+{
+    [Variable("Position", "The location of this object in 3d space")]
+    public Vector3 Position
+    {
+        get { return (Vector3)Variables.Get("Position"); }
+        set { Variables.Set("Position", value); }
+    }
+}
+
+namespace GGEZ.Labkit
+{
+public partial class Golem
+{
+    public PositionAspect PositionAspect;
 }
 }
 
@@ -123,7 +141,9 @@ public class ReadFishingRodPosition : Cell
 [RequireVariables]
 public class ReadFloatVariable : Cell
 {
+    [VariableType(typeof(float))]
     public VariableRef Variable;
+
     [Out] public FloatPtr Output;
     public override void Acquire(Golem entity, ref bool running)
     {

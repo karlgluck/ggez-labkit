@@ -44,7 +44,7 @@ namespace GGEZ.Labkit
             window.Show();
         }
 
-        [MenuItem("Window/Omnibus Editor")]
+        [MenuItem("Window/Golem Editor")]
         public static void OpenEmpty()
         {
             Open(null);
@@ -506,7 +506,8 @@ namespace GGEZ.Labkit
                     var golem = Selection.activeGameObject.GetComponent<Golem>();
                     if (golem != null)
                     {
-                        _editable = golem.EditorData as GolemEditorData;
+                        var editorAsset = golem.EditorAsset as GolemEditorAsset;
+                        _editable = (editorAsset == null) ? null : editorAsset.EditorData;
                     }
                 }
                 if (_editable != null)
@@ -902,12 +903,12 @@ namespace GGEZ.Labkit
                 for (int i = 0; i < fields.Length; ++i)
                 {
                     var fieldInfo = fields[i];
-                    EditorGUILayoutInspectableFieldWithSettings(
-                        fieldInfo.CanUseSetting,
+                    GolemEditorUtility.EditorGUILayoutGolemField(
                         fieldInfo.Type,
                         fieldInfo.FieldInfo,
                         editorCell.Cell,
-                        editorCell.FieldsUsingSettings
+                        editorCell.FieldsUsingSettings,
+                        _editable
                         );
                 }
 
@@ -967,11 +968,9 @@ namespace GGEZ.Labkit
                     for (int j = 0; j < fields.Length; ++j)
                     {
                         var fieldInfo = fields[j];
-                        EditorGUILayoutInspectableFieldWithSettings(fieldInfo.CanUseSetting, fieldInfo.Type, fieldInfo.FieldInfo, editorScript.Script, editorScript.FieldsUsingSettings);
+                        GolemEditorUtility.EditorGUILayoutGolemField(fieldInfo.Type, fieldInfo.FieldInfo, editorScript.Script, editorScript.FieldsUsingSettings, _editable);
                     }
                 }
-
-
                 GolemEditorUtility.EndNode();
             }
 
@@ -1235,128 +1234,6 @@ namespace GGEZ.Labkit
                 Repaint();
                 _shouldWrite = false;
             }
-        }
-
-        private void EditorGUILayoutInspectableFieldWithSettings(bool canUseSetting, InspectableType inspectableType, FieldInfo fieldInfo, object target, Dictionary<string,string> fieldsUsingSettings)
-        {
-            var labelRect = EditorGUILayout.GetControlRect();
-            var position = new Rect(labelRect);
-            position.xMin = position.xMin + Mathf.Min(EditorGUIUtility.labelWidth, position.width / 2f);
-            labelRect.xMax = position.xMin;
-            bool hasSetting = false;
-            string setting = null;
-            string fieldName = fieldInfo.Name;
-            if (canUseSetting)
-            {
-                hasSetting = fieldsUsingSettings.TryGetValue(fieldName, out setting);
-                if (hasSetting != EditorGUI.ToggleLeft(labelRect, fieldInfo.Name, hasSetting))
-                {
-                    if (hasSetting)
-                    {
-                        fieldsUsingSettings.Remove(fieldName);
-                    }
-                    hasSetting = !hasSetting;
-                }
-            }
-            else
-            {
-                EditorGUI.LabelField(labelRect, fieldInfo.Name);
-            }
-            object value;
-            if (hasSetting)
-            {
-                Type fieldType = fieldInfo.FieldType;
-                if (!_editable.Settings.Contains(setting, fieldType))
-                {
-                    setting = null;
-                }
-                setting = (string)GolemEditorUtility.Dropdown(
-                        position,
-                        setting == null ? GolemEditorUtility.NoSettingGUIContent : new GUIContent(setting),
-                        setting,
-                        FillDropdownForPickingSetting,
-                        _editable.Settings,
-                        fieldType
-                        );
-                fieldsUsingSettings[fieldName] = setting;
-                value = _editable.Settings.Get(setting, fieldType);
-            }
-            else
-            {
-                value = fieldInfo.GetValue(target);
-                value = GolemEditorUtility.EditorGUIField(position, inspectableType, fieldInfo.FieldType, value);
-            }
-            fieldInfo.SetValue(target, value);
-        }
-
-        /// <summary>
-        ///     Adds entries to the menu that appears when the user clicks a
-        ///     settings dropdown. These values are pulled from the settings
-        ///     for this golem and all settings up the inheritance chain.
-        /// </summary>
-        private void FillDropdownForPickingSetting(object currentValue, GenericMenu menu, object[] context)
-        {
-            string currentKey = (string)currentValue;
-            var settings = context[0] as Settings;
-            var settingType = context[1] as Type;
-
-            object setValueCallbackContext = GolemEditorUtility.GetFillDropdownSetValueCallbackContext();
-            string newSettingString = "New " + settingType.Name + " Setting...";
-
-            HashSet<string> encounteredSettings = new HashSet<string>();
-
-            Settings current = settings;
-            bool needsRootSeparator = false;
-            bool isSelf = true;
-            while (current != null)
-            {
-                if (needsRootSeparator)
-                {
-                    menu.AddSeparator("");
-                    needsRootSeparator = false;
-                }
-
-                string prefix = isSelf ? "" : (current.Name + "/");
-                menu.AddItem(new GUIContent(prefix + newSettingString), false, FillDropdownNewSetting, new object[]{current, settingType, setValueCallbackContext});
-
-                var enumerator = current.Values.GetEnumerator();
-                if (enumerator.MoveNext())
-                {
-                    menu.AddSeparator(prefix);
-                    do
-                    {
-                        string name = enumerator.Current.Name;
-                        if (settingType.IsAssignableFrom(enumerator.Current.Type))
-                        {
-                            if (encounteredSettings.Contains(name))
-                            {
-                                menu.AddDisabledItem(new GUIContent(prefix + name + " (overridden)"));
-                            }
-                            else
-                            {
-                                GolemEditorUtility.FillDropdownAddSetValueItem(menu, new GUIContent(prefix + name), currentKey == name, name);
-                            }
-                        }
-                        encounteredSettings.Add(name);
-                    } while (enumerator.MoveNext());
-                }
-
-                current = current.InheritFrom == null ? null : current.InheritFrom.Settings;
-                needsRootSeparator = needsRootSeparator || isSelf;
-                isSelf = false;
-            }
-        }
-
-        private static void FillDropdownNewSetting(object contextParam)
-        {
-            var context = contextParam as object[];
-            var settings = context[0] as Settings;
-            var settingType = context[1] as Type;
-            var setValueCallbackContext = context[2];
-
-            string newSettingName = Guid.NewGuid().ToString();
-            settings.Add(newSettingName, settingType);
-            GolemEditorUtility.FillDropdownSetValueCallback(newSettingName, setValueCallbackContext);
         }
 
         private void removeTransitionAt(EditorTransitionIndex indexToRemove)

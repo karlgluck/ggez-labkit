@@ -42,6 +42,9 @@ namespace GGEZ.Labkit
 
         [System.NonSerialized]
         public fsData Data;
+        
+        [System.NonSerialized]
+        public GolemEditorData EditorData;
     }
 }
 

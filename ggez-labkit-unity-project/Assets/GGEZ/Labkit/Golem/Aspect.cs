@@ -24,6 +24,7 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using System;
+using System.Reflection;
 
 namespace GGEZ.Labkit
 {
@@ -39,28 +40,25 @@ namespace GGEZ.Labkit
     [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
     public class VariableAttribute : Attribute
     {
-        public VariableAttribute(string name, object defaultValue, string tooltip = "")
+        public VariableAttribute(string name, string tooltip = "")
         {
             Name = name;
-            DefaultValue = defaultValue;
             Tooltip = name + "\n\n" + tooltip;
         }
         public string Name { get; set; }
         public string Tooltip { get; set; }
-        public object DefaultValue { get; set; }
     }
 
     [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
     public class SettingAttribute : Attribute
     {
-        public SettingAttribute(string name, object defaultValue, string tooltip = "")
+        public SettingAttribute()
         {
-            Name = name;
-            DefaultValue = defaultValue;
-            Tooltip = name + "\n\n" + tooltip;
         }
-        public string Name { get; set; }
-        public string Tooltip { get; set; }
-        public object DefaultValue { get; set; }
+
+        public static bool IsDeclaredOn(FieldInfo field)
+        {
+            return field.GetCustomAttributes(typeof(SettingAttribute), false).Length > 0;
+        }
     }
 }

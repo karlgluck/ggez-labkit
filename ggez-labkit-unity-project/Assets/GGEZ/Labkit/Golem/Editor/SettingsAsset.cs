@@ -105,7 +105,14 @@ namespace GGEZ.Labkit
             }
             else
             {
-                Settings = new Settings(this, InheritFrom, deserialized["Values"] as List<Settings.Setting>);
+                if (deserialized.ContainsKey("Values"))
+                {
+                    Settings = new Settings(this, InheritFrom, deserialized["Values"] as List<Settings.Setting>);
+                }
+                else
+                {
+                    Settings = new Settings(this, InheritFrom);
+                }
             }
         }
     }

@@ -176,7 +176,7 @@ namespace GGEZ.Labkit
                 for (int i = 0; i < enumNames.Length; ++i)
                 {
                     var value = (InspectableType)enumValues.GetValue(i);
-                    if (value == InspectableType.UnityObject || value == InspectableType.SettingRef || value == InspectableType.VariableRef || value == InspectableType.Enum || value == InspectableType.TriggerRef || value == InspectableType.Invalid)
+                    if (value == InspectableType.UnityObject || value == InspectableType.VariableRef || value == InspectableType.Enum || value == InspectableType.TriggerRef || value == InspectableType.Invalid)
                     {
                         continue;
                     }

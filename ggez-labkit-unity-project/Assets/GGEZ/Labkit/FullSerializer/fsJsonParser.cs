@@ -86,6 +86,11 @@ namespace GGEZ.FullSerializer {
                             }
                         }
                     }
+                    // Prevent malformed single-character comments from causing an infinite loop
+                    // https://github.com/jacobdufault/fullserializer/issues/156
+                    else {
+                        TryMoveNext();
+                    }
                     // let other checks to check fail
                     continue;
                 }

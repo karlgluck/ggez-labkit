@@ -76,24 +76,6 @@ namespace GGEZ.Labkit
             }
 
             //-------------------------------------------------
-            // Assets
-            //-------------------------------------------------
-            // _golem.Asset = EditorGUILayout.ObjectField(new GUIContent("Asset"), _golem.Asset, typeof(GolemAsset), false) as GolemAsset;
-            // EditorGUI.BeginDisabledGroup(_golem.Asset != null);
-            // if (GUILayout.Button("Get from Prefab"))
-            // {
-            //     _golem.Asset = Helper.FindAssetInPrefab<GolemAsset>(_golem);
-            // }
-            // EditorGUI.EndDisabledGroup();
-            // _golem.EditorAsset = EditorGUILayout.ObjectField(new GUIContent("Editor Asset"), _golem.EditorAsset, typeof(EntityEditorAsset), false) as EntityEditorAsset;
-            // EditorGUI.BeginDisabledGroup(_golem.Asset != null);
-            // if (GUILayout.Button("Get from Prefab"))
-            // {
-            //     _golem.EditorAsset = Helper.FindAssetInPrefab<EntityEditorAsset>(_golem);
-            // }
-            // EditorGUI.EndDisabledGroup();
-
-            //-------------------------------------------------
             // Graph editor link
             //-------------------------------------------------
             EditorGUILayout.Space();
@@ -146,26 +128,41 @@ namespace GGEZ.Labkit
             // Each existing aspect
             {
                 var aspects = _editable.EditorAspects;
-                for (int j = 0; j < aspects.Count; ++j)
+                for (int j = aspects.Count - 1; j >= 0; --j)
                 {
-                    var editableAspect = aspects[j];
-                    var aspectFields = editableAspect._aspectFields;
-                    var aspectVariables = editableAspect._aspectVariables;
+                    GolemAspectEditorData editableAspect = aspects[j];
+                    InspectableFieldInfo[] aspectFields = editableAspect.AspectFields;
+                    InspectableVariablePropertyInfo[] aspectVariables = editableAspect.AspectVariables;
 
                     EditorGUILayout.Space();
-                    EditorGUILayout.LabelField(editableAspect.Field.Name, EditorStyles.boldLabel);
+                    Rect foldoutRect = EditorGUILayout.GetControlRect();
+                    Rect rhsToolsRect = foldoutRect;
+                    foldoutRect.xMax = foldoutRect.xMax - EditorGUIUtility.singleLineHeight;
+                    rhsToolsRect.xMin = foldoutRect.xMax;
+                    editableAspect.Foldout = EditorGUI.Foldout(foldoutRect, editableAspect.Foldout, editableAspect.Field.Name);
+                    {
+                        if (GUI.Button(rhsToolsRect, "X"))
+                        {
+                            _editable.RemoveAspect(editableAspect);
+                        }
+                    }
+                    if (!editableAspect.Foldout)
+                    {
+                        continue;
+                    }
                     EditorGUI.indentLevel++;
 
                     // Fields
                     for (int i = 0; i < aspectFields.Length; ++i)
                     {
-                        var labelRect = EditorGUILayout.GetControlRect();
-                        var position = new Rect(labelRect);
-                        position.xMin += EditorGUIUtility.labelWidth;
-                        labelRect.xMax = position.xMin;
-                        EditorGUI.LabelField(labelRect, aspectFields[i].FieldInfo.Name);
-                        var fieldInfo = aspectFields[i];
-                        fieldInfo.FieldInfo.SetValue(editableAspect.Aspect, GolemEditorUtility.EditorGUIField(position, fieldInfo.Type, fieldInfo.FieldInfo.FieldType, fieldInfo.FieldInfo.GetValue(editableAspect.Aspect)));
+                        InspectableFieldInfo fieldInfo = aspectFields[i];
+                        GolemEditorUtility.EditorGUILayoutGolemField(
+                            fieldInfo.Type,
+                            fieldInfo.FieldInfo,
+                            editableAspect.Aspect,
+                            editableAspect.FieldsUsingSettings,
+                            _editable
+                            );
                     }
 
                     // Variables, if they exist
@@ -173,6 +170,7 @@ namespace GGEZ.Labkit
                     {
                         EditorGUILayout.Space();
                         EditorGUILayout.LabelField("Variables", EditorStyles.boldLabel);
+                        EditorGUI.BeginDisabledGroup(!EditorApplication.isPlaying);
                         var variables = _editable.Golem.Variables;
                         for (int i = 0; i < aspectVariables.Length; ++i)
                         {
@@ -183,8 +181,9 @@ namespace GGEZ.Labkit
                             var name = aspectVariables[i].VariableAttribute.Name;
                             EditorGUI.LabelField(labelRect, new GUIContent(aspectVariables[i].PropertyInfo.Name, aspectVariables[i].VariableAttribute.Tooltip));
                             var variableType = aspectVariables[i].PropertyInfo.PropertyType;
-                            variables.InspectorSet(name, variableType, GolemEditorUtility.EditorGUIField(position, aspectVariables[i].Type, variableType, variables.InspectorGet(name, variableType, aspectVariables[i].VariableAttribute.DefaultValue)));
+                            variables.InspectorSet(name, variableType, GolemEditorUtility.EditorGUIField(position, aspectVariables[i].Type, variableType, variables.InspectorGet(name, variableType)));
                         }
+                        EditorGUI.EndDisabledGroup();
                     }
 
                     EditorGUI.indentLevel--;
@@ -194,24 +193,28 @@ namespace GGEZ.Labkit
             //-------------------------------------------------
             // Variables
             //-------------------------------------------------
+            if (EditorApplication.isPlaying)
             {
-                var variables = _editable._variables;
-                if (variables.Length > 0)
-                {
-                    EditorGUILayout.Space();
-                    EditorGUILayout.LabelField("Variables", EditorStyles.boldLabel);
-                }
+                var variables = _editable.Golem.Variables;
+                variables.EditorGUIInspectVariables();
+            }
+            else
+            {
+                var variables = _editable.EditorVariables;
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField(new GUIContent("Variable Initialization", "Derived from Aspects with properties that have the [Variable] attribute"), EditorStyles.boldLabel);
 
-                for (int i = 0; i < variables.Length; ++i)
+                for (int i = 0; i < variables.Count; ++i)
                 {
+                    var variable = variables[i];
+
                     var labelRect = EditorGUILayout.GetControlRect();
                     var position = new Rect(labelRect);
                     position.xMin += EditorGUIUtility.labelWidth;
                     labelRect.xMax = position.xMin;
-                    var name = variables[i].Key;
-                    EditorGUI.LabelField(labelRect, new GUIContent(name));
-                    var variableType = variables[i].Value.GetType();
-                    _editable.Golem.Variables.InspectorSet(name, variableType, GolemEditorUtility.EditorGUIField(position, variables[i].Type, variableType, _editable.Golem.Variables.InspectorGet(name, variableType)));
+
+                    EditorGUI.LabelField(labelRect, new GUIContent(variable.Name, variable.Tooltip));
+                    variable.InitialValue = GolemEditorUtility.EditorGUIField(position, variable.InspectableType, variable.Type, variable.InitialValue);
                 }
             }
 
@@ -225,7 +228,6 @@ namespace GGEZ.Labkit
             //-------------------------------------------------
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Settings", EditorStyles.boldLabel);
-            _editable.EditorAsset.InheritSettingsFrom = EditorGUILayout.ObjectField("Inherit From", _editable.EditorAsset.InheritSettingsFrom, typeof(SettingsAsset), false) as SettingsAsset;
             Settings settings = _editable.Settings;
             if (settings != null)
             {
@@ -235,6 +237,8 @@ namespace GGEZ.Labkit
                 {
                     _editable.Save();
                 }
+                EditorGUILayout.Space();
+                _editable.EditorAsset.InheritSettingsFrom = EditorGUILayout.ObjectField("Inherit From", _editable.EditorAsset.InheritSettingsFrom, typeof(SettingsAsset), false) as SettingsAsset;
                 Settings current = settings.Parent;
                 while (current != null)
                 {
@@ -248,59 +252,12 @@ namespace GGEZ.Labkit
                 }
             }
 
-
-            // if (_editable.Golem.SettingsAsset != null)
-            // {
-            //     var settings = _editable.Golem.SettingsAsset.Settings;
-
-            //     if (settings != _settings)
-            //     {
-            //         _settings = settings;
-            //         _inspectableSettings = InspectableDictionaryKeyValuePair.GetDictionaryKeyValuePairs(settings.Values);
-            //     }
-
-            //     if (_inspectableSettings.Length > 0)
-            //     {
-            //         EditorGUILayout.Space();
-            //         EditorGUILayout.LabelField("Settings", EditorStyles.boldLabel);
-            //     }
-
-            //     EditorGUI.BeginChangeCheck();
-
-            //     for (int i = 0; i < _inspectableSettings.Length; ++i)
-            //     {
-            //         var labelRect = EditorGUILayout.GetControlRect();
-            //         var position = new Rect(labelRect);
-            //         position.xMin += EditorGUIUtility.labelWidth;
-            //         labelRect.xMax = position.xMin;
-            //         var name = _inspectableSettings[i].Key;
-            //         EditorGUI.LabelField(labelRect, new GUIContent(name));
-            //         var variableType = _inspectableSettings[i].Value.GetType();
-            //         settings.InspectorSet(name, variableType, GolemEditorUtility.EditorGUIField(position, _inspectableSettings[i].Type, variableType, settings.InspectorGet(name, variableType)));
-            //     }
-
-            //     if (EditorGUI.EndChangeCheck())
-            //     {
-            //         EditorUtility.SetDirty(_editable.Golem.SettingsAsset);
-            //     }
-            // }
         }
 
         private void addAspectType(Type type)
         {
-            var field = typeof(Golem).GetField(type.Name);
-            if (field == null)
-            {
-                throw new InvalidProgramException(typeof(Golem).Name + " must contain a field for " + type.Name);
-            }
-            var item = new GolemAspectEditorData();
             var aspect = Activator.CreateInstance(type) as Aspect;
-            item.Field = field;
-            item.Aspect = aspect;
-            item._aspectFields = InspectableFieldInfo.GetFields(aspect);
-            item._aspectVariables = InspectableVariablePropertyInfo.GetVariableProperties(aspect);
-            // item._aspectSettings = InspectableSettingPropertyInfo.GetSettingProperties(aspect);
-            _editable.EditorAspects.Add(item);
+            _editable.AddAspect(aspect);
         }
     }
 }

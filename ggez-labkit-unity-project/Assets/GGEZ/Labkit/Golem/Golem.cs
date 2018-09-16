@@ -375,7 +375,7 @@ namespace GGEZ.Labkit
 
         public void Write(VariableRef variable, object value)
         {
-            Debug.Log("" + variable.Relationship + "[" + variable.Name + "] = " + value);
+            // Debug.Log("" + variable.Relationship + "[" + variable.Name + "] = " + value);
             Variables variables = getVariables(variable.Relationship);
             if (variables != null)
             {

@@ -45,34 +45,28 @@ namespace GGEZ.Labkit
         public object InspectorGet(string name, Type type)
         {
             object retval;
-            if (Values.TryGetValue(name, out retval) && type.IsAssignableFrom(retval.GetType()))
+            if (name != null && Values.TryGetValue(name, out retval) && type.IsAssignableFrom(retval.GetType()))
             {
                 return retval;
             }
-            if (type.IsValueType)
-            {
-                return Activator.CreateInstance(type);
-            }
+            retval = type.IsValueType ? Activator.CreateInstance(type) : null;
+            Values[name] = retval;
+            NextFrameValues[name] = retval;
             return null;
-        }
-
-        // InspectorGet that sets a default value if it doesn't exist
-        public object InspectorGet(string name, Type type, object defaultValue)
-        {
-            object retval;
-            if (Values.TryGetValue(name, out retval) && type.IsAssignableFrom(retval.GetType()))
-            {
-                return retval;
-            }
-            Values[name] = defaultValue;
-            NextFrameValues[name] = defaultValue;
-            return defaultValue;
         }
 
         public void InspectorSet(string name, Type type, object value)
         {
             Values[name] = value;
             NextFrameValues[name] = value;
+        }
+
+        public void EditorGUIInspectVariables()
+        {
+            foreach (var variable in Values.Keys)
+            {
+                
+            }
         }
 #endif
 
@@ -109,11 +103,11 @@ namespace GGEZ.Labkit
 
         public void EndFrame()
         {
-            Changed.Clear();
-            foreach (var kvp in NextFrameValues)
+            foreach (var key in Changed)
             {
-                Values[kvp.Key] = kvp.Value;
+                Values[key] = NextFrameValues[key];
             }
+            Changed.Clear();
         }
     }
 }
