@@ -45,24 +45,14 @@ namespace GGEZ
 
         public static bool IntersectGroundPlane(Vector3 origin, Vector3 direction, out float distance, out Vector3 point)
         {
-            if (s_groundPlane.Raycast(new Ray(origin, direction), out distance))
-            {
-                point = origin + direction * distance;
-                return true;
-            }
-            point = origin;
-            return false;
+            return IntersectGroundPlane(new Ray(origin, direction), out distance, out point);
         }
 
         public static bool IntersectGroundPlane(Ray ray, out float distance, out Vector3 point)
         {
-            if (s_groundPlane.Raycast(ray, out distance))
-            {
-                point = ray.origin + ray.direction * distance;
-                return true;
-            }
-            point = ray.origin;
-            return false;
+            bool retval = s_groundPlane.Raycast(ray, out distance);
+            point = ray.GetPoint(distance);
+            return retval;
         }
 
         public static bool IntersectPlane(this Plane self, Plane other, out Vector3 linePoint, out Vector3 lineDirection)
@@ -85,9 +75,10 @@ namespace GGEZ
             }
         }
 
-        public static bool IntersectLine(this Plane self, Vector3 point, Vector3 direction, out float distance, out Vector3 intersection)
+        public static bool IntersectRay(this Plane self, Vector3 point, Vector3 direction, out float distance, out Vector3 intersection)
         {
-            Debug.LogError("No unit tests for PlaneExt.IntersectLine");
+            Debug.LogError("No unit tests for PlaneExt.IntersectRay");
+            Debug.LogError("Should probably test perf vs. Raycast");
             Vector3 normal = self.normal;
             var perpendicularity = Vector3.Dot(direction, normal);
             if (perpendicularity == 0f)
@@ -99,6 +90,31 @@ namespace GGEZ
             distance = (Vector3.Dot(self.distance * self.normal - point, normal) / perpendicularity);
             intersection = point + direction * distance;
             return true;
+        }
+
+        public static void ClipPolygon(this Plane self, List<Vector3> polygonIn, List<Vector3> clippedPolygonOut)
+        {
+            int count = polygonIn.Count;
+            Vector3 v0, v1;
+            v0 = polygonIn[count-1];
+            for (int i = 0; i < count; ++i)
+            {
+                v1 = polygonIn[i];
+                bool s0 = self.GetSide(v0);
+                bool s1 = self.GetSide(v1);
+                if (s0)
+                {
+                    clippedPolygonOut.Add(v0);
+                }
+                if (s0 != s1)
+                {
+                    var ray = new Ray(v0, v1 - v0);
+                    float distance;
+                    self.Raycast(ray, out distance);
+                    clippedPolygonOut.Add(ray.GetPoint(distance));
+                }
+                v0 = v1;
+            }
         }
     }
 }

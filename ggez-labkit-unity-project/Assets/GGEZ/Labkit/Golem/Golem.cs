@@ -195,6 +195,28 @@ namespace GGEZ.Labkit
             }
 
             //-----------------------------------
+            // Variables
+            //-----------------------------------
+
+            // Circuit Inputs
+            //
+            // for each changed variable:
+            //      get the register to update for that variable from Inputs
+            //      write the register
+            //      dirty all of the appropriate cells
+
+            // Timers
+            //
+            // while (head of timer queue expired):
+            //      pop timer
+            //      set dirty flag for that timer
+
+            // This must happen exactly before the circuit because 
+            // the circuit is triggered by changes in value but can
+            // also create changes in value.
+            Variables.EndFrame();
+
+            //-----------------------------------
             // Circuit
             //-----------------------------------
 
@@ -210,11 +232,6 @@ namespace GGEZ.Labkit
                 }
             }
 
-            //-----------------------------------
-            // Variables
-            //-----------------------------------
-
-            Variables.EndFrame();
         }
 
         //---------------------------------------------------------------------

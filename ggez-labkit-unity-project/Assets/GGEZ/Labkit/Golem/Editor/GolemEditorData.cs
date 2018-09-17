@@ -956,7 +956,6 @@ namespace GGEZ.Labkit
                 serializer.TrySerialize(serialized, out data);
                 Golem.Asset.Json = fsJsonPrinter.PrettyJson(data);
                 Golem.Asset.Data = data;
-                EditorUtility.SetDirty(Golem.Asset);
                 // Debug.Log("References: " + Entity.References.Count + " @ " + Entity.References.GetHashCode());
             }
 
@@ -983,16 +982,13 @@ namespace GGEZ.Labkit
                 serializer.TrySerialize(serialized, out data);
                 EditorAsset.Json = fsJsonPrinter.PrettyJson(data);
                 EditorAsset.Data = data;
-                EditorUtility.SetDirty(EditorAsset);
                 // Debug.Log("References: " + Golem.References.Count + " @ " + Golem.References.GetHashCode());
             }
 
             //-----------------------------------------------------------------
             // Mark everything we changed as needing to be saved
             //-----------------------------------------------------------------
-            // var prefab = PrefabUtility.GetCorrespondingObjectFromSource(Entity);
-            // EditorUtility.SetDirty(prefab);
-            EditorUtility.SetDirty(Golem.gameObject);
+            GolemEditorUtility.SetDirty(Golem);
         }
 
         private static HashSet<string> s_fieldNamesToRemove = new HashSet<string>();

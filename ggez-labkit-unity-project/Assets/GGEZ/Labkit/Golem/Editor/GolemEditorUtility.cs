@@ -53,6 +53,24 @@ namespace GGEZ.Labkit
             EditorGUIUtility.AddCursorRect(rect, cursor);
         }
 
+        public static void SetDirty(Golem golem)
+        {
+            var scene = golem.gameObject.scene;
+            if (scene.IsValid())
+            {
+                if (!EditorApplication.isPlaying)
+                {
+                    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+                }
+            }
+            else
+            {
+                EditorUtility.SetDirty(golem.gameObject);
+            }
+            EditorUtility.SetDirty(golem.Asset);
+            EditorUtility.SetDirty(golem.EditorAsset);
+        }
+
         //-----------------------------------------------------
         // boldFoldoutStyle
         //-----------------------------------------------------
