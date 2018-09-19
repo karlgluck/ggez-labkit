@@ -1477,11 +1477,13 @@ namespace GGEZ.Labkit
         public struct Input
         {
             public readonly string Name;
+            public readonly Type Type;
             public readonly FieldInfo Field;
             public readonly Vector2 PortCenterFromTopLeft;
-            public Input(string name, FieldInfo field, Vector2 portCenterFromTopLeft)
+            public Input(string name, Type type, FieldInfo field, Vector2 portCenterFromTopLeft)
             {
                 Name = name;
+                Type = type;
                 Field = field;
                 PortCenterFromTopLeft = portCenterFromTopLeft;
             }
@@ -1490,11 +1492,13 @@ namespace GGEZ.Labkit
         public struct Output
         {
             public readonly string Name;
+            public readonly Type Type;
             public readonly FieldInfo Field;
             public readonly Vector2 PortCenterFromTopRight;
-            public Output(string name, FieldInfo field, Vector2 portCenterFromTopRight)
+            public Output(string name, Type type, FieldInfo field, Vector2 portCenterFromTopRight)
             {
                 Name = name;
+                Type = type;
                 Field = field;
                 PortCenterFromTopRight = portCenterFromTopRight;
             }
@@ -1525,22 +1529,31 @@ namespace GGEZ.Labkit
         public readonly Output[] Outputs;
         public readonly Field[] Fields;
 
+        private static Dictionary<Type, InspectableCellType> s_typeToInspectableType = new Dictionary<Type, InspectableCellType>();
         public static InspectableCellType GetInspectableCellType(Type cellType)
         {
+            InspectableCellType retval;
+            if (s_typeToInspectableType.TryGetValue(cellType, out retval))
+            {
+                return retval;
+            }
+
             var inputs = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => f.IsDefined(typeof(InAttribute), false)).ToArray();
             var returnedInputs = new Input[inputs.Length];
             for (int i = 0; i < inputs.Length; ++i)
             {
+                var inAttribute = inputs[i].GetCustomAttributes(typeof(InAttribute), false)[0] as InAttribute;
                 var portCenter = new Vector2(GolemEditorUtility.GridSize - GolemEditorUtility.NodeLeftRightMargin, EditorGUIUtility.singleLineHeight * (0.5f + i));
-                returnedInputs[i] = new Input(inputs[i].Name, inputs[i], portCenter);
+                returnedInputs[i] = new Input(inputs[i].Name, inAttribute.Type, inputs[i], portCenter);
             }
 
             var outputs = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => f.IsDefined(typeof(OutAttribute), false)).ToArray();
             var returnedOutputs = new Output[outputs.Length];
             for (int i = 0; i < outputs.Length; ++i)
             {
+                var outAttribute = outputs[i].GetCustomAttributes(typeof(OutAttribute), false)[0] as OutAttribute;
                 var portCenter = new Vector2(-GolemEditorUtility.GridSize + GolemEditorUtility.NodeLeftRightMargin, EditorGUIUtility.singleLineHeight * (0.5f + i));
-                returnedOutputs[i] = new Output(outputs[i].Name, outputs[i], portCenter);
+                returnedOutputs[i] = new Output(outputs[i].Name, outAttribute.Type, outputs[i], portCenter);
             }
 
             var fields = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => !f.IsDefined(typeof(InAttribute), false) && !f.IsDefined(typeof(OutAttribute), false)).ToArray();
@@ -1559,7 +1572,30 @@ namespace GGEZ.Labkit
                 Array.Resize(ref returnedFields, j);
             }
 
-            return new InspectableCellType(returnedInputs, returnedOutputs, returnedFields);
+            retval = new InspectableCellType(returnedInputs, returnedOutputs, returnedFields);
+            s_typeToInspectableType.Add(cellType, retval);
+            return retval;
+        }
+
+        public static bool CanConnect(InspectableCellType readCell, int outputIndex, InspectableCellType writeCell, int inputIndex)
+        {
+            Type writeType = writeCell.Inputs[inputIndex].Type;
+            Type readType = readCell.Outputs[outputIndex].Type;
+
+            // If the output wants an object, send 'em anything
+            if (writeType.Equals(typeof(object)))
+            {
+                return true;
+            }
+
+            // If the output is a value type we can't do type conversion so the types must match
+            if (readType.IsValueType || writeType.IsValueType)
+            {
+                return readType.Equals(writeType);
+            }
+
+            // An object is being passed to something that wants an object: make sure the assignment is possible
+            return writeType.IsAssignableFrom(readType);
         }
     }
 
@@ -1588,8 +1624,15 @@ namespace GGEZ.Labkit
             Fields = fields;
         }
 
+        private static Dictionary<Type, InspectableScriptType> s_typeToInspectableType = new Dictionary<Type, InspectableScriptType>();
         public static InspectableScriptType GetInspectableScriptType(Type scriptType)
         {
+            InspectableScriptType retval;
+            if (s_typeToInspectableType.TryGetValue(scriptType, out retval))
+            {
+                return retval;
+            }
+
             var fields = scriptType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => !f.IsDefined(typeof(InAttribute), false) && !f.IsDefined(typeof(OutAttribute), false)).ToArray();
             var returnedFields = new Field[fields.Length];
             {
@@ -1606,7 +1649,9 @@ namespace GGEZ.Labkit
                 Array.Resize(ref returnedFields, j);
             }
 
-            return new InspectableScriptType(scriptType.Name, returnedFields);
+            retval = new InspectableScriptType(scriptType.Name, returnedFields);
+            s_typeToInspectableType.Add(scriptType, retval);
+            return retval;
         }
     }
 }

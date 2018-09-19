@@ -474,11 +474,11 @@ namespace GGEZ.Labkit
         //-----------------------------------------------------
         // Register getters and setters for use by Cells
         //-----------------------------------------------------
-        public bool Get(BoolPtr pointer) { return pointer == BoolPtr.Invalid ? false : (bool)_registers[(int)pointer]; }
-        public void Set(BoolPtr pointer, bool value) { setRegister((int)pointer, value); }
-        public float Get(FloatPtr pointer) { return pointer == FloatPtr.Invalid ? 0f : (float)_registers[(int)pointer]; }
-        public bool Get(FloatPtr pointer, ref float v) { bool b = pointer != FloatPtr.Invalid; if (b) v = (float)_registers[(int)pointer]; return b; }
-        public void Set(FloatPtr pointer, float value) { setRegister((int)pointer, value); }
+
+        public T Get<T>(RegisterPtr pointer) { return pointer == RegisterPtr.Invalid ? default(T) : (T)_registers[(int)pointer]; }
+        public bool Get<T>(RegisterPtr pointer, out T v) { bool b = pointer != RegisterPtr.Invalid; v = b ? (T)_registers[(int)pointer] : default(T); return b; }
+        public bool TryGet<T>(RegisterPtr pointer, ref T v) { bool b = pointer != RegisterPtr.Invalid; if(b) v = (T)_registers[(int)pointer]; return b; }
+        public void Set<T>(RegisterPtr pointer, T value) { setRegister((int)pointer, (object)value); }
 
         //-----------------------------------------------------
         // Sets the register to the new value and updates
@@ -486,21 +486,50 @@ namespace GGEZ.Labkit
         //-----------------------------------------------------
         private void setRegister(int pointer, object value)
         {
+            // Skip unused pointers
             if (pointer == int.MaxValue)
             {
                 return;
             }
+
 #if UNITY_EDITOR
+
+            // Make sure the pointer is valid
             if (pointer < 0 || pointer >= _registers.Length)
             {
                 throw new ArgumentOutOfRangeException("pointer");
             }
+
+            // Typecheck the register vs. the incoming type
+            // TODO: It would be better to do this by looking into the editor
+            // data associated with this golem and checking vs. the original
+            // type because type mutations can occur this way.
+            object currentValue = _registers[pointer];
+            if (value != null && currentValue == null)
+            {
+                Debug.Assert(!value.GetType().IsValueType);
+            }
+            else if (value == null && currentValue != null)
+            {
+                Debug.Assert(!currentValue.GetType().IsValueType);
+            }
+            else if (value != null && currentValue != null)
+            {
+                Debug.Assert(currentValue.GetType().IsAssignableFrom(value.GetType()));
+            }
+
 #endif
+
+            // Don't dirty a register when it gets set to its current value
             if (object.Equals(_registers[pointer], value))
             {
                 return;
             }
+
+            // Save the new value
             _registers[pointer] = value;
+
+            // Dirty all the cells that read this register
             int[] outputs = _cellsThatReadRegister[pointer];
             for (int i = 0; i < outputs.Length; ++i)
             {

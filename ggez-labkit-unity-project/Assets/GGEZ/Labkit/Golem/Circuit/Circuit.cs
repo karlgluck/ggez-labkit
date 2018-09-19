@@ -30,39 +30,6 @@ using GGEZ.FullSerializer;
 namespace GGEZ.Labkit
 {
     //-------------------------------------------------------------------------
-    // Attributes used when writing cells
-    //-------------------------------------------------------------------------
-
-    [AttributeUsage(AttributeTargets.Field)]
-    public class InAttribute : Attribute { }
-
-    [AttributeUsage(AttributeTargets.Field)]
-    public class OutAttribute : Attribute { }
-
-    [AttributeUsage(AttributeTargets.Class)]
-    public class RequireVariablesAttribute : Attribute { }
-
-    [AttributeUsage(AttributeTargets.Class)]
-    public class RequireAspectAttribute : Attribute
-    {
-        public Type AspectType;
-        public RequireAspectAttribute(Type aspectType)
-        {
-            AspectType = aspectType;
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Enum)]
-    public class PointerTypeAttribute : Attribute
-    {
-        public Type Type;
-        public PointerTypeAttribute(Type type)
-        {
-            Type = type;
-        }
-    }
-
-    //-------------------------------------------------------------------------
     // Cell
     //-------------------------------------------------------------------------
     public class Cell
@@ -77,11 +44,33 @@ namespace GGEZ.Labkit
     }
 
     //-------------------------------------------------------------------------
+    // Attributes used when writing cells
+    //-------------------------------------------------------------------------
+
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    public class InAttribute : Attribute
+    {
+        public Type Type;
+        public InAttribute(Type type)
+        {
+            Type = type;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    public class OutAttribute : Attribute
+    {
+        public Type Type;
+        public OutAttribute(Type type)
+        {
+            Type = type;
+        }
+    }
+
+    //-------------------------------------------------------------------------
     // Register pointers for inputs and outputs
     //-------------------------------------------------------------------------
-    [PointerType(typeof(object)), fsSerializeEnumAsInteger] public enum ObjectPtr : int { Invalid = int.MaxValue }
-    [PointerType(typeof(bool)), fsSerializeEnumAsInteger] public enum BoolPtr : int { Invalid = int.MaxValue }
-    [PointerType(typeof(float)), fsSerializeEnumAsInteger] public enum FloatPtr : int { Invalid = int.MaxValue }
+    [fsSerializeEnumAsInteger] public enum RegisterPtr : int { Invalid = int.MaxValue }
 
     //-------------------------------------------------------------------------
     // References a golem
@@ -119,7 +108,7 @@ namespace GGEZ.Labkit
         public string Name;
     }
 
-    [AttributeUsage(AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class VariableTypeAttribute : Attribute
     {
         public Type Type;

@@ -95,48 +95,47 @@ public partial class Golem
 
 public class ACellWithManyIOs : Cell
 {
-    [In] public BoolPtr Input;
-    [In] public BoolPtr Input1;
-    [In] public BoolPtr Input2;
-    [In] public BoolPtr Input3;
-    [In] public BoolPtr Input4;
-    [In] public BoolPtr Input5;
-    [Out] public BoolPtr Output;
-    [Out] public BoolPtr Output1;
-    [Out] public BoolPtr Output2;
-    [Out] public BoolPtr Output3;
-    [Out] public BoolPtr Output4;
-    [Out] public BoolPtr Output5;
+    [In(typeof(bool))] public RegisterPtr Input;
+    [In(typeof(bool))] public RegisterPtr Input1;
+    [In(typeof(bool))] public RegisterPtr Input2;
+    [In(typeof(bool))] public RegisterPtr Input3;
+    [In(typeof(bool))] public RegisterPtr Input4;
+    [In(typeof(bool))] public RegisterPtr Input5;
+    [Out(typeof(bool))] public RegisterPtr Output;
+    [Out(typeof(bool))] public RegisterPtr Output1;
+    [Out(typeof(bool))] public RegisterPtr Output2;
+    [Out(typeof(bool))] public RegisterPtr Output3;
+    [Out(typeof(bool))] public RegisterPtr Output4;
+    [Out(typeof(bool))] public RegisterPtr Output5;
 
 }
 
 
 public class BoolInverterCell : Cell
 {
-    [In] public BoolPtr Input;
-    [Out] public BoolPtr Output;
+    [In(typeof(bool))] public RegisterPtr Input;
+    [Out(typeof(bool))] public RegisterPtr Output;
 
     public override void Update(Golem entity, bool dirty, ref bool running)
     {
-        entity.Set(Output, !entity.Get(Input));
+        entity.Set(Output, !entity.Get<bool>(Input));
     }
 }
 
 public class RendererToggleCell : Cell
 {
-    [In] public BoolPtr Input;
+    [In(typeof(bool))] public RegisterPtr Input;
     public Renderer Renderer;
 
     public override void Update(Golem entity, bool dirty, ref bool running)
     {
-        Renderer.enabled = entity.Get(Input);
+        Renderer.enabled = entity.Get<bool>(Input);
     }
 }
 
-[RequireAspect(typeof(FishingRodAspect))]
 public class ReadFishingRodPosition : Cell
 {
-    [Out] public FloatPtr Output;
+    [Out(typeof(float))] public RegisterPtr Output;
 
     public override void Acquire(Golem entity, ref bool running)
     {
@@ -150,13 +149,12 @@ public class ReadFishingRodPosition : Cell
 }
 
 
-[RequireVariables]
 public class ReadFloatVariable : Cell
 {
     [VariableType(typeof(float))]
     public VariableRef Variable;
 
-    [Out] public FloatPtr Output;
+    [Out(typeof(float))] public RegisterPtr Output;
     public override void Acquire(Golem entity, ref bool running)
     {
         running = true;
@@ -177,7 +175,7 @@ public class ReadFloatVariable : Cell
 public class FloatConstant : Cell
 {
     public float Value;
-    [Out] public FloatPtr Output;
+    [Out(typeof(float))] public RegisterPtr Output;
     public override void Update(Golem entity, bool dirty, ref bool running)
     {
         entity.Set(Output, Value);
@@ -188,14 +186,14 @@ public class FloatConstant : Cell
 public class LerpFloatToZero : Cell
 {
     public float Duration;
-    [In] public FloatPtr Input;
-    [Out] public FloatPtr Output;
+    [In(typeof(float))] public RegisterPtr Input;
+    [Out(typeof(float))] public RegisterPtr Output;
     private float current, deltaPerSecond;
     public override void Update(Golem entity, bool dirty, ref bool running)
     {
         if (dirty)
         {
-            current = entity.Get(Input);
+            current = entity.Get<float>(Input);
             deltaPerSecond = current / Duration;
         }
         else
@@ -211,8 +209,8 @@ public class LerpFloatToZero : Cell
 public class EmitFloatSequence : Cell
 {
     public float Duration;
-    [In] public ObjectPtr Trigger;
-    [Out] public FloatPtr Output;
+    [In(typeof(object))] public RegisterPtr Trigger;
+    [Out(typeof(float))] public RegisterPtr Output;
     private float _startTime, _endTime;
     public override void Update(Golem entity, bool dirty, ref bool running)
     {
@@ -232,19 +230,19 @@ public class SineWave : Cell
 {
     public float Amplitude = 1f;
     public float Frequency = 1f;
-    [In] public BoolPtr Enabled;
-    [Out] public FloatPtr Output;
+    [In(typeof(bool))] public RegisterPtr Enabled;
+    [Out(typeof(float))] public RegisterPtr Output;
 
     public override void Acquire(Golem entity, ref bool running)
     {
-        running = Enabled == BoolPtr.Invalid;
+        running = Enabled == RegisterPtr.Invalid;
     }
 
     public override void Update(Golem entity, bool dirty, ref bool running)
     {
         if (dirty)
         {
-            running = entity.Get(Enabled);
+            running = entity.Get<bool>(Enabled);
         }
         entity.Set(Output, Mathf.Sin(Frequency * Time.time) * Amplitude);
     }
@@ -254,16 +252,16 @@ public class SineWave : Cell
 public class Position : Cell
 {
     public Transform Transform;
-    [In] public FloatPtr X;
-    [In] public FloatPtr Y;
-    [In] public FloatPtr Z;
+    [In(typeof(float))] public RegisterPtr X;
+    [In(typeof(float))] public RegisterPtr Y;
+    [In(typeof(float))] public RegisterPtr Z;
 
     public override void Update(Golem golem, bool dirty, ref bool running)
     {
         var position = Transform.position;
-        golem.Get(X, ref position.x);
-        golem.Get(Y, ref position.y);
-        golem.Get(Z, ref position.z);
+        golem.TryGet(X, ref position.x);
+        golem.TryGet(Y, ref position.y);
+        golem.TryGet(Z, ref position.z);
         Transform.position = position;
     }
 }
@@ -271,7 +269,7 @@ public class Position : Cell
 public class KeyPressed : Cell
 {
     public KeyCode Key;
-    [Out] public BoolPtr Output;
+    [Out(typeof(bool))] public RegisterPtr Output;
 
     public override void Acquire(Golem entity, ref bool running)
     {

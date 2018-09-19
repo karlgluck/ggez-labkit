@@ -103,7 +103,7 @@ namespace GGEZ.Labkit
     //-------------------------------------------------------------------------
     public class EditorWire
     {
-        public int Register;
+        public RegisterPtr Register;
         public EditorCell ReadCell;
         public string ReadField;
         public EditorCell WriteCell;

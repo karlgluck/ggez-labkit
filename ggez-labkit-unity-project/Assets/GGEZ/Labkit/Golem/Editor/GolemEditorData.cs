@@ -613,17 +613,17 @@ namespace GGEZ.Labkit
                 //---------------------------------------------------------
                 Debug.Log("TODO: map registers in an order that better matches the cell update order");
                 List<object> registers = new List<object>();
-                Dictionary<string, int> cellOutputToRegister = new Dictionary<string, int>();
+                Dictionary<string, RegisterPtr> cellOutputToRegister = new Dictionary<string, RegisterPtr>();
                 List<HashSet<EditorCellIndex>> cellsThatReadRegister = new List<HashSet<EditorCellIndex>>();
                 for (int i = 0; i < EditorWires.Count; ++i)
                 {
                     var wire = EditorWires[i];
                     string registerKey = wire.ReadCell.Index + ".{" + wire.ReadField + "}";
-                    int register;
+                    RegisterPtr register;
                     if (cellOutputToRegister.TryGetValue(registerKey, out register))
                     {
                         wire.Register = register;
-                        cellsThatReadRegister[register].Add(wire.WriteCell.Index);
+                        cellsThatReadRegister[(int)register].Add(wire.WriteCell.Index);
                     }
                     else
                     {
@@ -631,39 +631,29 @@ namespace GGEZ.Labkit
                         var readField = readCellType.GetField(wire.ReadField);
                         var fieldType = readField.FieldType;
 
-                        if (!fieldType.IsValueType || !fieldType.Name.EndsWith("Ptr"))
+                        object[] fieldAttributes = readField.GetCustomAttributes(typeof(OutAttribute), false);
+                        object defaultValue;
+                        if (fieldAttributes.Length == 1)
                         {
-                            Debug.LogError("Output field is not a *Ptr type. This is probably wrong!");
+                            var outAttribute = fieldAttributes[0] as OutAttribute;
+                            defaultValue = outAttribute.Type.IsValueType ? Activator.CreateInstance(outAttribute.Type) : null;
+                        }
+                        else
+                        {
+                            Debug.LogError("Output field must have [Out] attribute... how did we even get here??");
+                            defaultValue = new int[0,0,0,0,0]; // use something bizarre
                         }
 
-                        bool foundAttribute = false;
-                        object value = null;
-                        var attributes = fieldType.GetCustomAttributes(typeof(PointerTypeAttribute), false);
-                        for (int j = 0; j < attributes.Length; ++j)
-                        {
-                            var pointerTypeAttribute = attributes[j] as PointerTypeAttribute;
-                            if (pointerTypeAttribute != null)
-                            {
-                                if (pointerTypeAttribute.Type.IsValueType)
-                                {
-                                    foundAttribute = true;
-                                    value = Activator.CreateInstance(pointerTypeAttribute.Type);
-                                }
-                                break;
-                            }
-                        }
-                        if (!foundAttribute)
-                        {
-                            Debug.LogError("Add a [PointerType] attribute to '" + fieldType.Name + "'");
-                            value = null;
-                        }
-                        register = registers.Count;
+                        // TODO: save the register's type here
+
+                        register = (RegisterPtr)registers.Count;
                         cellOutputToRegister[registerKey] = register;
-                        registers.Add(value);
+                        registers.Add(defaultValue);
                         wire.Register = register;
                         cellsThatReadRegister.Add(new HashSet<EditorCellIndex>() { wire.WriteCell.Index });
                     }
                 }
+
                 int[][] cellsThatReadRegisterOutput = new int[cellsThatReadRegister.Count][];
                 for (int i = 0; i < cellsThatReadRegister.Count; ++i)
                 {
@@ -684,36 +674,42 @@ namespace GGEZ.Labkit
                 for (int i = 0; i < EditorCells.Count; ++i)
                 {
                     var editorCell = EditorCells[i];
+
                     var cell = editorCell.Cell.Clone();
                     cells[cellRemap[i]] = cell;
+
                     var cellType = cell.GetType();
+                    var inspectableCellType = InspectableCellType.GetInspectableCellType(cellType);
 
                     //-------------------------------------------------
-                    // Default all registers on the cell to invalid
+                    // Default all registers on the cell to no-op
                     //-------------------------------------------------
-                    foreach (var inputField in cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => f.IsDefined(typeof(InAttribute), false)))
+                    foreach (var input in inspectableCellType.Inputs)
                     {
-                        inputField.SetValue(cell, int.MaxValue);
+                        input.Field.SetValue(cell, RegisterPtr.Invalid);
                     }
-                    foreach (var outputField in cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => f.IsDefined(typeof(OutAttribute), false)))
+                    foreach (var output in inspectableCellType.Outputs)
                     {
-                        outputField.SetValue(cell, int.MaxValue);
+                        output.Field.SetValue(cell, RegisterPtr.Invalid);
                     }
 
                     //-------------------------------------------------
                     // Set the register indices for every active I/O
                     //-------------------------------------------------
-                    var inputs = editorCell.Inputs;
-                    for (int j = 0; j < inputs.Count; ++j)
+                    List<EditorWire> inputWires = editorCell.Inputs;
+                    for (int j = 0; j < inputWires.Count; ++j)
                     {
-                        string registerKey = inputs[j].ReadCell.Index + ".{" + inputs[j].ReadField + "}";
-                        cellType.GetField(inputs[j].WriteField).SetValue(cell, cellOutputToRegister[registerKey]);
+                        EditorWire wire = inputWires[j];
+                        string registerKey = wire.ReadCell.Index + ".{" + wire.ReadField + "}";
+                        cellType.GetField(wire.WriteField).SetValue(cell, cellOutputToRegister[registerKey]);
+                        // TODO: check here to warn about multiple writers to the same input
                     }
-                    var outputs = editorCell.Outputs;
-                    for (int j = 0; j < outputs.Count; ++j)
+                    List<EditorWire> outputWires = editorCell.Outputs;
+                    for (int j = 0; j < outputWires.Count; ++j)
                     {
-                        string registerKey = outputs[j].ReadCell.Index + ".{" + outputs[j].ReadField + "}";
-                        cellType.GetField(outputs[j].ReadField).SetValue(cell, cellOutputToRegister[registerKey]);
+                        EditorWire wire = outputWires[j];
+                        string registerKey = wire.ReadCell.Index + ".{" + wire.ReadField + "}";
+                        cellType.GetField(wire.ReadField).SetValue(cell, cellOutputToRegister[registerKey]);
                     }
 
                     //-------------------------------------------------
