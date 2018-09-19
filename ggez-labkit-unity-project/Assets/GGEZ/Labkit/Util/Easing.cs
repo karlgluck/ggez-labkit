@@ -53,6 +53,11 @@ namespace GGEZ
             return 4 * t * (1 - t);
         }
 
+        /// <summary>
+        /// Turns a linear parameter into a bouncing parameter.
+        /// </summary>
+        /// <param name="t">Range [0, 1]. Usually comes from time.</param>
+        /// <returns>Bouncing parameter value to use in interpolations. Range [0,1] </return>
         public static float EaseJumpBounce(float t)
         {
             float s = 1f;
@@ -71,6 +76,18 @@ namespace GGEZ
                 t = Mathf.InverseLerp(6 / 8f, 1f, t);
             }
             return s * 4 * t * (1 - t);
+        }
+
+        /// <summary>
+        /// Interpolates on a frame-rate independent exponential curve.
+        /// </summary>
+        /// <param name="current">Current value of the parameter being damped</param>
+        /// <param name="target">Desired value of the parameter</param>
+        /// <param name="smoothing">What proportion of current remains after 1 second. Range [0, 1]</param>
+        /// <param name="dt">Timestep, usually Time.deltaTime or Time.smoothDeltaTime</param>
+        public static float Damp(float current, float target, float smoothing, float dt)
+        {
+            return Mathf.Lerp(current, target, 1 - Mathf.Pow(smoothing, dt));
         }
 
 
