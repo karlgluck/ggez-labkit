@@ -9,6 +9,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5c433aa5a1f9a944cbb3418d7da0b383, type: 3}
-  m_Name: Omnibus
+  m_Name: Golem
   m_EditorClassIdentifier: 
-  Assets: []
+  Assets:
+  - {fileID: 102900000, guid: 804e0cc22b5502041bc8b56a74eb2775, type: 3}
+  - {fileID: 102900000, guid: b19e619cfbd39433685ace7d1b0e0cba, type: 3}
+  - {fileID: 11500000, guid: ed927d0bbb9134be69d2dd912a4a7198, type: 3}

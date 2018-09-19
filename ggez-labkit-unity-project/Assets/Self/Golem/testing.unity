@@ -456,9 +456,9 @@ MonoBehaviour:
     \"AddDeltaTimeToVariable\"\r\n                        },\r\n                        \"FieldsUsingSettings\":
     {\r\n\r\n                        }\r\n                    },\r\n                    {\r\n
     \                       \"Script\": {\r\n                            \"Delay\":
-    1.0,\r\n                            \"Trigger\": \"Next\",\r\n                            \"$type\":
+    2.0,\r\n                            \"Trigger\": \"Next\",\r\n                            \"$type\":
     \"TransitionAfterDelay\"\r\n                        },\r\n                        \"FieldsUsingSettings\":
-    {\r\n                            \"Delay\": \"ShortDelay\"\r\n                        }\r\n
+    {\r\n                            \"Delay\": \"LongDelay\"\r\n                        }\r\n
     \                   }\r\n                ],\r\n                \"TransitionsIn\":
     [\r\n                    0,\r\n                    2\r\n                ],\r\n
     \               \"TransitionsOut\": [\r\n                    1\r\n                ]\r\n
@@ -540,16 +540,15 @@ MonoBehaviour:
     \               \"Name\": \"ShortDelay\",\r\n                \"Value\": {\r\n
     \                   \"$content\": 1.0,\r\n                    \"$type\": \"System.Single\"\r\n
     \               }\r\n            },\r\n            {\r\n                \"Type\":
-    \"System.Single\",\r\n                \"Name\": \"df348a9e-6323-45f0-9429-2761a4c7575f\",\r\n
-    \               \"Value\": {\r\n                    \"$content\": 0.0,\r\n                    \"$type\":
+    \"System.Single\",\r\n                \"Name\": \"LongDelay\",\r\n                \"Value\":
+    {\r\n                    \"$content\": 2.0,\r\n                    \"$type\":
     \"System.Single\"\r\n                }\r\n            },\r\n            {\r\n
     \               \"Type\": \"UnityEngine.Transform\",\r\n                \"Name\":
     \"Body\",\r\n                \"Value\": {\r\n                    \"$unity\": 0\r\n
     \               }\r\n            }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.Settings+Setting,
     Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
     \   }\r\n}"
-  InheritSettingsFrom: {fileID: 11400000, guid: 1518bc0800f654725967cd3ff848dfa2,
-    type: 2}
+  InheritSettingsFrom: {fileID: 0}
 --- !u!114 &2007100382
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -611,7 +610,7 @@ MonoBehaviour:
     {\r\n        \"$content\": [\r\n            {\r\n                \"Variable\":
     {\r\n                    \"Relationship\": \"Self\",\r\n                    \"Name\":
     \"X\"\r\n                },\r\n                \"$type\": \"AddDeltaTimeToVariable\"\r\n
-    \           },\r\n            {\r\n                \"Delay\": 1.0,\r\n                \"Trigger\":
+    \           },\r\n            {\r\n                \"Delay\": 2.0,\r\n                \"Trigger\":
     \"Next\",\r\n                \"$type\": \"TransitionAfterDelay\"\r\n            },\r\n
     \           {\r\n                \"Variable\": {\r\n                    \"Relationship\":
     \"Self\",\r\n                    \"Name\": \"Y\"\r\n                },\r\n                \"$type\":

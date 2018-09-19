@@ -23,15 +23,19 @@
 // 
 // For more information, please refer to <http://unlicense.org/>
 
-// This file is used as part of Omnibus
+// This file is an example of how to write the Trigger enum for Golem
 
-// public enum Trigger
-// {
-//     Next,
-//     Last,
+#if false
 
-//     // add more triggers here
+public enum Trigger
+{
+    Next,
+    Last,
 
-//     __COUNT__,
-//     Invalid = int.MaxValue,
-// }
+    // add more triggers here
+
+    __COUNT__,
+    Invalid = int.MaxValue,
+}
+
+#endif

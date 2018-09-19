@@ -195,15 +195,31 @@ namespace GGEZ.Labkit
             }
 
             //-----------------------------------
-            // Variables
+            // Circuit
             //-----------------------------------
 
-            // Circuit Inputs
-            //
-            // for each changed variable:
-            //      get the register to update for that variable from Inputs
-            //      write the register
-            //      dirty all of the appropriate cells
+            // Input variables
+
+            foreach (string variable in Variables.ChangedLastFrame)
+            {
+                object value = Variables.Get(variable);
+                int[] registersToWrite;
+                if (!_variablesThatWriteRegister.TryGetValue(variable, out registersToWrite))
+                {
+                    // TODO: for now (9/16/18), this will always be the case
+                    // since the source array is never saved by the editor
+                    continue;
+                }
+                for (int i = 0; i < registersToWrite.Length; ++i)
+                {
+                    _registers[i] = value;
+                    int[] cellsToDirty = _cellsThatReadRegister[i];
+                    for (int j = 0; j < cellsToDirty.Length; ++j)
+                    {
+                        _dirty[cellsToDirty[j]] = true;
+                    }
+                }
+            }
 
             // Timers
             //
@@ -211,14 +227,7 @@ namespace GGEZ.Labkit
             //      pop timer
             //      set dirty flag for that timer
 
-            // This must happen exactly before the circuit because 
-            // the circuit is triggered by changes in value but can
-            // also create changes in value.
-            Variables.EndFrame();
-
-            //-----------------------------------
-            // Circuit
-            //-----------------------------------
+            // Update
 
             for (int i = 0; i < _dirty.Length; ++i)
             {
@@ -231,6 +240,22 @@ namespace GGEZ.Labkit
                     _running[i] = running;
                 }
             }
+
+            //-----------------------------------
+            // Variables
+            //-----------------------------------
+
+            // By updating variables here and using a second ChangedLastFrame
+            // set inside of Variables, we cause the Circuit not to get an
+            // update notification until next frame.
+            //
+            // This means that variables written by cells will overwrite
+            // changes to a variable by scripts, and the cells will never
+            // have seen the original script variable. This can cause a
+            // dirty to be passed to a cell even if its circuit-measured
+            // value doesn't change, which is a behavior the circuit must
+            // tolerate since it has no memory.
+            Variables.EndFrame();
 
         }
 
@@ -323,15 +348,49 @@ namespace GGEZ.Labkit
             if (deserialized.ContainsKey("Registers"))
             {
                 _registers = deserialized["Registers"] as object[];
-                _cellsThatReadRegister = deserialized["CellsThatReadRegister"] as int[][];
-                Cells = deserialized["Cells"] as Cell[];
             }
             else
             {
                 _registers = new object[0];
+            }
+
+            if (deserialized.ContainsKey("VariablesThatWriteRegister"))
+            {
+                _variablesThatWriteRegister = deserialized["VariablesThatWriteRegister"] as Dictionary<string, int[]>;
+            }
+            else
+            {
+                _variablesThatWriteRegister = new Dictionary<string,int[]>();
+            }
+
+            if (deserialized.ContainsKey("CellsThatReadRegister"))
+            {
+                _cellsThatReadRegister = deserialized["CellsThatReadRegister"] as int[][];
+            }
+            else
+            {
                 _cellsThatReadRegister = new int[0][];
+            }
+
+            if (deserialized.ContainsKey("Cells"))
+            {
+                Cells = deserialized["Cells"] as Cell[];
+            }
+            else
+            {
                 Cells = new Cell[0];
             }
+
+            foreach (var kvp in _variablesThatWriteRegister)
+            {
+                object value = Variables.Get(kvp.Key);
+                int[] registersToWrite = kvp.Value;
+                for (int i = 0; i < registersToWrite.Length; ++i)
+                {
+                    _registers[i] = value;
+                }
+            }
+
             _dirty = new bool[Cells.Length];
             _running = new bool[Cells.Length];
             for (int i = 0; i < _dirty.Length; ++i)
@@ -370,6 +429,7 @@ namespace GGEZ.Labkit
         // Circuit
         //---------------------------------------------------------------------
         private object[] _registers;
+        private Dictionary<string, int[]> _variablesThatWriteRegister;
         private int[][] _cellsThatReadRegister;
         private bool[] _dirty;
         private bool[] _running;
