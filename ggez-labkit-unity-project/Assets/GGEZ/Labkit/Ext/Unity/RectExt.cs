@@ -34,13 +34,16 @@ namespace GGEZ
         public static Vector2[] GetVertices(this Rect self)
         {
             return new Vector2[] {
-            new Vector2 (self.xMin, self.yMin),
-            new Vector2 (self.xMin, self.yMax),
-            new Vector2 (self.xMax, self.yMax),
-            new Vector2 (self.xMax, self.yMin),
+                new Vector2 (self.xMin, self.yMin),
+                new Vector2 (self.xMin, self.yMax),
+                new Vector2 (self.xMax, self.yMax),
+                new Vector2 (self.xMax, self.yMin),
             };
         }
 
+        /// <summary>
+        /// Return the rect decreased in size evenly around its border
+        /// </summary>
         public static Rect ContractedBy(this Rect self, float margin)
         {
             float twiceMargin = margin * 2;
@@ -52,6 +55,9 @@ namespace GGEZ
                     );
         }
 
+        /// <summary>
+        /// Return the rect increased in size evenly around its border
+        /// </summary>
         public static Rect ExpandedBy(this Rect self, float margin)
         {
             float twiceMargin = margin * 2;
@@ -61,6 +67,40 @@ namespace GGEZ
                     self.width + twiceMargin,
                     self.height + twiceMargin
                     );
+        }
+
+        /// <summary>
+        /// Returns the point on the boundary of this rectangle in the given direction.
+        /// </summary>
+        /// <param name="angle">Angle (z) defining the direction in which to find the point</param>
+        public static Vector2 PointAtAngleFromCenter(this Rect self, float angle)
+        {
+            float angleRad = angle * Mathf.Deg2Rad;
+
+            float a = self.width * 0.5f;
+            float b = self.height * 0.5f;
+            float radius = Mathf.Abs(Mathf.Tan(angleRad)) < (b / a) ? a / Mathf.Abs(Mathf.Cos(angleRad)) : b / Mathf.Abs(Mathf.Sin(angleRad));
+
+            Vector2 center = self.center;
+            return new Vector2(Mathf.Cos(angleRad) * radius + center.x, Mathf.Sin(angleRad) * radius + center.y);
+        }
+
+        /// <summary>
+        /// Returns the point on the boundary of this rectangle in the given direction.
+        /// </summary>
+        /// <param name="direction">Normalized direction in which to find the point</param>
+        public static Vector2 PointInDirectionFromCenter(this Rect self, Vector2 direction)
+        {
+            Debug.Assert(Mathf.Approximately(direction.magnitude, 1f));
+
+            float angleRad = Mathf.Atan2(direction.y, direction.x);
+
+            float a = self.width * 0.5f;
+            float b = self.height * 0.5f;
+            float radius = Mathf.Abs(Mathf.Tan(angleRad)) < (b / a) ? a / Mathf.Abs(Mathf.Cos(angleRad)) : b / Mathf.Abs(Mathf.Sin(angleRad));
+
+            Vector2 center = self.center;
+            return new Vector2(direction.x * radius + center.x, direction.y * radius + center.y);
         }
     }
 }

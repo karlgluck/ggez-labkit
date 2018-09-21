@@ -76,6 +76,12 @@ namespace GGEZ
             return new Vector2(self.x, self.z);
         }
 
+        /// <summary>
+        /// Get pitch and yaw angles in degrees that rotate Vector3.forward in the direction of this vector.
+        /// </summary>
+        /// <remarks>
+        /// The vector doesn't need to be normalized.
+        /// </remarks>
         public static Vector2 ToPitchYaw(this Vector3 self)
         {
             float yaw = Mathf.Rad2Deg * Mathf.Atan2(self.x, self.z);
@@ -163,6 +169,23 @@ namespace GGEZ
             distance = distance > length ? length : distance;
             distance = distance < 0f ? 0f : distance;
             return linePoint0 + distance * direction;
+        }
+
+        /// <summary>
+        /// Interpolates on a frame-rate independent exponential curve.
+        /// </summary>
+        /// <param name="current">Current value of the parameter being damped</param>
+        /// <param name="target">Desired value of the parameter</param>
+        /// <param name="smoothing">What proportion of current remains after 1 second. Range [0, 1]</param>
+        /// <param name="dt">Timestep, usually Time.deltaTime or Time.smoothDeltaTime</param>
+        public static Vector3 Damp(Vector3 current, Vector3 target, float smoothing, float dt)
+        {
+            float t = 1 - Mathf.Pow(smoothing, dt);
+            return new Vector3(
+                    Mathf.Lerp(current.x, target.x, t),
+                    Mathf.Lerp(current.y, target.y, t),
+                    Mathf.Lerp(current.z, target.z, t)
+                    );
         }
 
         /*

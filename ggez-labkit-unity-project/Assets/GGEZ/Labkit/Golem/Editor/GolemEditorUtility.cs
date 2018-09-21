@@ -313,7 +313,7 @@ namespace GGEZ.Labkit
             Rect position = EditorGUILayout.GetControlRect();
             EditorGUIGolemField(position, inspectableType, specificType, fieldInfo, target, fieldsUsingSettings, golemEditorData);
         }
-        
+
         public static void EditorGUIGolemField(
                 Rect position,
                 InspectableType inspectableType,
