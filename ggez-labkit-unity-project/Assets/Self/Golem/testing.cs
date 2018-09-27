@@ -162,10 +162,12 @@ public class ReadFloatVariable : Cell
     public VariableRef Variable;
 
     [Out(typeof(float))] public RegisterPtr Output;
+
     public override void Acquire(Golem entity, ref bool running)
     {
         running = true;
     }
+
     public override void Update(Golem entity, bool dirty, ref bool running)
     {
         float value = 0f;

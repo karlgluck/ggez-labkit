@@ -208,7 +208,7 @@ namespace GGEZ.Labkit
                 int[] cellsToDirty = _cellsThatReadRegister[(int)registerToWrite];
                 for (int i = 0; i < cellsToDirty.Length; ++i)
                 {
-                    _dirty[cellsToDirty[i]] = true;
+                    _cellsDirty[cellsToDirty[i]] = true;
                 }
             }
 
@@ -220,15 +220,15 @@ namespace GGEZ.Labkit
 
             // Update
 
-            for (int i = 0; i < _dirty.Length; ++i)
+            for (int i = 0; i < _cellsDirty.Length; ++i)
             {
-                bool dirty = _dirty[i];
-                bool running = _running[i];
+                bool dirty = _cellsDirty[i];
+                bool running = _cellsRunning[i];
                 if (dirty || running)
                 {
-                    _dirty[i] = false;
+                    _cellsDirty[i] = false;
                     Cells[i].Update(this, dirty, ref running);
-                    _running[i] = running;
+                    _cellsRunning[i] = running;
                 }
             }
 
@@ -382,10 +382,16 @@ namespace GGEZ.Labkit
                 Cells = new Cell[0];
             }
 
-            foreach (var kvp in _localVariablesThatWriteRegister)
+            foreach (var kvp in _variablesThatWriteRegister)
             {
+                // Make sure this is a local variable
+                if (!string.IsNullOrEmpty(kvp.Key.Relationship))
+                {
+                    continue;
+                }
+
                 // Write the default value
-                object value = Variables.Get(kvp.Key);
+                object value = Variables.Get(kvp.Key.Name);
                 int registerToWrite = (int)kvp.Value;
                 _registers[registerToWrite] = value;
 
@@ -393,15 +399,15 @@ namespace GGEZ.Labkit
                 int[] outputs = _cellsThatReadRegister[registerToWrite];
                 for (int i = 0; i < outputs.Length; ++i)
                 {
-                    _dirty[outputs[i]] = true;
+                    _cellsDirty[outputs[i]] = true;
                 }
             }
 
-            _dirty = new bool[Cells.Length];
-            _running = new bool[Cells.Length];
-            for (int i = 0; i < _dirty.Length; ++i)
+            _cellsDirty = new bool[Cells.Length];
+            _cellsRunning = new bool[Cells.Length];
+            for (int i = 0; i < _cellsDirty.Length; ++i)
             {
-                Cells[i].Acquire(this, ref _running[i]);
+                Cells[i].Acquire(this, ref _cellsRunning[i]);
             }
 
             //-------------------------------------------------
@@ -435,11 +441,10 @@ namespace GGEZ.Labkit
         // Circuit
         //---------------------------------------------------------------------
         private object[] _registers;
-        private Dictionary<string, RegisterPtr> _localVariablesThatWriteRegister;
         private Dictionary<VariableRef, RegisterPtr> _variablesThatWriteRegister;
         private int[][] _cellsThatReadRegister;
-        private bool[] _dirty;
-        private bool[] _running;
+        private bool[] _cellsDirty;
+        private bool[] _cellsRunning;
         public Cell[] Cells;
 
         //-----------------------------------------------------
@@ -488,8 +493,6 @@ namespace GGEZ.Labkit
         public bool Get<T>(RegisterPtr pointer, out T v) { bool b = pointer != RegisterPtr.Invalid; v = b ? (T)_registers[(int)pointer] : default(T); return b; }
         public bool TryGet<T>(RegisterPtr pointer, ref T v) { bool b = pointer != RegisterPtr.Invalid; if(b) v = (T)_registers[(int)pointer]; return b; }
         public void Set<T>(RegisterPtr pointer, T value) { setRegister((int)pointer, (object)value); }
-
-        public HashSet<T> MultiGet<T>(RegisterPtr pointer) { return pointer == RegisterPtr.Invalid ? null : (HashSet<T>)_registers[(int)pointer]; }
 
         //-----------------------------------------------------
         // Sets the register to the new value and updates
@@ -544,7 +547,7 @@ namespace GGEZ.Labkit
             int[] outputs = _cellsThatReadRegister[pointer];
             for (int i = 0; i < outputs.Length; ++i)
             {
-                _dirty[outputs[i]] = true;
+                _cellsDirty[outputs[i]] = true;
             }
         }
 

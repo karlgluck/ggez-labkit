@@ -641,17 +641,10 @@ namespace GGEZ.Labkit
                         var fieldType = readField.FieldType;
 
                         object[] fieldAttributes = readField.GetCustomAttributes(typeof(OutAttribute), false);
-                        object defaultValue;
-                        if (fieldAttributes.Length == 1)
-                        {
-                            var outAttribute = fieldAttributes[0] as OutAttribute;
-                            defaultValue = outAttribute.Type.IsValueType ? Activator.CreateInstance(outAttribute.Type) : null;
-                        }
-                        else
-                        {
-                            Debug.LogError("Output field must have [Out] attribute... how did we even get here??");
-                            defaultValue = new int[0,0,0,0,0]; // use something bizarre
-                        }
+                        Debug.Assert(fieldAttributes.Length == 1);
+
+                        var outAttribute = fieldAttributes[0] as OutAttribute;
+                        object defaultValue = outAttribute.Type.IsValueType ? Activator.CreateInstance(outAttribute.Type) : null;
 
                         // TODO: save the register's type here
 
