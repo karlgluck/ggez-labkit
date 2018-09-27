@@ -25,6 +25,7 @@
 
 using System;
 using UnityEngine;
+using System.Collections.Generic;
 using GGEZ.FullSerializer;
 
 namespace GGEZ.Labkit
@@ -72,18 +73,6 @@ namespace GGEZ.Labkit
     //-------------------------------------------------------------------------
     [fsSerializeEnumAsInteger] public enum RegisterPtr : int { Invalid = int.MaxValue }
 
-    //-------------------------------------------------------------------------
-    // References a golem
-    //-------------------------------------------------------------------------
-    public enum EntityRelationship
-    {
-        Self,
-        Owner,
-        Subject,
-        Target,
-    }
-
-
     /// <summary>
     /// Provides access to a variable in a Cell or Script.
     /// </summary>
@@ -104,8 +93,52 @@ namespace GGEZ.Labkit
     /// </remarks>
     public struct VariableRef
     {
-        public EntityRelationship Relationship;
-        public string Name;
+        // Null for a local variable. Anything else is looked up in
+        // the golem's references table.
+        public readonly string Relationship;
+        public readonly string Name;
+
+        public VariableRef(string relationship, string name)
+        {
+            Relationship = relationship;
+            Name = name;
+        }
+
+        public static Dictionary<VariableRef, T> NewDictionary<T>()
+        {
+            return new Dictionary<VariableRef, T>(EqualityComparer);
+        }
+
+        // Use this equality comparer when using a VariableRef as a dictionary key
+        public readonly static IEqualityComparer<VariableRef> EqualityComparer = new VariableRefEqualityComparer();
+        private sealed class VariableRefEqualityComparer : IEqualityComparer<VariableRef>
+        {
+            public bool Equals(VariableRef a, VariableRef b)
+            {
+                return string.Equals(a.Name, b.Name) && string.Equals(a.Relationship, b.Relationship);
+            }
+
+            public int GetHashCode(VariableRef obj)
+            {
+                unchecked
+                {
+                    return ((obj.Relationship != null ? obj.Relationship.GetHashCode() * 397 : 0))
+                        ^ (obj.Name != null ? obj.Name.GetHashCode() : 0);
+                }
+            }
+        }
+    }
+
+    public struct VariableRegisterPair
+    {
+        public VariableRef Variable;
+        public readonly RegisterPtr Register;
+
+        public VariableRegisterPair(VariableRef variable, RegisterPtr register)
+        {
+            Variable = variable;
+            Register = register;
+        }
     }
 
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]

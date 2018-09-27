@@ -607,10 +607,7 @@ namespace GGEZ.Labkit
                 List<object> registers = new List<object>();
                 Dictionary<string, RegisterPtr> cellOutputToRegister = new Dictionary<string, RegisterPtr>();
                 List<HashSet<EditorCellIndex>> cellsThatReadRegister = new List<HashSet<EditorCellIndex>>();
-                Dictionary<string, RegisterPtr> variablesThatWriteRegister = new Dictionary<string, RegisterPtr>();
-                Dictionary<string, RegisterPtr> variablesMultiThatWriteRegister = new Dictionary<string, RegisterPtr>();
-                Dictionary<string, RegisterPtr> variablesMultiAddedThatWriteRegister = new Dictionary<string, RegisterPtr>();
-                Dictionary<string, RegisterPtr> variablesMultiRemovedThatWriteRegister = new Dictionary<string, RegisterPtr>();
+                Dictionary<VariableRef, RegisterPtr> variablesThatWriteRegister = VariableRef.NewDictionary<RegisterPtr>();
                 for (int i = 0; i < EditorWires.Count; ++i)
                 {
                     var wire = EditorWires[i];
@@ -618,22 +615,12 @@ namespace GGEZ.Labkit
 
                     if (wire.ReadCell == null)
                     {
-                        var specialRead = wire.ReadSpecialRegister;
+                        var specialRead = wire.ReadVariableRegister;
                         Debug.Assert(specialRead != null);
-                        Dictionary<string, RegisterPtr> specialTable = null;
-                        switch (specialRead.Type)
-                        {
-                            case EditorSpecialRegisterType.Variable: specialTable = variablesThatWriteRegister; break;
-                            case EditorSpecialRegisterType.MultiVariable: specialTable = variablesMultiThatWriteRegister; break;
-                            case EditorSpecialRegisterType.MultiVariableAdded: specialTable = variablesMultiAddedThatWriteRegister; break;
-                            case EditorSpecialRegisterType.MultiVariableRemoved: specialTable = variablesMultiRemovedThatWriteRegister; break;
-                            default:
-                                throw new InvalidProgramException("special read type " + specialRead.Type + " is not handled!");
-                        }
-                        if (!specialTable.TryGetValue(specialRead.Name, out register))
+                        if (!variablesThatWriteRegister.TryGetValue(specialRead.Variable, out register))
                         {
                             register = (RegisterPtr)registers.Count;
-                            specialTable[specialRead.Name] = register;
+                            variablesThatWriteRegister[specialRead.Variable] = register;
                             object placeholderValueOverwrittenOnGolemLoad = null;
                             registers.Add(placeholderValueOverwrittenOnGolemLoad);
                         }
@@ -674,6 +661,20 @@ namespace GGEZ.Labkit
                         wire.Register = register;
                         cellsThatReadRegister.Add(new HashSet<EditorCellIndex>() { wire.WriteCell.Index });
                     }
+                }
+
+                {
+                    VariableRegisterPair[] variables = new VariableRegisterPair[variablesThatWriteRegister.Count];
+
+                    int externalWritePtr = 0;
+
+                    foreach (var kvp in variablesThatWriteRegister)
+                    {
+                        variables[externalWritePtr] = new VariableRegisterPair(kvp.Key, kvp.Value);
+                    }
+
+                    Array.Resize(ref variables, externalWritePtr);
+                    serialized["VariablesThatWriteRegister"] = variables;
                 }
 
                 int[][] cellsThatReadRegisterOutput = new int[cellsThatReadRegister.Count][];

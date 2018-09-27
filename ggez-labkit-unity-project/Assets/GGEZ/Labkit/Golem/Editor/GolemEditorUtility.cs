@@ -451,7 +451,9 @@ namespace GGEZ.Labkit
                         float leftSize = valueRect.width * 0.3f;
                         left.xMax = left.xMin + leftSize;
                         right.xMin = left.xMax;
-                        reference.Relationship = (EntityRelationship)EditorGUI.EnumPopup(left, reference.Relationship);
+                        
+                        //reference.Relationship = (EntityRelationship)EditorGUI.EnumPopup(left, reference.Relationship);
+                        string relationship = null;
 
                         string variableName = golemEditorData.ContainsVariable(reference.Name, specificType) ? reference.Name : null;
 
@@ -507,8 +509,7 @@ namespace GGEZ.Labkit
                             menu.DropDown(right);
                         }
                         EditorGUI.EndDisabledGroup();
-                        reference.Name = variableName;
-                        value = reference;
+                        value = new VariableRef(relationship, variableName);
                         break;
                     }
                 }

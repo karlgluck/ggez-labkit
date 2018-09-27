@@ -112,18 +112,69 @@ namespace GGEZ.Labkit
             return value;
         }
 
-        public bool Get(string name, ref float value)
+        public bool Get<T>(string name, ref T value)
         {
             object objValue;
             if (Values.TryGetValue(name, out objValue))
             {
-                value = (float)objValue;
+                value = (T)objValue;
                 return true;
             }
             return false;
         }
 
+        private HashSetVariable<T> getHashSetVariable<T>(string name)
+        {
+            object value;
+            HashSetVariable<T> retval;
+            if (!Values.TryGetValue(name, out value))
+            {
+                Values[name] = retval = new HashSetVariable<T>();
+            }
+            else
+            {
+                Debug.Assert(value is HashSetVariable<T>);
+                retval = value as HashSetVariable<T>;
+            }
+            return retval;
+        }
 
+        public void SetKeyAdd<T>(string name, T element)
+        {
+            if (getHashSetVariable<T>(name).Add(element))
+            {
+                NextFrameChanged.Add(name);
+            }
+        }
+
+        public void SetKeyRemove<T>(string name, T element)
+        {
+            if (getHashSetVariable<T>(name).Remove(element))
+            {
+                NextFrameChanged.Add(name);
+            }
+        }
+
+        public HashSet<T> SetKeyGetValues<T>(string name)
+        {
+            return getHashSetVariable<T>(name).Values;
+        }
+
+        public HashSet<T> SetKeyGetAdded<T>(string name)
+        {
+            return getHashSetVariable<T>(name).Added;
+        }
+
+        public HashSet<T> SetKeyGetRemoved<T>(string name)
+        {
+            return getHashSetVariable<T>(name).Removed;
+        }
+
+        /// <summary>
+        /// Called by a Golem once processing completes at the
+        /// end of a frame to advance variable state based on
+        /// changes that were requested this frame.
+        /// </summary>
         public void EndFrame()
         {
             foreach (var key in NextFrameChanged)
@@ -138,10 +189,10 @@ namespace GGEZ.Labkit
             }
 
             {
-                Changed.Clear();
                 var swap = Changed;
                 Changed = NextFrameChanged;
-                NextFrameChanged = Changed;
+                swap.Clear();
+                NextFrameChanged = swap;
             }
         }
     }
@@ -161,15 +212,16 @@ namespace GGEZ.Labkit
         private HashSet<T> _added = new HashSet<T>();
         private HashSet<T> _removed = new HashSet<T>();
 
+        // TODO: don't actually need to store NextFrameValues since it is === _values + _nextFrameAdded - _nextFrameRemoved
         private HashSet<T> _nextFrameValues = new HashSet<T>();
         private HashSet<T> _nextFrameAdded = new HashSet<T>();
         private HashSet<T> _nextFrameRemoved = new HashSet<T>();
 
-        public void Add(T element)
+        public bool Add(T element)
         {
             if (!_nextFrameValues.Add(element))
             {
-                return;
+                return false;
             }
 
             if (_values.Contains(element))
@@ -182,6 +234,8 @@ namespace GGEZ.Labkit
                 Debug.Assert(!_nextFrameAdded.Contains(element));
                 _nextFrameAdded.Add(element);
             }
+
+            return true;
         }
 
         public void Add(IEnumerable<T> elements)
@@ -192,11 +246,11 @@ namespace GGEZ.Labkit
             }
         }
 
-        public void Remove(T element)
+        public bool Remove(T element)
         {
             if (!_nextFrameValues.Remove(element))
             {
-                return;
+                return false;
             }
 
             if (_values.Contains(element))
@@ -209,6 +263,8 @@ namespace GGEZ.Labkit
                 Debug.Assert(_nextFrameAdded.Contains(element));
                 _nextFrameAdded.Remove(element);
             }
+
+            return true;
         }
 
         public void Remove(IEnumerable<T> elements)

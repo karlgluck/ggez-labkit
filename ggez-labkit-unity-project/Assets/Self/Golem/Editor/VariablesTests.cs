@@ -45,77 +45,77 @@ namespace GGEZ.Tests
         [Test]
         public void MultiAddSingle()
         {
-            Variables variables = new Variables();
-            variables.MultiAdd(Key0, Value0);
+            HashSetVariable<object> variables = new HashSetVariable<object>();
+            variables.Add(Value0);
 
-            Assert.False(variables.MultiGet(Key0).Contains(Value0));
-            Assert.False(variables.MultiGetAdded(Key0).Contains(Value0));
-            Assert.False(variables.MultiGetRemoved(Key0).Contains(Value0));
-
-            variables.EndFrame();
-
-            Assert.True(variables.MultiGet(Key0).Contains(Value0));
-            Assert.True(variables.MultiGetAdded(Key0).Contains(Value0));
-            Assert.False(variables.MultiGetRemoved(Key0).Contains(Value0));
+            Assert.False(variables.Values.Contains(Value0));
+            Assert.False(variables.Added.Contains(Value0));
+            Assert.False(variables.Removed.Contains(Value0));
 
             variables.EndFrame();
 
-            Assert.True(variables.MultiGet(Key0).Contains(Value0));
-            Assert.False(variables.MultiGetAdded(Key0).Contains(Value0));
-            Assert.False(variables.MultiGetRemoved(Key0).Contains(Value0));
+            Assert.True(variables.Values.Contains(Value0));
+            Assert.True(variables.Added.Contains(Value0));
+            Assert.False(variables.Removed.Contains(Value0));
+
+            variables.EndFrame();
+
+            Assert.True(variables.Values.Contains(Value0));
+            Assert.False(variables.Added.Contains(Value0));
+            Assert.False(variables.Removed.Contains(Value0));
         }
 
         [Test]
         public void MultiRemoveSingle()
         {
-            Variables variables = new Variables();
-            variables.MultiAdd(Key0, Value0);
+            HashSetVariable<object> variables = new HashSetVariable<object>();
+            variables.Add(Value0);
 
             variables.EndFrame();
 
-            variables.MultiRemove(Key0, Value0);
+            variables.Remove(Value0);
 
-            Assert.True(variables.MultiGet(Key0).Contains(Value0));
-            Assert.True(variables.MultiGetAdded(Key0).Contains(Value0));
-            Assert.False(variables.MultiGetRemoved(Key0).Contains(Value0));
+            Assert.True(variables.Values.Contains(Value0));
+            Assert.True(variables.Added.Contains(Value0));
+            Assert.False(variables.Removed.Contains(Value0));
 
             variables.EndFrame();
 
-            Assert.False(variables.MultiGet(Key0).Contains(Value0));
-            Assert.False(variables.MultiGetAdded(Key0).Contains(Value0));
-            Assert.True(variables.MultiGetRemoved(Key0).Contains(Value0));
+            Assert.False(variables.Values.Contains(Value0));
+            Assert.False(variables.Added.Contains(Value0));
+            Assert.True(variables.Removed.Contains(Value0));
         }
 
         [Test]
         public void MultiRemoveAdded()
         {
-            Variables variables = new Variables();
-            variables.MultiAdd(Key0, Value0);
-            variables.MultiRemove(Key0, Value0);
+            HashSetVariable<object> variables = new HashSetVariable<object>();
+            variables.Add(Value0);
+            variables.Remove(Value0);
 
             variables.EndFrame();
 
-            Assert.False(variables.MultiGet(Key0).Contains(Value0));
-            Assert.False(variables.MultiGetAdded(Key0).Contains(Value0));
-            Assert.False(variables.MultiGetRemoved(Key0).Contains(Value0));
+            Assert.False(variables.Values.Contains(Value0));
+            Assert.False(variables.Added.Contains(Value0));
+            Assert.False(variables.Removed.Contains(Value0));
         }
 
         [Test]
         public void MultiAddRemoved()
         {
-            Variables variables = new Variables();
-            variables.MultiAdd(Key0, Value0);
+            HashSetVariable<object> variables = new HashSetVariable<object>();
+            variables.Add(Value0);
 
             variables.EndFrame();
 
-            variables.MultiRemove(Key0, Value0);
-            variables.MultiAdd(Key0, Value0);
+            variables.Remove(Value0);
+            variables.Add(Value0);
 
             variables.EndFrame();
 
-            Assert.True(variables.MultiGet(Key0).Contains(Value0));
-            Assert.False(variables.MultiGetAdded(Key0).Contains(Value0));
-            Assert.False(variables.MultiGetRemoved(Key0).Contains(Value0));
+            Assert.True(variables.Values.Contains(Value0));
+            Assert.False(variables.Added.Contains(Value0));
+            Assert.False(variables.Removed.Contains(Value0));
         }
     }
 }

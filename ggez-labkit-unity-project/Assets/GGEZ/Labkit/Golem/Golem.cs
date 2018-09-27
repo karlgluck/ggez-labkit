@@ -34,14 +34,9 @@ namespace GGEZ.Labkit
 {
     public partial class Golem : MonoBehaviour
     {
-        // The entity that controls the lifespan of this entity
-        public Golem Owner;
-
-        // The entity for which this entity was created
-        public Golem Subject;
-
-        // The entities most recently found by a search this entity did
-        public Golem[] Targets;
+        // References to other variables structures. These CAN be variables
+        // inside other Golems, but they don't have to be.
+        public Dictionary<string, Variables> Relationships = new Dictionary<string, Variables>();
 
         // Contains the template used to create each instance of this entity
         public GolemAsset Asset;
@@ -200,67 +195,20 @@ namespace GGEZ.Labkit
 
             // Input variables
 
-            foreach (string variable in Variables.Changed)
+            foreach (var kvp in _variablesThatWriteRegister)
             {
-                object value = Variables.Get(variable);
-                int registerToWrite;
-                if (!_variablesThatWriteRegister.TryGetValue(variable, out registerToWrite))
+                Variables variables = getVariables(kvp.Key.Relationship);
+                string name = kvp.Key.Name;
+                if (!variables.Changed.Contains(name))
                 {
-                    // TODO: for now (9/16/18), this will always be the case
-                    // since the source array is never saved by the editor
                     continue;
                 }
-                _registers[registerToWrite] = value;
-                int[] cellsToDirty = _cellsThatReadRegister[registerToWrite];
+                RegisterPtr registerToWrite = kvp.Value;
+                _registers[(int)registerToWrite] = variables.Get(name);
+                int[] cellsToDirty = _cellsThatReadRegister[(int)registerToWrite];
                 for (int i = 0; i < cellsToDirty.Length; ++i)
                 {
                     _dirty[cellsToDirty[i]] = true;
-                }
-            }
-
-            foreach (var kvp in Variables.MultiValuesAdded)
-            {
-                int registerToWrite;
-                if (_variablesMultiThatWriteRegister.TryGetValue(kvp.Key, out registerToWrite))
-                {
-                    _registers[registerToWrite] = Variables.MultiGet(kvp.Key);
-                    int[] cellsToDirty = _cellsThatReadRegister[registerToWrite];
-                    for (int i = 0; i < cellsToDirty.Length; ++i)
-                    {
-                        _dirty[cellsToDirty[i]] = true;
-                    }
-                }
-                if (_variablesMultiAddedThatWriteRegister.TryGetValue(kvp.Key, out registerToWrite))
-                {
-                    _registers[registerToWrite] = kvp.Value;
-                    int[] cellsToDirty = _cellsThatReadRegister[registerToWrite];
-                    for (int i = 0; i < cellsToDirty.Length; ++i)
-                    {
-                        _dirty[cellsToDirty[i]] = true;
-                    }
-                }
-            }
-
-            foreach (var kvp in Variables.MultiValuesRemoved)
-            {
-                int registerToWrite;
-                if (_variablesMultiThatWriteRegister.TryGetValue(kvp.Key, out registerToWrite))
-                {
-                    _registers[registerToWrite] = Variables.MultiGet(kvp.Key);
-                    int[] cellsToDirty = _cellsThatReadRegister[registerToWrite];
-                    for (int i = 0; i < cellsToDirty.Length; ++i)
-                    {
-                        _dirty[cellsToDirty[i]] = true;
-                    }
-                }
-                if (_variablesMultiRemovedThatWriteRegister.TryGetValue(kvp.Key, out registerToWrite))
-                {
-                    _registers[registerToWrite] = kvp.Value;
-                    int[] cellsToDirty = _cellsThatReadRegister[registerToWrite];
-                    for (int i = 0; i < cellsToDirty.Length; ++i)
-                    {
-                        _dirty[cellsToDirty[i]] = true;
-                    }
                 }
             }
 
@@ -284,6 +232,10 @@ namespace GGEZ.Labkit
                 }
             }
 
+        }
+
+        void LateUpdate()
+        {
             //-----------------------------------
             // Variables
             //-----------------------------------
@@ -298,8 +250,8 @@ namespace GGEZ.Labkit
             // dirty to be passed to a cell even if its circuit-measured
             // value doesn't change, which is a behavior the circuit must
             // tolerate.
-            Variables.EndFrame();
 
+            Variables.EndFrame();
         }
 
         //---------------------------------------------------------------------
@@ -362,6 +314,7 @@ namespace GGEZ.Labkit
                 Variables.NextFrameValues = deserialized["Variables"] as Dictionary<string, object>;
                 Variables.Values = new Dictionary<string, object>(Variables.NextFrameValues);
             }
+            Variables.Set("@golem", this);
 
             //-------------------------------------------------
             // Aspects
@@ -399,38 +352,16 @@ namespace GGEZ.Labkit
 
             if (deserialized.ContainsKey("VariablesThatWriteRegister"))
             {
-                _variablesThatWriteRegister = deserialized["VariablesThatWriteRegister"] as Dictionary<string, int>;
+                var variables = deserialized["VariablesThatWriteRegister"] as VariableRegisterPair[];
+                _variablesThatWriteRegister = VariableRef.NewDictionary<RegisterPtr>();
+                for (int i = 0; i < variables.Length; ++i)
+                {
+                    _variablesThatWriteRegister[variables[i].Variable] = variables[i].Register;
+                }
             }
             else
             {
-                _variablesThatWriteRegister = new Dictionary<string,int>();
-            }
-
-            if (deserialized.ContainsKey("VariablesMultiThatWriteRegister"))
-            {
-                _variablesMultiThatWriteRegister = deserialized["VariablesMultiThatWriteRegister"] as Dictionary<string, int>;
-            }
-            else
-            {
-                _variablesMultiThatWriteRegister = new Dictionary<string,int>();
-            }
-
-            if (deserialized.ContainsKey("VariablesMultiAddedThatWriteRegister"))
-            {
-                _variablesMultiAddedThatWriteRegister = deserialized["VariablesMultiAddedThatWriteRegister"] as Dictionary<string, int>;
-            }
-            else
-            {
-                _variablesMultiAddedThatWriteRegister = new Dictionary<string,int>();
-            }
-
-            if (deserialized.ContainsKey("VariablesMultiRemovedThatWriteRegister"))
-            {
-                _variablesMultiRemovedThatWriteRegister = deserialized["VariablesMultiRemovedThatWriteRegister"] as Dictionary<string, int>;
-            }
-            else
-            {
-                _variablesMultiRemovedThatWriteRegister = new Dictionary<string,int>();
+                _variablesThatWriteRegister = VariableRef.NewDictionary<RegisterPtr>();
             }
 
             if (deserialized.ContainsKey("CellsThatReadRegister"))
@@ -451,32 +382,19 @@ namespace GGEZ.Labkit
                 Cells = new Cell[0];
             }
 
-            foreach (var kvp in _variablesThatWriteRegister)
+            foreach (var kvp in _localVariablesThatWriteRegister)
             {
+                // Write the default value
                 object value = Variables.Get(kvp.Key);
-                int registerToWrite = kvp.Value;
+                int registerToWrite = (int)kvp.Value;
                 _registers[registerToWrite] = value;
-            }
 
-            foreach (var kvp in _variablesMultiThatWriteRegister)
-            {
-                object value = Variables.MultiGet(kvp.Key);
-                int registerToWrite = kvp.Value;
-                _registers[registerToWrite] = value;
-            }
-
-            foreach (var kvp in _variablesMultiAddedThatWriteRegister)
-            {
-                object value = Variables.MultiGetAdded(kvp.Key);
-                int registerToWrite = kvp.Value;
-                _registers[registerToWrite] = value;
-            }
-
-            foreach (var kvp in _variablesMultiRemovedThatWriteRegister)
-            {
-                object value = Variables.MultiGetRemoved(kvp.Key);
-                int registerToWrite = kvp.Value;
-                _registers[registerToWrite] = value;
+                // Dirty all the cells for this register
+                int[] outputs = _cellsThatReadRegister[registerToWrite];
+                for (int i = 0; i < outputs.Length; ++i)
+                {
+                    _dirty[outputs[i]] = true;
+                }
             }
 
             _dirty = new bool[Cells.Length];
@@ -517,10 +435,8 @@ namespace GGEZ.Labkit
         // Circuit
         //---------------------------------------------------------------------
         private object[] _registers;
-        private Dictionary<string, int> _variablesThatWriteRegister;
-        private Dictionary<string, int> _variablesMultiAddedThatWriteRegister;
-        private Dictionary<string, int> _variablesMultiRemovedThatWriteRegister;
-        private Dictionary<string, int> _variablesMultiThatWriteRegister;
+        private Dictionary<string, RegisterPtr> _localVariablesThatWriteRegister;
+        private Dictionary<VariableRef, RegisterPtr> _variablesThatWriteRegister;
         private int[][] _cellsThatReadRegister;
         private bool[] _dirty;
         private bool[] _running;
@@ -535,7 +451,7 @@ namespace GGEZ.Labkit
             return (variables == null) ? null : variables.Get(variable.Name);
         }
 
-        public bool Read(VariableRef variable, ref float value)
+        public bool Read<T>(VariableRef variable, ref T value)
         {
             Variables variables = getVariables(variable.Relationship);
             return (variables == null) ? false : variables.Get(variable.Name, ref value);
@@ -550,15 +466,17 @@ namespace GGEZ.Labkit
             }
         }
 
-        private Variables getVariables(EntityRelationship relationship)
+        private Variables getVariables(string relationship)
         {
-            switch (relationship)
+            if (string.IsNullOrEmpty(relationship))
             {
-                case EntityRelationship.Self: return Variables;
-                case EntityRelationship.Owner: return Owner != null ? Owner.Variables : null;
-                case EntityRelationship.Subject: return Subject != null ? Subject.Variables : null;
-                case EntityRelationship.Target: return (Targets.Length > 0) ? Targets[0].Variables : null;
-                default: throw new InvalidProgramException("EntityRelationship " + relationship + " not handled");
+                return Variables;
+            }
+            else
+            {
+                Variables retval;
+                Relationships.TryGetValue(relationship, out retval);
+                return retval;
             }
         }
 
