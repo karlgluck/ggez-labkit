@@ -200,23 +200,66 @@ namespace GGEZ.Labkit
 
             // Input variables
 
-            foreach (string variable in Variables.ChangedLastFrame)
+            foreach (string variable in Variables.Changed)
             {
                 object value = Variables.Get(variable);
-                int[] registersToWrite;
-                if (!_variablesThatWriteRegister.TryGetValue(variable, out registersToWrite))
+                int registerToWrite;
+                if (!_variablesThatWriteRegister.TryGetValue(variable, out registerToWrite))
                 {
                     // TODO: for now (9/16/18), this will always be the case
                     // since the source array is never saved by the editor
                     continue;
                 }
-                for (int i = 0; i < registersToWrite.Length; ++i)
+                _registers[registerToWrite] = value;
+                int[] cellsToDirty = _cellsThatReadRegister[registerToWrite];
+                for (int i = 0; i < cellsToDirty.Length; ++i)
                 {
-                    _registers[i] = value;
-                    int[] cellsToDirty = _cellsThatReadRegister[i];
-                    for (int j = 0; j < cellsToDirty.Length; ++j)
+                    _dirty[cellsToDirty[i]] = true;
+                }
+            }
+
+            foreach (var kvp in Variables.MultiValuesAdded)
+            {
+                int registerToWrite;
+                if (_variablesMultiThatWriteRegister.TryGetValue(kvp.Key, out registerToWrite))
+                {
+                    _registers[registerToWrite] = Variables.MultiGet(kvp.Key);
+                    int[] cellsToDirty = _cellsThatReadRegister[registerToWrite];
+                    for (int i = 0; i < cellsToDirty.Length; ++i)
                     {
-                        _dirty[cellsToDirty[j]] = true;
+                        _dirty[cellsToDirty[i]] = true;
+                    }
+                }
+                if (_variablesMultiAddedThatWriteRegister.TryGetValue(kvp.Key, out registerToWrite))
+                {
+                    _registers[registerToWrite] = kvp.Value;
+                    int[] cellsToDirty = _cellsThatReadRegister[registerToWrite];
+                    for (int i = 0; i < cellsToDirty.Length; ++i)
+                    {
+                        _dirty[cellsToDirty[i]] = true;
+                    }
+                }
+            }
+
+            foreach (var kvp in Variables.MultiValuesRemoved)
+            {
+                int registerToWrite;
+                if (_variablesMultiThatWriteRegister.TryGetValue(kvp.Key, out registerToWrite))
+                {
+                    _registers[registerToWrite] = Variables.MultiGet(kvp.Key);
+                    int[] cellsToDirty = _cellsThatReadRegister[registerToWrite];
+                    for (int i = 0; i < cellsToDirty.Length; ++i)
+                    {
+                        _dirty[cellsToDirty[i]] = true;
+                    }
+                }
+                if (_variablesMultiRemovedThatWriteRegister.TryGetValue(kvp.Key, out registerToWrite))
+                {
+                    _registers[registerToWrite] = kvp.Value;
+                    int[] cellsToDirty = _cellsThatReadRegister[registerToWrite];
+                    for (int i = 0; i < cellsToDirty.Length; ++i)
+                    {
+                        _dirty[cellsToDirty[i]] = true;
                     }
                 }
             }
@@ -254,7 +297,7 @@ namespace GGEZ.Labkit
             // have seen the original script variable. This can cause a
             // dirty to be passed to a cell even if its circuit-measured
             // value doesn't change, which is a behavior the circuit must
-            // tolerate since it has no memory.
+            // tolerate.
             Variables.EndFrame();
 
         }
@@ -356,11 +399,38 @@ namespace GGEZ.Labkit
 
             if (deserialized.ContainsKey("VariablesThatWriteRegister"))
             {
-                _variablesThatWriteRegister = deserialized["VariablesThatWriteRegister"] as Dictionary<string, int[]>;
+                _variablesThatWriteRegister = deserialized["VariablesThatWriteRegister"] as Dictionary<string, int>;
             }
             else
             {
-                _variablesThatWriteRegister = new Dictionary<string,int[]>();
+                _variablesThatWriteRegister = new Dictionary<string,int>();
+            }
+
+            if (deserialized.ContainsKey("VariablesMultiThatWriteRegister"))
+            {
+                _variablesMultiThatWriteRegister = deserialized["VariablesMultiThatWriteRegister"] as Dictionary<string, int>;
+            }
+            else
+            {
+                _variablesMultiThatWriteRegister = new Dictionary<string,int>();
+            }
+
+            if (deserialized.ContainsKey("VariablesMultiAddedThatWriteRegister"))
+            {
+                _variablesMultiAddedThatWriteRegister = deserialized["VariablesMultiAddedThatWriteRegister"] as Dictionary<string, int>;
+            }
+            else
+            {
+                _variablesMultiAddedThatWriteRegister = new Dictionary<string,int>();
+            }
+
+            if (deserialized.ContainsKey("VariablesMultiRemovedThatWriteRegister"))
+            {
+                _variablesMultiRemovedThatWriteRegister = deserialized["VariablesMultiRemovedThatWriteRegister"] as Dictionary<string, int>;
+            }
+            else
+            {
+                _variablesMultiRemovedThatWriteRegister = new Dictionary<string,int>();
             }
 
             if (deserialized.ContainsKey("CellsThatReadRegister"))
@@ -384,11 +454,29 @@ namespace GGEZ.Labkit
             foreach (var kvp in _variablesThatWriteRegister)
             {
                 object value = Variables.Get(kvp.Key);
-                int[] registersToWrite = kvp.Value;
-                for (int i = 0; i < registersToWrite.Length; ++i)
-                {
-                    _registers[i] = value;
-                }
+                int registerToWrite = kvp.Value;
+                _registers[registerToWrite] = value;
+            }
+
+            foreach (var kvp in _variablesMultiThatWriteRegister)
+            {
+                object value = Variables.MultiGet(kvp.Key);
+                int registerToWrite = kvp.Value;
+                _registers[registerToWrite] = value;
+            }
+
+            foreach (var kvp in _variablesMultiAddedThatWriteRegister)
+            {
+                object value = Variables.MultiGetAdded(kvp.Key);
+                int registerToWrite = kvp.Value;
+                _registers[registerToWrite] = value;
+            }
+
+            foreach (var kvp in _variablesMultiRemovedThatWriteRegister)
+            {
+                object value = Variables.MultiGetRemoved(kvp.Key);
+                int registerToWrite = kvp.Value;
+                _registers[registerToWrite] = value;
             }
 
             _dirty = new bool[Cells.Length];
@@ -429,7 +517,10 @@ namespace GGEZ.Labkit
         // Circuit
         //---------------------------------------------------------------------
         private object[] _registers;
-        private Dictionary<string, int[]> _variablesThatWriteRegister;
+        private Dictionary<string, int> _variablesThatWriteRegister;
+        private Dictionary<string, int> _variablesMultiAddedThatWriteRegister;
+        private Dictionary<string, int> _variablesMultiRemovedThatWriteRegister;
+        private Dictionary<string, int> _variablesMultiThatWriteRegister;
         private int[][] _cellsThatReadRegister;
         private bool[] _dirty;
         private bool[] _running;
@@ -479,6 +570,8 @@ namespace GGEZ.Labkit
         public bool Get<T>(RegisterPtr pointer, out T v) { bool b = pointer != RegisterPtr.Invalid; v = b ? (T)_registers[(int)pointer] : default(T); return b; }
         public bool TryGet<T>(RegisterPtr pointer, ref T v) { bool b = pointer != RegisterPtr.Invalid; if(b) v = (T)_registers[(int)pointer]; return b; }
         public void Set<T>(RegisterPtr pointer, T value) { setRegister((int)pointer, (object)value); }
+
+        public HashSet<T> MultiGet<T>(RegisterPtr pointer) { return pointer == RegisterPtr.Invalid ? null : (HashSet<T>)_registers[(int)pointer]; }
 
         //-----------------------------------------------------
         // Sets the register to the new value and updates

@@ -12,6 +12,7 @@ public enum Trigger
     Invalid = int.MaxValue,
 }
 
+
 public class JoystickAspect : Aspect
 {
     public Transform joystickRoot;
@@ -91,6 +92,12 @@ public partial class Golem
 }
 }
 
+// public class Instantiator : Cell
+// {
+//     [In(typeof(HashSetVariable<int>))] public RegisterPtr Input;
+//     public GameObject Prefab;
+//     public Transform Parent;
+// }
 
 
 public class ACellWithManyIOs : Cell

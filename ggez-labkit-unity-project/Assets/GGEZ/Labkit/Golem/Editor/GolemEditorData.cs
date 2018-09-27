@@ -433,14 +433,6 @@ namespace GGEZ.Labkit
         //---------------------------------------------------------------------
         public void Save()
         {
-            // // Only write if this is a prefab instance
-            // bool isPrefab = PrefabUtility.GetPrefabType(Entity) == PrefabType.PrefabInstance;
-            // bool isRoot = PrefabUtility.FindRootGameObjectWithSameParentPrefab(Entity.gameObject) == Entity.gameObject;
-            // if (!isPrefab || !isRoot)
-            // {
-            //     // TODO: allow non-root to premit template GameObject style instancing?
-            //     return;
-            // }
 
             // Holds data to be written to the entity asset
             Dictionary<string, object> serialized = new Dictionary<string, object>();
@@ -615,11 +607,41 @@ namespace GGEZ.Labkit
                 List<object> registers = new List<object>();
                 Dictionary<string, RegisterPtr> cellOutputToRegister = new Dictionary<string, RegisterPtr>();
                 List<HashSet<EditorCellIndex>> cellsThatReadRegister = new List<HashSet<EditorCellIndex>>();
+                Dictionary<string, RegisterPtr> variablesThatWriteRegister = new Dictionary<string, RegisterPtr>();
+                Dictionary<string, RegisterPtr> variablesMultiThatWriteRegister = new Dictionary<string, RegisterPtr>();
+                Dictionary<string, RegisterPtr> variablesMultiAddedThatWriteRegister = new Dictionary<string, RegisterPtr>();
+                Dictionary<string, RegisterPtr> variablesMultiRemovedThatWriteRegister = new Dictionary<string, RegisterPtr>();
                 for (int i = 0; i < EditorWires.Count; ++i)
                 {
                     var wire = EditorWires[i];
-                    string registerKey = wire.ReadCell.Index + ".{" + wire.ReadField + "}";
                     RegisterPtr register;
+
+                    if (wire.ReadCell == null)
+                    {
+                        var specialRead = wire.ReadSpecialRegister;
+                        Debug.Assert(specialRead != null);
+                        Dictionary<string, RegisterPtr> specialTable = null;
+                        switch (specialRead.Type)
+                        {
+                            case EditorSpecialRegisterType.Variable: specialTable = variablesThatWriteRegister; break;
+                            case EditorSpecialRegisterType.MultiVariable: specialTable = variablesMultiThatWriteRegister; break;
+                            case EditorSpecialRegisterType.MultiVariableAdded: specialTable = variablesMultiAddedThatWriteRegister; break;
+                            case EditorSpecialRegisterType.MultiVariableRemoved: specialTable = variablesMultiRemovedThatWriteRegister; break;
+                            default:
+                                throw new InvalidProgramException("special read type " + specialRead.Type + " is not handled!");
+                        }
+                        if (!specialTable.TryGetValue(specialRead.Name, out register))
+                        {
+                            register = (RegisterPtr)registers.Count;
+                            specialTable[specialRead.Name] = register;
+                            object placeholderValueOverwrittenOnGolemLoad = null;
+                            registers.Add(placeholderValueOverwrittenOnGolemLoad);
+                        }
+                        wire.Register = register;
+                        continue;
+                    }
+
+                    string registerKey = wire.ReadCell.Index + ".{" + wire.ReadField + "}";
                     if (cellOutputToRegister.TryGetValue(registerKey, out register))
                     {
                         wire.Register = register;
@@ -732,11 +754,7 @@ namespace GGEZ.Labkit
                 for (int i = 0; i < EditorStates.Count; ++i)
                 {
                     var editorState = EditorStates[i];
-                    Debug.Assert(editorState.Index == (EditorStateIndex)i);
-                    if (editorState.Index != (EditorStateIndex)i)
-                    {
-                        Debug.Log("Wrong editor state index; set to " + editorState.Index + " expecting " + i);
-                    }
+                    Debug.Assert(editorState.Index == (EditorStateIndex)i, "Wrong editor state index; set to " + editorState.Index + " expecting " + i);
                     editorState.Layer = EditorLayerIndex.Invalid;
                     if (editorState.SpecialState == EditorSpecialStateType.LayerEnter)
                     {

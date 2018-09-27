@@ -25,17 +25,18 @@
 
 using System.Collections.Generic;
 using System;
+using UnityEngine;
 
 namespace GGEZ.Labkit
 {
     public class Variables
     {
         // This set is for propagating changes in variable values
-        public HashSet<string> Changed = new HashSet<string>();
+        public HashSet<string> NextFrameChanged = new HashSet<string>();
 
         // This set is for waking up state machines that are
         // sleeping on variables in order to transition.
-        public HashSet<string> ChangedLastFrame = new HashSet<string>();
+        public HashSet<string> Changed = new HashSet<string>();
 
         public Dictionary<string, object> Values = new Dictionary<string, object>();
         public Dictionary<string, object> NextFrameValues = new Dictionary<string, object>();
@@ -65,21 +66,42 @@ namespace GGEZ.Labkit
         {
             foreach (var variable in Values.Keys)
             {
-                
+
             }
         }
 #endif
 
+        /// <summary>
+        /// Writes a value into a standard variable slot. The variable is marked
+        /// as changed if it modifies the value in this slot or if the variable
+        /// is a class type.
+        /// </summary>
+        /// <remarks>
+        /// Object equality being unchecked is not a strict requirement but it
+        /// seems to make sense right now.
+        /// </remarks>
         public void Set(string name, object value)
         {
             object currentNextFrame;
             bool different =
+
+                // Is there any value at all?
                 !Values.TryGetValue(name, out currentNextFrame)
+
+                // Are we changing whether the value is null?
+                || (value == null) != (currentNextFrame == null)
+
+                // Is the new or old value an object type?
+                || !(value ?? currentNextFrame).GetType().IsValueType
+
+                // Are the value types unequal?
                 || !object.Equals(currentNextFrame, value);
+
             NextFrameValues[name] = value;
+
             if (different)
             {
-                Changed.Add(name);
+                NextFrameChanged.Add(name);
             }
         }
 
@@ -101,13 +123,136 @@ namespace GGEZ.Labkit
             return false;
         }
 
+
         public void EndFrame()
         {
-            foreach (var key in Changed)
+            foreach (var key in NextFrameChanged)
             {
-                Values[key] = NextFrameValues[key];
+                var value = NextFrameValues[key];
+                var endFrame = value as HasEndFrame;
+                if (endFrame != null)
+                {
+                    endFrame.EndFrame();
+                }
+                Values[key] = value;
             }
-            Changed.Clear();
+
+            {
+                Changed.Clear();
+                var swap = Changed;
+                Changed = NextFrameChanged;
+                NextFrameChanged = Changed;
+            }
+        }
+    }
+
+    public interface HasEndFrame
+    {
+        void EndFrame();
+    }
+
+    public class HashSetVariable<T> : HasEndFrame
+    {
+        public HashSet<T> Values { get { return _values; } }
+        public HashSet<T> Added { get { return _added; } }
+        public HashSet<T> Removed { get { return _removed; } }
+
+        private HashSet<T> _values = new HashSet<T>();
+        private HashSet<T> _added = new HashSet<T>();
+        private HashSet<T> _removed = new HashSet<T>();
+
+        private HashSet<T> _nextFrameValues = new HashSet<T>();
+        private HashSet<T> _nextFrameAdded = new HashSet<T>();
+        private HashSet<T> _nextFrameRemoved = new HashSet<T>();
+
+        public void Add(T element)
+        {
+            if (!_nextFrameValues.Add(element))
+            {
+                return;
+            }
+
+            if (_values.Contains(element))
+            {
+                Debug.Assert(_nextFrameRemoved.Contains(element));
+                _nextFrameRemoved.Remove(element);
+            }
+            else
+            {
+                Debug.Assert(!_nextFrameAdded.Contains(element));
+                _nextFrameAdded.Add(element);
+            }
+        }
+
+        public void Add(IEnumerable<T> elements)
+        {
+            foreach (T element in elements)
+            {
+                Add(element);
+            }
+        }
+
+        public void Remove(T element)
+        {
+            if (!_nextFrameValues.Remove(element))
+            {
+                return;
+            }
+
+            if (_values.Contains(element))
+            {
+                Debug.Assert(!_nextFrameRemoved.Contains(element));
+                _nextFrameRemoved.Add(element);
+            }
+            else
+            {
+                Debug.Assert(_nextFrameAdded.Contains(element));
+                _nextFrameAdded.Remove(element);
+            }
+        }
+
+        public void Remove(IEnumerable<T> elements)
+        {
+            foreach (T element in elements)
+            {
+                Remove(element);
+            }
+        }
+
+
+        public void Set(IEnumerable<T> elements)
+        {
+            HashSet<T> toRemove = new HashSet<T>(_nextFrameValues);
+            toRemove.ExceptWith(elements);
+            foreach (T element in toRemove)
+            {
+                Remove(element);
+            }
+
+            foreach (T element in elements)
+            {
+                Add(element);
+            }
+        }
+
+        public void EndFrame()
+        {
+            _values.UnionWith(_nextFrameAdded);
+            _values.ExceptWith(_nextFrameRemoved);
+
+            {
+                _added.Clear();
+                var swap = _added;
+                _added = _nextFrameAdded;
+                _nextFrameAdded = swap;
+            }
+
+            {
+                _removed.Clear();
+                var swap = _removed;
+                _removed = _nextFrameRemoved;
+                _nextFrameRemoved = swap;
+            }
         }
     }
 }

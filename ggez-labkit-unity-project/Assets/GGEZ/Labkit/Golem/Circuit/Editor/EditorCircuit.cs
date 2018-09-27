@@ -98,11 +98,31 @@ namespace GGEZ.Labkit
         }
     }
 
+    public enum EditorSpecialRegisterType
+    {
+        Variable,
+        MultiVariable,
+        MultiVariableAdded,
+        MultiVariableRemoved,
+    }
+
+    public class EditorSpecialRegister
+    {
+        public EditorSpecialRegisterType Type;
+        public string Name;
+        public Rect Position;
+    }
+
     //-------------------------------------------------------------------------
     // EditorWire
     //-------------------------------------------------------------------------
     public class EditorWire
     {
+        // Need to write something here to make special input types. These
+        // types should be able to read variable, multi, multi-added, and
+        // multi-removed values. TODO: make this work
+        public EditorSpecialRegister ReadSpecialRegister;
+
         public RegisterPtr Register;
         public EditorCell ReadCell;
         public string ReadField;
