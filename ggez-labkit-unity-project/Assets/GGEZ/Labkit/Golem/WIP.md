@@ -3,6 +3,85 @@ every variable reference could just point to that memory location and do a direc
 
 get/set then get a backing field that is the reference
 
+first N variablerefs are registers
+next K variablerefs are instantiated for objects
+
+on load:
+    - keep dictionary of <<relationship,name>, IVariableRef>
+    - scan all fields for anything that is an IVariableRef
+    - add the field's value to the master list of variablerefs
+
+- variablerefs array for registers, sorted by relationship
+- variablerefs array for scripts & cells, sorted by relationship
+- function to get bounds of relationship in variablerefs array
+
+
+on change relationship:
+- get bounds of relationship in variablerefs array
+- foreach (int i in bounds) { variableref.UpdateTarget(Variables); copy value; SetRegisterDirty(i); }
+- do the same thing for scripts and cells...and aspects?
+
+each frame:
+    foreach i in [variablerefs array for registers]:
+        did variable i change?
+            copy value; SetRegisterDirty(i);
+
+
+RegisterPtr<bool> _register;
+
+
+
+public interface IRegisterOut
+{
+    void RuntimeSetup(Golem golem);
+}
+
+public parital class Golem
+{
+    Dictionary<Type, object> _registerBanks;
+    public RuntimeSetup<T>(out T[] registerBank, out bool[] dirty)
+    {
+        registerBank = _registerBanks[typeof(T)] as T[];
+        dirty = _dirty;
+    }
+}
+
+public class RegisterOut<T>
+{
+    public int Index;
+    public int[] CellsToDirty;
+
+    public T[] Values;
+    public bool[] Dirty;
+
+    public void RuntimeSetup(Golem golem)
+    {
+        golem.RuntimeSetup(out Values, out Dirty);
+    }
+
+    public void Set(T value)
+    {
+        if (Values[Index] != value)
+        {
+            Values[Index] = value;
+            for (int i = 0; i < CellsToDirty.Length; ++i)
+            {
+                Dirty[CellsToDirty[i]] = true;
+            }
+        }
+    }
+}
+
+public class RegisterIn<T>
+{
+    public T[] Values;
+    public int Index;
+
+    public T Get()
+    {
+        return Values[Index];
+    }
+}
 
 private Variable<float> _foo; // aspect has a variable named _foo created in the golem that owns this variable
 public float Foo { set { _foo.Value = value; } get { return _foo.Value; } }
@@ -31,7 +110,6 @@ if (!variables.TryGetValue(name, out variable))
     variables.Add(name, variable);
 }
 variableField.Set(aspect, variable);
-
 
 
 
@@ -71,6 +149,32 @@ public class VariableRef<T> : IVariableRef
         if (Variable)
         {
             Variable.Changed = true;
+        }
+    }
+}
+
+
+public class VariableRegisterRef<T> : IVariableRef
+{
+    public string Relationship;
+    public string Name;
+    public Variable<T> Variable;
+
+    // When the value changes or the variable is dirty, write the given register
+    public T[] Registers;
+    public int Register;
+    public bool[] Dirty;
+    public int[] CellsToDirty;
+
+    public void Find(Dictionary<string, IVariable> variables)
+    {
+        IVariable value;
+        variables.TryGetValue(Name, out value);
+        Variable = value as Variable<T>;
+        if (Variable)
+        {
+            Registers[Register] = Variable.Value;
+            Dirty[CellsToDirty] = true;
         }
     }
 }

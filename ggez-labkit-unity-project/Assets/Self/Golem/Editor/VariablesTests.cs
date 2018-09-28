@@ -42,6 +42,7 @@ namespace GGEZ.Tests
         public static readonly object Value0 = "value0";
         public static readonly object Value1 = 9999;
 
+
         [Test]
         public void MultiAddSingle()
         {
