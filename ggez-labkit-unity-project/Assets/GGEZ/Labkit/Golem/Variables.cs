@@ -29,6 +29,102 @@ using UnityEngine;
 
 namespace GGEZ.Labkit
 {
+
+    /*
+
+    so the garbage collector is good at keeping
+
+    */
+
+    public interface IVariable
+    {
+        void EndProgramPhase();
+    }
+
+    public enum CellIndex : int { Invalid = int.MaxValue }
+
+    public class Variable<T> : IVariable where T : struct, IEquatable<T>
+    {
+        T _value;
+        T _nextValue;
+        int _cellsToDirtyBegin;
+        int _cellsToDirtyEnd;
+
+        public T Value
+        {
+            get
+            {
+                return _value;
+            }
+            set
+            {
+                _nextValue = value;
+                CentralPublishing.Changed.Add(this);
+            }
+        }
+
+        public void EndProgramPhase()
+        {
+            if (_nextValue.Equals(_value))
+            {
+                return;
+            }
+
+            _value = _nextValue;
+
+            for (int i = _cellsToDirtyBegin; i < _cellsToDirtyEnd; ++i)
+            {
+                CentralPublishing.DirtyCells.Add(CentralPublishing.CellsToDirty[i]);
+            }
+        }
+    }
+
+    public class Register<T>
+    {
+        T _value;
+        int _cellsToDirtyBegin;
+        int _cellsToDirtyEnd;
+    }
+
+    public static class CentralPublishing
+    {
+
+        // These should be priority queues
+        public static List<CellIndex> DirtyCells;
+        public static List<CellIndex> UpdatingCells;
+
+        public static List<CellIndex> CellsToDirty;
+
+        public static List<IVariable> Changed = new List<IVariable>();
+
+
+        public static void AddCellsToDirty(CellIndex[] cells, out int begin, out int end)
+        {
+            begin = CellsToDirty.Count;
+            CellsToDirty.AddRange(cells);
+            end = CellsToDirty.Count;
+        }
+
+        public static void EndProgramPhase()
+        {
+            foreach (IVariable variable in Changed)
+            {
+                variable.EndProgramPhase();
+            }
+        }
+    }
+
+    /*
+
+    in the Circuit update, iterate dirty cells and cells that are updating
+
+    while (CentralPublishing.DirtyCells.Count > 0)
+    {
+        Cells[CentralPublishing.DirtyCells.PopFront()]
+    }
+
+     */
+
     public class Variables
     {
         // This set is for propagating changes in variable values

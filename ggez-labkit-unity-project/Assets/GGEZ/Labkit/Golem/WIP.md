@@ -30,6 +30,8 @@ each frame:
 RegisterPtr<bool> _register;
 
 
+ELIMINATE THE COST OF BOXING AND UNBOXING
+STRONGLY TYPE EVERYTHING AND TIE REFERENCES CLOSE TO USE POINTS
 
 public interface IRegisterOut
 {
@@ -51,8 +53,8 @@ public class RegisterOut<T>
     public int Index;
     public int[] CellsToDirty;
 
-    public T[] Values;
-    public bool[] Dirty;
+    private T[] Values;
+    private bool[] Dirty;
 
     public void RuntimeSetup(Golem golem)
     {
@@ -70,6 +72,29 @@ public class RegisterOut<T>
             }
         }
     }
+}
+
+public class HashSetRegisterOut<T>
+{
+    public int Index;
+    public int[] CellsToDirty;
+
+    private HashSet<T> Register;
+    private bool[] Dirty;
+
+    public void RuntimeSetup(Golem golem)
+    {
+        golem.RuntimeSetupHashSetRegister(Index, out Register, out Dirty);
+    }
+
+    public void Add(T value)
+    { }
+
+    public void Remove(T value)
+    { }
+
+    public void Set(IEnumerable<T> values)
+    { }
 }
 
 public class RegisterIn<T>
@@ -95,10 +120,9 @@ public HashSet<int> BarRemoved(int i) { return _bar.Removed; }
 
 public interface IVariable
 {
-    void Set(object value);
-    object Get();
-    bool IsDirty();
-    void SetDirty();
+//    void Set(object value);
+//    object Get();
+    void NextFrame();
 }
 
 IVariable variable;
@@ -112,14 +136,54 @@ if (!variables.TryGetValue(name, out variable))
 variableField.Set(aspect, variable);
 
 
+Variables
+{
+    Dictionary<string, IVariable> Variables;
 
+    public Variable<T> Get<T>(name)
+    {
+        Variables.TryGetValue(name out variable);
+        var v = variable as Variable<T>;
+        return v.Value;
+    }
+}
+
+does dirty only matter for registers?
+- if script scare about frame separation then no, because
+  if golem passively separates frames then new values should not update until end of frame
+
+public static class VariableUtility
+{
+    public static List<IVariable> ChangedNextFrame = new List<IVariable>();
+}
 
 public class Variable<T> : IVariable
 {
-    public T Value { get; set; }
+    public T Value
+    {
+        get
+        {
+        }
+        set
+        {
+            _nextValue = value;
+            Dirty
+        }
+    }
+
+    private T _value, _nextValue;
 
     // A variable might be dirty if it hasn't changed, but it WILL be dirty if it has changed
     public bool Dirty;
+
+    private bool _nextDirty;
+
+    public void NextFrame()
+    {
+        _value = _nextValue;
+        Dirty = _nextDirty;
+        _nextDirty = false;
+    }
 }
 
 but VariableRef<T> would contain a Variable reference...

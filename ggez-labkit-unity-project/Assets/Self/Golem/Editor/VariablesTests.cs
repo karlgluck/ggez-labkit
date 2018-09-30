@@ -42,6 +42,16 @@ namespace GGEZ.Tests
         public static readonly object Value0 = "value0";
         public static readonly object Value1 = 9999;
 
+        [Test]
+        public void WackyStuff()
+        {
+            Variable<int> v = new Variable<int>();
+            v.Value = 5;
+            Assert.False(v.Dirty);
+            v.EndFrame();
+            Assert.True(v.Dirty);
+            Assert.AreEqual(v.Value, 5);
+        }
 
         [Test]
         public void MultiAddSingle()
