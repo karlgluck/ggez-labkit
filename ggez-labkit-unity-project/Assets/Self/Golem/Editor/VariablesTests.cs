@@ -31,6 +31,7 @@ using System.Collections;
 using GGEZ;
 using GGEZ.Labkit;
 using System.Linq;
+using System.Diagnostics;
 
 namespace GGEZ.Tests
 {
@@ -41,16 +42,51 @@ namespace GGEZ.Tests
 
         public static readonly object Value0 = "value0";
         public static readonly object Value1 = 9999;
+        
+        struct ABC
+        {
+            public int foo;
+
+            public void SetMyValue(int v)
+            {
+                foo = v;
+            }
+        }
+
+[StructLayout(LayoutKind.Sequential)]
+        class ABCtainer
+        {
+            public ABC abc = new ABC();
+        }
 
         [Test]
         public void WackyStuff()
         {
-            Variable<int> v = new Variable<int>();
-            v.Value = 5;
-            Assert.False(v.Dirty);
-            v.EndFrame();
-            Assert.True(v.Dirty);
-            Assert.AreEqual(v.Value, 5);
+            ABC aBC = new ABC();
+            System.Action<int> i = aBC.SetMyValue;
+            UnityEngine.Debug.Log("foo = " + System.Runtime.InteropServices.Marshal.SizeOf(typeof(ABC)));
+            i.Invoke(123);
+            UnityEngine.Debug.Log("foo = " + System.Runtime.InteropServices.Marshal.SizeOf(typeof(ABCtainer)));
+
+            
+
+            // double sum = 0.0;
+            // int iterations = 99;
+            // for (int j = 0; j < iterations; ++j)
+            // {
+            //     Stopwatch watch = Stopwatch.StartNew();
+            //     for (int i = 0; i < 99999; ++i)
+            //     {
+            //         RuntimeVariables<float>.Values.Add(i / 128f);
+            //     }
+            //     watch.Stop();
+            //     RuntimeVariables<float>.Values.Clear();
+            //     RuntimeVariables<float>.Values.Add(0f);
+            //     double microSeconds = (watch.ElapsedTicks * 1.0e6 / Stopwatch.Frequency + 0.4999);
+            //     sum += microSeconds;
+            // }
+            // sum /= (double)iterations;
+            // UnityEngine.Debug.Log("microSeconds = " + sum);
         }
 
         [Test]

@@ -27,90 +27,309 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 
+
 namespace GGEZ.Labkit
 {
-
-    /*
-
-    so the garbage collector is good at keeping
-
-    */
-
     public interface IVariable
+    {
+        int RuntimeVariable { get; set; }
+    }
+
+    public interface IMutableVariable
     {
         void EndProgramPhase();
     }
 
     public enum CellIndex : int { Invalid = int.MaxValue }
 
-    public class Variable<T> : IVariable where T : struct, IEquatable<T>
+
+    public static class EndProgramPhase
     {
-        T _value;
-        T _nextValue;
-        int _cellsToDirtyBegin;
-        int _cellsToDirtyEnd;
+        public delegate void Callback();
+        public static event Callback Callbacks;
+
+        public static void Invoke()
+        {
+            if (Callbacks != null)
+            {
+                Callbacks.Invoke();
+            }
+        }
+
+        // These should be priority queues
+        public static HashSet<CellIndex> DirtyCells = new HashSet<CellIndex>();
+        public static HashSet<CellIndex> UpdatingCells = new HashSet<CellIndex>();
+
+
+        public static void SetDirty(List<CellIndex> cellsToDirty)
+        {
+            for (int i = 0; i < cellsToDirty.Count; ++i)
+            {
+                DirtyCells.Add(cellsToDirty[i]);
+            }
+        }
+
+        public static void SetDirty(CellIndex[] cellsToDirty, int begin, int end)
+        {
+            for (int i = begin; i < end; ++i)
+            {
+                DirtyCells.Add(cellsToDirty[i]);
+            }
+        }
+    }
+
+    public class RuntimeVariables<T>
+    {
+        /// <remarks>
+        /// Value at index [0] in this array is always default(T) so that references to
+        /// unassigned values always read something.
+        /// </remarks>
+        public static List<T> Values = new List<T>();
+
+        /// <remarks>
+        /// This class is used for variables and registers. Registers mostly use this
+        /// listeners array, but some registers are shortcut to read directly from
+        /// variables values via references in the circuit.
+        /// </remarks>
+        public static List<List<CellIndex>> Listeners = new List<List<CellIndex>>();
+
+        public static List<T> NextValues = new List<T>();
+        public static List<int> NextValueIndices = new List<int>();
+
+
+        static RuntimeVariables()
+        {
+            Debug.Log("Running static constructor for type " + typeof(T).Name);
+            Values.Add(default(T));
+            EndProgramPhase.Callbacks +=
+                typeof(T).IsValueType
+                    ? (EndProgramPhase.Callback)RuntimeVariables<T>.EndProgramPhaseStructType
+                    : (EndProgramPhase.Callback)RuntimeVariables<T>.EndProgramPhaseClassType;
+        }
+
+        public static void EndProgramPhaseClassType()
+        {
+            Debug.Assert(NextValues.Count == NextValueIndices.Count);
+            for (int i = 0; i < NextValues.Count; ++i)
+            {
+                int index = NextValueIndices[i];
+                T nextValue = NextValues[i];
+                Values[index] = nextValue;
+                EndProgramPhase.SetDirty(Listeners[index]);
+            }
+            NextValues.Clear();
+            NextValueIndices.Clear();
+            Debug.Assert(object.Equals(Values[0], default(T)));
+            Values[0] = default(T);
+        }
+
+        public static void EndProgramPhaseStructType()
+        {
+            Debug.Assert(NextValues.Count == NextValueIndices.Count);
+            for (int i = 0; i < NextValues.Count; ++i)
+            {
+                int index = NextValueIndices[i];
+                T nextValue = NextValues[i];
+                if (!Values[index].Equals(nextValue))
+                {
+                    Values[index] = NextValues[i];
+                    EndProgramPhase.SetDirty(Listeners[index]);
+                }
+            }
+            NextValues.Clear();
+            NextValueIndices.Clear();
+            Debug.Assert(Values[0].Equals(default(T)));
+            Values[0] = default(T);
+        }
+    }
+
+    public struct Variable<T>
+    {
+        public readonly int RuntimeVariable;
 
         public T Value
         {
             get
             {
-                return _value;
+                return RuntimeVariables<T>.Values[RuntimeVariable];
             }
             set
             {
-                _nextValue = value;
-                CentralPublishing.Changed.Add(this);
-            }
-        }
-
-        public void EndProgramPhase()
-        {
-            if (_nextValue.Equals(_value))
-            {
-                return;
-            }
-
-            _value = _nextValue;
-
-            for (int i = _cellsToDirtyBegin; i < _cellsToDirtyEnd; ++i)
-            {
-                CentralPublishing.DirtyCells.Add(CentralPublishing.CellsToDirty[i]);
+                RuntimeVariables<T>.NextValues.Add(value);
+                RuntimeVariables<T>.NextValueIndices.Add(RuntimeVariable);
             }
         }
     }
 
-    public class Register<T>
+
+    public interface IVariableRef
     {
-        T _value;
-        int _cellsToDirtyBegin;
-        int _cellsToDirtyEnd;
+        // Type GetTargetType();
+        void UpdateReference(Golem golem);
+        void UpdateReference(Golem golem, CellIndex cellIndex);
     }
 
-    public static class CentralPublishing
+    public sealed class VariableRef<T> : IVariableRef
     {
-
-        // These should be priority queues
-        public static List<CellIndex> DirtyCells;
-        public static List<CellIndex> UpdatingCells;
-
-        public static List<CellIndex> CellsToDirty;
-
-        public static List<IVariable> Changed = new List<IVariable>();
-
-
-        public static void AddCellsToDirty(CellIndex[] cells, out int begin, out int end)
+        public T Value
         {
-            begin = CellsToDirty.Count;
-            CellsToDirty.AddRange(cells);
-            end = CellsToDirty.Count;
+            get
+            {
+                return RuntimeVariables<T>.Values[_runtimeVariable];
+            }
+            set
+            {
+                RuntimeVariables<T>.NextValues.Add(value);
+                RuntimeVariables<T>.NextValueIndices.Add(_runtimeVariable);
+            }
         }
 
-        public static void EndProgramPhase()
+        public readonly string Reference;
+        public readonly string Name;
+        private int _runtimeVariable;
+
+        public Type GetTargetType()
         {
-            foreach (IVariable variable in Changed)
+            return typeof(T);
+        }
+
+        public void UpdateReference(Golem golem)
+        {
+            Dictionary<string, int> variableMap;
+            if (golem.NewRelationships.TryGetValue(Reference, out variableMap))
             {
-                variable.EndProgramPhase();
+                variableMap.TryGetValue(Name, out _runtimeVariable);
             }
+            else
+            {
+                _runtimeVariable = 0;
+            }
+            Debug.Assert(RuntimeVariables<T>.Values.Count > _runtimeVariable);
+        }
+
+        public void UpdateReference(Golem golem, CellIndex cellIndex)
+        {
+            Dictionary<string, int> variableMap;
+            int runtimeVariable;
+            if (golem.NewRelationships.TryGetValue(Reference, out variableMap))
+            {
+                variableMap.TryGetValue(Name, out runtimeVariable);
+            }
+            else
+            {
+                runtimeVariable = 0;
+            }
+            Debug.Assert(RuntimeVariables<T>.Values.Count > runtimeVariable);
+            if (_runtimeVariable != runtimeVariable)
+            {
+                if (_runtimeVariable != 0)
+                {
+                    RuntimeVariables<T>.Listeners[_runtimeVariable].Remove(cellIndex);
+                }
+                if (runtimeVariable != 0)
+                {
+                    RuntimeVariables<T>.Listeners[_runtimeVariable].Add(cellIndex);
+                }
+                _runtimeVariable = runtimeVariable;
+            }
+        }
+    }
+
+    public struct RegisterIn<T>
+    {
+        public T Value
+        {
+            get
+            {
+                return RuntimeVariables<T>.Values[_runtimeVariable];
+            }
+        }
+
+        public bool IsValid
+        {
+            get
+            {
+                return _runtimeVariable > 0;
+            }
+        }
+
+        public bool TryGetValue(out T value)
+        {
+            if (_runtimeVariable == 0)
+            {
+                value = default(T);
+                return false;
+            }
+            value = RuntimeVariables<T>.Values[_runtimeVariable];
+            return true;
+        }
+
+        public void GetValueIfValid(ref T value)
+        {
+            if (_runtimeVariable > 0)
+            {
+                value = RuntimeVariables<T>.Values[_runtimeVariable];
+            }
+        }
+
+        private readonly int _runtimeVariable;
+
+        public RegisterIn(int runtimeVariable)
+        {
+            _runtimeVariable = runtimeVariable;
+        }
+    }
+
+    public struct ClassRegisterOut<T> where T : class
+    {
+        public T Value
+        {
+            set
+            {
+                if (_runtimeVariable == 0)
+                {
+                    return;
+                }
+                RuntimeVariables<T>.Values[_runtimeVariable] = value;
+                EndProgramPhase.SetDirty(RuntimeVariables<T>.Listeners[_runtimeVariable]);
+            }
+        }
+
+        private readonly int _runtimeVariable;
+
+        public ClassRegisterOut(int runtimeVariable)
+        {
+            _runtimeVariable = runtimeVariable;
+        }
+    }
+
+    public struct StructRegisterOut<T> where T : struct, IEquatable<T>
+    {
+        public T Value
+        {
+            set
+            {
+                if (_runtimeVariable == 0)
+                {
+                    return;
+                }
+
+                T current = RuntimeVariables<T>.Values[_runtimeVariable];
+                if (current.Equals(value))
+                {
+                    return;
+                }
+
+                RuntimeVariables<T>.Values[_runtimeVariable] = value;
+                EndProgramPhase.SetDirty(RuntimeVariables<T>.Listeners[_runtimeVariable]);
+            }
+        }
+
+        public int _runtimeVariable;
+
+        public StructRegisterOut(int runtimeVariable)
+        {
+            _runtimeVariable = runtimeVariable;
         }
     }
 

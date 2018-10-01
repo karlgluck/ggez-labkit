@@ -39,6 +39,13 @@ public class JoystickAspect : Aspect
         get { return (bool)Variables.Get("ShowJoystick"); }
         set { Variables.Set("ShowJoystick", value); }
     }
+
+    // private StructVariable<bool> _show;
+    // public bool Showx
+    // {
+    //     get { return _show.Value; }
+    //     set { _show.Value = value; }
+    // }
 }
 
 namespace GGEZ.Labkit
