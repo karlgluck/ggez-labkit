@@ -35,6 +35,7 @@ using System.Diagnostics;
 
 namespace GGEZ.Tests
 {
+
     public class VariablesTests
     {
         public const string Key0 = "Key 0";
@@ -42,51 +43,77 @@ namespace GGEZ.Tests
 
         public static readonly object Value0 = "value0";
         public static readonly object Value1 = 9999;
-        
-        struct ABC
-        {
-            public int foo;
 
-            public void SetMyValue(int v)
+        class Foo
+        {
+            public virtual void DoFoo()
             {
-                foo = v;
             }
         }
 
-[StructLayout(LayoutKind.Sequential)]
-        class ABCtainer
+        class NoBar : Foo
         {
-            public ABC abc = new ABC();
+            public virtual void DoFoo()
+            {
+            }
+        }
+
+        class Bar : Foo
+        {
+            public virtual void DoFoo()
+            {
+                ++count;
+            }
+
+            public static int count = 0;
         }
 
         [Test]
         public void WackyStuff()
         {
-            ABC aBC = new ABC();
-            System.Action<int> i = aBC.SetMyValue;
-            UnityEngine.Debug.Log("foo = " + System.Runtime.InteropServices.Marshal.SizeOf(typeof(ABC)));
-            i.Invoke(123);
-            UnityEngine.Debug.Log("foo = " + System.Runtime.InteropServices.Marshal.SizeOf(typeof(ABCtainer)));
 
-            
+            int iterations = 99;
+            double ifSum = 0, virtSum = 0;
+            for (int j = 0; j < iterations; ++j)
+            {
+                bool[] barray = new bool[99999];
+                Foo[] foos = new Foo[99999];
+                Foo[] barsAndNoBars = new Foo[99999];
+                NoBar noBar = new NoBar();
+                for (int i = 0; i < barray.Length; ++i)
+                {
+                    bool b = Random.value > 0.5;
+                    barray[i] = b;
+                    foos[i] = new Bar();
+                    barsAndNoBars[i] = b ? (Foo)new Bar() : noBar;
+                }
 
-            // double sum = 0.0;
-            // int iterations = 99;
-            // for (int j = 0; j < iterations; ++j)
-            // {
-            //     Stopwatch watch = Stopwatch.StartNew();
-            //     for (int i = 0; i < 99999; ++i)
-            //     {
-            //         RuntimeVariables<float>.Values.Add(i / 128f);
-            //     }
-            //     watch.Stop();
-            //     RuntimeVariables<float>.Values.Clear();
-            //     RuntimeVariables<float>.Values.Add(0f);
-            //     double microSeconds = (watch.ElapsedTicks * 1.0e6 / Stopwatch.Frequency + 0.4999);
-            //     sum += microSeconds;
-            // }
-            // sum /= (double)iterations;
-            // UnityEngine.Debug.Log("microSeconds = " + sum);
+                Bar.count = 0;
+                Stopwatch watch = Stopwatch.StartNew();
+                for (int i = 0; i < 99999; ++i)
+                {
+                    if (barray[i])
+                    {
+                        foos[i].DoFoo();
+                    }
+                }
+                watch.Stop();
+                ifSum += (int)(watch.ElapsedTicks * 1.0e6 / Stopwatch.Frequency + 0.4999);
+
+
+                Bar.count = 0;
+                watch = Stopwatch.StartNew();
+                for (int i = 0; i < 99999; ++i)
+                {
+                    barsAndNoBars[i].DoFoo();
+                }
+                watch.Stop();
+                virtSum += (int)(watch.ElapsedTicks * 1.0e6 / Stopwatch.Frequency + 0.4999);
+
+            }
+            ifSum /= (double)iterations;
+            virtSum /= (double)iterations;
+            UnityEngine.Debug.Log("if = " + ifSum + " virt = " + virtSum);
         }
 
         [Test]

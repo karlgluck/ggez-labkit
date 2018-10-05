@@ -1,3 +1,139 @@
+ - as simple to use and extend as possible
+ - limit-zero per-frame allocations (no boxing/unboxing)
+ - limit-zero per-frame reflection
+
+cells only get updated when an input was changed
+don't want to make different versions of every cell where
+some read from variables in different combinations and
+some read from registers
+
+variables are just named registers, possibly in other golems
+
+each variable in a golem is stored in that golem's registers
+    so internal variables are easily mapped
+    and the "self" reference never changes so we don't have to worry about how to update it
+
+external variables that read from other golems are different
+    #1 we don't know if they exist
+    #2 references can change, which changes the variable
+
+so for external references, maybe polling is fine?
+    we want things like "owner" though which doesn't change
+
+maybe external references have that second level of indirection? A special cell type just converts external variable into internal register. It can check the global change list to see if a variable has changed, then propagate the change internally.
+
+Now we have to know how to split the variable lists:
+- Single, global list (all instances of all types share)
+    advantage: simplicity, reduced overhead
+    disadvantage: basically have to do my own memory management on the buffers as instances are created/destroyed
+- By Golem class (all instances share)
+    advantage: pooling
+    disadvantage: everything that interacts with a variable needs a reference to the class's variables array
+- By Golem instance (nothing is shared)
+    advantage: simplicity
+    disadvantage: lots of overhead; everything that interacts with a variable needs a reference to the instance's variables array
+
+If we assume golems are pooled and never destroyed, the single global list is pretty attractive.
+
+Cell data storage for the class includes:
+    - A dictionary of {type} -> {values count} so space can be reserved in the global data arrays
+    - the initial cell data (to deserialize the cell)
+    - A dictionary of {variable name} -> {register offset}
+    - An array of pairs mapping cell field names to register offsets
+        These get incremented by the golem's own offset into the global array on load (uses reflection)
+    - A dictionary of {reference} -> {variable name, register}
+        This dictionary is shared among all instances after being deserialized once
+
+But the register needs access to the list of cells to dirty
+This list is the same for all golems of a given type and is readonly
+Which means we should probably have golems of a type share an array
+And each register then needs its golem to get its data
+Which means then that cells need golem references
+
+Since a writing register needs:
+    T[] Values; <-- the values array
+    int golemBase; <-- where this golem starts
+    int registerOffset; <-- this register's offset
+    int[] cellsToDirty; <-- which cells are dirtied by writing this register
+
+But at this point we are gaining what, 12 bytes per type per golem by pooling? Might as well just allocate their own registers and be done with it.
+
+    T[] Values; <-- the values array, for this golem instance
+    int registerOffset; <-- which register to write
+    int[] cellsToDirty; <-- which cells are to be dirtied by writing this register
+    bool[] dirtyArray; <-- golem instance's dirty cells array
+
+can save on the dirtyArray reference by passing a golem pointer around
+
+for variables, they have exactly the same thing only they are updated at end of frame
+    T[] NextValues;     // internal to owner, shared with registers
+    int registerOffset; // internal to owner
+    int[] cellsToDirty; // internal to owner
+    bool[] dirtyArray;  // internal to owner
+    T PreviousValue;    // for reading values
+    List<VariableListener<T>> OnChanged;
+    public void DetachAll() { ... }
+
+// a VariableListener is created for every register that listens to remote variables
+// when a variable reference is hooked up, the appropriate IVariableListener (of
+// true type VariableListener<T>) is given an IVariable (of actual type Variable<T>)
+// to attach tiself to.
+VariableListener<T> : IVariableListener
+    T[] values;
+    int registerOffset;
+    int[] cellsToDirty;
+    bool[] dirtyArray;
+    public void OnDidChange(T newValue)
+    {
+        dirtyArray
+    }
+    public void Attach(IVariable variable)
+    {
+        var target = variable as Variable<T>;
+        Debug.Assert(target != null);
+    }
+    public void Detach(IVariable variable)
+    { ... }
+
+// The golem has a dictionary of its variables by name -> IVariable (Variable<T>)
+
+
+    when a variable changes, it adds itself to a global dirty list to be updated at end-of-frame.
+    all references to a variable are the same object. Reading a value reads the PreviousValue.
+    At end of frame, if the variable is in the dirty list, it gets PreviousValue updated
+    and iterates the OnChanged list to propagate changes
+
+    they set cell dirty flags (which is fine, we don't have to wait to do this
+    since the transition occurs between program and circuit phases) then the
+    program does a copy through of all the value types.
+
+    but what about processing order? script insensitive relative processing order
+    might be important but that doesnt hold for basic properties of aspects, inter-golem
+    processing order is basically handled by ... well you can read remote references
+    at any time so I don't know. Maybe Variable<T> is a class instead of a struct and
+    it gets added to an update list on the target? Or all variable references are shared
+    and it holds its previous value internally?
+
+but variables can also have an external set of listeners
+
+In the class...
+    - A dictionary of {variableId} -> register
+        Whenever a variable changes, it checks a global changelist for {variableId} and writes listening registers as well
+
+There is a cell type that reads a remote reference into a register
+    When a reference gets hooked up, the cell is given the index of
+    the variable that changed and the cell starts updating
+
+RegisterIn<T>
+    T[] Values;
+
+Golem
+    int[] variableIndex;
+
+registers are in the global list but not shared with variables so we don't have to use reflection to update them when the pointed-at object changes
+
+instead, the
+
 if each variable was a [type, changed] pair
 every variable reference could just point to that memory location and do a direct check
 
