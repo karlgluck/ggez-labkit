@@ -1,3 +1,75 @@
+
+    OKAY AND in this verion SPECIAL BONUS
+
+    - GolemClass becomes GolemComponent
+    - You can add multiple components to a single Golem
+        - When it's in a prefab, that's an Archetype!
+    - This means that references need to be separable from the class
+        - Which means that a Golem holds a list of references keyed by name
+        - When a GolemComponent instantiates, it reads Unity Object references by name from the Golem and writes them into fields of aspects/cells/scripts
+
+    WAAAAAIt what if the references were just in the Aspects for the golem? Just like variables!!!
+        Inside of a GolemComponent, you get a dropdown for picking a reference to a name based on the field in the aspect
+    An aspect declares a field that is of type UnityObject, and all fields with the same name get the same value
+        When the golem instantiates, the list of references gets cloned
+        the Golem itself maps which fields of which aspects get each UnityObject index
+
+    For debugging purposes, each GolemClass can have a list of the Aspects it depends on
+    And each external reference can have a list of the Aspects they require of the target
+        These can both be checked at runtime
+
+    the Golem says "I have these settings, these Aspects and these Components"
+        - And, transparently, "these object references" as contained in Aspects.
+
+    the Golem contains:
+        - A list of GolemComponents it uses
+        - A list of settings, a superset of settings used in the GolemComponents
+        - A list of aspect types that Golem uses
+        - A map of name -> Unity Object references
+            - And what aspects to write the references into
+        - A list of {variable name / register index / aspect index / field name} for variables
+
+    the GolemComponent:
+        - Contains a list of {variable name / [cell/script index] / field name / reftype} for local variables
+        - Contains {setting name, [cell/script index], field name } to write values on load
+        (contains variables to write to field values on load)
+        (contains unity object references to write to field values on load)
+     
+
+
+                             frame start
+----------------------------------------------------------------------
+
+                         CIRCUIT UPDATE PHASE
+
+----------------------------------------------------------------------
+
+                         PROGRAM UPDATE PHASE
+
+----------------------------------------------------------------------
+
+                           VARIABLE ROLLOVER
+
+----------------------------------------------------------------------
+                               frame end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  - as simple to use and extend as possible
  - limit-zero per-frame allocations (no boxing/unboxing)
  - limit-zero per-frame reflection

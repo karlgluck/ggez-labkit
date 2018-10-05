@@ -24,43 +24,45 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using System;
-using System.Reflection;
+using UnityEngine;
+using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
-    public class Aspect
+    /// <summary>
+    /// An Archetype is created for every unique Golem and is shared among all its clones.
+    /// The Archetype collects the set of Aspects that the golem contains and the
+    /// set of Components that it uses, then ties those together with Settings values,
+    /// named References and relationship-based external Variables.
+    /// </summary>
+    public class GolemArchetype : ScriptableObject, ISerializationCallbackReceiver
     {
-        [GGEZ.FullSerializer.fsIgnore, System.Obsolete]
-        public Golem Golem;
+        /// <summary>Pairs with the References field in each golem instance</summary>
+        public string[] ReferenceNames;
 
-        [GGEZ.FullSerializer.fsIgnore, System.Obsolete]
-        public Variables Variables;
+        /// <summary>Functional parts used by the golem</summary>
+        public GolemComponent[] Components;
 
-        public Aspect Clone() { return MemberwiseClone() as Aspect; }
-    }
+        [NonSerialized]
+        public Aspect[] Aspects;
 
-    [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-    public class VariableAttribute : Attribute
-    {
-        public VariableAttribute(string name, string tooltip = "")
+        public SettingsAsset InheritSettingsFrom;
+        [NonSerialized]
+        public Settings Settings;
+
+        public Assignment[] Assignments;
+        [NonSerialized]
+        public Dictionary<string, Assignment[]> ExternalAssignments;
+
+        /// <summary>Source of data for all the NonSerialized properties</summary>
+        public string Json;
+
+        public void OnBeforeSerialize()
         {
-            Name = name;
-            Tooltip = name + "\n\n" + tooltip;
         }
-        public string Name { get; set; }
-        public string Tooltip { get; set; }
-    }
 
-    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
-    public class SettingAttribute : Attribute
-    {
-        public SettingAttribute()
+        public void OnAfterDeserialize()
         {
-        }
-
-        public static bool IsDeclaredOn(FieldInfo field)
-        {
-            return field.GetCustomAttributes(typeof(SettingAttribute), false).Length > 0;
         }
     }
 }

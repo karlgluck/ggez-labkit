@@ -24,43 +24,62 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using System;
-using System.Reflection;
+using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
-    public class Aspect
+    public class StructRegister<T> : IRegister where T : struct, IEquatable<T>
     {
-        [GGEZ.FullSerializer.fsIgnore, System.Obsolete]
-        public Golem Golem;
+        private T _value;
 
-        [GGEZ.FullSerializer.fsIgnore, System.Obsolete]
-        public Variables Variables;
+        private List<Cell> _listeners;
 
-        public Aspect Clone() { return MemberwiseClone() as Aspect; }
-    }
-
-    [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-    public class VariableAttribute : Attribute
-    {
-        public VariableAttribute(string name, string tooltip = "")
+        public T Value
         {
-            Name = name;
-            Tooltip = name + "\n\n" + tooltip;
-        }
-        public string Name { get; set; }
-        public string Tooltip { get; set; }
-    }
-
-    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
-    public class SettingAttribute : Attribute
-    {
-        public SettingAttribute()
-        {
+            get { return _value; }
+            set { ChangeValue(value); }
         }
 
-        public static bool IsDeclaredOn(FieldInfo field)
+        public IRegister Clone ()
         {
-            return field.GetCustomAttributes(typeof(SettingAttribute), false).Length > 0;
+            return MemberwiseClone() as IRegister;
+        }
+
+        public IVariable CreateVariable()
+        {
+            return new StructVariable<T>(this);
+        }
+
+        public bool ChangeValue(T value)
+        {
+            if (_value.Equals(value))
+            {
+                return false;
+            }
+            _value = value;
+            if (_listeners != null)
+            {
+                GolemManager.AddChangedCellInputs(_listeners);
+            }
+            return true;
+        }
+
+
+        public void AddListener(Cell cell)
+        {
+            if (_listeners == null)
+            {
+                _listeners = new List<Cell>();
+            }
+            _listeners.Add(cell);
+        }
+
+        public void RemoveListener(Cell cell)
+        {
+            if (_listeners != null)
+            {
+                _listeners.Remove(cell);
+            }
         }
     }
 }

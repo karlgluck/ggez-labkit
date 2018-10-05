@@ -33,15 +33,47 @@ namespace GGEZ.Labkit
     //-------------------------------------------------------------------------
     // Cell
     //-------------------------------------------------------------------------
-    public class Cell
+    public class Cell : IEquatable<Cell>
     {
-        public Cell Clone()
+
+        [System.Obsolete]
+        public virtual void Acquire(Golem golem, ref bool running) { }
+
+        [System.Obsolete]
+        public virtual void Update(Golem golem, bool dirty, ref bool running) { }
+
+        
+        // This is a globally unique sequencing value used to organize cells into a priority queue
+        // It is in the order of cells in a single golem, and unique between golems
+        /// <remarks>Could use the high bits of this sequencer to distinguish
+        /// cells of different golems so that they can be parallelized.</remarks>
+        public int Sequencer { get; private set; }
+
+        public virtual void Acquire()
+        { }
+
+        public virtual void Update()
+        { }
+
+        public Cell Clone(int sequencer)
         {
-            return MemberwiseClone() as Cell;
+            Cell cell = MemberwiseClone() as Cell;
+            cell.Sequencer = sequencer;
+            return cell;
         }
 
-        public virtual void Acquire(Golem golem, ref bool running) { }
-        public virtual void Update(Golem golem, bool dirty, ref bool running) { }
+        private static int nextSequencer = 1;
+        public Cell Clone()
+        {
+            Cell cell = MemberwiseClone() as Cell;
+            cell.Sequencer = nextSequencer++;
+            return cell;
+        }
+
+        public bool Equals(Cell other)
+        {
+            return object.ReferenceEquals(this, other);
+        }
     }
 
     //-------------------------------------------------------------------------

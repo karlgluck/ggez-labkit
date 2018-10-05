@@ -24,43 +24,37 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using System;
-using System.Reflection;
 
 namespace GGEZ.Labkit
 {
-    public class Aspect
-    {
-        [GGEZ.FullSerializer.fsIgnore, System.Obsolete]
-        public Golem Golem;
+    // public class HashSetVariable<T> : IVariable
+    // {
+    //     /// <summary>The backing register for this variable</summary>
+    //     private HashSetRegister<T> _register;
 
-        [GGEZ.FullSerializer.fsIgnore, System.Obsolete]
-        public Variables Variables;
 
-        public Aspect Clone() { return MemberwiseClone() as Aspect; }
-    }
+    //     /// <summary>Create a variable with a new backing register</summary>
+    //     public HashSetVariable()
+    //     {
+    //         _register = new HashSetRegister<T>();
+    //     }
 
-    [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-    public class VariableAttribute : Attribute
-    {
-        public VariableAttribute(string name, string tooltip = "")
-        {
-            Name = name;
-            Tooltip = name + "\n\n" + tooltip;
-        }
-        public string Name { get; set; }
-        public string Tooltip { get; set; }
-    }
+    //     /// <summary>Create a variable for the given backing register</summary>
+    //     public HashSetVariable(HashSetRegister<T> register)
+    //     {
+    //         _register = register;
+    //     }
+        
+    //     /// <summary>The backing register for this variable</summary>
+    //     public IRegister GetRegister()
+    //     {
+    //         return _register;
+    //     }
 
-    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
-    public class SettingAttribute : Attribute
-    {
-        public SettingAttribute()
-        {
-        }
-
-        public static bool IsDeclaredOn(FieldInfo field)
-        {
-            return field.GetCustomAttributes(typeof(SettingAttribute), false).Length > 0;
-        }
-    }
+    //     /// <summary>Updates the value of the register that backs this variable</summary>
+    //     public void OnEndProgramPhase()
+    //     {
+    //         _register.ChangeValue(_value);
+    //     }
+    // }
 }

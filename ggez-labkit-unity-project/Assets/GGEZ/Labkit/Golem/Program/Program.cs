@@ -34,17 +34,24 @@ namespace GGEZ.Labkit
     //-------------------------------------------------------------------------
     public class Script
     {
-#if UNITY_EDITOR
         public Script Clone()
         {
             return MemberwiseClone() as Script;
         }
-#endif
 
+        [Obsolete]
         public virtual void Acquire(Golem golem) { }
+        [Obsolete]
         public virtual void OnEnter(Golem golem) { }
+        [Obsolete]
         public virtual void OnUpdate(Golem golem) { }
+        [Obsolete]
         public virtual void OnExit(Golem golem) { }
+
+        public virtual void Acquire() { }
+        public virtual void OnEnter() { }
+        public virtual void OnUpdate() { }
+        public virtual void OnExit() { }
     }
 
     [fsSerializeEnumAsInteger]

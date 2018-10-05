@@ -23,44 +23,14 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
-using System.Reflection;
-
 namespace GGEZ.Labkit
 {
-    public class Aspect
+
+    public interface IRegister
     {
-        [GGEZ.FullSerializer.fsIgnore, System.Obsolete]
-        public Golem Golem;
-
-        [GGEZ.FullSerializer.fsIgnore, System.Obsolete]
-        public Variables Variables;
-
-        public Aspect Clone() { return MemberwiseClone() as Aspect; }
-    }
-
-    [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-    public class VariableAttribute : Attribute
-    {
-        public VariableAttribute(string name, string tooltip = "")
-        {
-            Name = name;
-            Tooltip = name + "\n\n" + tooltip;
-        }
-        public string Name { get; set; }
-        public string Tooltip { get; set; }
-    }
-
-    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
-    public class SettingAttribute : Attribute
-    {
-        public SettingAttribute()
-        {
-        }
-
-        public static bool IsDeclaredOn(FieldInfo field)
-        {
-            return field.GetCustomAttributes(typeof(SettingAttribute), false).Length > 0;
-        }
+        IRegister Clone();
+        IVariable CreateVariable();
+        void AddListener(Cell cell);
+        void RemoveListener(Cell cell);
     }
 }

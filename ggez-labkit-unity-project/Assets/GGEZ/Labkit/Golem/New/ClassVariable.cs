@@ -23,44 +23,52 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using System;
-using System.Reflection;
-
 namespace GGEZ.Labkit
 {
-    public class Aspect
+    public class ClassVariable<T> : IVariable where T : class
     {
-        [GGEZ.FullSerializer.fsIgnore, System.Obsolete]
-        public Golem Golem;
+        /// <summary>The backing register for this variable</summary>
+        private ClassRegister<T> _register;
 
-        [GGEZ.FullSerializer.fsIgnore, System.Obsolete]
-        public Variables Variables;
+        /// <summary>Next frame value</summary>
+        private T _value;
 
-        public Aspect Clone() { return MemberwiseClone() as Aspect; }
-    }
-
-    [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-    public class VariableAttribute : Attribute
-    {
-        public VariableAttribute(string name, string tooltip = "")
+        /// <summary>Returns the value of this variable at the end of the last frame</summary>
+        public T Value
         {
-            Name = name;
-            Tooltip = name + "\n\n" + tooltip;
-        }
-        public string Name { get; set; }
-        public string Tooltip { get; set; }
-    }
-
-    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
-    public class SettingAttribute : Attribute
-    {
-        public SettingAttribute()
-        {
+            get
+            {
+                return _register.Value;
+            }
+            set
+            {
+                _value = value;
+                GolemManager.AddChangedVariable(this);
+            }
         }
 
-        public static bool IsDeclaredOn(FieldInfo field)
+        /// <summary>Create a variable with a new backing register</summary>
+        public ClassVariable()
         {
-            return field.GetCustomAttributes(typeof(SettingAttribute), false).Length > 0;
+            _register = new ClassRegister<T>();
+        }
+
+        /// <summary>Create a variable for the given backing register</summary>
+        public ClassVariable(ClassRegister<T> register)
+        {
+            _register = register;
+        }
+        
+        /// <summary>The backing register for this variable</summary>
+        public IRegister GetRegister()
+        {
+            return _register;
+        }
+
+        /// <summary>Updates the value of the register that backs this variable</summary>
+        public void OnEndProgramPhase()
+        {
+            _register.ChangeValue(_value);
         }
     }
 }

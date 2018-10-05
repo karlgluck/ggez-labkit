@@ -24,43 +24,51 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using System;
-using System.Reflection;
+using UnityEngine;
+using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
-    public class Aspect
+    public class GolemComponent : ScriptableObject, ISerializationCallbackReceiver
     {
-        [GGEZ.FullSerializer.fsIgnore, System.Obsolete]
-        public Golem Golem;
 
-        [GGEZ.FullSerializer.fsIgnore, System.Obsolete]
-        public Variables Variables;
+        [NonSerialized]
+        public Cell[] Cells;
+        [NonSerialized]
+        public Script[] Scripts;
+        [NonSerialized]
+        public IRegister[] Registers;
 
-        public Aspect Clone() { return MemberwiseClone() as Aspect; }
-    }
+        public Assignment[] Assignments;
 
-    [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-    public class VariableAttribute : Attribute
-    {
-        public VariableAttribute(string name, string tooltip = "")
+        public Dictionary<string, Assignment[]> ExternalAssignments;
+        [SerializeField]
+        private string[] ExternalAssignmentsKeys;
+        [SerializeField]
+        private Assignment[][] ExternalAssignmentsValues;
+
+        public class Layer
         {
-            Name = name;
-            Tooltip = name + "\n\n" + tooltip;
-        }
-        public string Name { get; set; }
-        public string Tooltip { get; set; }
-    }
-
-    [AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
-    public class SettingAttribute : Attribute
-    {
-        public SettingAttribute()
-        {
+            public StateIndex[] States;
+            public Transition[] FromAnyStateTransitions;
+            public Dictionary<StateIndex, Transition[]> Transitions;
         }
 
-        public static bool IsDeclaredOn(FieldInfo field)
+        [NonSerialized]
+        public Layer[] Layers;
+
+        [NonSerialized]
+        public State[] States;
+
+        /// <summary>Source of data for all the NonSerialized properties</summary>
+        public string Json;
+
+        public void OnBeforeSerialize()
         {
-            return field.GetCustomAttributes(typeof(SettingAttribute), false).Length > 0;
+        }
+
+        public void OnAfterDeserialize()
+        {
         }
     }
 }

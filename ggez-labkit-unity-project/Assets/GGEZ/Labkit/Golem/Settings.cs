@@ -130,60 +130,61 @@ namespace GGEZ.Labkit
         }
 
 
+#if UNITY_EDITOR
         private bool _foldout;
 
         public void DoEditorGUILayout(bool isFocused)
         {
-            if (!isFocused)
-            {
-                _foldout = EditorGUILayout.Foldout(_foldout, Name);
-                if (!_foldout)
-                {
-                    return;
-                }
-            }
+            // if (!isFocused)
+            // {
+            //     _foldout = EditorGUILayout.Foldout(_foldout, Name);
+            //     if (!_foldout)
+            //     {
+            //         return;
+            //     }
+            // }
 
-            string focusedControlName = GUI.GetNameOfFocusedControl();
+            // string focusedControlName = GUI.GetNameOfFocusedControl();
 
-            for (int i = 0; i < Values.Count; ++i)
-            {
-                var labelRect = EditorGUILayout.GetControlRect();
-                var position = new Rect(labelRect);
-                position.xMin += EditorGUIUtility.labelWidth;
-                labelRect.xMax = position.xMin;
-                string name = Values[i].Name;
-                string labelControlName = i.ToString("000") + ":" + name;
-                GUI.SetNextControlName(labelControlName);
-                bool isSettingFocused = focusedControlName == labelControlName;
-                string newName = EditorGUI.DelayedTextField(labelRect, name, isSettingFocused ? EditorStyles.textField : EditorStyles.label);
-                Values[i].Value = GolemEditorUtility.EditorGUIField(position, InspectableTypeExt.GetInspectableTypeOf(Values[i].Type), Values[i].Type, Values[i].Value);
-                if (newName != name)
-                {
-                    Values[i].Name = newName;
-                    if (isSettingFocused)
-                    {
-                        GUI.FocusControl(null);
-                    }
-                }
-            }
+            // for (int i = 0; i < Values.Count; ++i)
+            // {
+            //     var labelRect = EditorGUILayout.GetControlRect();
+            //     var position = new Rect(labelRect);
+            //     position.xMin += EditorGUIUtility.labelWidth;
+            //     labelRect.xMax = position.xMin;
+            //     string name = Values[i].Name;
+            //     string labelControlName = i.ToString("000") + ":" + name;
+            //     GUI.SetNextControlName(labelControlName);
+            //     bool isSettingFocused = focusedControlName == labelControlName;
+            //     string newName = EditorGUI.DelayedTextField(labelRect, name, isSettingFocused ? EditorStyles.textField : EditorStyles.label);
+            //     Values[i].Value = GolemEditorUtility.EditorGUIField(position, InspectableTypeExt.GetInspectableTypeOf(Values[i].Type), Values[i].Type, Values[i].Value);
+            //     if (newName != name)
+            //     {
+            //         Values[i].Name = newName;
+            //         if (isSettingFocused)
+            //         {
+            //             GUI.FocusControl(null);
+            //         }
+            //     }
+            // }
 
-            Rect controlRect = EditorGUILayout.GetControlRect();
-            if (EditorGUI.DropdownButton(controlRect, new GUIContent("+"), FocusType.Keyboard))
-            {
-                GenericMenu menu = new GenericMenu();
-                var enumNames = Enum.GetNames(typeof(InspectableType));
-                var enumValues = Enum.GetValues(typeof(InspectableType));
-                for (int i = 0; i < enumNames.Length; ++i)
-                {
-                    var value = (InspectableType)enumValues.GetValue(i);
-                    if (value == InspectableType.UnityObject || value == InspectableType.VariableRef || value == InspectableType.Enum || value == InspectableType.TriggerRef || value == InspectableType.Invalid)
-                    {
-                        continue;
-                    }
-                    menu.AddItem(new GUIContent(enumNames[i]), false, addSettingMenuCallback, InspectableTypeExt.GetRepresentedType(value));
-                }
-                menu.DropDown(controlRect);
-            }
+            // Rect controlRect = EditorGUILayout.GetControlRect();
+            // if (EditorGUI.DropdownButton(controlRect, new GUIContent("+"), FocusType.Keyboard))
+            // {
+            //     GenericMenu menu = new GenericMenu();
+            //     var enumNames = Enum.GetNames(typeof(InspectableType));
+            //     var enumValues = Enum.GetValues(typeof(InspectableType));
+            //     for (int i = 0; i < enumNames.Length; ++i)
+            //     {
+            //         var value = (InspectableType)enumValues.GetValue(i);
+            //         if (value == InspectableType.UnityObject || value == InspectableType.VariableRef || value == InspectableType.Enum || value == InspectableType.TriggerRef || value == InspectableType.Invalid)
+            //         {
+            //             continue;
+            //         }
+            //         menu.AddItem(new GUIContent(enumNames[i]), false, addSettingMenuCallback, InspectableTypeExt.GetRepresentedType(value));
+            //     }
+            //     menu.DropDown(controlRect);
+            // }
         }
 
         public void Add(string name, Type type)
@@ -203,6 +204,8 @@ namespace GGEZ.Labkit
         {
             Add("New Setting", (Type)contextParam);
         }
+#endif
+
     }
 
 }

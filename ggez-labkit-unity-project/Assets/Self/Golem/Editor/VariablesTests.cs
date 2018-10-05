@@ -53,14 +53,16 @@ namespace GGEZ.Tests
 
         class NoBar : Foo
         {
-            public virtual void DoFoo()
+            public override void DoFoo()
             {
+                ++count;
             }
+            public static int count = 0;
         }
 
         class Bar : Foo
         {
-            public virtual void DoFoo()
+            public override void DoFoo()
             {
                 ++count;
             }
@@ -116,80 +118,5 @@ namespace GGEZ.Tests
             UnityEngine.Debug.Log("if = " + ifSum + " virt = " + virtSum);
         }
 
-        [Test]
-        public void MultiAddSingle()
-        {
-            HashSetVariable<object> variables = new HashSetVariable<object>();
-            variables.Add(Value0);
-
-            Assert.False(variables.Values.Contains(Value0));
-            Assert.False(variables.Added.Contains(Value0));
-            Assert.False(variables.Removed.Contains(Value0));
-
-            variables.EndFrame();
-
-            Assert.True(variables.Values.Contains(Value0));
-            Assert.True(variables.Added.Contains(Value0));
-            Assert.False(variables.Removed.Contains(Value0));
-
-            variables.EndFrame();
-
-            Assert.True(variables.Values.Contains(Value0));
-            Assert.False(variables.Added.Contains(Value0));
-            Assert.False(variables.Removed.Contains(Value0));
-        }
-
-        [Test]
-        public void MultiRemoveSingle()
-        {
-            HashSetVariable<object> variables = new HashSetVariable<object>();
-            variables.Add(Value0);
-
-            variables.EndFrame();
-
-            variables.Remove(Value0);
-
-            Assert.True(variables.Values.Contains(Value0));
-            Assert.True(variables.Added.Contains(Value0));
-            Assert.False(variables.Removed.Contains(Value0));
-
-            variables.EndFrame();
-
-            Assert.False(variables.Values.Contains(Value0));
-            Assert.False(variables.Added.Contains(Value0));
-            Assert.True(variables.Removed.Contains(Value0));
-        }
-
-        [Test]
-        public void MultiRemoveAdded()
-        {
-            HashSetVariable<object> variables = new HashSetVariable<object>();
-            variables.Add(Value0);
-            variables.Remove(Value0);
-
-            variables.EndFrame();
-
-            Assert.False(variables.Values.Contains(Value0));
-            Assert.False(variables.Added.Contains(Value0));
-            Assert.False(variables.Removed.Contains(Value0));
-        }
-
-        [Test]
-        public void MultiAddRemoved()
-        {
-            HashSetVariable<object> variables = new HashSetVariable<object>();
-            variables.Add(Value0);
-
-            variables.EndFrame();
-
-            variables.Remove(Value0);
-            variables.Add(Value0);
-
-            variables.EndFrame();
-
-            Assert.True(variables.Values.Contains(Value0));
-            Assert.False(variables.Added.Contains(Value0));
-            Assert.False(variables.Removed.Contains(Value0));
-        }
     }
 }

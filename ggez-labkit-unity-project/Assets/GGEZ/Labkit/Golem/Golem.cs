@@ -38,10 +38,6 @@ namespace GGEZ.Labkit
         // inside other Golems, but they don't have to be.
         public Dictionary<string, Variables> Relationships = new Dictionary<string, Variables>();
 
-        public Dictionary<string, Dictionary<string, int>> NewRelationships = new Dictionary<string, Dictionary<string, int>>();
-
-        public List<IVariableRef> VariableReferences = new List<IVariableRef>();
-
         // Contains the template used to create each instance of this entity
         public GolemAsset Asset;
 
