@@ -30,42 +30,6 @@ using System.Reflection;
 
 namespace NewNewLabkit
 {
-    // ok forget all that, registers and variables are the same thing
-    // they point to a single location and are shared
-
-    /*
-
-    the trick is that multiple outputs can listen to a single input, so
-    we need some sort of distrubution method for fanout:
-        - Store a list of listener pointers and queue them when a variable changes
-            - Need to hashset so a listener doesn't get multiple updates
-            - ...why not just give cell instances directly and do a pointer-comparison
-        - Store a hashset of listener indices and queue them
-            - If this is a global list, indices need to be offset by golem instance
-            - Kinda cool solution because the order of these can match the fixed update order of cells
-            - Can parallelize this by knowing where cell-boundaries are
-        - Store a list of pointers to classes that have pointers to arrays of flags and indices to set
-        - Limit fanout to a fixed number and do any of the above
-            - Means you can use a linear array with stride and a single index
-        - Save a dirty flag alongside each value and poll every receiver every frame
-        - Poll for delta using comparison
-
-
-    /*
-    rules for this version:
-     - Registers store a list of listener indices and queue them when the register changes
-            ** every cell needs a unique ID and these IDs should map easily to cell instances **
-     - Inputs are always hooked up to something but that thing could just always return default(T)
-        - Alternative: inputs are possibly null and you have to null-check them every frame
-        - Alternative: inputs are always valid, but those that aren't hooked up can be given an optional
-                       bool field
-        - ***Alternative: inputs can be optionally set to either a valid default OR be null depending on input flag***
-     - Adding or removing references involves reflection
-     - The cell is only called if it is dirty, but determining if a particular input is dirty is up to the cell
-
-    goals: no boxing/unboxing, minimize conditional expressions in the main loop
-     */
-
     /*
 
     OKAY AND in this verion SPECIAL BONUS
@@ -124,6 +88,12 @@ namespace NewNewLabkit
         [SerializeField, HideInInspector]
         public UnityEngine.Object[] References;
 
+        [SerializeField, HideInInspector]
+        public GolemArchetype Archetype;
+
+        /// <summary>Gets a Unity Object reference for this golem by name</summary>
+        /// <returns>The matching reference or null if none exists</returns>
+        /// <remarks>Used during setup</remarks>
         public UnityEngine.Object GetReference(string reference)
         {
             Debug.Assert(Archetype.ReferenceNames.Length == References.Length);
@@ -138,6 +108,9 @@ namespace NewNewLabkit
             return null;
         }
 
+        /// <summary>Find an aspect of the given type on this golem</summary>
+        /// <returns>The matching aspect or null if none exists</returns>
+        /// <remarks>Used during setup</remarks>
         public Aspect GetAspect(Type type)
         {
             Debug.Assert(type != null);
@@ -153,12 +126,8 @@ namespace NewNewLabkit
             return null;
         }
 
-        [SerializeField, HideInInspector]
-        public GolemArchetype Archetype;
-
         #region Runtime
         public Dictionary<string, IVariable> Variables = new Dictionary<string, IVariable>();
-        public Dictionary<string, Dictionary<string, IVariable>> Relationships = new Dictionary<string, Dictionary<string, IVariable>>();
         public Aspect[] Aspects;
         public class ComponentData
         {
@@ -170,24 +139,32 @@ namespace NewNewLabkit
         #endregion
     }
 
-
+    /// <summary>
+    /// An Archetype is created for every unique Golem and is shared among all its clones.
+    /// The Archetype collects together the set of Aspects that the golem uses and the
+    /// set of Components that it contains, then ties those together with Settings values,
+    /// named References and relationship-based external Variables.
+    /// </summary>
     public class GolemArchetype : ScriptableObject, ISerializationCallbackReceiver
     {
+        /// <summary>Pairs with the References field in each golem instance</summary>
+        public string[] ReferenceNames;
+
+        /// <summary>Functional parts used by the golem</summary>
+        public GolemComponent[] Components;
+
         [NonSerialized]
         public Aspect[] Aspects;
-        [NonSerialized]
-        public GolemComponent[] Components;
-        public string[] ReferenceNames;
 
         public SettingsAsset InheritSettingsFrom;
         [NonSerialized]
         public Settings Settings;
 
-        [NonSerialized]
         public Assignment[] Assignments;
         [NonSerialized]
         public Dictionary<string, Assignment[]> ExternalAssignments;
 
+        /// <summary>Source of data for all the NonSerialized properties</summary>
         public string Json;
 
         public void OnBeforeSerialize()
@@ -199,9 +176,9 @@ namespace NewNewLabkit
         }
     }
 
+
     public class GolemComponent : ScriptableObject, ISerializationCallbackReceiver
     {
-        public string Json;
 
         [NonSerialized]
         public Cell[] Cells;
@@ -225,7 +202,11 @@ namespace NewNewLabkit
             public Dictionary<GGEZ.Labkit.State, GGEZ.Labkit.Transition[]> Transitions;
         }
 
+        [NonSerialized]
         public Layer[] Layers;
+
+        /// <summary>Source of data for all the NonSerialized properties</summary>
+        public string Json;
 
         public void OnBeforeSerialize()
         {
@@ -240,7 +221,7 @@ namespace NewNewLabkit
     public enum AssignmentType
     {
 
-        // Used on GolemArchetype:
+        // Used in GolemArchetype:
 
         AspectSetting,                  // The setting [Name] from the archetype
         AspectUnityObject,              // The UnityObject [Name] from the archetype
@@ -248,7 +229,7 @@ namespace NewNewLabkit
         AspectVariableOrNull,           // The existing variable [Name] or null
         AspectVariableOrDummy,           // The existing variable [Name] or a newly allocated variable
 
-        // Used on GolemComponent:
+        // Used in GolemComponent:
 
         CellUnityObject,                // The UnityObject [Name] from the archetype
         ScriptUnityObject,              // The UnityObject [Name] from the archetype
@@ -281,8 +262,7 @@ namespace NewNewLabkit
         ScriptVariableRegisterOrNull,   // The register for variable [Name] or null
         ScriptInputVariableRegister,    // The register for variable [Name] or the global read-only register
         ScriptOutputVariableRegister,   // The register for variable [Name] or the global write-only register
-        ScriptInputRegister,            // The register [RegisterIndex] from this Component
-        ScriptOutputRegister,           // The register [RegisterIndex] from this Component
+        ScriptRegister,                 // The register [RegisterIndex] from this Component
         ScriptDummyInputRegister,       // Global read-only register
         ScriptDummyOutputRegister,      // Global write-only register
         ScriptDummyVariable,            // Newly allocated variable
@@ -290,43 +270,21 @@ namespace NewNewLabkit
         ScriptDummyOutputVariable,      // Global write-only variable
     }
 
+    [Serializable]
     public class Assignment
     {
-
-        public enum TargetCategorySelector
-        {
-            Aspect,
-            Cell,
-            Script,
-        }
-
-        public enum AssignedObjectSelector
-        {
-            UnityObjectReference,
-            Setting,
-            Aspect,
-            Variable,
-            VariableForRegister,
-            RegisterOfVariable,
-            Register,
-        }
-
-        public enum FallbackActionSelector
-        {
-            Assert,
-            Null,
-            Dummy,
-            Create,
-        }
-
-        public TargetCategorySelector TargetCategory;
-        public AssignedObjectSelector AssignedObject;
-        public FallbackActionSelector FallbackAction;
-
+        public AssignmentType Type;
         public string Name;
         public int RegisterIndex;
         public int TargetIndex;
         public string TargetFieldName;
+
+        public FieldInfo GetObjectFieldInfo(Array array, out object target, out FieldInfo fieldInfo)
+        {
+            target = array.GetValue(TargetIndex);
+            fieldInfo = target.GetType().GetField(TargetFieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            return fieldInfo;
+        }
 
         public FieldInfo GetFieldInfo(object target)
         {
@@ -360,7 +318,6 @@ namespace NewNewLabkit
             {
                 var from = archetype.Components[i];
                 var to = golem.Components[i];
-
 
                 to.Cells = new Cell[from.Cells.Length];
                 for (int j = 0; j < from.Cells.Length; ++j)
@@ -399,19 +356,115 @@ namespace NewNewLabkit
             return golem;
         }
 
-        /// <summary></summary>
+        /// <summary>Attach external references to the given relationship target</summary>
         public static void SetRelationship(Golem golem, string relationship, Dictionary<string, IVariable> variables)
         {
             GolemArchetype archetype = golem.Archetype;
+            Assignment[] assignments;
+
+            if (archetype.ExternalAssignments.TryGetValue(relationship, out assignments))
+            {
+                DoAssignments(golem, assignments, variables, null, null);
+            }
+
             for (int i = 0; i < archetype.Components.Length; ++i)
             {
                 var component = archetype.Components[i];
-                Assignment[] assignments;
                 if (component.ExternalAssignments.TryGetValue(relationship, out assignments))
                 {
                     DoAssignments(golem, assignments, variables, golem.Components[i], null);
                 }
             }
+        }
+
+
+        private static void DoAssignments(Golem golem, Assignment[] assignments, Dictionary<string, IVariable> variables, Golem.ComponentData component, IRegister[] registers)
+        {
+            IVariable[] registerVariables = null;
+            for (int assignmentIndex = 0; assignmentIndex < assignments.Length; ++assignmentIndex)
+            {
+                Assignment assignment = assignments[assignmentIndex];
+
+                object target;
+                FieldInfo fieldInfo;
+
+                switch (assignment.Type)
+                {
+                    case AssignmentType.AspectUnityObject:  assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem.GetReference(assignment.Name)); break;
+                    case AssignmentType.CellUnityObject:    assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.GetReference(assignment.Name)); break;
+                    case AssignmentType.ScriptUnityObject:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem.GetReference(assignment.Name)); break;
+
+                    case AssignmentType.AspectSetting:  assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem.Archetype.Settings.Get(assignment.Name, fieldInfo.FieldType)); break;
+                    case AssignmentType.CellSetting:    assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.Archetype.Settings.Get(assignment.Name, fieldInfo.FieldType)); break;
+                    case AssignmentType.ScriptSetting:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem.Archetype.Settings.Get(assignment.Name, fieldInfo.FieldType)); break;
+
+                    case AssignmentType.CellAspect:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
+                    case AssignmentType.ScriptAspect:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
+
+                    case AssignmentType.AspectVariable: assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
+                    case AssignmentType.CellVariable:   assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
+                    case AssignmentType.ScriptVariable: assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
+
+                    case AssignmentType.AspectVariableOrNull:   assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, GetVariableOrNull(variables, assignment.Name)); break;
+                    case AssignmentType.CellVariableOrNull:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetVariableOrNull(variables, assignment.Name)); break;
+                    case AssignmentType.ScriptVariableOrNull:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetVariableOrNull(variables, assignment.Name)); break;
+
+                    case AssignmentType.AspectVariableOrDummy:   assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, GetVariableOrDummy(variables, assignment.Name, fieldInfo.FieldType)); break;
+                    case AssignmentType.CellVariableOrDummy:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetVariableOrDummy(variables, assignment.Name, fieldInfo.FieldType)); break;
+                    case AssignmentType.ScriptVariableOrDummy:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetVariableOrDummy(variables, assignment.Name, fieldInfo.FieldType)); break;
+
+                    case AssignmentType.CellRegisterVariable:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetOrCreateRegisterVariable(assignment.RegisterIndex, registers, ref registerVariables)); break;
+                    case AssignmentType.ScriptRegisterVariable:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetOrCreateRegisterVariable(assignment.RegisterIndex, registers, ref registerVariables)); break;
+
+                    case AssignmentType.CellVariableRegisterOrNull:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetVariableRegisterOrNull(variables, assignment.Name)); break;
+                    case AssignmentType.ScriptVariableRegisterOrNull:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetVariableRegisterOrNull(variables, assignment.Name)); break;
+
+                    case AssignmentType.CellInputVariableRegister:
+                        {
+                            Cell targetCell = component.Cells[assignment.TargetIndex];
+                            fieldInfo = assignment.GetFieldInfo(targetCell);
+                            IRegister register = GetVariableRegisterOrNull(variables, assignment.Name);
+                            if (register == null)
+                            {
+                                register = GetReadonlyRegister(fieldInfo.FieldType);
+                            }
+                            else
+                            {
+                                register.AddListener(targetCell);
+                            }
+                            fieldInfo.SetValue(targetCell, register);
+                        }
+                        break;
+
+                    case AssignmentType.ScriptInputVariableRegister:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetVariableRegisterOrNull(variables, assignment.Name) ?? GetReadonlyRegister(fieldInfo.FieldType)); break;
+
+                    case AssignmentType.CellOutputVariableRegister:   assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetVariableRegisterOrNull(variables, assignment.Name) ?? GetWriteonlyRegister(fieldInfo.FieldType)); break;
+                    case AssignmentType.ScriptOutputVariableRegister: assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetVariableRegisterOrNull(variables, assignment.Name) ?? GetWriteonlyRegister(fieldInfo.FieldType)); break;
+
+                    case AssignmentType.CellInputRegister:
+                        {
+                            Cell targetCell = component.Cells[assignment.TargetIndex];
+                            IRegister register = registers[assignment.RegisterIndex];
+                            register.AddListener(targetCell);
+                            assignment.GetFieldInfo(targetCell).SetValue(targetCell, register);
+                        }
+                        break;
+
+                    case AssignmentType.CellOutputRegister:         assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, registers[assignment.RegisterIndex]); break;
+                    case AssignmentType.ScriptRegister:             assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, registers[assignment.RegisterIndex]); break;
+                    case AssignmentType.CellDummyInputRegister:     assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetReadonlyRegister(fieldInfo.FieldType)); break;
+                    case AssignmentType.CellDummyOutputRegister:    assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetWriteonlyRegister(fieldInfo.FieldType)); break;
+                    case AssignmentType.CellDummyVariable:          assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetWriteonlyRegister(fieldInfo.FieldType)); break;
+                    case AssignmentType.CellDummyInputVariable:     assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetReadonlyVariable(fieldInfo.FieldType)); break;
+                    case AssignmentType.CellDummyOutputVariable:    assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetWriteonlyVariable(fieldInfo.FieldType)); break;
+                    case AssignmentType.ScriptDummyInputRegister:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetReadonlyRegister(fieldInfo.FieldType)); break;
+                    case AssignmentType.ScriptDummyOutputRegister:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetWriteonlyRegister(fieldInfo.FieldType)); break;
+                    case AssignmentType.ScriptDummyVariable:        assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetDummyVariable(fieldInfo.FieldType)); break;
+                    case AssignmentType.ScriptDummyInputVariable:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetReadonlyVariable(fieldInfo.FieldType)); break;
+                    case AssignmentType.ScriptDummyOutputVariable:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetWriteonlyVariable(fieldInfo.FieldType)); break;
+                }
+
+            }            
         }
 
         private static IVariable GetVariableOrNull(Dictionary<string, IVariable> variables, string name)
@@ -461,370 +514,80 @@ namespace NewNewLabkit
             return variable;
         }
 
-        private static void DoAssignments(Golem golem, Assignment[] assignments, Dictionary<string, IVariable> variables, Golem.ComponentData component, IRegister[] registers)
+        private static IRegister GetVariableRegisterOrNull(Dictionary<string, IVariable> variables, string name)
         {
-            IVariable[] registerVariables = null;
-            for (int assignmentIndex = 0; assignmentIndex < assignments.Length; ++assignmentIndex)
+            IVariable variable;
+            if (variables.TryGetValue(name, out variable))
             {
-                Assignment assignment = assignments[assignmentIndex];
-
-                object target;
-                switch (assignment.TargetCategory)
-                {
-                default: throw new InvalidProgramException();
-                case Assignment.TargetCategorySelector.Aspect:  target = golem.Aspects[assignment.TargetIndex]; break;
-                case Assignment.TargetCategorySelector.Cell:    target = component.Cells[assignment.TargetIndex]; break;
-                case Assignment.TargetCategorySelector.Script:  target = component.Scripts[assignment.TargetIndex]; break;
-                }
-
-                FieldInfo fieldInfo = assignment.GetFieldInfo(target);
-
-                object value;
-                switch (assignment.AssignedObject)
-                {
-                    case Assignment.AssignedObjectSelector.UnityObjectReference: value = golem.GetReference(assignment.Name); break;
-                    case Assignment.AssignedObjectSelector.Setting:              value = golem.Archetype.Settings.Get(assignment.Name, fieldInfo.FieldType); break;
-                    case Assignment.AssignedObjectSelector.Aspect:               value = golem.GetAspect(fieldInfo.FieldType); break;
-
-                    case Assignment.AssignedObjectSelector.Variable:
-                    case Assignment.AssignedObjectSelector.RegisterOfVariable:
-                    {
-                        Debug.Assert(typeof(IVariable).IsAssignableFrom(fieldInfo.FieldType));
-                        IVariable variable;
-                        if (!variables.TryGetValue(assignment.Name, out variable))
-                        {
-                            switch (assignment.FallbackAction)
-                            {
-                                case Assignment.FallbackActionSelector.Assert:
-                                    throw new InvalidOperationException();
-
-                                case Assignment.FallbackActionSelector.Null:
-                                    break;
-
-                                case Assignment.FallbackActionSelector.Dummy:
-                                    variable = Activator.CreateInstance(fieldInfo.FieldType) as IVariable;
-                                    Debug.Assert(variable != null);
-                                    break;
-
-                                case Assignment.FallbackActionSelector.Create:
-                                    variable = Activator.CreateInstance(fieldInfo.FieldType) as IVariable;
-                                    Debug.Assert(variable != null);
-                                    variables.Add(assignment.Name, variable);
-                                    break;
-                            }
-                        }
-                        if (assignment.AssignedObject == Assignment.AssignedObjectSelector.RegisterOfVariable)
-                        {
-                            value = variable.GetRegister();
-                        }
-                        else
-                        {
-                            value = variable;
-                        }
-                        break;
-                    }
-
-                    case Assignment.AssignedObjectSelector.VariableForRegister:
-                    {
-                        Debug.Assert(assignment.FallbackAction == Assignment.FallbackActionSelector.Assert);
-                        if (registerVariables == null)
-                        {
-                            registerVariables = new IVariable[registers.Length];
-                        }
-                        int index = assignment.RegisterIndex;
-                        IVariable variable = registerVariables[index];
-                        if (registerVariables[index] == null)
-                        {
-                            variable = registers[index].CreateVariable();
-                            registerVariables[index] = variable;
-                        }
-                        value = variable;
-                        break;
-                    }
-
-                }
-
-                object target = null;
-
-                switch (assignment.Type)
-                {
-                    default:
-                        throw new InvalidProgramException();
-
-                    case AssignmentType.AspectSetting:
-                    case AssignmentType.AspectUnityObject:
-                    case AssignmentType.AspectVariable:
-                    case AssignmentType.AspectVariableOrNull:
-                    case AssignmentType.AspectVariableOrDummy:
-                        target = golem.Aspects[assignment.TargetIndex];
-                        break;
-
-                    case AssignmentType.CellUnityObject:
-                    case AssignmentType.CellSetting:
-                    case AssignmentType.CellAspect:
-                    case AssignmentType.CellVariable:
-                    case AssignmentType.CellVariableOrNull:
-                    case AssignmentType.CellVariableOrDummy:
-                    case AssignmentType.CellRegisterVariable:
-                    case AssignmentType.CellVariableRegisterOrNull:
-                    case AssignmentType.CellInputVariableRegister:
-                    case AssignmentType.CellOutputVariableRegister:
-                    case AssignmentType.CellInputRegister:
-                    case AssignmentType.CellOutputRegister:
-                    case AssignmentType.CellDummyInputRegister:
-                    case AssignmentType.CellDummyOutputRegister:
-                    case AssignmentType.CellDummyVariable:
-                    case AssignmentType.CellDummyInputVariable:
-                    case AssignmentType.CellDummyOutputVariable:
-                        target = component.Cells[assignment.TargetIndex];
-                        break;
-
-                    case AssignmentType.ScriptUnityObject:
-                    case AssignmentType.ScriptSetting:
-                    case AssignmentType.ScriptAspect:
-                    case AssignmentType.ScriptVariable:
-                    case AssignmentType.ScriptVariableOrNull:
-                    case AssignmentType.ScriptVariableOrDummy:
-                    case AssignmentType.ScriptRegisterVariable:
-                    case AssignmentType.ScriptVariableRegisterOrNull:
-                    case AssignmentType.ScriptInputVariableRegister:
-                    case AssignmentType.ScriptOutputVariableRegister:
-                    case AssignmentType.ScriptInputRegister:
-                    case AssignmentType.ScriptOutputRegister:
-                    case AssignmentType.ScriptDummyInputRegister:
-                    case AssignmentType.ScriptDummyOutputRegister:
-                    case AssignmentType.ScriptDummyVariable:
-                    case AssignmentType.ScriptDummyInputVariable:
-                    case AssignmentType.ScriptDummyOutputVariable:
-                        target = component.Scripts[assignment.TargetIndex];
-                        break;
-                }
-
-                FieldInfo fieldInfo = target.GetType().GetField(assignment.TargetFieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-
-
-                switch (assignment.Type)
-                {
-                    case AssignmentType.AspectUnityObject:
-                    case AssignmentType.CellUnityObject:
-                    case AssignmentType.ScriptUnityObject:
-                        assignment.GetFieldInfo(target).SetValue(target, golem.GetReference(assignment.Name));
-                        break;
-
-                    case AssignmentType.AspectSetting:
-                    case AssignmentType.CellSetting:
-                    case AssignmentType.ScriptSetting:
-                        fieldInfo.SetValue(target, golem.Archetype.Settings.Get(assignment.Name, fieldInfo.FieldType));
-                        break;
-
-                    case AssignmentType.CellAspect:
-                    case AssignmentType.ScriptAspect:
-                        fieldInfo = assignment.GetFieldInfo(target);
-                        fieldInfo.SetValue(target, golem.GetAspect(fieldInfo.FieldType));
-                        break;
-
-                    case AssignmentType.AspectVariable:
-                    case AssignmentType.CellVariable:
-                    case AssignmentType.ScriptVariable:
-                        fieldInfo = assignment.GetFieldInfo(target);
-                        fieldInfo.SetValue(target, GetOrCreateVariable(variables, assignment.Name, fieldInfo.FieldType));
-                        break;
-
-                    case AssignmentType.AspectVariableOrNull:
-                    case AssignmentType.CellVariableOrNull:
-                    case AssignmentType.ScriptVariableOrNull:
-                        assignment.GetFieldInfo(target).SetValue(target, GetVariableOrNull(variables, assignment.Name));
-                        break;
-
-                    case AssignmentType.CellVariableOrDummy:
-                    case AssignmentType.ScriptVariableOrDummy:
-                    case AssignmentType.AspectVariableOrDummy:
-                        fieldInfo = assignment.GetFieldInfo(target);
-                        fieldInfo.SetValue(target, GetVariableOrDummy(variables, assignment.Name, fieldInfo.FieldType));
-                        break;
-
-                    case AssignmentType.CellRegisterVariable:
-                    case AssignmentType.ScriptRegisterVariable:
-                        fieldInfo = assignment.GetFieldInfo(target);
-                        fieldInfo.SetValue(target, GetOrCreateRegisterVariable(assignment.RegisterIndex, registers, ref registerVariables));
-                        break;
-
-                    case AssignmentType.CellVariableRegisterOrNull:
-                    case AssignmentType.ScriptVariableRegisterOrNull:
-                        {
-                            IRegister register = null;
-                            IVariable variable;
-                            if (variables.TryGetValue(assignment.Name, out variable))
-                            {
-                                register = variable.GetRegister();
-                            }
-                            fieldInfo.SetValue(target, register);
-                        }
-                        break;
-
-                    case AssignmentType.CellInputVariableRegister:
-                        {
-                            Cell cell = target as Cell;
-                            IRegister register = null;
-                            IVariable variable;
-                            if (variables.TryGetValue(assignment.Name, out variable))
-                            {
-                                register = variable.GetRegister();
-                                register.AddListener(cell);
-                            }
-                            else
-                            {
-                                register = CentralPublishing.GetDefaultInputRegister(fieldInfo.FieldType);
-                            }
-                            fieldInfo.SetValue(target, register);
-                        }
-                        break;
-
-                    case AssignmentType.ScriptInputVariableRegister:
-                        {
-                            IRegister register = null;
-                            IVariable variable;
-                            if (variables.TryGetValue(assignment.Name, out variable))
-                            {
-                                register = variable.GetRegister();
-                            }
-                            else
-                            {
-                                register = CentralPublishing.GetDefaultInputRegister(fieldInfo.FieldType);
-                            }
-                            fieldInfo.SetValue(target, register);
-                        }
-                        break;
-
-                    case AssignmentType.CellOutputVariableRegister:
-                    case AssignmentType.ScriptOutputVariableRegister:
-                        {
-                            IRegister register = null;
-                            IVariable variable;
-                            if (variables.TryGetValue(assignment.Name, out variable))
-                            {
-                                register = variable.GetRegister();
-                            }
-                            else
-                            {
-                                register = CentralPublishing.GetDefaultOutputRegister(fieldInfo.FieldType);
-                            }
-                            fieldInfo.SetValue(target, register);
-                        }
-                        break;
-
-                    case AssignmentType.CellInputRegister:
-                        {
-                            Cell cell = target as Cell;
-                            IRegister register = registers[(int)assignment.RegisterIndex];
-                            register.AddListener(cell);
-                            fieldInfo.SetValue(target, register);
-                        }
-                        break;
-
-                    case AssignmentType.ScriptInputRegister:
-                        fieldInfo.SetValue(target, registers[(int)assignment.RegisterIndex]);
-                        break;
-
-                    case AssignmentType.CellOutputRegister:
-                    case AssignmentType.ScriptOutputRegister:
-                        fieldInfo.SetValue(target, registers[(int)assignment.RegisterIndex]);
-                        break;
-
-                    case AssignmentType.CellDummyInputRegister:
-                        fieldInfo.SetValue(target, CentralPublishing.GetDefaultInputRegister(fieldInfo.FieldType));
-                        break;
-
-                    case AssignmentType.CellDummyOutputRegister:
-                        fieldInfo.SetValue(target, CentralPublishing.GetDefaultOutputRegister(fieldInfo.FieldType));
-                        break;
-
-                    case AssignmentType.CellDummyVariable:
-                        {
-                            IVariable instance = Activator.CreateInstance(fieldInfo.FieldType) as IVariable;
-                            Debug.Assert(instance != null);
-                            Debug.Assert(instance.GetRegister() != null);
-                            fieldInfo.SetValue(target, instance);
-                        }
-                        break;
-
-                    case AssignmentType.CellDummyInputVariable:
-                        fieldInfo.SetValue(target, CentralPublishing.GetDefaultInputVariable(fieldInfo.FieldType));
-                        break;
-
-                    case AssignmentType.CellDummyOutputVariable:
-                        fieldInfo.SetValue(target, CentralPublishing.GetDefaultOutputVariable(fieldInfo.FieldType));
-                        break;
-
-                    case AssignmentType.ScriptDummyInputRegister:
-                        fieldInfo.SetValue(target, CentralPublishing.GetDefaultInputRegister(fieldInfo.FieldType));
-                        break;
-
-                    case AssignmentType.ScriptDummyOutputRegister:
-                        fieldInfo.SetValue(target, CentralPublishing.GetDefaultOutputRegister(fieldInfo.FieldType));
-                        break;
-
-                    case AssignmentType.ScriptDummyVariable:
-                        {
-                            IVariable instance = Activator.CreateInstance(fieldInfo.FieldType) as IVariable;
-                            Debug.Assert(instance != null);
-                            Debug.Assert(instance.GetRegister() != null);
-                            fieldInfo.SetValue(target, instance);
-                        }
-                        break;
-
-                    case AssignmentType.ScriptDummyInputVariable:
-                        fieldInfo.SetValue(target, CentralPublishing.GetDefaultInputVariable(fieldInfo.FieldType));
-                        break;
-
-                    case AssignmentType.ScriptDummyOutputVariable:
-                        fieldInfo.SetValue(target, CentralPublishing.GetDefaultOutputVariable(fieldInfo.FieldType));
-                        break;
-                }
-
-                // switch (assignment.Type)
-                // {
-                //     case AssignmentType.AspectSetting:
-                //     case AssignmentType.AspectUnityObject:
-                //     case AssignmentType.AspectVariable:
-                //     case AssignmentType.AspectVariableOrNull:
-                //     case AssignmentType.CellUnityObject:
-                //     case AssignmentType.ScriptUnityObject:
-                //     case AssignmentType.CellSetting:
-                //     case AssignmentType.ScriptSetting:
-                //     case AssignmentType.CellAspect:
-                //     case AssignmentType.ScriptAspect:
-                //     case AssignmentType.CellVariable:
-                //     case AssignmentType.CellVariableOrNull:
-                //     case AssignmentType.CellVariableOrTemp:
-                //     case AssignmentType.CellRegisterVariable:
-                //     case AssignmentType.CellVariableRegisterOrNull:
-                //     case AssignmentType.CellInputVariableRegister:
-                //     case AssignmentType.CellOutputVariableRegister:
-                //     case AssignmentType.CellInputRegister:
-                //     case AssignmentType.CellOutputRegister:
-                //     case AssignmentType.CellDefaultInputRegister:
-                //     case AssignmentType.CellDefaultOutputRegister:
-                //     case AssignmentType.CellDefaultVariable:
-                //     case AssignmentType.CellDefaultInputVariable:
-                //     case AssignmentType.CellDefaultOutputVariable:
-
-                //     case AssignmentType.ScriptVariable:
-                //     case AssignmentType.ScriptVariableOrNull:
-                //     case AssignmentType.ScriptVariableOrTemp:
-                //     case AssignmentType.ScriptRegisterVariable:
-                //     case AssignmentType.ScriptVariableRegisterOrNull:
-                //     case AssignmentType.ScriptInputVariableRegister:
-                //     case AssignmentType.ScriptOutputVariableRegister:
-                //     case AssignmentType.ScriptInputRegister:
-                //     case AssignmentType.ScriptOutputRegister:
-                //     case AssignmentType.ScriptDefaultInputRegister:
-                //     case AssignmentType.ScriptDefaultOutputRegister:
-                //     case AssignmentType.ScriptDefaultVariable:
-                //     case AssignmentType.ScriptDefaultInputVariable:
-                //     case AssignmentType.ScriptDefaultOutputVariable:
-                // }
+                return variable.GetRegister();
             }
+            return null;
+        }
+
+        private class Defaults
+        {
+            public IRegister InputRegister, OutputRegister;
+            public IVariable InputVariable, OutputVariable;
+        }
+
+        private static Defaults GetDefaultsForType(Type fieldType)
+        {
+            Defaults value;
+            if (!_defaults.TryGetValue(fieldType, out value))
+            {
+                value = new Defaults();
+                if (typeof(IVariable).IsAssignableFrom(fieldType))
+                {
+                    value.InputVariable = Activator.CreateInstance(fieldType) as IVariable;
+                    value.InputRegister = value.InputVariable.GetRegister();
+                    value.OutputRegister = value.InputRegister.Clone();
+                    value.OutputVariable = value.OutputRegister.CreateVariable();
+                }
+                else
+                {
+                    value.InputRegister = Activator.CreateInstance(fieldType) as IRegister;
+                    value.OutputRegister = value.InputRegister.Clone();
+                    value.InputVariable = value.InputRegister.CreateVariable();
+                    value.OutputVariable = value.OutputRegister.CreateVariable();
+                }
+                _defaults.Add(value.InputRegister.GetType(), value);
+                _defaults.Add(value.InputVariable.GetType(), value);
+            }
+            return value;
+        }
+
+        private static Dictionary<Type, Defaults> _defaults = new Dictionary<Type, Defaults>();
+
+        /// <summary></summary>
+        private static IRegister GetReadonlyRegister(Type fieldType)
+        {
+            return GetDefaultsForType(fieldType).InputRegister;
+        }
+
+        /// <summary></summary>
+        private static IRegister GetWriteonlyRegister(Type fieldType)
+        {
+            return GetDefaultsForType(fieldType).OutputRegister;
+        }
+
+        /// <summary></summary>
+        private static IVariable GetReadonlyVariable(Type fieldType)
+        {
+            return GetDefaultsForType(fieldType).InputVariable;
+        }
+
+        /// <summary></summary>
+        private static IVariable GetWriteonlyVariable(Type fieldType)
+        {
+            return GetDefaultsForType(fieldType).OutputVariable;
+        }
+
+        private static IVariable GetDummyVariable(Type fieldType)
+        {
+            IVariable instance = Activator.CreateInstance(fieldType) as IVariable;
+            Debug.Assert(instance != null);
+            Debug.Assert(instance.GetRegister() != null);
+            return instance;
         }
     }
 
@@ -893,62 +656,6 @@ namespace NewNewLabkit
             // the beginning of next frame
         }
 
-        private class Defaults
-        {
-            public IRegister InputRegister, OutputRegister;
-            public IVariable InputVariable, OutputVariable;
-        }
-
-        private static Defaults GetDefaultsForType(Type fieldType)
-        {
-            Defaults value;
-            if (!_defaults.TryGetValue(fieldType, out value))
-            {
-                value = new Defaults();
-                if (typeof(IVariable).IsAssignableFrom(fieldType))
-                {
-                    value.InputVariable = Activator.CreateInstance(fieldType) as IVariable;
-                    value.InputRegister = value.InputVariable.GetRegister();
-                    value.OutputRegister = value.InputRegister.Clone();
-                    value.OutputVariable = value.OutputRegister.CreateVariable();
-                }
-                else
-                {
-                    value.InputRegister = Activator.CreateInstance(fieldType) as IRegister;
-                    value.OutputRegister = value.InputRegister.Clone();
-                    value.InputVariable = value.InputRegister.CreateVariable();
-                    value.OutputVariable = value.OutputRegister.CreateVariable();
-                }
-                _defaults.Add(value.InputRegister.GetType(), value);
-                _defaults.Add(value.InputVariable.GetType(), value);
-            }
-            return value;
-        }
-        private static Dictionary<Type, Defaults> _defaults = new Dictionary<Type, Defaults>();
-
-        /// <summary></summary>
-        public static IRegister GetDefaultInputRegister(Type fieldType)
-        {
-            return GetDefaultsForType(fieldType).InputRegister;
-        }
-
-        /// <summary></summary>
-        public static IRegister GetDefaultOutputRegister(Type fieldType)
-        {
-            return GetDefaultsForType(fieldType).OutputRegister;
-        }
-
-        /// <summary></summary>
-        public static IVariable GetDefaultInputVariable(Type fieldType)
-        {
-            return GetDefaultsForType(fieldType).InputVariable;
-        }
-
-        /// <summary></summary>
-        public static IVariable GetDefaultOutputVariable(Type fieldType)
-        {
-            return GetDefaultsForType(fieldType).OutputVariable;
-        }
     }
 
     public class Variable<T> : IVariable
@@ -1216,10 +923,10 @@ namespace NewNewLabkit
                 case AssignmentType.InputRegister:
                 case AssignmentType.OutputRegister:         value = registers[(int)assignment.RegisterIndex]; break;
                 case AssignmentType.Variable:               value = registerVariables[(int)assignment.RegisterIndex]; break;
-                case AssignmentType.DefaultInputRegister:   value = CentralPublishing.GetDefaultInputRegister(field.FieldType); break;
-                case AssignmentType.DefaultOutputRegister:  value = CentralPublishing.GetDefaultOutputRegister(field.FieldType); break;
-                case AssignmentType.DefaultInputVariable:   value = CentralPublishing.GetDefaultInputVariable(field.FieldType); break;
-                case AssignmentType.DefaultOutputVariable:  value = CentralPublishing.GetDefaultOutputVariable(field.FieldType); break;
+                case AssignmentType.DefaultInputRegister:   value = CentralPublishing.GetReadonlyRegister(field.FieldType); break;
+                case AssignmentType.DefaultOutputRegister:  value = CentralPublishing.GetWriteonlyRegister(field.FieldType); break;
+                case AssignmentType.DefaultInputVariable:   value = CentralPublishing.GetReadonlyVariable(field.FieldType); break;
+                case AssignmentType.DefaultOutputVariable:  value = CentralPublishing.GetWriteonlyVariable(field.FieldType); break;
                 }
                 field.SetValue(target, value);
 
