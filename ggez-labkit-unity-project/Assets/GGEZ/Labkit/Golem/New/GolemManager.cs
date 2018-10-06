@@ -178,10 +178,9 @@ namespace GGEZ.Labkit
                     case AssignmentType.CellRegisterVariable:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetOrCreateRegisterVariable(assignment.RegisterIndex, registers, ref registerVariables)); break;
                     case AssignmentType.ScriptRegisterVariable:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetOrCreateRegisterVariable(assignment.RegisterIndex, registers, ref registerVariables)); break;
 
-                    case AssignmentType.CellVariableRegisterOrNull:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetVariableRegisterOrNull(variables, assignment.Name)); break;
-                    case AssignmentType.ScriptVariableRegisterOrNull:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetVariableRegisterOrNull(variables, assignment.Name)); break;
+                    case AssignmentType.CellInputVariableRegisterOrNull:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetVariableRegisterOrNull(variables, assignment.Name)); break;
 
-                    case AssignmentType.CellInputVariableRegister:
+                    case AssignmentType.CellInputVariableRegisterOrDummy:
                         {
                             Cell targetCell = component.Cells[assignment.TargetIndex];
                             fieldInfo = assignment.GetFieldInfo(targetCell);
@@ -198,11 +197,6 @@ namespace GGEZ.Labkit
                         }
                         break;
 
-                    case AssignmentType.ScriptInputVariableRegister:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetVariableRegisterOrNull(variables, assignment.Name) ?? GetReadonlyRegister(fieldInfo.FieldType)); break;
-
-                    case AssignmentType.CellOutputVariableRegister:   assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetVariableRegisterOrNull(variables, assignment.Name) ?? GetWriteonlyRegister(fieldInfo.FieldType)); break;
-                    case AssignmentType.ScriptOutputVariableRegister: assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetVariableRegisterOrNull(variables, assignment.Name) ?? GetWriteonlyRegister(fieldInfo.FieldType)); break;
-
                     case AssignmentType.CellInputRegister:
                         {
                             Cell targetCell = component.Cells[assignment.TargetIndex];
@@ -213,14 +207,11 @@ namespace GGEZ.Labkit
                         break;
 
                     case AssignmentType.CellOutputRegister:         assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, registers[assignment.RegisterIndex]); break;
-                    case AssignmentType.ScriptRegister:             assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, registers[assignment.RegisterIndex]); break;
                     case AssignmentType.CellDummyInputRegister:     assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetReadonlyRegister(fieldInfo.FieldType)); break;
                     case AssignmentType.CellDummyOutputRegister:    assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetWriteonlyRegister(fieldInfo.FieldType)); break;
                     case AssignmentType.CellDummyVariable:          assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetWriteonlyRegister(fieldInfo.FieldType)); break;
                     case AssignmentType.CellDummyInputVariable:     assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetReadonlyVariable(fieldInfo.FieldType)); break;
                     case AssignmentType.CellDummyOutputVariable:    assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetWriteonlyVariable(fieldInfo.FieldType)); break;
-                    case AssignmentType.ScriptDummyInputRegister:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetReadonlyRegister(fieldInfo.FieldType)); break;
-                    case AssignmentType.ScriptDummyOutputRegister:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetWriteonlyRegister(fieldInfo.FieldType)); break;
                     case AssignmentType.ScriptDummyVariable:        assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetDummyVariable(fieldInfo.FieldType)); break;
                     case AssignmentType.ScriptDummyInputVariable:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetReadonlyVariable(fieldInfo.FieldType)); break;
                     case AssignmentType.ScriptDummyOutputVariable:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetWriteonlyVariable(fieldInfo.FieldType)); break;
@@ -369,6 +360,12 @@ namespace GGEZ.Labkit
             s_changedVariables.Add(variable);
         }
 
+        private static List<ICollectionRegister> s_changedCollectionRegisters = new List<ICollectionRegister>();
+        public static void AddChangedCollectionRegister(ICollectionRegister register)
+        {
+            s_changedCollectionRegisters.Add(register);
+        }
+
         private static List<Cell> s_changedCells = new List<Cell>();
 
         private static int s_currentCircuitPhaseCellSequencer = 0;
@@ -401,39 +398,35 @@ namespace GGEZ.Labkit
 
         public static void OnCircuitPhase()
         {
-            // go through the cells in order, pop the front and update them
-            // add cells that want an update next frame to the next frame's priority queue
-            // NOTE: variables changed during circuit phase don't write registers until
-            // the end of the frame
-
             Debug.LogErrorFormat("OnCircuitPhase is REALLY REALLY TERRIBLY BAD, it sorts the list of cells every cell! Make this into a priority queue!");
 
-            int sentinel = 9999999;
+            Debug.Assert(s_changedCellsBeforeSequencer.Count == 0);
 
+            int lastSequencer = -1; // used to deduplicate the list
+            int sentinel = 999999;
             while (s_changedCells.Count > 0 && --sentinel > 0)
             {
-                Debug.Assert(s_changedCellsBeforeSequencer.Count == 0);
+                s_changedCells.Sort((Cell lhs, Cell rhs) => lhs.Sequencer - rhs.Sequencer);
+                Debug.Assert(s_changedCells[0].Sequencer >= lastSequencer);
 
-
-                int lastSequencer = -1; // used to deduplicate the list
-                while (s_changedCells.Count > 0)
+                s_currentCircuitPhaseCellSequencer = s_changedCells[0].Sequencer;
+                if (s_changedCells[0].Sequencer > lastSequencer)
                 {
-                    s_changedCells.Sort((Cell lhs, Cell rhs) => lhs.Sequencer - rhs.Sequencer);
-                    Debug.Assert(s_changedCells[0].Sequencer >= lastSequencer);
-
-                    if (s_changedCells[0].Sequencer > lastSequencer)
-                    {
-                        s_changedCells[0].Update();
-                    }
-
-                    lastSequencer = s_changedCells[0].Sequencer;
-                    s_changedCells.RemoveAt(0);
+                    s_changedCells[0].Update();
                 }
 
-                var swap = s_changedCells;
-                s_changedCells = s_changedCellsBeforeSequencer;
-                s_changedCellsBeforeSequencer = swap;
+                // Don't go backward in sequence--cells dirtied with a lower sequence
+                // are handled next-frame, since we already processed the cells' circuit
+                // and there is important change data in collection registers.
+                Debug.Assert(s_changedCells[0].Sequencer >= s_currentCircuitPhaseCellSequencer);
+
+                lastSequencer = s_currentCircuitPhaseCellSequencer;
+                s_changedCells.RemoveAt(0);
             }
+
+            var swap = s_changedCells;
+            s_changedCells = s_changedCellsBeforeSequencer;
+            s_changedCellsBeforeSequencer = swap;
 
             Debug.Assert(sentinel > 0);
         }

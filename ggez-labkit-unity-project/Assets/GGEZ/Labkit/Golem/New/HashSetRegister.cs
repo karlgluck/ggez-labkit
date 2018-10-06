@@ -24,53 +24,108 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using System;
+using UnityEngine;
 using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
-    public interface IHashSetRegister : IRegister
+    public class HashSetRegister<T> : ICollectionRegister
     {
+        private HashSet<T> _values = new HashSet<T>();
+        private HashSet<T> _added = new HashSet<T>();
+        private HashSet<T> _removed = new HashSet<T>();
+
+        private List<Cell> _listeners;
+
+        public HashSet<T> Values { get { return _values; } }
+        public HashSet<T> Added { get { return _added; } }
+        public HashSet<T> Removed { get { return _removed; } }
+
+        public IRegister Clone ()
+        {
+            return MemberwiseClone() as IRegister;
+        }
+
+        public IVariable CreateVariable()
+        {
+            return new HashSetVariable<T>(this);
+        }
+
+        public void AddListener(Cell cell)
+        {
+            if (_listeners == null)
+            {
+                _listeners = new List<Cell>();
+            }
+            _listeners.Add(cell);
+        }
+
+        public void RemoveListener(Cell cell)
+        {
+            if (_listeners != null)
+            {
+                _listeners.Remove(cell);
+            }
+        }
+
+        public void OnCollectionRegisterUpdate()
+        {
+            _added.Clear();
+            _removed.Clear();
+        }
+
+        public bool Add(T element)
+        {
+            if (_values.Add(element))
+            {
+                if (_removed.Contains(element))
+                {
+                    _removed.Remove(element);
+                }
+
+                Debug.Assert(!_added.Contains(element));
+                _added.Add(element);
+                
+                return true;
+            }
+
+            return false;
+        }
+
+        public void Add(IEnumerable<T> elements)
+        {
+            foreach (T element in elements)
+            {
+                Add(element);
+            }
+        }
+
+        public bool Remove(T element)
+        {
+            if (_values.Remove(element))
+            {
+                if (_added.Contains(element))
+                {
+                    _added.Remove(element);
+                }
+
+                Debug.Assert(!_removed.Contains(element));
+                _removed.Add(element);
+                
+                return true;
+            }
+
+            return false;
+        }
+
+        public void Remove(IEnumerable<T> elements)
+        {
+            foreach (T element in elements)
+            {
+                Remove(element);
+            }
+        }
     }
-
-    // public class HashSetRegister<T> : IRegister, IHashSetRegister
-    // {
-    //     private HashSet<T> _values = new HashSet<T>();
-    //     private HashSet<T> _added = new HashSet<T>();
-    //     private HashSet<T> _removed = new HashSet<T>();
-
-    //     private List<Cell> _listeners;
-
-    //     public HashSet<T> Values { get { return _values; } }
-    //     public HashSet<T> Added { get { return _added; } }
-    //     public HashSet<T> Removed { get { return _removed; } }
-
-    //     public IRegister Clone ()
-    //     {
-    //         return MemberwiseClone() as IRegister;
-    //     }
-
-    //     public IVariable CreateVariable()
-    //     {
-    //         return new HashSetVariable<T>(this);
-    //     }
-
-    //     public void AddListener(Cell cell)
-    //     {
-    //         if (_listeners == null)
-    //         {
-    //             _listeners = new List<Cell>();
-    //         }
-    //         _listeners.Add(cell);
-    //     }
-
-    //     public void RemoveListener(Cell cell)
-    //     {
-    //         if (_listeners != null)
-    //         {
-    //             _listeners.Remove(cell);
-    //         }
-    //     }
-    // }
 }
 
             // if (_listeners != null)

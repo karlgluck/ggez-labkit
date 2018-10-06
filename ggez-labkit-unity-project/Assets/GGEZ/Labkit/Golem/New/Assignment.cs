@@ -80,9 +80,8 @@ namespace GGEZ.Labkit
         CellVariableOrNull,             // The variable [Name] or null
         CellVariableOrDummy,            // The variable [Name] or a newly allocated variable
         CellRegisterVariable,           // The variable created for register [RegisterIndex]
-        CellVariableRegisterOrNull,     // The register for variable [Name] or null
-        CellInputVariableRegister,      // The register for variable [Name] or the global read-only register
-        CellOutputVariableRegister,     // The register for variable [Name] or the global write-only register
+        CellInputVariableRegisterOrNull,  // The register for variable [Name] or null
+        CellInputVariableRegisterOrDummy, // The register for variable [Name] or the global read-only register
         CellInputRegister,              // The register [RegisterIndex] from this Component
         CellOutputRegister,             // The register [RegisterIndex] from this Component
         CellDummyInputRegister,         // Global read-only register
@@ -95,12 +94,6 @@ namespace GGEZ.Labkit
         ScriptVariableOrNull,           // The variable [Name] or null
         ScriptVariableOrDummy,          // The variable [Name] or a newly allocated variable
         ScriptRegisterVariable,         // The variable created for register [RegisterIndex]
-        ScriptVariableRegisterOrNull,   // The register for variable [Name] or null
-        ScriptInputVariableRegister,    // The register for variable [Name] or the global read-only register
-        ScriptOutputVariableRegister,   // The register for variable [Name] or the global write-only register
-        ScriptRegister,                 // The register [RegisterIndex] from this Component
-        ScriptDummyInputRegister,       // Global read-only register
-        ScriptDummyOutputRegister,      // Global write-only register
         ScriptDummyVariable,            // Newly allocated variable
         ScriptDummyInputVariable,       // Global read-only variable
         ScriptDummyOutputVariable,      // Global write-only variable

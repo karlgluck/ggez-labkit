@@ -18,13 +18,10 @@ public class JoystickAspect : Aspect
     public Transform joystickRoot;
     public Transform joystick;
 
-    [Setting]
     public float DeadZone = 5f;
 
-    [Setting]
     public float Limit = 155f;
 
-    [Setting]
     public float AngleThreshold = 55f;
 
     public bool JoystickActive;
@@ -107,256 +104,256 @@ public partial class Golem
 // }
 
 
-public class ACellWithManyIOs : Cell
-{
-    [In(typeof(bool))] public RegisterPtr Input;
-    [In(typeof(bool))] public RegisterPtr Input1;
-    [In(typeof(bool))] public RegisterPtr Input2;
-    [In(typeof(bool))] public RegisterPtr Input3;
-    [In(typeof(bool))] public RegisterPtr Input4;
-    [In(typeof(bool))] public RegisterPtr Input5;
-    [Out(typeof(bool))] public RegisterPtr Output;
-    [Out(typeof(bool))] public RegisterPtr Output1;
-    [Out(typeof(bool))] public RegisterPtr Output2;
-    [Out(typeof(bool))] public RegisterPtr Output3;
-    [Out(typeof(bool))] public RegisterPtr Output4;
-    [Out(typeof(bool))] public RegisterPtr Output5;
+// public class ACellWithManyIOs : Cell
+// {
+//     [In(typeof(bool))] public RegisterPtr Input;
+//     [In(typeof(bool))] public RegisterPtr Input1;
+//     [In(typeof(bool))] public RegisterPtr Input2;
+//     [In(typeof(bool))] public RegisterPtr Input3;
+//     [In(typeof(bool))] public RegisterPtr Input4;
+//     [In(typeof(bool))] public RegisterPtr Input5;
+//     [Out(typeof(bool))] public RegisterPtr Output;
+//     [Out(typeof(bool))] public RegisterPtr Output1;
+//     [Out(typeof(bool))] public RegisterPtr Output2;
+//     [Out(typeof(bool))] public RegisterPtr Output3;
+//     [Out(typeof(bool))] public RegisterPtr Output4;
+//     [Out(typeof(bool))] public RegisterPtr Output5;
 
-}
-
-
-public class BoolInverterCell : Cell
-{
-    [In(typeof(bool))] public RegisterPtr Input;
-    [Out(typeof(bool))] public RegisterPtr Output;
-
-    public override void Update(Golem entity, bool dirty, ref bool running)
-    {
-        entity.Set(Output, !entity.Get<bool>(Input));
-    }
-}
-
-public class RendererToggleCell : Cell
-{
-    [In(typeof(bool))] public RegisterPtr Input;
-    public Renderer Renderer;
-
-    public override void Update(Golem entity, bool dirty, ref bool running)
-    {
-        Renderer.enabled = entity.Get<bool>(Input);
-    }
-}
-
-public class ReadFishingRodPosition : Cell
-{
-    [Out(typeof(float))] public RegisterPtr Output;
-
-    public override void Acquire(Golem entity, ref bool running)
-    {
-        running = true;
-    }
-
-    public override void Update(Golem entity, bool dirty, ref bool running)
-    {
-        entity.Set(Output, entity.FishingRodAspect.fishingRodPosition);
-    }
-}
+// }
 
 
-public class ReadFloatVariable : Cell
-{
-    [VariableType(typeof(float))]
-    public VariableRef Variable;
+// public class BoolInverterCell : Cell
+// {
+//     [In(typeof(bool))] public RegisterPtr Input;
+//     [Out(typeof(bool))] public RegisterPtr Output;
 
-    [Out(typeof(float))] public RegisterPtr Output;
+//     public override void Update(Golem entity, bool dirty, ref bool running)
+//     {
+//         entity.Set(Output, !entity.Get<bool>(Input));
+//     }
+// }
 
-    public override void Acquire(Golem entity, ref bool running)
-    {
-        running = true;
-    }
+// public class RendererToggleCell : Cell
+// {
+//     [In(typeof(bool))] public RegisterPtr Input;
+//     public Renderer Renderer;
 
-    public override void Update(Golem entity, bool dirty, ref bool running)
-    {
-        float value = 0f;
-        if (entity.Read(Variable, ref value))
-        {
-            entity.Set(Output, value);
-        }
-    }
-}
+//     public override void Update(Golem entity, bool dirty, ref bool running)
+//     {
+//         Renderer.enabled = entity.Get<bool>(Input);
+//     }
+// }
 
+// public class ReadFishingRodPosition : Cell
+// {
+//     [Out(typeof(float))] public RegisterPtr Output;
 
+//     public override void Acquire(Golem entity, ref bool running)
+//     {
+//         running = true;
+//     }
 
-
-public class FloatConstant : Cell
-{
-    public float Value;
-    [Out(typeof(float))] public RegisterPtr Output;
-    public override void Update(Golem entity, bool dirty, ref bool running)
-    {
-        entity.Set(Output, Value);
-    }
-}
+//     public override void Update(Golem entity, bool dirty, ref bool running)
+//     {
+//         entity.Set(Output, entity.FishingRodAspect.fishingRodPosition);
+//     }
+// }
 
 
-public class LerpFloatToZero : Cell
-{
-    public float Duration;
-    [In(typeof(float))] public RegisterPtr Input;
-    [Out(typeof(float))] public RegisterPtr Output;
-    private float current, deltaPerSecond;
-    public override void Update(Golem entity, bool dirty, ref bool running)
-    {
-        if (dirty)
-        {
-            current = entity.Get<float>(Input);
-            deltaPerSecond = current / Duration;
-        }
-        else
-        {
-            current = Mathf.MoveTowards(current, 0f, deltaPerSecond * Time.smoothDeltaTime);
-        }
-        running = current != 0f;
-    }
-}
+// public class ReadFloatVariable : Cell
+// {
+//     [VariableType(typeof(float))]
+//     public VariableRef Variable;
+
+//     [Out(typeof(float))] public RegisterPtr Output;
+
+//     public override void Acquire(Golem entity, ref bool running)
+//     {
+//         running = true;
+//     }
+
+//     public override void Update(Golem entity, bool dirty, ref bool running)
+//     {
+//         float value = 0f;
+//         if (entity.Read(Variable, ref value))
+//         {
+//             entity.Set(Output, value);
+//         }
+//     }
+// }
 
 
 
-public class EmitFloatSequence : Cell
-{
-    public float Duration;
-    [In(typeof(object))] public RegisterPtr Trigger;
-    [Out(typeof(float))] public RegisterPtr Output;
-    private float _startTime, _endTime;
-    public override void Update(Golem entity, bool dirty, ref bool running)
-    {
-        if (dirty)
-        {
-            _startTime = Time.time;
-            _endTime = _startTime + Duration;
-        }
-        entity.Set(Output, Mathf.InverseLerp(_startTime, _endTime, Time.time));
-        running = Time.time < _endTime;
-    }
-}
+
+// public class FloatConstant : Cell
+// {
+//     public float Value;
+//     [Out(typeof(float))] public RegisterPtr Output;
+//     public override void Update(Golem entity, bool dirty, ref bool running)
+//     {
+//         entity.Set(Output, Value);
+//     }
+// }
+
+
+// public class LerpFloatToZero : Cell
+// {
+//     public float Duration;
+//     [In(typeof(float))] public RegisterPtr Input;
+//     [Out(typeof(float))] public RegisterPtr Output;
+//     private float current, deltaPerSecond;
+//     public override void Update(Golem entity, bool dirty, ref bool running)
+//     {
+//         if (dirty)
+//         {
+//             current = entity.Get<float>(Input);
+//             deltaPerSecond = current / Duration;
+//         }
+//         else
+//         {
+//             current = Mathf.MoveTowards(current, 0f, deltaPerSecond * Time.smoothDeltaTime);
+//         }
+//         running = current != 0f;
+//     }
+// }
 
 
 
-public class SineWave : Cell
-{
-    public float Amplitude = 1f;
-    public float Frequency = 1f;
-    [In(typeof(bool))] public RegisterPtr Enabled;
-    [Out(typeof(float))] public RegisterPtr Output;
-
-    public override void Acquire(Golem entity, ref bool running)
-    {
-        running = Enabled == RegisterPtr.Invalid;
-    }
-
-    public override void Update(Golem entity, bool dirty, ref bool running)
-    {
-        if (dirty)
-        {
-            running = entity.Get<bool>(Enabled);
-        }
-        entity.Set(Output, Mathf.Sin(Frequency * Time.time) * Amplitude);
-    }
-}
-
-
-public class Position : Cell
-{
-    public Transform Transform;
-    [In(typeof(float))] public RegisterPtr X;
-    [In(typeof(float))] public RegisterPtr Y;
-    [In(typeof(float))] public RegisterPtr Z;
-
-    public override void Update(Golem golem, bool dirty, ref bool running)
-    {
-        var position = Transform.position;
-        golem.TryGet(X, ref position.x);
-        golem.TryGet(Y, ref position.y);
-        golem.TryGet(Z, ref position.z);
-        Transform.position = position;
-    }
-}
-
-public class KeyPressed : Cell
-{
-    public KeyCode Key;
-    [Out(typeof(bool))] public RegisterPtr Output;
-
-    public override void Acquire(Golem entity, ref bool running)
-    {
-        running = true;
-    }
-
-    public override void Update(Golem entity, bool dirty, ref bool running)
-    {
-        entity.Set(Output, Input.GetKey(Key));
-    }
-}
+// public class EmitFloatSequence : Cell
+// {
+//     public float Duration;
+//     [In(typeof(object))] public RegisterPtr Trigger;
+//     [Out(typeof(float))] public RegisterPtr Output;
+//     private float _startTime, _endTime;
+//     public override void Update(Golem entity, bool dirty, ref bool running)
+//     {
+//         if (dirty)
+//         {
+//             _startTime = Time.time;
+//             _endTime = _startTime + Duration;
+//         }
+//         entity.Set(Output, Mathf.InverseLerp(_startTime, _endTime, Time.time));
+//         running = Time.time < _endTime;
+//     }
+// }
 
 
 
-public class SetVariableToTime : Script
-{
-    public VariableRef Variable;
+// public class SineWave : Cell
+// {
+//     public float Amplitude = 1f;
+//     public float Frequency = 1f;
+//     [In(typeof(bool))] public RegisterPtr Enabled;
+//     [Out(typeof(float))] public RegisterPtr Output;
 
-    public override void OnUpdate(Golem entity)
-    {
-        entity.Write(Variable, Time.time);
-    }
-}
+//     public override void Acquire(Golem entity, ref bool running)
+//     {
+//         running = Enabled == RegisterPtr.Invalid;
+//     }
 
-public class SetVariableToTimeInState : Script
-{
-    public VariableRef Variable;
+//     public override void Update(Golem entity, bool dirty, ref bool running)
+//     {
+//         if (dirty)
+//         {
+//             running = entity.Get<bool>(Enabled);
+//         }
+//         entity.Set(Output, Mathf.Sin(Frequency * Time.time) * Amplitude);
+//     }
+// }
 
-    private float _entryTime;
 
-    public override void OnEnter(Golem entity)
-    {
-        _entryTime = Time.time;
-    }
+// public class Position : Cell
+// {
+//     public Transform Transform;
+//     [In(typeof(float))] public RegisterPtr X;
+//     [In(typeof(float))] public RegisterPtr Y;
+//     [In(typeof(float))] public RegisterPtr Z;
 
-    public override void OnUpdate(Golem entity)
-    {
-        entity.Write(Variable, Time.time - _entryTime);
-    }
-}
+//     public override void Update(Golem golem, bool dirty, ref bool running)
+//     {
+//         var position = Transform.position;
+//         golem.TryGet(X, ref position.x);
+//         golem.TryGet(Y, ref position.y);
+//         golem.TryGet(Z, ref position.z);
+//         Transform.position = position;
+//     }
+// }
 
-public class AddDeltaTimeToVariable : Script
-{
-    [VariableType(typeof(float))]
-    public VariableRef Variable;
+// public class KeyPressed : Cell
+// {
+//     public KeyCode Key;
+//     [Out(typeof(bool))] public RegisterPtr Output;
 
-    public override void OnUpdate(Golem entity)
-    {
-        float value = 0f;
-        entity.Read(Variable, ref value);
-        entity.Write(Variable, value + Time.smoothDeltaTime);
-    }
-}
+//     public override void Acquire(Golem entity, ref bool running)
+//     {
+//         running = true;
+//     }
 
-public class TransitionAfterDelay : Script
-{
-    public float Delay;
-    public Trigger Trigger;
+//     public override void Update(Golem entity, bool dirty, ref bool running)
+//     {
+//         entity.Set(Output, Input.GetKey(Key));
+//     }
+// }
 
-    private float _exitTime;
 
-    public override void OnEnter(Golem entity)
-    {
-        _exitTime = Time.time + Delay;
-    }
 
-    public override void OnUpdate(Golem entity)
-    {
-        if (Time.time > _exitTime)
-        {
-            entity.SetTrigger(Trigger);
-        }
-    }
-}
+// public class SetVariableToTime : Script
+// {
+//     public VariableRef Variable;
+
+//     public override void OnUpdate(Golem entity)
+//     {
+//         entity.Write(Variable, Time.time);
+//     }
+// }
+
+// public class SetVariableToTimeInState : Script
+// {
+//     public VariableRef Variable;
+
+//     private float _entryTime;
+
+//     public override void OnEnter(Golem entity)
+//     {
+//         _entryTime = Time.time;
+//     }
+
+//     public override void OnUpdate(Golem entity)
+//     {
+//         entity.Write(Variable, Time.time - _entryTime);
+//     }
+// }
+
+// public class AddDeltaTimeToVariable : Script
+// {
+//     [VariableType(typeof(float))]
+//     public VariableRef Variable;
+
+//     public override void OnUpdate(Golem entity)
+//     {
+//         float value = 0f;
+//         entity.Read(Variable, ref value);
+//         entity.Write(Variable, value + Time.smoothDeltaTime);
+//     }
+// }
+
+// public class TransitionAfterDelay : Script
+// {
+//     public float Delay;
+//     public Trigger Trigger;
+
+//     private float _exitTime;
+
+//     public override void OnEnter(Golem entity)
+//     {
+//         _exitTime = Time.time + Delay;
+//     }
+
+//     public override void OnUpdate(Golem entity)
+//     {
+//         if (Time.time > _exitTime)
+//         {
+//             entity.SetTrigger(Trigger);
+//         }
+//     }
+// }

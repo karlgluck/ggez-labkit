@@ -24,37 +24,81 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using System;
+using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
-    // public class HashSetVariable<T> : IVariable
-    // {
-    //     /// <summary>The backing register for this variable</summary>
-    //     private HashSetRegister<T> _register;
+    public class HashSetVariable<T> : IVariable
+    {
+        /// <summary>The backing register for this variable</summary>
+        private HashSetRegister<T> _register;
 
+        // Values to roll into the register
+        private HashSet<T> _added = new HashSet<T>();
+        private HashSet<T> _removed = new HashSet<T>();
 
-    //     /// <summary>Create a variable with a new backing register</summary>
-    //     public HashSetVariable()
-    //     {
-    //         _register = new HashSetRegister<T>();
-    //     }
+        /// <summary>Values contained in the collection in the last program phase or the current circuit phase</summary>
+        public HashSet<T> Values { get { return _register.Values; } }
 
-    //     /// <summary>Create a variable for the given backing register</summary>
-    //     public HashSetVariable(HashSetRegister<T> register)
-    //     {
-    //         _register = register;
-    //     }
-        
-    //     /// <summary>The backing register for this variable</summary>
-    //     public IRegister GetRegister()
-    //     {
-    //         return _register;
-    //     }
+        /// <summary>Values added to the collection in the last program phase or the current circuit phase</summary>
+        public HashSet<T> Added { get { return _register.Added; } }
 
-    //     /// <summary>Updates the value of the register that backs this variable</summary>
-    //     public void OnEndProgramPhase()
-    //     {
-    //         _register.ChangeValue(_value);
-    //     }
-    // }
+        /// <summary>Values removed from the collection in the last program phase or the current circuit phase</summary>
+        public HashSet<T> Removed { get { return _register.Removed; } }
+
+        /// <summary>Create a variable with a new backing register</summary>
+        public HashSetVariable()
+        {
+            _register = new HashSetRegister<T>();
+        }
+
+        /// <summary>Create a variable for the given backing register</summary>
+        public HashSetVariable(HashSetRegister<T> register)
+        {
+            _register = register;
+        }
+
+        /// <summary>The backing register for this variable</summary>
+        public IRegister GetRegister()
+        {
+            return _register;
+        }
+
+        /// <summary>Updates the value of the register that backs this variable</summary>
+        public void OnEndProgramPhase()
+        {
+            _register.Add(_added);
+            _register.Remove(_removed);
+            _added.Clear();
+            _removed.Clear();
+        }
+
+        public bool Add(T element)
+        {
+            _removed.Remove(element);
+            return _added.Add(element);
+        }
+
+        public void Add(IEnumerable<T> elements)
+        {
+            foreach (T element in elements)
+            {
+                Add(element);
+            }
+        }
+
+        public bool Remove(T element)
+        {
+            _added.Remove(element);
+            return _removed.Add(element);
+        }
+
+        public void Remove(IEnumerable<T> elements)
+        {
+            foreach (T element in elements)
+            {
+                Remove(element);
+            }
+        }
+    }
 }

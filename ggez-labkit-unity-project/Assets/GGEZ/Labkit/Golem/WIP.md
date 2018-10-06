@@ -1,4 +1,70 @@
 
+
+# Design Principles
+
+## Phase Order
+
+The phase order is:
+
+ 1. **Circuit** - Changed cells run update
+ 2. **Program** - Scripts run update
+ 3. **Collection Register** - Registers deriving from `ICollectionRegister` clear their change-tracking members
+ 4. **Variable Rollover** - Variables assign their new values to registers and mark changed cells for update
+
+## Principles
+
+ * Variables allow golems to be update-order independent since variables only change their value on a frame-boundary.
+ * Golems running without modification quickly require no allocation and no reflection to execute. In particular, this means no boxing.
+
+## Cells can be updated even if their inputs don't change
+
+It could be that an input was changed and then changed back
+
+## Cell register inputs can read variables but register outputs cannot write them
+
+Register outputs are written immediately. If a variable's register were to be written mid-frame, the value that a golem reads would depend on when it executed. This violates the principle that variables only change their value between frames.
+
+To write a variable, a cell must explicitly use a variable reference.
+
+However, there is a way around this to allow cells to read values from the circuit on the same frame: a cell's variable can be hooked up to a variable that is created for a register. Since registers are internal, the update order is fixed so there is no sequencing problem. Furthermore, because the variable update phase occurs between the program phase and the next circuit phase, the circuit will always see the latest variable value written by a script and vice-versa.
+
+## Cells update at most once per frame
+
+Because:
+
+ * Cells can be circularly linked to each other across golems. This causes an infinite loop in either case, but if we only allow one update per frame, the loop is non-blocking.
+ * A cell should be able to rely on Time.deltaTime
+ * If a cell can be updated multiple times in a single frame, the number of updates it gets depends on its own input dependencies and the overall circuit's dependencies on other golems. In particular, this could cause an issue if you rely on `Added` or `Removed` in a collection register. It'd be possible to see the same value multiple times, to see supersets of previous values, and to see a value `Removed` that was never seen added or vice-versa.
+
+## Scripts can only write variables
+
+As a consequence of the phase order:
+
+ * Circuits that write collection registers propagate changes correctly to both cells and scripts
+ * Scripts that write collection registers would have their changes erased before they are seen by a cell
+
+ The solution is for scripts to only write variables. This makes changes leapfrog the Collection Register phase so that they'll be seen by cells (and scripts) on the next frame.
+ 
+ As a bonus, it removes the ambiguity of whether scripts can expect to share data with one another through registers.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     OKAY AND in this verion SPECIAL BONUS
 
     - GolemClass becomes GolemComponent
@@ -48,11 +114,56 @@
 
 ----------------------------------------------------------------------
 
+                      COLLECTION REGISTER UPDATE
+
+----------------------------------------------------------------------
+
                            VARIABLE ROLLOVER
 
 ----------------------------------------------------------------------
                                frame end
 
+collection registers are tricky...
+
+within a circuit, we want a collection register to immediately track adds/removes
+    lets say we have a cell that adds numbers in sequence to a hashset
+    and another cell that has that hashset as an input
+        the input should see "Added" contain each number in sequence and "Values" contain all the numbers
+
+    if a script does the same thing, we expect that the cell gets
+        to see "Added" the exact same thing
+
+    if a script writes to a variable, we again expect that a dependent
+        cell sees the same thing (so added has to be updated DURING circuit)
+        and that a variable reading that register sees the same thing (so added can't be cleared between circuit & program)
+        and that a cell reading a variable sees added (so added can't be cleared between variable update and circuit)
+    
+So where is the boundary where "Added" gets cleared?
+    in the circuit case, it's just before circuits are updated; in the script case, it's jsut before scripts are updated
+
+    but actually it's even more subtle than that:
+        if a circuit is evaluated multiple times because it is in a cell that gets its inputs re-dirtied
+        by an external dependency, the cell COULD be evaluated multiple times in a frame
+
+    SO multiple-evaluation is actually a problem...
+
+        "added" really wants to mean "added since you last saw this"
+        and the problem is multiple readers:
+            - if a cell has 2 inputs, one of which is a collection register and the other of which
+              reads a remote cell's value, which changes after that cell is dirtied, then the
+              cell will get used twice and the reader will see "added" twice.
+        
+        basically, this construction would require that cells be IDEMPOTENT on their inputs
+            scripts can be non-idempotent since they are only evaluated once per frame at most
+        
+            - if a cell has a register input and a script has a register variable input for that
+              register, and a script has a register output
+            
+        if we say that scripts can't write registers--they can only write variables--then
+        we know that all writes will survive a clear after the program phase. this would mean that
+        collections written during the circuit phase propagate immediatly between cells and to scripts,
+        and collections written during the program phase would propagate to cells and to scripts on
+        the next frame. BAM!
 
 
 problem registers on different golems that listen to each other
