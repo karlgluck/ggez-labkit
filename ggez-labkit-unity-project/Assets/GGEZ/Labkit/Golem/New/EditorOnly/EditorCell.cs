@@ -23,13 +23,19 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
+using System;
 using UnityEngine;
 using UnityEditor;
+using UnityObject = UnityEngine.Object;
+using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
 using System.Collections.Generic;
+using System.Reflection;
 
+#if UNITY_EDITOR
 
 namespace GGEZ.Labkit
 {
+
     public enum EditorCellIndex : int { Invalid = int.MaxValue }
 
     //-------------------------------------------------------------------------
@@ -41,9 +47,12 @@ namespace GGEZ.Labkit
         public EditorCellIndex Index = EditorCellIndex.Invalid;
         public Cell Cell;
         public List<EditorWire> Inputs = new List<EditorWire>();
+        #warning // Make things more clear here by making inputs a dictionary and outputs a dictionary-list
         public List<EditorWire> Outputs = new List<EditorWire>();
         public Rect Position;
+        public Dictionary<string,string> UnityObjectFields = new Dictionary<string,string>();
         public Dictionary<string,string> FieldsUsingSettings = new Dictionary<string,string>();
+        public Dictionary<string,VariableRef> FieldsUsingVariables = new Dictionary<string,VariableRef>();
 
         public bool HasInputWire(string name)
         {
@@ -98,33 +107,6 @@ namespace GGEZ.Labkit
         }
     }
 
-    public class EditorVariableRegister
-    {
-        public VariableRef Variable;
-        public Rect Position;
-    }
-
-    //-------------------------------------------------------------------------
-    // EditorWire
-    //-------------------------------------------------------------------------
-    public class EditorWire
-    {
-        public RegisterPtr Register;
-        public EditorCell ReadCell;
-        public string ReadField;
-        public EditorCell WriteCell;
-        public string WriteField;
-
-        // Other than cells, a wire can also read a register that is
-        // filled with a variable's value.
-        public EditorVariableRegister ReadVariableRegister;
-    }
-
-    //-------------------------------------------------------------------------
-    // IDraggable
-    //-------------------------------------------------------------------------
-    public interface IDraggable
-    {
-        Vector2 Offset { set; }
-    }
 }
+
+#endif

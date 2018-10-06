@@ -27,6 +27,7 @@ using System;
 
 namespace GGEZ.Labkit
 {
+    [GGEZ.FullSerializer.fsIgnore]
     public class StructVariable<T> : IVariable where T : struct, IEquatable<T>
     {
         /// <summary>The backing register for this variable</summary>

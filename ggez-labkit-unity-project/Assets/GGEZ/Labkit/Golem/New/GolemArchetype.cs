@@ -26,6 +26,9 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using UnityObject = UnityEngine.Object;
+using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
+using GGEZ.FullSerializer;
 
 namespace GGEZ.Labkit
 {
@@ -43,26 +46,119 @@ namespace GGEZ.Labkit
         /// <summary>Functional parts used by the golem</summary>
         public GolemComponent[] Components;
 
+        /// Groups of functionality used by this archetype
         [NonSerialized]
         public Aspect[] Aspects;
 
-        public SettingsAsset InheritSettingsFrom;
+        /// Values that get assigned to fields of aspects, cells and scripts
         [NonSerialized]
         public Settings Settings;
+        public SettingsAsset InheritSettingsFrom;
 
+        /// Assignments that map settings and local variables to aspect fields
+        [NonSerialized]
         public Assignment[] Assignments;
+
+        /// Assignments that map external variables to aspect fields
         [NonSerialized]
         public Dictionary<string, Assignment[]> ExternalAssignments;
 
         /// <summary>Source of data for all the NonSerialized properties</summary>
         public string Json;
 
+        //---------------------------------------------------------------------
+        // Editor Data
+        //---------------------------------------------------------------------
+    #if UNITY_EDITOR
+
+        // Aspects
+        //------------------
+        [NonSerialized]
+        public List<GolemAspectEditorData> EditorAspects = new List<GolemAspectEditorData>();
+
+        // Variables
+        //------------------
+        [NonSerialized]
+        public List<GolemVariableEditorData> EditorVariables = new List<GolemVariableEditorData>();
+
+        /// <summary>Source of data for all NonSerialized editor-only properties</summary>
+        public string EditorJson;
+
+    #endif
+
         public void OnBeforeSerialize()
         {
+
+        #if UNITY_EDITOR
+
+            // Save editor-only data
+            //-------------------------
+            {
+                Dictionary<string, object> serialized = new Dictionary<string, object>();
+
+                serialized["EditorAspects"] = EditorAspects;
+                serialized["EditorVariables"] = EditorVariables;
+
+                EditorJson = Serialization.SerializeDictionary(serialized);
+            }
+
+            // Compile runtime data
+            //-------------------------
+            {
+                Aspects = new Aspect[EditorAspects.Count];
+                for (int i = 0; i < EditorAspects.Count; ++i)
+                {
+                    Aspects[i] = EditorAspects[i].Aspect.Clone();
+                }
+            }
+
+        #else
+            Debug.LogError("GolemArchetype.OnBeforeSerialize should never be called at runtime!", this);
+        #endif
+        
+            // Save runtime data
+            //-------------------------
+            {
+                Dictionary<string, object> serialized = new Dictionary<string, object>();
+
+                serialized["Aspects"] = Aspects;
+                serialized["Assignments"] = Assignments;
+                serialized["ExternalAssignments"] = ExternalAssignments;
+                serialized["Settings"] = Settings.Values;
+
+                Json = Serialization.SerializeDictionary(serialized);
+            }
+
         }
 
         public void OnAfterDeserialize()
         {
-        }
+
+            {
+                var deserialized = Serialization.DeserializeDictionary(Json, null, this);
+
+                Serialization.ReadOrCreate(this, "Aspects", deserialized);
+                Serialization.ReadOrCreate(this, "Assignments", deserialized);
+                Serialization.ReadOrCreate(this, "ExternalAssignments", deserialized);
+
+                Settings = new Settings(
+                        this,
+                        InheritSettingsFrom,
+                        Serialization.Read<List<Settings.Setting>>("Settings", deserialized)
+                        );
+            }
+
+        #if UNITY_EDITOR
+            {
+                var deserialized = Serialization.DeserializeDictionary(EditorJson, null, this);
+
+                Serialization.ReadOrCreate(this, "EditorAspects", deserialized);
+                Serialization.ReadOrCreate(this, "EditorVariables", deserialized);
+
+                this.RemoveEditorVariablesWithoutSourceAspects();
+            }
+        #endif
+
+        } 
     }
 }

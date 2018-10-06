@@ -59,7 +59,7 @@ namespace GGEZ.Labkit
             DoAssignments(golem, archetype.Assignments, golem.Variables, null, null);
 
             // Create data for all the components
-            golem.Components = new Golem2.ComponentData[archetype.Components.Length];
+            golem.Components = new GolemComponentRuntimeData[archetype.Components.Length];
             for (int i = 0; i < archetype.Components.Length; ++i)
             {
                 var from = archetype.Components[i];
@@ -135,7 +135,7 @@ namespace GGEZ.Labkit
             }
         }
 
-        private static void DoAssignments(Golem2 golem, Assignment[] assignments, Dictionary<string, IVariable> variables, Golem2.ComponentData component, IRegister[] registers)
+        private static void DoAssignments(Golem2 golem, Assignment[] assignments, Dictionary<string, IVariable> variables, GolemComponentRuntimeData component, IRegister[] registers)
         {
             IVariable[] registerVariables = null;
             for (int assignmentIndex = 0; assignmentIndex < assignments.Length; ++assignmentIndex)
@@ -152,9 +152,9 @@ namespace GGEZ.Labkit
                     case AssignmentType.ScriptGolem:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem); break;
 
 
-                    case AssignmentType.AspectUnityObject:  assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem.GetReference(assignment.Name)); break;
-                    case AssignmentType.CellUnityObject:    assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.GetReference(assignment.Name)); break;
-                    case AssignmentType.ScriptUnityObject:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem.GetReference(assignment.Name)); break;
+                    case AssignmentType.AspectUnityObject:  assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem.GetUnityObjectReference(assignment.Name)); break;
+                    case AssignmentType.CellUnityObject:    assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.GetUnityObjectReference(assignment.Name)); break;
+                    case AssignmentType.ScriptUnityObject:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem.GetUnityObjectReference(assignment.Name)); break;
 
                     case AssignmentType.AspectSetting:  assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem.Archetype.Settings.Get(assignment.Name, fieldInfo.FieldType)); break;
                     case AssignmentType.CellSetting:    assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.Archetype.Settings.Get(assignment.Name, fieldInfo.FieldType)); break;
@@ -471,6 +471,8 @@ namespace GGEZ.Labkit
                 //-----------------------------------
                 // Transitions
                 //-----------------------------------
+
+                #warning // TODO: each golem should be able to set a "wants transition" flag
 
                 // TODO: each golem should be able to set a "wants transition" flag
                 //       that can shortcut this check if no triggers are set

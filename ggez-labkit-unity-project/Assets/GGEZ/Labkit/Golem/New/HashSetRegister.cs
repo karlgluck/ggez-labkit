@@ -29,6 +29,7 @@ using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
+    [GGEZ.FullSerializer.fsIgnore]
     public class HashSetRegister<T> : ICollectionRegister
     {
         private HashSet<T> _values = new HashSet<T>();
@@ -78,6 +79,7 @@ namespace GGEZ.Labkit
         {
             if (_values.Add(element))
             {
+
                 if (_removed.Contains(element))
                 {
                     _removed.Remove(element);
@@ -86,6 +88,7 @@ namespace GGEZ.Labkit
                 Debug.Assert(!_added.Contains(element));
                 _added.Add(element);
                 
+                GolemManager.AddChangedCollectionRegister(this);
                 return true;
             }
 
@@ -112,6 +115,7 @@ namespace GGEZ.Labkit
                 Debug.Assert(!_removed.Contains(element));
                 _removed.Add(element);
                 
+                GolemManager.AddChangedCollectionRegister(this);
                 return true;
             }
 

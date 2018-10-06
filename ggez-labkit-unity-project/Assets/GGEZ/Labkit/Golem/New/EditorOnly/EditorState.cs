@@ -23,14 +23,20 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
+using System;
 using UnityEngine;
 using UnityEditor;
+using UnityObject = UnityEngine.Object;
+using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
 using System.Collections.Generic;
-using System;
+using System.Reflection;
 using GGEZ.FullSerializer;
+
+#if UNITY_EDITOR
 
 namespace GGEZ.Labkit
 {
+
     [fsSerializeEnumAsInteger]
     public enum EditorStateIndex : int { Invalid = int.MaxValue }
     [fsSerializeEnumAsInteger]
@@ -108,91 +114,6 @@ namespace GGEZ.Labkit
         }
     }
 
-    //-------------------------------------------------------------------------
-    // EditorScript
-    //-------------------------------------------------------------------------
-    public class EditorScript
-    {
-        // TODO: could add an enabled flag here to allow us to turn on/off
-        //       individual scripts while editing!
-
-        public Script Script;
-        public Dictionary<string,string> FieldsUsingSettings = new Dictionary<string,string>();
-    }
-
-    //-------------------------------------------------------------------------
-    // EditorTransition
-    //-------------------------------------------------------------------------
-    public class EditorTransition
-    {
-        public string Name;
-        public EditorTransitionIndex Index;
-        public EditorTransitionExpression Expression;
-        public Vector2 ExpressionAnchor;
-        public Rect Position;
-        public EditorStateIndex From;
-        public EditorStateIndex To;
-
-        public IDraggable DragExpressionAnchor()
-        {
-            return new DraggablePosition() { EditorTransition = this, ExpressionAnchor = ExpressionAnchor };
-        }
-
-        private class DraggablePosition : IDraggable
-        {
-            public EditorTransition EditorTransition;
-            public Vector2 ExpressionAnchor;
-            public Vector2 Offset
-            {
-                set { EditorTransition.ExpressionAnchor = GolemEditorUtility.SnapToGrid(ExpressionAnchor + value); }
-            }
-        }
-    }
-
-    //---------------------------------------------
-    // EditorTransitionExpression
-    //
-    // Used to build the transition between states
-    //---------------------------------------------
-    public class EditorTransitionExpression
-    {
-        public EditorTransitionExpressionType Type;
-
-        public Rect Position; // this needs to be updated every time the expression or the expression anchor changes
-
-        // Used for Type == EditorTransitionExpressionType.Trigger
-        public Trigger Trigger;
-
-        // Used for Type == EditorTransitionExpressionType.And / ...Or
-        public List<EditorTransitionExpression> Subexpressions = new List<EditorTransitionExpression>();
-    }
-
-    //--------------------------------
-    // EditorTransitionExpressionType
-    //--------------------------------
-    public enum EditorTransitionExpressionType
-    {
-        False,
-        True,
-        Trigger,
-
-        [HasSubexpressions]
-        And,
-
-        [HasSubexpressions]
-        Or,
-    }
-
-
-    //-----------------------------------------------------------------------------
-    //-----------------------------------------------------------------------------
-    [AttributeUsage(AttributeTargets.Field)]
-    public class HasSubexpressionsAttribute : Attribute
-    {
-        public static bool IsFoundOn(EditorTransitionExpressionType type)
-        {
-            var member = typeof(EditorTransitionExpressionType).GetMember(type.ToString())[0];
-            return member.GetCustomAttributes(typeof(HasSubexpressionsAttribute), false).Length > 0;
-        }
-    }
 }
+
+#endif

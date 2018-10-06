@@ -91,6 +91,24 @@ namespace GGEZ.Labkit
             Name = name;
         }
 
+        public bool IsExternal
+        {
+            get
+            {
+                return string.IsNullOrEmpty(Relationship);
+            }
+        }
+
+        public bool IsInternalRegister
+        {
+            get { return false; }
+        }
+
+        public int RegisterIndex
+        {
+            get { throw new InvalidOperationException(); }
+        }
+
         public static Dictionary<VariableRef, T> NewDictionary<T>()
         {
             return new Dictionary<VariableRef, T>(EqualityComparer);

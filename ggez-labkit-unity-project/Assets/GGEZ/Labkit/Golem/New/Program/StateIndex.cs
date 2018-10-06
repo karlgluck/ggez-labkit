@@ -23,16 +23,19 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
+using System;
+using UnityEngine;
 using GGEZ.FullSerializer;
 
 namespace GGEZ.Labkit
 {
 
-    public interface IRegister
+    [fsSerializeEnumAsInteger]
+    public enum StateIndex : int
     {
-        IRegister Clone();
-        IVariable CreateVariable();
-        void AddListener(Cell cell);
-        void RemoveListener(Cell cell);
+        Any = -2,
+        Idle = -1,
+        Invalid = int.MaxValue,
     }
+
 }

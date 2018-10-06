@@ -23,16 +23,21 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using GGEZ.FullSerializer;
+using System;
+using UnityEngine;
+using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
 
-    public interface IRegister
+    //-------------------------------------------------------------------------
+    // Layer
+    //-------------------------------------------------------------------------
+    public sealed class Layer
     {
-        IRegister Clone();
-        IVariable CreateVariable();
-        void AddListener(Cell cell);
-        void RemoveListener(Cell cell);
+        public StateIndex[] States;
+        public Transition[] FromAnyStateTransitions;
+        public Dictionary<StateIndex, Transition[]> Transitions;
     }
+
 }

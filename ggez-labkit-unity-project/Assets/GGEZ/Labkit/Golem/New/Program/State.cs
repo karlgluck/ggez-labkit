@@ -23,16 +23,19 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using GGEZ.FullSerializer;
+using System;
+using UnityEngine;
+using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
 
-    public interface IRegister
+    //-------------------------------------------------------------------------
+    // State
+    //-------------------------------------------------------------------------
+    public sealed class State
     {
-        IRegister Clone();
-        IVariable CreateVariable();
-        void AddListener(Cell cell);
-        void RemoveListener(Cell cell);
+        public int[] Scripts;
     }
+
 }

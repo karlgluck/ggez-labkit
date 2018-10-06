@@ -30,35 +30,6 @@ using GGEZ.FullSerializer;
 namespace GGEZ.Labkit
 {
 
-    [fsSerializeEnumAsInteger]
-    public enum StateIndex : int
-    {
-        Any = -2,
-        Idle = -1,
-        Invalid = int.MaxValue,
-    }
-
-    //-------------------------------------------------------------------------
-    // Layer
-    //-------------------------------------------------------------------------
-    public sealed class Layer
-    {
-        public StateIndex[] States;
-        // TODO: separate entry and any-state transitions
-        // then put the state-to-state transitions into the
-        // states themselves so we don't have to scan the whole
-        // list every single time
-        public Transition[] Transitions;
-    }
-
-    //-------------------------------------------------------------------------
-    // State
-    //-------------------------------------------------------------------------
-    public sealed class State
-    {
-        public int[] Scripts;
-    }
-
     //-------------------------------------------------------------------------
     // Transition
     //-------------------------------------------------------------------------

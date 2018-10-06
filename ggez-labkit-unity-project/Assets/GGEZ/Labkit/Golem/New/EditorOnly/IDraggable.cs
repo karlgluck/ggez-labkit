@@ -23,16 +23,27 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using GGEZ.FullSerializer;
+using System;
+using UnityEngine;
+using UnityEditor;
+using UnityObject = UnityEngine.Object;
+using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
+using System.Collections.Generic;
+using System.Reflection;
+
+#if UNITY_EDITOR
 
 namespace GGEZ.Labkit
 {
 
-    public interface IRegister
+    //-------------------------------------------------------------------------
+    // IDraggable
+    //-------------------------------------------------------------------------
+    public interface IDraggable
     {
-        IRegister Clone();
-        IVariable CreateVariable();
-        void AddListener(Cell cell);
-        void RemoveListener(Cell cell);
+        Vector2 Offset { set; }
     }
+
 }
+
+#endif

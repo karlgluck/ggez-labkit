@@ -20,13 +20,13 @@ The phase order is:
 
 It could be that an input was changed and then changed back
 
-## Cell register inputs can read variables but register outputs cannot write them
+## Cell register inputs can read named variables but register outputs cannot write them
 
 Register outputs are written immediately. If a variable's register were to be written mid-frame, the value that a golem reads would depend on when it executed. This violates the principle that variables only change their value between frames.
 
-To write a variable, a cell must explicitly use a variable reference.
+To write a named variable, a cell must explicitly use a variable reference.
 
-However, there is a way around this to allow cells to read values from the circuit on the same frame: a cell's variable can be hooked up to a variable that is created for a register. Since registers are internal, the update order is fixed so there is no sequencing problem. Furthermore, because the variable update phase occurs between the program phase and the next circuit phase, the circuit will always see the latest variable value written by a script and vice-versa.
+There is a way around this to allow scripts to read values from the circuit on the same frame: a scripts's variable can be a variable that is created for a register. Since registers are internal, the update order is fixed so there is no sequencing problem. Furthermore, because of the phase order, the circuit will always see the latest variable value written by a script and vice-versa.
 
 ## Cells update at most once per frame
 

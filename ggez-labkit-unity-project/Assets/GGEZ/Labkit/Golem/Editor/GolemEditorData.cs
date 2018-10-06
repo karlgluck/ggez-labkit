@@ -35,36 +35,6 @@ using System.Reflection;
 
 namespace GGEZ.Labkit
 {
-    //-------------------------------------------------------------------------
-    // GolemAspectEditorData
-    //-------------------------------------------------------------------------
-    public class GolemAspectEditorData
-    {
-        public FieldInfo Field;
-        public Aspect Aspect;
-        public InspectableFieldInfo[] AspectFields;
-        public InspectableVariablePropertyInfo[] AspectVariables;
-
-        public Dictionary<string,string> FieldsUsingSettings = new Dictionary<string,string>();
-
-        /// State of the foldout for this aspect's properties in the inspector
-        public bool Foldout;
-    }
-
-    public class GolemVariableEditorData
-    {
-        public string Name;
-        public string Tooltip;
-        public InspectableType InspectableType;
-        public Type Type;
-        public object InitialValue;
-
-        /// Aspect(s) that declare this variable. Recomputed each load so that
-        /// variables removed from aspects (or variables from aspects removed
-        /// from golems) will be erased.
-        [System.NonSerialized]
-        public HashSet<Type> SourceAspects = new HashSet<Type>();
-    }
 
     //-------------------------------------------------------------------------
     // GolemEditorData
@@ -120,8 +90,6 @@ namespace GGEZ.Labkit
 
         // Variables
         //------------------
-        [System.NonSerialized]
-        public InspectableDictionaryKeyValuePair[] _variables = new InspectableDictionaryKeyValuePair[0];
         [System.NonSerialized]
         public List<GolemVariableEditorData> EditorVariables = new List<GolemVariableEditorData>();
 

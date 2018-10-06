@@ -29,7 +29,7 @@ using System.Reflection;
 using GGEZ.FullSerializer;
 using UnityObject = UnityEngine.Object;
 using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
-
+using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
@@ -46,6 +46,59 @@ namespace GGEZ.Labkit
 
             s_serializer.UnityReferences = objectReferences;
             return s_serializer;
+        }
+
+        public static string SerializeDictionary(Dictionary<string, object> serialized)
+        {
+            var serializer = Serialization.GetSerializer(null);
+            fsData data;
+            serializer.TrySerialize(serialized, out data);
+            return fsJsonPrinter.PrettyJson(data);
+        }
+        
+        public static Dictionary<string, object> DeserializeDictionary(string json, UnityObjectList objectReferences, UnityObject owner)
+        {
+            var serializer = Serialization.GetSerializer(objectReferences);
+            Dictionary<string, object> deserialized = new Dictionary<string, object>();
+
+            fsData data;
+            fsResult result;
+
+            result = fsJsonParser.Parse(json, out data);
+            if (result.Failed)
+            {
+                Debug.LogError(result, owner);
+                return deserialized;
+            }
+
+            result = serializer.TryDeserialize(data, ref deserialized);
+            if (result.Failed)
+            {
+                Debug.LogError(result, owner);
+                return deserialized;
+            }
+
+            return deserialized;
+        }
+
+        public static void ReadOrCreate(object self, string field, Dictionary<string, object> values)
+        {
+            var fieldInfo = self.GetType().GetField(field);
+            if (values.ContainsKey(field))
+            {
+                fieldInfo.SetValue(self, values[field]);
+            }
+            else
+            {
+                fieldInfo.SetValue(self, Activator.CreateInstance(fieldInfo.FieldType));
+            }
+        }
+
+        public static T Read<T>(string key, Dictionary<string, object> values) where T : class
+        {
+            object value;
+            values.TryGetValue(key, out value);
+            return value as T;
         }
     }
 }

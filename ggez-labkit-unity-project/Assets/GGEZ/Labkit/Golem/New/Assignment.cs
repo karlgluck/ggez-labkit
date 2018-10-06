@@ -87,8 +87,6 @@ namespace GGEZ.Labkit
         CellDummyInputRegister,         // Global read-only register
         CellDummyOutputRegister,        // Global write-only register
         CellDummyVariable,              // Newly allocated variable
-        CellDummyInputVariable,         // Global read-only variable
-        CellDummyOutputVariable,        // Global write-only variable
 
         ScriptVariable,                 // Find [TargetFieldName] on script [TargetIndex] and assign it to variable [Name], creating that variable if necessary
         ScriptVariableOrNull,           // The variable [Name] or null

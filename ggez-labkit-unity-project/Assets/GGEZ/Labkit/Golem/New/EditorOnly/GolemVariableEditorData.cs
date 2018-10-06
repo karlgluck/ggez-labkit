@@ -23,16 +23,37 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using GGEZ.FullSerializer;
+using System;
+using UnityEngine;
+using UnityEditor;
+using UnityObject = UnityEngine.Object;
+using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
+using System.Collections.Generic;
+using System.Reflection;
+
+#if UNITY_EDITOR
 
 namespace GGEZ.Labkit
 {
 
-    public interface IRegister
+    //-------------------------------------------------------------------------
+    // GolemVariableEditorData
+    //-------------------------------------------------------------------------
+    public class GolemVariableEditorData
     {
-        IRegister Clone();
-        IVariable CreateVariable();
-        void AddListener(Cell cell);
-        void RemoveListener(Cell cell);
+        public string Name;
+        public string Tooltip;
+        public InspectableType InspectableType;
+        public Type Type;
+        public object InitialValue;
+
+        /// Aspect(s) that declare this variable. Recomputed each load so that
+        /// variables removed from aspects (or variables from aspects removed
+        /// from golems) will be erased.
+        [System.NonSerialized]
+        public HashSet<Type> SourceAspects = new HashSet<Type>();
     }
+
 }
+
+#endif

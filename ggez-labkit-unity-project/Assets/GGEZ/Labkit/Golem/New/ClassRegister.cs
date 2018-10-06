@@ -27,6 +27,7 @@ using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
+    [GGEZ.FullSerializer.fsIgnore]
     public class ClassRegister<T> : IRegister where T : class
     {
         private T _value;

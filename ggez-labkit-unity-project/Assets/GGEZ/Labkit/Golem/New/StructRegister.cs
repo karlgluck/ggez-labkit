@@ -28,6 +28,7 @@ using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
+    [GGEZ.FullSerializer.fsIgnore]
     public class StructRegister<T> : IRegister where T : struct, IEquatable<T>
     {
         private T _value;

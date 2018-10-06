@@ -12,6 +12,28 @@ public enum Trigger
     Invalid = int.MaxValue,
 }
 
+namespace GGEZ.Labkit
+{
+    public class AddFloat : Cell
+    {
+        // [In] // Hooked up to read-only input if not attached
+        // [In, CanBeNull]  // Not hooked up if not attached
+        public StructRegister<float> Input;
+
+        // [Out] // Hooked up to write-only output if not attached
+        // [Out, CanBeNull] // Not hooked up if not attached
+        public StructRegister<float> Output;
+
+        public float Amount;
+
+        public override void Update()
+        {
+            Output.Value = Input.Value + Amount;
+        }
+    }
+
+}
+
 
 public class JoystickAspect : Aspect
 {

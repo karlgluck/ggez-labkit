@@ -23,53 +23,21 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-namespace GGEZ.Labkit
+using System.Collections.Generic;
+
+namespace GGEZ
 {
-    [GGEZ.FullSerializer.fsIgnore]
-    public class ClassVariable<T> : IVariable where T : class
+    public static partial class DictionaryExt
     {
-        /// <summary>The backing register for this variable</summary>
-        private ClassRegister<T> _register;
-
-        /// <summary>Next frame value</summary>
-        private T _value;
-
-        /// <summary>Returns the value of this variable at the end of the last frame</summary>
-        public T Value
+        public static void MultiAdd<Key, ItemType>(this Dictionary<Key, List<ItemType>> self, Key key, ItemType item) where ItemType : new()
         {
-            get
+            List<ItemType> list;
+            if (!self.TryGetValue(key, out list))
             {
-                return _register.Value;
+                list = new List<ItemType>();
+                self.Add(key, list);
             }
-            set
-            {
-                _value = value;
-                GolemManager.AddChangedVariable(this);
-            }
-        }
-
-        /// <summary>Create a variable with a new backing register</summary>
-        public ClassVariable()
-        {
-            _register = new ClassRegister<T>();
-        }
-
-        /// <summary>Create a variable for the given backing register</summary>
-        public ClassVariable(ClassRegister<T> register)
-        {
-            _register = register;
-        }
-        
-        /// <summary>The backing register for this variable</summary>
-        public IRegister GetRegister()
-        {
-            return _register;
-        }
-
-        /// <summary>Updates the value of the register that backs this variable</summary>
-        public void OnEndProgramPhase()
-        {
-            _register.ChangeValue(_value);
+            list.Add(item);
         }
     }
 }

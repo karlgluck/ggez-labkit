@@ -23,16 +23,37 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using GGEZ.FullSerializer;
+using System;
+using UnityEngine;
+using UnityEditor;
+using UnityObject = UnityEngine.Object;
+using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
+using System.Collections.Generic;
+using System.Reflection;
+
+#if UNITY_EDITOR
 
 namespace GGEZ.Labkit
 {
 
-    public interface IRegister
+    //-------------------------------------------------------------------------
+    // EditorWire
+    //-------------------------------------------------------------------------
+    public class EditorWire
     {
-        IRegister Clone();
-        IVariable CreateVariable();
-        void AddListener(Cell cell);
-        void RemoveListener(Cell cell);
+        public RegisterPtr Register;
+        [Obsolete("Use ReadCellIndex instead")]
+        public EditorCell ReadCell;
+        public string ReadField;
+        [Obsolete("Use WriteCellIndex instead")]
+        public EditorCell WriteCell;
+        public string WriteField;
+
+        // Other than cells, a wire can also read a register that is
+        // filled with a variable's value.
+        public EditorVariableInputRegister ReadVariableInputRegister;
     }
+
 }
+
+#endif

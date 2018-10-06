@@ -23,16 +23,18 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using GGEZ.FullSerializer;
+using System;
+using System.Reflection;
 
 namespace GGEZ.Labkit
 {
-
-    public interface IRegister
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    public class CanBeNullAttribute : Attribute
     {
-        IRegister Clone();
-        IVariable CreateVariable();
-        void AddListener(Cell cell);
-        void RemoveListener(Cell cell);
+        public static bool IsAppliedTo(FieldInfo fieldInfo)
+        {
+            var attributes = fieldInfo.GetCustomAttributes(typeof(CanBeNullAttribute), true);
+            return attributes.Length > 0; 
+        }
     }
 }

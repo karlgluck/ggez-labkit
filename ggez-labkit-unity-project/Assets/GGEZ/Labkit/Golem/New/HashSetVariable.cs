@@ -28,6 +28,7 @@ using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
+    [GGEZ.FullSerializer.fsIgnore]
     public class HashSetVariable<T> : IVariable
     {
         /// <summary>The backing register for this variable</summary>

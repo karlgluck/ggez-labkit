@@ -23,16 +23,36 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using GGEZ.FullSerializer;
+using System;
+using UnityEngine;
+using UnityEditor;
+using UnityObject = UnityEngine.Object;
+using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
+using System.Collections.Generic;
+using System.Reflection;
+
+#if UNITY_EDITOR
 
 namespace GGEZ.Labkit
 {
 
-    public interface IRegister
+    //-------------------------------------------------------------------------
+    // GolemAspectEditorData
+    //-------------------------------------------------------------------------
+    public class GolemAspectEditorData
     {
-        IRegister Clone();
-        IVariable CreateVariable();
-        void AddListener(Cell cell);
-        void RemoveListener(Cell cell);
+        [Obsolete]
+        public FieldInfo Field;
+        public Aspect Aspect;
+        public InspectableFieldInfo[] AspectFields;
+        public InspectableVariablePropertyInfo[] AspectVariables;
+
+        public Dictionary<string,string> FieldsUsingSettings = new Dictionary<string,string>();
+
+        /// State of the foldout for this aspect's properties in the inspector
+        public bool Foldout;
     }
+
 }
+
+#endif
