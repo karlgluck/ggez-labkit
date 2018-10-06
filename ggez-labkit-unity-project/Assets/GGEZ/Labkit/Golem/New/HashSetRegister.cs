@@ -28,7 +28,11 @@ using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
-    // public class HashSetRegister<T> : IRegister
+    public interface IHashSetRegister : IRegister
+    {
+    }
+
+    // public class HashSetRegister<T> : IRegister, IHashSetRegister
     // {
     //     private HashSet<T> _values = new HashSet<T>();
     //     private HashSet<T> _added = new HashSet<T>();

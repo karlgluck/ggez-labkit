@@ -63,6 +63,15 @@ namespace GGEZ.Labkit
             return true;
         }
 
+        /// <summary>Notifies listeners without updating the register's value</summary>
+        public void Signal()
+        {
+            if (_listeners != null)
+            {
+                GolemManager.AddChangedCellInputs(_listeners);
+            }
+        }
+
 
         public void AddListener(Cell cell)
         {

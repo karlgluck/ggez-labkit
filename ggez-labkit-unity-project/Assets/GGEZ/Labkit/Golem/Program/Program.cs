@@ -29,30 +29,6 @@ using GGEZ.FullSerializer;
 
 namespace GGEZ.Labkit
 {
-    //-------------------------------------------------------------------------
-    // Script
-    //-------------------------------------------------------------------------
-    public class Script
-    {
-        public Script Clone()
-        {
-            return MemberwiseClone() as Script;
-        }
-
-        [Obsolete]
-        public virtual void Acquire(Golem golem) { }
-        [Obsolete]
-        public virtual void OnEnter(Golem golem) { }
-        [Obsolete]
-        public virtual void OnUpdate(Golem golem) { }
-        [Obsolete]
-        public virtual void OnExit(Golem golem) { }
-
-        public virtual void Acquire() { }
-        public virtual void OnEnter() { }
-        public virtual void OnUpdate() { }
-        public virtual void OnExit() { }
-    }
 
     [fsSerializeEnumAsInteger]
     public enum StateIndex : int

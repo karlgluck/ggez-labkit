@@ -30,51 +30,6 @@ using GGEZ.FullSerializer;
 
 namespace GGEZ.Labkit
 {
-    //-------------------------------------------------------------------------
-    // Cell
-    //-------------------------------------------------------------------------
-    public class Cell : IEquatable<Cell>
-    {
-
-        [System.Obsolete]
-        public virtual void Acquire(Golem golem, ref bool running) { }
-
-        [System.Obsolete]
-        public virtual void Update(Golem golem, bool dirty, ref bool running) { }
-
-        
-        // This is a globally unique sequencing value used to organize cells into a priority queue
-        // It is in the order of cells in a single golem, and unique between golems
-        /// <remarks>Could use the high bits of this sequencer to distinguish
-        /// cells of different golems so that they can be parallelized.</remarks>
-        public int Sequencer { get; private set; }
-
-        public virtual void Acquire()
-        { }
-
-        public virtual void Update()
-        { }
-
-        public Cell Clone(int sequencer)
-        {
-            Cell cell = MemberwiseClone() as Cell;
-            cell.Sequencer = sequencer;
-            return cell;
-        }
-
-        private static int nextSequencer = 1;
-        public Cell Clone()
-        {
-            Cell cell = MemberwiseClone() as Cell;
-            cell.Sequencer = nextSequencer++;
-            return cell;
-        }
-
-        public bool Equals(Cell other)
-        {
-            return object.ReferenceEquals(this, other);
-        }
-    }
 
     //-------------------------------------------------------------------------
     // Attributes used when writing cells
@@ -119,7 +74,7 @@ namespace GGEZ.Labkit
     /// is edited, and target type is not strongly tied to the reference
     /// (3) Can create bugs involving serialization if the user changes
     /// the type of a field but not the name.
-    /// 
+    ///
     /// I chose (2) even though it is a little ugly and requires more work
     /// because it is flexible to users needs and won't cause bugs.
     /// </remarks>

@@ -151,7 +151,7 @@ namespace GGEZ.Labkit
                     case AssignmentType.CellGolem:    assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem); break;
                     case AssignmentType.ScriptGolem:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem); break;
 
-                    
+
                     case AssignmentType.AspectUnityObject:  assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem.GetReference(assignment.Name)); break;
                     case AssignmentType.CellUnityObject:    assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.GetReference(assignment.Name)); break;
                     case AssignmentType.ScriptUnityObject:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem.GetReference(assignment.Name)); break;
@@ -225,7 +225,7 @@ namespace GGEZ.Labkit
                     case AssignmentType.ScriptDummyInputVariable:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetReadonlyVariable(fieldInfo.FieldType)); break;
                     case AssignmentType.ScriptDummyOutputVariable:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetWriteonlyVariable(fieldInfo.FieldType)); break;
                 }
-            }            
+            }
         }
 
         private static IVariable GetVariableOrNull(Dictionary<string, IVariable> variables, string name)
@@ -284,7 +284,7 @@ namespace GGEZ.Labkit
             {
                 return variable.GetRegister();
             }
-            
+
             return null;
         }
 
@@ -362,7 +362,7 @@ namespace GGEZ.Labkit
             Debug.Assert(instance.GetRegister() != null);
             return instance;
         }
-        
+
         private static List<IVariable> s_changedVariables = new List<IVariable>();
         public static void AddChangedVariable(IVariable variable)
         {
@@ -370,10 +370,24 @@ namespace GGEZ.Labkit
         }
 
         private static List<Cell> s_changedCells = new List<Cell>();
+
+        private static int s_currentCircuitPhaseCellSequencer = 0;
+        private static List<Cell> s_changedCellsBeforeSequencer = new List<Cell>();
+
         public static void AddChangedCellInputs(List<Cell> cells)
         {
-            // add IDs to the priority queue based on their sequencer
-            s_changedCells.AddRange(cells);
+            for (int i = 0; i < cells.Count; ++i)
+            {
+                Cell cell = cells[i];
+                if (cell.Sequencer > s_currentCircuitPhaseCellSequencer)
+                {
+                    s_changedCells.Add(cell);
+                }
+                else
+                {
+                    s_changedCellsBeforeSequencer.Add(cell);
+                }
+            }
         }
 
         public static void OnVariableRollover()
@@ -392,28 +406,36 @@ namespace GGEZ.Labkit
             // NOTE: variables changed during circuit phase don't write registers until
             // the end of the frame
 
-            Debug.LogErrorFormat("OnCircuitPhase is REALLY REALLY bad, it sorts the list of cells every cell! Make this into a priority queue!");
+            Debug.LogErrorFormat("OnCircuitPhase is REALLY REALLY TERRIBLY BAD, it sorts the list of cells every cell! Make this into a priority queue!");
 
-            int lastSequencer = -1;
-            while (s_changedCells.Count > 0)
+            int sentinel = 9999999;
+
+            while (s_changedCells.Count > 0 && --sentinel > 0)
             {
-                s_changedCells.Sort((Cell lhs, Cell rhs) => lhs.Sequencer - rhs.Sequencer);
-                Debug.Assert(s_changedCells[0].Sequencer >= lastSequencer);
-                if (s_changedCells[0].Sequencer > lastSequencer)
+                Debug.Assert(s_changedCellsBeforeSequencer.Count == 0);
+
+
+                int lastSequencer = -1; // used to deduplicate the list
+                while (s_changedCells.Count > 0)
                 {
-                    s_changedCells[0].Update();
-                }
-                s_changedCells.RemoveAt(0);
-            }
-        }
+                    s_changedCells.Sort((Cell lhs, Cell rhs) => lhs.Sequencer - rhs.Sequencer);
+                    Debug.Assert(s_changedCells[0].Sequencer >= lastSequencer);
 
-        public static void OnProgramPhase()
-        {
-            // go through all the golems and run their programs
-            for (int i = 0; i < s_livingGolems.Count; ++i)
-            {
-                OnProgramPhase(s_livingGolems[i]);
+                    if (s_changedCells[0].Sequencer > lastSequencer)
+                    {
+                        s_changedCells[0].Update();
+                    }
+
+                    lastSequencer = s_changedCells[0].Sequencer;
+                    s_changedCells.RemoveAt(0);
+                }
+
+                var swap = s_changedCells;
+                s_changedCells = s_changedCellsBeforeSequencer;
+                s_changedCellsBeforeSequencer = swap;
             }
+
+            Debug.Assert(sentinel > 0);
         }
 
         private static Stack<bool> _stackForProcessingTransitions = new Stack<bool>();
@@ -442,63 +464,60 @@ namespace GGEZ.Labkit
         private static List<List<Transition>> s_activeTransitions = new List<List<Transition>>();
         private static List<List<Transition>> s_activeTransitionsCache = new List<List<Transition>>();
 
-        private static void OnProgramPhase(Golem2 golem)
+        private static void OnProgramPhase()
         {
             const int kMaxTransitionsPerFrame = 10;
 
-            bool[] triggers = golem.Triggers;
-            GolemArchetype archetype = golem.Archetype;
-
-            //-----------------------------------
-            // Transitions
-            //-----------------------------------
-
-            while (s_activeTransitionsCache.Count < archetype.Components.Length)
+            for (int golemIndex = 0; golemIndex < s_livingGolems.Count; ++golemIndex)
             {
-                s_activeTransitionsCache.Add(new List<Transition>());
-            }
-            s_activeTransitions.Clear();
-            s_activeTransitions.AddRange(s_activeTransitionsCache);
+                Golem2 golem = s_livingGolems[golemIndex];
 
-            for (int sentinel = 0; sentinel < kMaxTransitionsPerFrame; ++sentinel)
-            {
-                for (int componentIndex = 0; componentIndex < archetype.Components.Length; ++componentIndex)
+                bool[] triggers = golem.Triggers;
+                GolemArchetype archetype = golem.Archetype;
+
+                //-----------------------------------
+                // Transitions
+                //-----------------------------------
+
+                // TODO: each golem should be able to set a "wants transition" flag
+                //       that can shortcut this check if no triggers are set
+                //       (and the last frame didn't use up all transitions)
+                // even better: golems only exist in the list at all if they
+                //              need to process transitions
+
+                while (s_activeTransitionsCache.Count < archetype.Components.Length)
                 {
-                    var activeTransitions = s_activeTransitions[componentIndex];
+                    s_activeTransitionsCache.Add(new List<Transition>());
+                }
+                s_activeTransitions.Clear();
+                s_activeTransitions.AddRange(s_activeTransitionsCache);
 
-                    bool componentIsFinishedTransitioning = activeTransitions == null;
-                    if (componentIsFinishedTransitioning)
+                for (int sentinel = 0; sentinel < kMaxTransitionsPerFrame; ++sentinel)
+                {
+                    // Determine if any states want to transition
+                    for (int componentIndex = 0; componentIndex < archetype.Components.Length; ++componentIndex)
                     {
-                        continue;
-                    }
-                    activeTransitions.Clear();
+                        var activeTransitions = s_activeTransitions[componentIndex];
 
-                    var archetypeComponent = archetype.Components[componentIndex];
-                    var instanceComponent = golem.Components[componentIndex];
-
-                    GolemComponent.Layer[] layers = archetypeComponent.Layers;
-                    int layerIndex = 0;
-                    while (layerIndex < layers.Length)
-                    {
-                        var layer = layers[layerIndex];
-                        
-                        for (int i = 0; i < layer.FromAnyStateTransitions.Length; ++i)
+                        bool componentIsFinishedTransitioning = activeTransitions == null;
+                        if (componentIsFinishedTransitioning)
                         {
-                            Transition transition = layer.FromAnyStateTransitions[i];
-                            if (EvaluateTransitionExpression(transition, triggers))
-                            {
-                                activeTransitions.Add(transition);
-                                instanceComponent.LayerStates[layerIndex] = transition.ToState;
-                                goto NextLayer;
-                            }
+                            continue;
                         }
+                        activeTransitions.Clear();
 
-                        Transition[] transitions;
-                        if (layer.Transitions.TryGetValue(instanceComponent.LayerStates[layerIndex], out transitions))
+                        var archetypeComponent = archetype.Components[componentIndex];
+                        var instanceComponent = golem.Components[componentIndex];
+
+                        GolemComponent.Layer[] layers = archetypeComponent.Layers;
+                        int layerIndex = 0;
+                        while (layerIndex < layers.Length)
                         {
-                            for (int i = 0; i < transitions.Length; ++i)
+                            var layer = layers[layerIndex];
+
+                            for (int i = 0; i < layer.FromAnyStateTransitions.Length; ++i)
                             {
-                                Transition transition = transitions[i];
+                                Transition transition = layer.FromAnyStateTransitions[i];
                                 if (EvaluateTransitionExpression(transition, triggers))
                                 {
                                     activeTransitions.Add(transition);
@@ -506,104 +525,123 @@ namespace GGEZ.Labkit
                                     goto NextLayer;
                                 }
                             }
+
+                            Transition[] transitions;
+                            if (layer.Transitions.TryGetValue(instanceComponent.LayerStates[layerIndex], out transitions))
+                            {
+                                for (int i = 0; i < transitions.Length; ++i)
+                                {
+                                    Transition transition = transitions[i];
+                                    if (EvaluateTransitionExpression(transition, triggers))
+                                    {
+                                        activeTransitions.Add(transition);
+                                        instanceComponent.LayerStates[layerIndex] = transition.ToState;
+                                        goto NextLayer;
+                                    }
+                                }
+                            }
+
+                        NextLayer:
+                            ++layerIndex;
                         }
 
-                    NextLayer:
-                        ++layerIndex;
+                        componentIsFinishedTransitioning = activeTransitions.Count == 0;
+                        if (componentIsFinishedTransitioning)
+                        {
+                            s_activeTransitions[componentIndex] = null;
+                            break;
+                        }
+
+                        for (int i = 0; i < activeTransitions.Count; ++i)
+                        {
+                            var fromState = (int)activeTransitions[i].FromState;
+                            if (fromState < 0 || fromState >= archetypeComponent.States.Length)
+                            {
+                                continue;
+                            }
+                            var scriptsToTransitionFrom = archetypeComponent.States[fromState].Scripts;
+                            for (int j = 0; j < scriptsToTransitionFrom.Length; ++j)
+                            {
+                                int script = scriptsToTransitionFrom[j];
+                                instanceComponent.Scripts[script].OnExit();
+                            }
+                        }
                     }
 
-                    componentIsFinishedTransitioning = activeTransitions.Count == 0;
-                    if (componentIsFinishedTransitioning)
+                    // Clear all triggers
+                    for (int i = 0; i < triggers.Length; ++i)
                     {
-                        s_activeTransitions[componentIndex] = null;
-                        break;
+                        triggers[i] = false;
                     }
 
-                    for (int i = 0; i < activeTransitions.Count; ++i)
+                    int componentsTransitioned = 0;
+
+                    // Enter the new states in each component
+                    for (int componentIndex = 0; componentIndex < archetype.Components.Length; ++componentIndex)
                     {
-                        var fromState = (int)activeTransitions[i].FromState;
-                        if (fromState < 0 || fromState >= archetypeComponent.States.Length)
+                        var activeTransitions = s_activeTransitions[componentIndex];
+
+                        bool componentIsFinishedTransitioning = activeTransitions == null;
+                        if (componentIsFinishedTransitioning)
                         {
                             continue;
                         }
-                        var scriptsToTransitionFrom = archetypeComponent.States[fromState].Scripts;
-                        for (int j = 0; j < scriptsToTransitionFrom.Length; ++j)
+                        ++componentsTransitioned;
+
+                        var archetypeComponent = archetype.Components[componentIndex];
+                        var instanceComponent = golem.Components[componentIndex];
+
+                        for (int i = 0; i < activeTransitions.Count; ++i)
                         {
-                            int script = scriptsToTransitionFrom[j];
-                            instanceComponent.Scripts[script].OnExit();
+                            var toState = (int)activeTransitions[i].ToState;
+                            if (toState < 0 || toState >= archetypeComponent.States.Length)
+                            {
+                                continue;
+                            }
+                            var scriptsToTransitionTo = archetypeComponent.States[toState].Scripts;
+                            for (int j = 0; j < scriptsToTransitionTo.Length; ++j)
+                            {
+                                int script = scriptsToTransitionTo[j];
+                                instanceComponent.Scripts[script].OnEnter();
+                            }
                         }
                     }
+
+                    if (componentsTransitioned == 0)
+                    {
+                        break;
+                    }
+
+                    Debug.Assert(sentinel + 1 < kMaxTransitionsPerFrame);
                 }
 
-                for (int i = 0; i < triggers.Length; ++i)
-                {
-                    triggers[i] = false;
-                }
-
-                int componentsTransitioned = 0;
+                //-----------------------------------
+                // States
+                //-----------------------------------
 
                 for (int componentIndex = 0; componentIndex < archetype.Components.Length; ++componentIndex)
                 {
                     var activeTransitions = s_activeTransitions[componentIndex];
-
-                    bool componentIsFinishedTransitioning = activeTransitions == null;
-                    if (componentIsFinishedTransitioning)
-                    {
-                        continue;
-                    }
-                    ++componentsTransitioned;
-
                     var archetypeComponent = archetype.Components[componentIndex];
                     var instanceComponent = golem.Components[componentIndex];
-
-                    for (int i = 0; i < activeTransitions.Count; ++i)
+                    for (int i = 0; i < archetypeComponent.Layers.Length; ++i)
                     {
-                        var toState = (int)activeTransitions[i].ToState;
-                        if (toState < 0 || toState >= archetypeComponent.States.Length)
+                        int state = (int)instanceComponent.LayerStates[i];
+                        if (state < 0 || state >= archetypeComponent.States.Length)
                         {
                             continue;
                         }
-                        var scriptsToTransitionTo = archetypeComponent.States[toState].Scripts;
-                        for (int j = 0; j < scriptsToTransitionTo.Length; ++j)
+                        var scriptsToUpdate = archetypeComponent.States[state].Scripts;
+                        for (int j = 0; j < scriptsToUpdate.Length; ++j)
                         {
-                            int script = scriptsToTransitionTo[j];
-                            instanceComponent.Scripts[script].OnEnter();
+                            int script = scriptsToUpdate[j];
+                            instanceComponent.Scripts[script].OnUpdate();
                         }
-                    }
-                }
-
-                if (componentsTransitioned == 0)
-                {
-                    break;
-                }
-
-                Debug.Assert(sentinel + 1 < kMaxTransitionsPerFrame);
-            }
-
-            //-----------------------------------
-            // States
-            //-----------------------------------
-
-            for (int componentIndex = 0; componentIndex < archetype.Components.Length; ++componentIndex)
-            {
-                var activeTransitions = s_activeTransitions[componentIndex];
-                var archetypeComponent = archetype.Components[componentIndex];
-                var instanceComponent = golem.Components[componentIndex];
-                for (int i = 0; i < archetypeComponent.Layers.Length; ++i)
-                {
-                    int state = (int)instanceComponent.LayerStates[i];
-                    if (state < 0 || state >= archetypeComponent.States.Length)
-                    {
-                        continue;
-                    }
-                    var scriptsToUpdate = archetypeComponent.States[state].Scripts;
-                    for (int j = 0; j < scriptsToUpdate.Length; ++j)
-                    {
-                        int script = scriptsToUpdate[j];
-                        instanceComponent.Scripts[script].OnUpdate();
                     }
                 }
             }
         }
+
+
     }
 }

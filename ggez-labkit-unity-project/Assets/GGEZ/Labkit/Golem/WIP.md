@@ -34,7 +34,7 @@
         - Contains {setting name, [cell/script index], field name } to write values on load
         (contains variables to write to field values on load)
         (contains unity object references to write to field values on load)
-     
+
 
 
                              frame start
@@ -55,7 +55,16 @@
 
 
 
+problem registers on different golems that listen to each other
+possibly creates an infinite loop if you aren't careful...
+ - when iterating, dirty instructions for the current cell should
+   be executed immediately, but dirty instructions for later
+   cells should be batched, sorted and done later
 
+ - if sequence > current:
+    add to priority queue
+ - else:
+    add to new queue
 
 
 
