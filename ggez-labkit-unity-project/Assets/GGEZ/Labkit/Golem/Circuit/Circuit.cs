@@ -80,10 +80,11 @@ namespace GGEZ.Labkit
     /// </remarks>
     public struct VariableRef
     {
-        // Null for a local variable. Anything else is looked up in
-        // the golem's references table.
-        public readonly string Relationship;
+        /// <summary>Key to use to look up a variable</summary>
         public readonly string Name;
+        
+        /// <remarks>Null/empty for a local variable</remarks>
+        public readonly string Relationship;
 
         public VariableRef(string relationship, string name)
         {

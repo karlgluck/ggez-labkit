@@ -46,8 +46,8 @@ namespace GGEZ.Labkit
         public string Name;
         public EditorCellIndex Index = EditorCellIndex.Invalid;
         public Cell Cell;
+        #warning Make things more clear here by making inputs a dictionary and outputs a dictionary-list. This will also clean up compilation.
         public List<EditorWire> Inputs = new List<EditorWire>();
-        #warning // Make things more clear here by making inputs a dictionary and outputs a dictionary-list
         public List<EditorWire> Outputs = new List<EditorWire>();
         public Rect Position;
         public Dictionary<string,string> UnityObjectFields = new Dictionary<string,string>();

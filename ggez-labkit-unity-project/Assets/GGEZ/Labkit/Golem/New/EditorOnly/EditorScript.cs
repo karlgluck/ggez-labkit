@@ -41,11 +41,12 @@ namespace GGEZ.Labkit
     //-------------------------------------------------------------------------
     public class EditorScript
     {
-        // TODO: could add an enabled flag here to allow us to turn on/off
-        //       individual scripts while editing!
-
+        #warning Enabled flag isn't exposed in the editor
+        public bool Enabled = true;
         public Script Script;
         public Dictionary<string,string> FieldsUsingSettings = new Dictionary<string,string>();
+        public Dictionary<string,string> UnityObjectFields = new Dictionary<string,string>();
+        public Dictionary<string,VariableRef> FieldsUsingVariables = new Dictionary<string,VariableRef>();
     }
 
 }

@@ -104,11 +104,22 @@ namespace GGEZ.Labkit
 
             // Compile runtime data
             //-------------------------
+            List<Assignment> assignments = new List<Assignment>();
+            Dictionary<string, List<Assignment>> externalAssignments = new Dictionary<string, List<Assignment>> externalAssignments;
             {
                 Aspects = new Aspect[EditorAspects.Count];
                 for (int i = 0; i < EditorAspects.Count; ++i)
                 {
-                    Aspects[i] = EditorAspects[i].Aspect.Clone();
+                    Aspect aspect = EditorAspects[i].Aspect.Clone();
+                    Aspects[i] = aspect;
+
+                    var inspectableType = InspectableAspectType.GetInspectableAspectType(aspect.GetType());
+
+                    var fields = inspectableType.Fields;
+                    for (int j = 0; j < fields.Length; ++j)
+                    {
+                        fields[j].FieldInfo.Name
+                    }
                 }
             }
 

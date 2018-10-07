@@ -30,6 +30,7 @@ using UnityObject = UnityEngine.Object;
 using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 
 #if UNITY_EDITOR
 
@@ -37,12 +38,13 @@ namespace GGEZ.Labkit
 {
 
     //-----------------------------------------------------------------------------
-    // InspectableScriptType
+    // InspectableAspectType
     //-----------------------------------------------------------------------------
-    public class InspectableScriptType
+    public class InspectableAspectType
     {
         public readonly string Name;
         public readonly Field[] Fields;
+        public readonly Variable[] Variables;
 
         public struct Field
         {
@@ -62,46 +64,68 @@ namespace GGEZ.Labkit
             }
         }
 
-        public InspectableScriptType(string name, Field[] fields)
+        public struct Variable
+        {
+            public readonly FieldInfo FieldInfo;
+
+            public Variable(FieldInfo fieldInfo)
+            {
+                FieldInfo = fieldInfo;
+            }
+        }
+
+        public InspectableAspectType(string name, Field[] fields, Variable[] variables)
         {
             Name = name;
             Fields = fields;
+            Variables = variables;
         }
 
-        private static Dictionary<Type, InspectableScriptType> s_typeToInspectableType = new Dictionary<Type, InspectableScriptType>();
-        public static InspectableScriptType GetInspectableScriptType(Type scriptType)
+        private static Dictionary<Type, InspectableAspectType> s_typeToInspectableType = new Dictionary<Type, InspectableAspectType>();
+        public static InspectableAspectType GetInspectableAspectType(Type aspectType)
         {
-            Debug.Assert(typeof(Script).IsAssignableFrom(scriptType));
+            Debug.Assert(typeof(Aspect).IsAssignableFrom(aspectType));
 
-            InspectableScriptType retval;
-            if (s_typeToInspectableType.TryGetValue(scriptType, out retval))
+            InspectableAspectType retval;
+            if (s_typeToInspectableType.TryGetValue(aspectType, out retval))
             {
                 return retval;
             }
 
-            FieldInfo[] fields = scriptType.GetFields(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
+            var fields = aspectType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where(f => !typeof(IVariable).IsAssignableFrom(f.FieldType)).ToArray();
             var returnedFields = new Field[fields.Length];
-            int j = 0;
-            for (int i = 0; i < fields.Length; ++i)
             {
-                #warning these really shouldn't be assertions since the coder can mess this up and it doesn't really matter
-                Debug.Assert(!fields[i].IsDefined(typeof(InAttribute), true));
-                Debug.Assert(!fields[i].IsDefined(typeof(OutAttribute), true));
-
-                InspectableType inspectableType = InspectableTypeExt.GetInspectableTypeOf(fields[i].FieldType);
-                if (inspectableType == InspectableType.Invalid)
+                int j = 0;
+                for (int i = 0; i < fields.Length; ++i)
                 {
-                    continue;
-                }
+                    Debug.Assert(!fields[i].FieldType.IsDefined(typeof(InAttribute), false));
+                    Debug.Assert(!fields[i].FieldType.IsDefined(typeof(OutAttribute), false));
 
-                bool wantsSetting = fields[i].IsDefined(typeof(SettingAttribute), true);
-                bool canBeNull = fields[i].IsDefined(typeof(CanBeNullAttribute), true);
-                Type specificType = InspectableTypeExt.GetSpecificType(inspectableType, fields[i]);
-                returnedFields[j++] = new Field(inspectableType, specificType, fields[i], wantsSetting, canBeNull);
+                    var inspectableType = InspectableTypeExt.GetInspectableTypeOf(fields[i].FieldType);
+                    if (inspectableType != InspectableType.Invalid)
+                    {
+                        var specificType = InspectableTypeExt.GetSpecificType(inspectableType, fields[i]);
+                        bool wantsSetting = fields[i].IsDefined(typeof(SettingAttribute), true);
+                        bool canBeNull = fields[i].IsDefined(typeof(CanBeNullAttribute), true);
+                        returnedFields[j++] = new Field(inspectableType, specificType, fields[i], wantsSetting, canBeNull);
+                    }
+                }
+                Array.Resize(ref returnedFields, j);
             }
 
-            retval = new InspectableScriptType(scriptType.Name, returnedFields);
-            s_typeToInspectableType.Add(scriptType, retval);
+            var variables = aspectType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where(f => typeof(IVariable).IsAssignableFrom(f.FieldType)).ToArray();
+            var returnedVariables = new Variable[variables.Length];
+            {
+                int j = 0;
+                for (int i = 0; i < variables.Length; ++i)
+                {
+                    returnedVariables[j++] = new Variable(variables[i]);
+                }
+                Array.Resize(ref returnedVariables, j);
+            }
+
+            retval = new InspectableAspectType(aspectType.Name, returnedFields, returnedVariables);
+            s_typeToInspectableType.Add(aspectType, retval);
             return retval;
         }
     }

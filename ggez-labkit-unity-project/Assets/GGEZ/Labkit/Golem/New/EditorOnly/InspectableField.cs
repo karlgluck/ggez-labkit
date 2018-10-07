@@ -37,40 +37,58 @@ namespace GGEZ.Labkit
 {
 
     //-----------------------------------------------------------------------------
-    // InspectableFieldInfo
+    // InspectableField
     //-----------------------------------------------------------------------------
-    public struct InspectableFieldInfo
+    public struct InspectableField
     {
         public readonly InspectableType InspectableType;
         public readonly Type SpecificType;
         public readonly FieldInfo FieldInfo;
         public readonly bool WantsSetting;
+        public readonly bool CanBeNull;
 
-        public InspectableFieldInfo(InspectableType inspectableType, Type specificType, FieldInfo fieldInfo, bool wantsSetting)
+        public InspectableField(InspectableType inspectableType, Type specificType, FieldInfo fieldInfo, bool wantsSetting, bool canBeNull)
         {
             InspectableType = inspectableType;
             SpecificType = specificType;
             FieldInfo = fieldInfo;
             WantsSetting = wantsSetting;
+            CanBeNull = canBeNull;
         }
 
-        public static InspectableFieldInfo[] GetFields(object target)
+        // private static Dictionary<Type, InspectableField[]> s_typeToInspectableFields = new Dictionary<Type, InspectableField[]>();
+        public static InspectableField[] GetInspectableFields(Type targetType)
         {
-            FieldInfo[] fields = target.GetType().GetFields(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
-            var retval = new InspectableFieldInfo[fields.Length];
+            InspectableField[] retval;
+            // if (s_typeToInspectableFields.TryGetValue(targetType, out retval))
+            // {
+            //     return retval;
+            // }
+
+            FieldInfo[] fields = targetType.GetFields(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
+            retval = new InspectableField[fields.Length];
             int j = 0;
             for (int i = 0; i < fields.Length; ++i)
             {
+                bool isInputOrOutput = fields[i].IsDefined(typeof(InAttribute), true) || fields[i].IsDefined(typeof(OutAttribute), true);
+                if (isInputOrOutput)
+                {
+                    continue;
+                }
+
                 InspectableType inspectableType = InspectableTypeExt.GetInspectableTypeOf(fields[i].FieldType);
                 if (inspectableType == InspectableType.Invalid)
                 {
                     continue;
                 }
-                bool wantsSetting = SettingAttribute.IsDeclaredOn(fields[i]);
+
+                bool wantsSetting = fields[i].IsDefined(typeof(SettingAttribute), true);
+                bool canBeNull = fields[i].IsDefined(typeof(CanBeNullAttribute), true);
                 Type specificType = InspectableTypeExt.GetSpecificType(inspectableType, fields[i]);
-                retval[j++] = new InspectableFieldInfo(inspectableType, specificType, fields[i], wantsSetting);
+                retval[j++] = new InspectableField(inspectableType, specificType, fields[i], wantsSetting, canBeNull);
             }
             Array.Resize(ref retval, j);
+            // s_typeToInspectableFields.Add(targetType, retval);
             return retval;
         }
     }

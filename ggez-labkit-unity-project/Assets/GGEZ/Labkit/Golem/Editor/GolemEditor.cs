@@ -131,7 +131,7 @@ namespace GGEZ.Labkit
                 for (int j = aspects.Count - 1; j >= 0; --j)
                 {
                     GolemAspectEditorData editableAspect = aspects[j];
-                    InspectableFieldInfo[] aspectFields = editableAspect.AspectFields;
+                    InspectableField[] aspectFields = editableAspect.AspectFields;
                     InspectableVariablePropertyInfo[] aspectVariables = editableAspect.AspectVariables;
 
                     EditorGUILayout.Space();
@@ -155,7 +155,7 @@ namespace GGEZ.Labkit
                     // Fields
                     for (int i = 0; i < aspectFields.Length; ++i)
                     {
-                        InspectableFieldInfo fieldInfo = aspectFields[i];
+                        InspectableField fieldInfo = aspectFields[i];
                         GolemEditorUtility.EditorGUILayoutGolemField(
                             fieldInfo.InspectableType,
                             fieldInfo.SpecificType,

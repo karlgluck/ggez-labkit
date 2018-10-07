@@ -39,5 +39,15 @@ namespace GGEZ
             }
             list.Add(item);
         }
+
+        public static Dictionary<Key, ItemType[]> MultiToArray<Key, ItemType>(this Dictionary<Key, List<ItemType>> self)
+        {
+            var retval = new Dictionary<Key, ItemType[]>(self.Count);
+            foreach (var kvp in self)
+            {
+                retval.Add(kvp.Key, kvp.Value.ToArray());
+            }
+            return retval;
+        }
     }
 }

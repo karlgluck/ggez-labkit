@@ -44,7 +44,7 @@ namespace GGEZ.Labkit
         [Obsolete]
         public FieldInfo Field;
         public Aspect Aspect;
-        public InspectableFieldInfo[] AspectFields;
+        public InspectableField[] AspectFields;
         public InspectableVariablePropertyInfo[] AspectVariables;
 
         public Dictionary<string,string> FieldsUsingSettings = new Dictionary<string,string>();

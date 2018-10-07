@@ -93,8 +93,6 @@ namespace GGEZ.Labkit
         ScriptVariableOrDummy,          // The variable [Name] or a newly allocated variable
         ScriptRegisterVariable,         // The variable created for register [RegisterIndex]
         ScriptDummyVariable,            // Newly allocated variable
-        ScriptDummyInputVariable,       // Global read-only variable
-        ScriptDummyOutputVariable,      // Global write-only variable
     }
 
 }

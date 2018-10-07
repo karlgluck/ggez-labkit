@@ -149,7 +149,7 @@ namespace GGEZ.Labkit
             var editorAspect = new GolemAspectEditorData();
             editorAspect.Field = aspectFieldInGolem;
             editorAspect.Aspect = aspect;
-            editorAspect.AspectFields = InspectableFieldInfo.GetFields(aspect);
+            editorAspect.AspectFields = InspectableField.GetInspectableFields(aspectType);
             editorAspect.AspectVariables = InspectableVariablePropertyInfo.GetVariableProperties(aspect);
             EditorAspects.Add(editorAspect);
 

@@ -39,10 +39,10 @@ namespace GGEZ.Labkit
         public IRegister[] Registers;
 
         [NonSerialized]
-        public Script[] Scripts;
+        public Layer[] Layers;
 
         [NonSerialized]
-        public Layer[] Layers;
+        public Script[] Scripts;
 
         [NonSerialized]
         public State[] States;
@@ -522,7 +522,7 @@ namespace GGEZ.Labkit
                 for (int i = 0; i < EditorStates.Count; ++i)
                 {
                     var editorState = EditorStates[i];
-                    Debug.Assert(editorState.Index == (EditorStateIndex)i, "Wrong editor state index; set to " + editorState.Index + " expecting " + i);
+                    Debug.Assert(editorState.Index == (EditorStateIndex)i, "Wrong editor state index; set to " + editorState.Index + " expecting " + i, this);
                     editorState.Layer = EditorLayerIndex.Invalid;
                     if (editorState.SpecialState == EditorSpecialStateType.LayerEnter)
                     {
@@ -537,7 +537,12 @@ namespace GGEZ.Labkit
                 for (int layerIndex = layersBuilder.Count - 1; layerIndex >= 0; --layerIndex)
                 {
                     var layerStates = layersBuilder[layerIndex];
-                    worklist.Add(layerStates.First());
+                    {
+                        // Grab the value from layerStates
+                        var enumerator = layerStates.GetEnumerator();
+                        enumerator.MoveNext();
+                        worklist.Add(enumerator.Current);
+                    }
                     while (worklist.Count > 0)
                     {
                         var lastIndex = worklist.Count - 1;
@@ -592,12 +597,6 @@ namespace GGEZ.Labkit
 
                         if (editorState.SpecialState != EditorSpecialStateType.Normal)
                         {
-                            // if (editorState.SpecialState == EditorSpecialStateType.LayerEnter)
-                            // {
-                            //     editorState.CompiledIndex = (StateIndex)states.Count;
-                            //     states.Add(new State { Scripts = new int[0] });
-                            //     layerStates.Add(editorState.CompiledIndex);
-                            // }
                             continue;
                         }
 
@@ -608,10 +607,145 @@ namespace GGEZ.Labkit
                             int scriptIndex = scripts.Count;
                             stateScripts[j] = scriptIndex;
                             var editorScript = editorScripts[j];
+
+                            if (!editorScript.Enabled)
+                            {
+                                continue;
+                            }
+
                             var script = editorScript.Script.Clone();
-                            ApplyFieldsUsingSettings(script, editorScript.FieldsUsingSettings, Settings);
+
+                            var inspectableScriptType = InspectableScriptType.GetInspectableScriptType(script.GetType());
+
+                            //-------------------------------------------------
+                            // Write assignments for fields referencing:
+                            //  * Aspects
+                            //  * Settings
+                            //  * Unity Objects
+                            //  * Variables
+                            //-------------------------------------------------
+                            {
+                                InspectableScriptType.Field[] fields = inspectableScriptType.Fields;
+                                for (int i = 0; i < fields.Length; ++i)
+                                {
+                                    InspectableScriptType.Field field = fields[i];
+                                    string fieldName = field.FieldInfo.Name;
+
+                                    switch (field.Type)
+                                    {
+                                        
+                                    //-------------------------------------------------
+                                    case InspectableType.Golem:
+                                    //-------------------------------------------------
+                                        assignments.Add(new Assignment()
+                                        {
+                                            Type = AssignmentType.ScriptGolem,
+                                            TargetIndex = scriptIndex,
+                                            TargetFieldName = fieldName,
+                                        });
+                                        break;
+
+                                    //-------------------------------------------------
+                                    case InspectableType.UnityObject:
+                                    //-------------------------------------------------
+                                        string unityObjectName;
+                                        if (editorScript.UnityObjectFields.TryGetValue(fieldName, out unityObjectName))
+                                        {
+                                            assignments.Add(new Assignment()
+                                            {
+                                                Type = AssignmentType.ScriptUnityObject,
+                                                Name = unityObjectName,
+                                                TargetIndex = scriptIndex,
+                                                TargetFieldName = fieldName,
+                                            });
+                                        }
+                                        else
+                                        {
+                                            Debug.LogWarning("Field " + fieldName + " is not mapped to a UnityObject and will always be null");
+                                        }
+                                        break;
+
+                                    //-------------------------------------------------
+                                    case InspectableType.Aspect:
+                                    //-------------------------------------------------
+                                        assignments.Add(new Assignment()
+                                        {
+                                            Type = AssignmentType.ScriptAspect,
+                                            TargetIndex = scriptIndex,
+                                            TargetFieldName = fieldName,
+                                        });
+                                        break;
+
+                                    //-------------------------------------------------
+                                    case InspectableType.Variable:
+                                    //-------------------------------------------------
+                                        VariableRef variableRef;
+                                        if (editorScript.FieldsUsingVariables.TryGetValue(fieldName, out variableRef))
+                                        {
+                                            var assignment = new Assignment()
+                                            {
+                                                Name = variableRef.Name,
+                                                TargetIndex = scriptIndex,
+                                                TargetFieldName = fieldName,
+                                            };
+
+                                            if (variableRef.IsExternal)
+                                            {
+                                                assignment.Type = field.CanBeNull
+                                                        ? AssignmentType.ScriptVariableOrNull
+                                                        : AssignmentType.ScriptVariableOrDummy;
+                                                externalAssignments.MultiAdd(variableRef.Relationship, assignment);
+                                            }
+                                            else if (variableRef.IsInternalRegister)
+                                            {
+                                                assignment.Type = AssignmentType.ScriptRegisterVariable;
+                                                assignment.RegisterIndex = variableRef.RegisterIndex;
+                                                assignments.Add(assignment);
+                                            }
+                                            else
+                                            {
+                                                assignment.Type = AssignmentType.ScriptVariable;
+                                                assignments.Add(assignment);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (!field.CanBeNull)
+                                            {
+                                                assignments.Add(new Assignment()
+                                                {
+                                                    Type = AssignmentType.ScriptDummyVariable,
+                                                    TargetIndex = scriptIndex,
+                                                    TargetFieldName = fieldName,
+                                                });
+                                            }
+                                        }
+                                        break;
+
+                                    //-------------------------------------------------
+                                    default:
+                                    //-------------------------------------------------
+                                        string setting;
+                                        if (editorScript.FieldsUsingSettings.TryGetValue(fieldName, out setting))
+                                        {
+                                            Debug.Assert(InspectableTypeExt.CanUseSetting(field.Type));
+
+                                            assignments.Add(new Assignment()
+                                            {
+                                                Type = AssignmentType.CellSetting,
+                                                Name = setting,
+                                                TargetIndex = scriptIndex,
+                                                TargetFieldName = fieldName,
+                                            });
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+
                             scripts.Add(script);
                         }
+
                         int stateIndex = states.Count;
                         editorState.CompiledIndex = (StateIndex)states.Count;
                         states.Add(new State { Scripts = stateScripts });
@@ -627,7 +761,8 @@ namespace GGEZ.Labkit
                 for (int layerIndex = 0; layerIndex < layersBuilder.Count; ++layerIndex)
                 {
                     var editorStates = layersBuilder[layerIndex];
-                    var layerTransitions = new List<Transition>();
+                    var fromAnyStateTransitions = new List<Transition>();
+                    var transitions = new Dictionary<StateIndex, List<Transition>>();
                     foreach (var editorStateIndex in editorStates)
                     {
                         var editorState = EditorStates[(int)editorStateIndex];
@@ -682,6 +817,7 @@ namespace GGEZ.Labkit
                                 Expression = transitionExpression.ToArray(),
                                 Triggers = transitionTriggers.ToArray(),
                             };
+
                             var fromState = EditorStates[(int)editorTransition.From];
                             switch (fromState.SpecialState)
                             {
@@ -699,6 +835,7 @@ namespace GGEZ.Labkit
                                     transition.FromState = StateIndex.Invalid;
                                     break;
                             }
+
                             var toState = EditorStates[(int)editorTransition.To];
                             switch (toState.SpecialState)
                             {
@@ -717,15 +854,27 @@ namespace GGEZ.Labkit
                                     transition.ToState = StateIndex.Idle;
                                     break;
                             }
-                            layerTransitions.Add(transition);
+
+                            if (transition.FromState == StateIndex.Any)
+                            {
+                                fromAnyStateTransitions.Add(transition);
+                            }
+                            else
+                            {
+                                transitions.MultiAdd(transition.FromState, transition);
+                            }
                         }
                     }
-                    layers[layerIndex].Transitions = layerTransitions.ToArray();
+                    layers[layerIndex].FromAnyStateTransitions = fromAnyStateTransitions.ToArray();
+                    layers[layerIndex].Transitions = transitions.MultiToArray();
                 }
 
-                serialized["Layers"] = layers;
-                serialized["Scripts"] = scripts.ToArray();
-                serialized["States"] = states.ToArray();
+                Layers = layers;
+                Scripts = scripts.ToArray();
+                States = states.ToArray();
+
+                Assignments = assignments.ToArray();
+                ExternalAssignments = externalAssignments.MultiToArray();
             }
 
         #else
@@ -737,6 +886,15 @@ namespace GGEZ.Labkit
             {
                 Dictionary<string, object> serialized = new Dictionary<string, object>();
 
+                serialized["Cells"] = Cells;
+                serialized["Registers"] = Registers;
+
+                serialized["Layers"] = Layers;
+                serialized["Scripts"] = Scripts;
+                serialized["States"] = States;
+
+                serialized["Assignments"] = Assignments;
+                serialized["ExternalAssignments"] = ExternalAssignments;
 
                 Json = Serialization.SerializeDictionary(serialized);
             }

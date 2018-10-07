@@ -83,13 +83,15 @@ namespace GGEZ.Labkit
             public readonly InspectableType Type;
             public readonly Type SpecificType;
             public readonly FieldInfo FieldInfo;
+            public readonly bool WantSetting;
             public readonly bool CanBeNull;
 
-            public Field(InspectableType type, Type targetType, FieldInfo fieldInfo, bool canBeNull)
+            public Field(InspectableType type, Type targetType, FieldInfo fieldInfo, bool wantsSetting, bool canBeNull)
             {
                 Type = type;
                 SpecificType = targetType;
                 FieldInfo = fieldInfo;
+                WantSetting = wantsSetting;
                 CanBeNull = canBeNull;
             }
         }
@@ -118,6 +120,8 @@ namespace GGEZ.Labkit
         private static Dictionary<Type, InspectableCellType> s_typeToInspectableType = new Dictionary<Type, InspectableCellType>();
         public static InspectableCellType GetInspectableCellType(Type cellType)
         {
+            Debug.Assert(typeof(Cell).IsAssignableFrom(cellType));
+
             InspectableCellType retval;
             if (s_typeToInspectableType.TryGetValue(cellType, out retval))
             {
@@ -154,8 +158,9 @@ namespace GGEZ.Labkit
                     if (inspectableType != InspectableType.Invalid)
                     {
                         var targetType = InspectableTypeExt.GetSpecificType(inspectableType, fields[i]);
-                        bool canBeNull = CanBeNullAttribute.IsAppliedTo(fields[i]);
-                        returnedFields[j++] = new Field(inspectableType, targetType, fields[i], canBeNull);
+                        bool wantsSetting = fields[i].IsDefined(typeof(SettingAttribute), true);
+                        bool canBeNull = fields[i].IsDefined(typeof(CanBeNullAttribute), true);
+                        returnedFields[j++] = new Field(inspectableType, targetType, fields[i], wantsSetting, canBeNull);
                     }
                 }
                 Array.Resize(ref returnedFields, j);

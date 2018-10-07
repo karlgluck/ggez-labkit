@@ -44,15 +44,19 @@ namespace GGEZ.Labkit
     #region Runtime
 
         /// All named variables for this golem
+        [NonSerialized]
         public Dictionary<string, IVariable> Variables;
 
         /// Local copy of each aspect from the archetype
+        [NonSerialized]
         public Aspect[] Aspects;
 
         /// Runtime data needed by each component
+        [NonSerialized]
         public GolemComponentRuntimeData[] Components;
 
         /// Trigger state for this golem
+        [NonSerialized]
         public bool[] Triggers;
 
     #endregion
@@ -62,6 +66,7 @@ namespace GGEZ.Labkit
         /// <remarks>Used during setup</remarks>
         public UnityEngine.Object GetUnityObjectReference(string reference)
         {
+            Debug.Assert(Application.isPlaying);
             Debug.Assert(Archetype.ReferenceNames.Length == References.Length);
             string[] names = Archetype.ReferenceNames;
             for (int i = 0; i < names.Length; ++i)
@@ -79,6 +84,7 @@ namespace GGEZ.Labkit
         /// <remarks>Used during setup</remarks>
         public Aspect GetAspect(Type type)
         {
+            Debug.Assert(Application.isPlaying);
             Debug.Assert(type != null);
             Debug.Assert(typeof(Aspect).IsAssignableFrom(type));
             for (int i = 0; i < Aspects.Length; ++i)
@@ -94,6 +100,7 @@ namespace GGEZ.Labkit
 
         public void SetTrigger(Trigger trigger)
         {
+            Debug.Assert(Application.isPlaying);
             Triggers[(int)trigger] = true;
         }
 
@@ -101,10 +108,26 @@ namespace GGEZ.Labkit
         {
             References = new UnityEngine.Object[0];
             Archetype = ScriptableObject.CreateInstance<GolemArchetype>();
-            Variables = new Dictionary<string, IVariable>();
-            Aspects = new Aspect[0];
-            Components = new GolemComponentRuntimeData[0];
-            Triggers = new bool[(int)Trigger.__COUNT__];
+            Variables = null;
+            Aspects = null;
+            Components = null;
+            Triggers = null;
+        }
+
+        void OnValidate()
+        {
+            if (Archetype == null)
+            {
+                Archetype = ScriptableObject.CreateInstance<GolemArchetype>();
+            }
+
+            if (!Application.isPlaying)
+            {
+                Variables = null;
+                Aspects = null;
+                Components = null;
+                Triggers = null;
+            }
         }
     }
 }

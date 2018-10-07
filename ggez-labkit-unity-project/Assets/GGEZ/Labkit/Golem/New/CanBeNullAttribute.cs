@@ -33,8 +33,7 @@ namespace GGEZ.Labkit
     {
         public static bool IsAppliedTo(FieldInfo fieldInfo)
         {
-            var attributes = fieldInfo.GetCustomAttributes(typeof(CanBeNullAttribute), true);
-            return attributes.Length > 0; 
+            return fieldInfo.IsDefined(typeof(CanBeNullAttribute), true);
         }
     }
 }
