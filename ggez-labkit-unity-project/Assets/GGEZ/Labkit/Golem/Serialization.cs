@@ -81,16 +81,48 @@ namespace GGEZ.Labkit
             return deserialized;
         }
 
+        /// <summary>Assigns named field of self to either the value provided (if it exists and
+        /// the type matches) or a new instance of the correct type (if possible).</summary>
+        /// <remarks>Only throws exceptions for misuse not bad data.</remarks>
         public static void ReadOrCreate(object self, string field, Dictionary<string, object> values)
         {
+            if (self == null) throw new ArgumentNullException("self");
+            if (field == null) throw new ArgumentNullException("field");
+            if (values == null) throw new ArgumentNullException("values");
+
             var fieldInfo = self.GetType().GetField(field);
-            if (values.ContainsKey(field))
+
+            // First, try to read from the set of values
+            try
             {
-                fieldInfo.SetValue(self, values[field]);
+                if (values.ContainsKey(field))
+                {
+                    fieldInfo.SetValue(self, values[field]);
+                    return;
+                }
             }
-            else
+            catch (Exception e)
             {
-                fieldInfo.SetValue(self, Activator.CreateInstance(fieldInfo.FieldType));
+                Debug.LogException(e);
+            }
+
+            // Next, try to assign a default value
+            try
+            {
+                if (fieldInfo.FieldType.IsArray)
+                {
+                    fieldInfo.SetValue(self, Array.CreateInstance(fieldInfo.FieldType.GetElementType(), 0));
+                }
+                else
+                {
+                    fieldInfo.SetValue(self, Activator.CreateInstance(fieldInfo.FieldType));
+                }
+            }
+            catch (Exception e)
+            {
+                // If we get here, the type probably has no default
+                // constructor so just leave it alone.
+                Debug.LogException(e);
             }
         }
 

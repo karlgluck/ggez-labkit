@@ -69,7 +69,9 @@ namespace GGEZ.Labkit
             {
                 EditorUtility.SetDirty(golem.gameObject);
             }
+            
             EditorUtility.SetDirty(golem.Archetype);
+
             foreach (var component in golem.Archetype.Components)
             {
                 EditorUtility.SetDirty(component);

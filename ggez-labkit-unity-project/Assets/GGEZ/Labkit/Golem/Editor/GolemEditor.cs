@@ -61,6 +61,15 @@ namespace GGEZ.Labkit
             //-------------------------------------------------
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Settings", EditorStyles.boldLabel);
+            
+            // References
+            bool allowSceneObjects = !_golem.gameObject.IsPrefab();
+            for (int i = 0; i < _golem.References.Length; ++i)
+            {
+                _golem.References[i] = EditorGUILayout.ObjectField(_golem.Archetype.ReferenceNames[i], _golem.References[i], _golem.Archetype.EditorReferenceTypes[i], allowSceneObjects);
+            }
+
+            // Settings
             Settings settings = _golem.Archetype.Settings;
             if (settings != null)
             {
@@ -68,7 +77,7 @@ namespace GGEZ.Labkit
                 settings.DoEditorGUILayout(true);
                 if (EditorGUI.EndChangeCheck())
                 {
-                    EditorUtility.SetDirty(_golem.Archetype);
+                    GolemEditorUtility.SetDirty(_golem);
                 }
                 EditorGUILayout.Space();
                 _golem.Archetype.InheritSettingsFrom = EditorGUILayout.ObjectField("Inherit From", _golem.Archetype.InheritSettingsFrom, typeof(SettingsAsset), false) as SettingsAsset;
@@ -262,6 +271,7 @@ namespace GGEZ.Labkit
                         list.RemoveAt(i);
                         components = list.ToArray();
                         --i;
+                        _golem.Archetype.Components = components.ToArray();
                     }
                     GUILayout.EndHorizontal();
                 }
@@ -273,6 +283,7 @@ namespace GGEZ.Labkit
                 {
                     Array.Resize(ref components, components.Length + 1);
                     components[components.Length-1] = newComponent;
+                    _golem.Archetype.Components = components.ToArray();
                 }
             }
 
@@ -285,11 +296,26 @@ namespace GGEZ.Labkit
 
             if (EditorGUI.EndChangeCheck())
             {
-                EditorUtility.SetDirty(_golem.Archetype);
+                GolemEditorUtility.SetDirty(_golem);
+            }
+
+            EditorGUILayout.Space();
+            bool advanced = EditorGUILayout.Foldout(EditorPrefs.GetBool("GolemEditorAdvancedFoldout"), "Advanced");
+            EditorPrefs.SetBool("GolemEditorAdvancedFoldout", advanced);
+            if (advanced)
+            {
+                EditorGUILayout.LabelField("Json", EditorStyles.boldLabel);
+                EditorGUILayout.TextArea(_golem.Archetype.Json, GUILayout.ExpandWidth(false));
+
+                EditorGUILayout.Space();
+
+                EditorGUILayout.LabelField("Editor Json", EditorStyles.boldLabel);
+                EditorGUILayout.TextArea(_golem.Archetype.EditorJson, GUILayout.ExpandWidth(false));
             }
 
 
         }
+
 
         private void addAspectType(Type type)
         {

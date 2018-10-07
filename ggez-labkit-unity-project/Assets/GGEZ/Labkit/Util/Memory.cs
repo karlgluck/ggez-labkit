@@ -23,6 +23,7 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
+using System;
 using System.Reflection;
 
 namespace GGEZ
@@ -60,6 +61,23 @@ namespace GGEZ
             for (int i = 0; i < fields.Length; ++i)
             {
                 fields[i].SetValue(target, fields[i].GetValue(source));
+            }
+        }
+
+        public static object GetDefaultValue(Type type)
+        {
+            return type.IsValueType ? Activator.CreateInstance(type) : null;
+        }
+
+        public static object CreateInstance(Type type)
+        {
+            if (type.IsArray)
+            {
+                return Array.CreateInstance(type.GetElementType(), 0);
+            }
+            else
+            {
+                return Activator.CreateInstance(type);
             }
         }
     }

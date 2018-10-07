@@ -78,6 +78,10 @@ namespace GGEZ.Labkit
         //---------------------------------------------------------------------
     #if UNITY_EDITOR
 
+        // References
+        //------------------
+        public Type[] EditorReferenceTypes;
+
         // Aspects
         //------------------
         [NonSerialized]
@@ -106,6 +110,7 @@ namespace GGEZ.Labkit
             {
                 Dictionary<string, object> serialized = new Dictionary<string, object>();
 
+                serialized["EditorReferenceTypes"] = EditorReferenceTypes;
                 serialized["EditorAspects"] = EditorAspects;
                 serialized["EditorVariables"] = EditorVariables;
 
@@ -293,6 +298,7 @@ namespace GGEZ.Labkit
             {
                 var deserialized = Serialization.DeserializeDictionary(EditorJson, null, this);
 
+                Serialization.ReadOrCreate(this, "EditorReferenceTypes", deserialized);
                 Serialization.ReadOrCreate(this, "EditorAspects", deserialized);
                 Serialization.ReadOrCreate(this, "EditorVariables", deserialized);
 
@@ -379,6 +385,7 @@ namespace GGEZ.Labkit
             Variables = new Dictionary<string, IVariable>();
             Json = "{}";
             
+            EditorReferenceTypes = new Type[0];
             EditorAspects = new List<EditorAspect>();
             EditorVariables = new List<GolemVariableEditorData>();
             EditorJson = "{}";

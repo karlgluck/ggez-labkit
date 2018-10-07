@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 586eb5b36413a544abf736664884d25c, type: 3}
+  m_Name: TestComponent1
+  m_EditorClassIdentifier: 
+  Json: "{\r\n    \"Cells\": {\r\n        \"$content\": [],\r\n        \"$type\":
+    \"GGEZ.Labkit.Cell[]\"\r\n    },\r\n    \"Registers\": {\r\n        \"$content\":
+    [],\r\n        \"$type\": \"GGEZ.Labkit.IRegister[]\"\r\n    },\r\n    \"Layers\":
+    {\r\n        \"$content\": [],\r\n        \"$type\": \"GGEZ.Labkit.Layer[]\"\r\n
+    \   },\r\n    \"Scripts\": {\r\n        \"$content\": [],\r\n        \"$type\":
+    \"GGEZ.Labkit.Script[]\"\r\n    },\r\n    \"States\": {\r\n        \"$content\":
+    [],\r\n        \"$type\": \"GGEZ.Labkit.State[]\"\r\n    },\r\n    \"Assignments\":
+    {\r\n        \"$content\": [],\r\n        \"$type\": \"GGEZ.Labkit.Assignment[]\"\r\n
+    \   },\r\n    \"ExternalAssignments\": {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
+    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[],
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   }\r\n}"
+  EditorJson: "{\r\n    \"EditorCells\": {\r\n        \"$content\": [],\r\n        \"$type\":
+    \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorCell, Assembly-CSharp,
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    },\r\n    \"EditorWires\":
+    {\r\n        \"$content\": [],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorWire,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   },\r\n    \"EditorStates\": {\r\n        \"$content\": [],\r\n        \"$type\":
+    \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorState, Assembly-CSharp,
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    },\r\n    \"EditorTransitions\":
+    {\r\n        \"$content\": [],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorTransition,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   }\r\n}"
