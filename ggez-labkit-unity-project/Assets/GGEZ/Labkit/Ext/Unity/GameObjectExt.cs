@@ -39,5 +39,12 @@ namespace GGEZ
             }
             return component;
         }
+
+        /// <remarks>Consider also UnityEditor.PrefabUtility.GetPrefabType(self)</remarks>
+        public static bool IsPrefab(this GameObject self)
+        {
+            return !self.scene.IsValid();
+        }
+
     }
 }

@@ -37,10 +37,10 @@ namespace GGEZ.Labkit
 {
     public class GolemEditorWindow : EditorWindow
     {
-        public static void Open(GolemEditorData editable)
+        public static void Open(Golem golem)
         {
             var window = EditorWindow.GetWindow<GolemEditorWindow>("Golem Editor");
-            window.Initialize(editable);
+            window.Initialize(golem);
             window.Show();
         }
 
@@ -50,10 +50,10 @@ namespace GGEZ.Labkit
             Open(null);
         }
 
-        public void Initialize(GolemEditorData editable)
+        public void Initialize(Golem golem)
         {
             _selection = null;
-            _editable = editable;
+            _golem = golem;
             _scrollPosition = Vector2.zero;
             _scrollAnchor = Vector2.zero;
             _scrollSize = this.position.size;
@@ -61,12 +61,15 @@ namespace GGEZ.Labkit
             Read();
         }
 
-        protected GolemEditorData _editable { get; private set; }
-
+        private Golem _golem;
 
         private void OnEnable()
         {
-            if (_editable == null) Initialize(null);
+            if (_golem == null)
+            {
+                Initialize(null);
+            }
+
             Undo.undoRedoPerformed += OnUndo;
         }
 
@@ -106,16 +109,16 @@ namespace GGEZ.Labkit
         private Vector2 _mouseDownPosition;
         private Vector2 _scrollPositionOnMouseDown;
 
-        private List<EditorCell> _cells { get { return _editable.EditorCells; } }
-        private List<EditorWire> _wires { get { return _editable.EditorWires; } }
+        private List<EditorCell> _cells { get { return _golem.Archetype.Components[_golem.Archetype.EditorWindowSelectedComponent].EditorCells; } }
+        private List<EditorWire> _wires { get { return _golem.Archetype.Components[_golem.Archetype.EditorWindowSelectedComponent].EditorWires; } }
         private bool _shouldRead = false;
 
-        private List<EditorState> _states { get { return _editable.EditorStates; } }
-        private List<EditorTransition> _transitions { get { return _editable.EditorTransitions; } }
+        private List<EditorState> _states { get { return _golem.Archetype.Components[_golem.Archetype.EditorWindowSelectedComponent].EditorStates; } }
+        private List<EditorTransition> _transitions { get { return _golem.Archetype.Components[_golem.Archetype.EditorWindowSelectedComponent].EditorTransitions; } }
 
         private void Read()
         {
-            if (_editable == null)
+            if (_golem == null)
             {
                 return;
             }
@@ -129,7 +132,6 @@ namespace GGEZ.Labkit
             _creatingTransitionEndState = null;
 
             // Reload the object
-            _editable.Load();
             _shouldRead = false;
         }
 
@@ -479,26 +481,17 @@ namespace GGEZ.Labkit
         //-----------------------------------------------------
         private void OnGUI()
         {
-            if (_editable != null && _editable.Golem == null)
-            {
-                _editable = null;
-            }
-
             //-------------------------------------------------
             // Draw some placeholder text if no circuit is active
             //-------------------------------------------------
-            if (_editable == null)
+            if (_golem == null)
             {
                 if (Selection.activeGameObject != null && Event.current.type == EventType.Layout)
                 {
-                    var golem = Selection.activeGameObject.GetComponent<Golem>();
-                    if (golem != null)
-                    {
-                        var editorAsset = golem.EditorAsset as GolemEditorAsset;
-                        _editable = (editorAsset == null) ? null : editorAsset.EditorData;
-                    }
+                    _golem = Selection.activeGameObject.GetComponent<Golem>();
                 }
-                if (_editable != null)
+
+                if (_golem != null)
                 {
                     _shouldRead = true;
                     Repaint();
@@ -516,6 +509,7 @@ namespace GGEZ.Labkit
 
                     GUILayout.BeginHorizontal();
                     GUILayout.FlexibleSpace();
+                    #warning this text is wrong
                     GUILayout.Label("Select an golem then press 'Open Editor' from the inspector.", EditorStyles.miniLabel);
                     GUILayout.FlexibleSpace();
                     GUILayout.EndHorizontal();
@@ -897,7 +891,7 @@ namespace GGEZ.Labkit
                         fieldInfo.FieldInfo,
                         editorCell.Cell,
                         editorCell.FieldsUsingSettings,
-                        _editable
+                        _golem.Archetype
                         );
                 }
 
@@ -963,7 +957,7 @@ namespace GGEZ.Labkit
                                 fieldInfo.FieldInfo,
                                 editorScript.Script,
                                 editorScript.FieldsUsingSettings,
-                                _editable
+                                _golem.Archetype
                                 );
                     }
                 }
@@ -1223,8 +1217,8 @@ namespace GGEZ.Labkit
 
             if (_shouldWrite)
             {
-                Debug.Log("WRITE");
-                _editable.Save();
+                // Debug.Log("WRITE");
+                EditorUtility.SetDirty(_golem.Archetype.Components[_golem.Archetype.EditorWindowSelectedComponent]);
                 Repaint();
                 _shouldWrite = false;
             }

@@ -30,7 +30,7 @@ namespace GGEZ.FullSerializer.Internal
         {
             get
             {
-                return References != null;
+                return _references != null;
             }
         }
 
@@ -41,23 +41,26 @@ namespace GGEZ.FullSerializer.Internal
             {
                 _references = value;
                 _objectIds.Clear();
-                for (int i = _references.Count - 1; i >= 0; --i)
+                if (_references != null)
                 {
-                    if (_references[i] == null)
+                    for (int i = _references.Count - 1; i >= 0; --i)
                     {
-                        _references.RemoveAt(i);
+                        if (_references[i] == null)
+                        {
+                            _references.RemoveAt(i);
+                        }
                     }
-                }
-                for (int id = 0; id < _references.Count; ++id)
-                {
-                    _objectIds[_references[id]] = id;
+                    for (int id = 0; id < _references.Count; ++id)
+                    {
+                        _objectIds[_references[id]] = id;
+                    }
                 }
             }
         }
 
         public object GetUnityObject(int id)
         {
-            if (id < 0 || id >= _references.Count)
+            if (_references == null || id < 0 || id >= _references.Count)
             {
                 return null;
             }

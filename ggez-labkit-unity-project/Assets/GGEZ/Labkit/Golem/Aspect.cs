@@ -30,16 +30,10 @@ namespace GGEZ.Labkit
 {
     public class Aspect
     {
-        [GGEZ.FullSerializer.fsIgnore, System.Obsolete]
-        public Golem Golem;
-
-        [GGEZ.FullSerializer.fsIgnore, System.Obsolete]
-        public Variables Variables;
-
         public Aspect Clone() { return MemberwiseClone() as Aspect; }
     }
 
-    [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
+    [Obsolete, AttributeUsage(AttributeTargets.Field, Inherited = false, AllowMultiple = false)]
     public class VariableAttribute : Attribute
     {
         public VariableAttribute(string name, string tooltip = "")

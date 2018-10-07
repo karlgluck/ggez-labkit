@@ -29,6 +29,7 @@ using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
+    [CreateAssetMenu(menuName = "GGEZ/Golem/Component", fileName = "New Golem Component.asset")]
     public class GolemComponent : ScriptableObject, ISerializationCallbackReceiver
     {
 
@@ -64,16 +65,16 @@ namespace GGEZ.Labkit
         // Circuit
         //------------------
         [System.NonSerialized]
-        public List<EditorCell> EditorCells = new List<EditorCell>();
+        public List<EditorCell> EditorCells;
         [System.NonSerialized]
-        public List<EditorWire> EditorWires = new List<EditorWire>();
+        public List<EditorWire> EditorWires;
 
         // Program
         //------------------
         [System.NonSerialized]
-        public List<EditorState> EditorStates = new List<EditorState>();
+        public List<EditorState> EditorStates;
         [System.NonSerialized]
-        public List<EditorTransition> EditorTransitions = new List<EditorTransition>();
+        public List<EditorTransition> EditorTransitions;
 
 
         /// <summary>Source of data for all the NonSerialized editor-only fields</summary>
@@ -936,5 +937,44 @@ namespace GGEZ.Labkit
             }
         #endif
         }
+    
+    #if UNITY_EDITOR
+
+        void Reset()
+        {
+            // Cells = new Cell[0];
+            // Registers = new IRegister[0];
+            // Layers = new Layer[0];
+            // Scripts = new Script[0];
+            // States = new State[0];
+            // Assignments = new Assignment[0];
+            // ExternalAssignments = new Dictionary<string, Assignment[]>();
+
+            Cells = null;
+            Registers = null;
+            Layers = null;
+            Scripts = null;
+            States = null;
+            Assignments = null;
+            ExternalAssignments = null;
+            Json = "{}";
+
+            EditorCells = new List<EditorCell>();
+            EditorWires = new List<EditorWire>();
+            EditorStates = new List<EditorState>();
+            EditorTransitions = new List<EditorTransition>();
+            EditorJson = "{}";
+        }
+
+        void OnValidate()
+        {
+            if (!Application.isPlaying)
+            {
+                
+            }
+        }
+
+    #endif
+
     }
 }

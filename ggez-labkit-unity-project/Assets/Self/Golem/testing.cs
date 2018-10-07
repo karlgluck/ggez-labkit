@@ -53,11 +53,7 @@ public class JoystickAspect : Aspect
     public bool RawActionButtonInput;
 
     [Variable("ShowJoystick", "Whether the joystick is displayed on screen")]
-    public bool Show
-    {
-        get { return (bool)Variables.Get("ShowJoystick"); }
-        set { Variables.Set("ShowJoystick", value); }
-    }
+    public StructVariable<bool> Show;
 
     // private StructVariable<bool> _show;
     // public bool Showx
@@ -67,55 +63,21 @@ public class JoystickAspect : Aspect
     // }
 }
 
-namespace GGEZ.Labkit
-{
-public partial class Golem
-{
-    public JoystickAspect JoystickAspect;
-}
-}
-
 public class FishingRodAspect : GGEZ.Labkit.Aspect
 {
     public float fishingRodPosition;
 }
 
-namespace GGEZ.Labkit
-{
-public partial class Golem
-{
-    public FishingRodAspect FishingRodAspect;
-}
-}
-
 public class PositionAspect : GGEZ.Labkit.Aspect
 {
     [Variable("X", "The location of this object in 3d space")]
-    public float X
-    {
-        get { return (float)Variables.Get("X"); }
-        set { Variables.Set("X", value); }
-    }
-    [Variable("Y", "The location of this object in 3d space")]
-    public float Y
-    {
-        get { return (float)Variables.Get("Y"); }
-        set { Variables.Set("Y", value); }
-    }
-    [Variable("Z", "The location of this object in 3d space")]
-    public float Z
-    {
-        get { return (float)Variables.Get("Z"); }
-        set { Variables.Set("Z", value); }
-    }
-}
+    public StructVariable<float> X;
 
-namespace GGEZ.Labkit
-{
-public partial class Golem
-{
-    public PositionAspect PositionAspect;
-}
+    [Variable("Y", "The location of this object in 3d space")]
+    public StructVariable<float> Y;
+
+    [Variable("Z", "The location of this object in 3d space")]
+    public StructVariable<float> Z;
 }
 
 // public class Instantiator : Cell

@@ -152,6 +152,12 @@ namespace GGEZ.Labkit
 
         public static Type GetRepresentedType(InspectableType inspectableType)
         {
+            if (s_representedType == null)
+            {
+                # warning this can be done better
+                GetInspectableTypeOf(typeof(float));
+            }
+
             int index = (int)inspectableType;
             if (index < 0 || index >= s_representedType.Length)
             {

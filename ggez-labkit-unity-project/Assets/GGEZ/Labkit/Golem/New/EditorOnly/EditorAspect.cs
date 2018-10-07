@@ -39,17 +39,15 @@ namespace GGEZ.Labkit
     //-------------------------------------------------------------------------
     // GolemAspectEditorData
     //-------------------------------------------------------------------------
-    public class GolemAspectEditorData
+    public class EditorAspect
     {
-        [Obsolete]
-        public FieldInfo Field;
         public Aspect Aspect;
-        public InspectableField[] AspectFields;
-        public InspectableVariablePropertyInfo[] AspectVariables;
 
+        public Dictionary<string,string> UnityObjectFields = new Dictionary<string,string>();
         public Dictionary<string,string> FieldsUsingSettings = new Dictionary<string,string>();
+        public Dictionary<string,VariableRef> FieldsUsingVariables = new Dictionary<string,VariableRef>();
 
-        /// State of the foldout for this aspect's properties in the inspector
+        /// <summary>State of the foldout for this aspect's properties in the inspector</summary>
         public bool Foldout;
     }
 

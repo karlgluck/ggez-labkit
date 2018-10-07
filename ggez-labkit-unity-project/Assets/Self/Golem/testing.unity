@@ -113,120 +113,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &150277757
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 150277758}
-  - component: {fileID: 150277761}
-  - component: {fileID: 150277760}
-  - component: {fileID: 150277759}
-  m_Layer: 0
-  m_Name: Cube
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &150277758
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 150277757}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 169186973}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &150277759
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 150277757}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!23 &150277760
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 150277757}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RenderingLayerMask: 4294967295
-  m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 0
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
---- !u!33 &150277761
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 150277757}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &169186972
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 169186973}
-  m_Layer: 0
-  m_Name: Body
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &169186973
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 169186972}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 150277758}
-  m_Father: {fileID: 620545424}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &322191693
 GameObject:
   m_ObjectHideFlags: 0
@@ -304,324 +190,225 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &620545422
+--- !u!1 &1563234888
 GameObject:
   m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 1668758043819104, guid: 8af181924e574f94f852345f5a8b651b,
+    type: 2}
   m_PrefabInternal: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 620545424}
-  - component: {fileID: 620545423}
+  - component: {fileID: 1563234889}
+  - component: {fileID: 1563234892}
+  - component: {fileID: 1563234891}
+  - component: {fileID: 1563234890}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &620545423
+--- !u!4 &1563234889
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 4005555716611954, guid: 8af181924e574f94f852345f5a8b651b,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1563234888}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1575529670}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &1563234890
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 65566093847097416, guid: 8af181924e574f94f852345f5a8b651b,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1563234888}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &1563234891
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 23775469801910228, guid: 8af181924e574f94f852345f5a8b651b,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1563234888}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
+  m_Materials:
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!33 &1563234892
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 33950722597269190, guid: 8af181924e574f94f852345f5a8b651b,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1563234888}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1571987363
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 620545422}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a5d6d70263da31428a51dc49e5b72d7, type: 3}
+  m_Script: {fileID: 11500000, guid: a40c0070290a97447a0032ef1032d309, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Owner: {fileID: 0}
-  Subject: {fileID: 0}
-  Targets: []
-  Asset: {fileID: 2007100382}
-  EditorAsset: {fileID: 1361454608}
-  References:
-  - {fileID: 169186973}
-  LayerState: ffffffff
-  Triggers: 0000
---- !u!4 &620545424
+  ReferenceNames: []
+  Components: []
+  InheritSettingsFrom: {fileID: 0}
+  Json: "{\r\n    \"Aspects\": {\r\n        \"$content\": [\r\n            {\r\n                \"joystickRoot\":
+    null,\r\n                \"joystick\": null,\r\n                \"DeadZone\":
+    5.0,\r\n                \"Limit\": 155.0,\r\n                \"AngleThreshold\":
+    55.0,\r\n                \"JoystickActive\": false,\r\n                \"JoystickURDL\":
+    0,\r\n                \"JoystickDirection\": 0.0,\r\n                \"JoystickTouch\":
+    false,\r\n                \"RawActionButtonInput\": false,\r\n                \"$type\":
+    \"JoystickAspect\"\r\n            }\r\n        ],\r\n        \"$type\": \"GGEZ.Labkit.Aspect[]\"\r\n
+    \   },\r\n    \"Assignments\": {\r\n        \"$content\": [\r\n            {\r\n
+    \               \"Type\": \"CellSetting\",\r\n                \"Name\": \"joystickActiveDefault\",\r\n
+    \               \"RegisterIndex\": 0,\r\n                \"TargetIndex\": 0,\r\n
+    \               \"TargetFieldName\": \"JoystickActive\"\r\n            }\r\n        ],\r\n
+    \       \"$type\": \"GGEZ.Labkit.Assignment[]\"\r\n    },\r\n    \"ExternalAssignments\":
+    {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
+    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[],
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   },\r\n    \"Settings\": {\r\n        \"$content\": [\r\n            {\r\n
+    \               \"Type\": \"System.Boolean\",\r\n                \"Name\": \"joystickActiveDefault\",\r\n
+    \               \"Value\": {\r\n                    \"$content\": false,\r\n                    \"$type\":
+    \"System.Boolean\"\r\n                }\r\n            }\r\n        ],\r\n        \"$type\":
+    \"System.Collections.Generic.List`1[[GGEZ.Labkit.Settings+Setting, Assembly-CSharp,
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    }\r\n}"
+  EditorJson: "{\r\n    \"EditorAspects\": {\r\n        \"$content\": [\r\n            {\r\n
+    \               \"Aspect\": {\r\n                    \"joystickRoot\": null,\r\n
+    \                   \"joystick\": null,\r\n                    \"DeadZone\": 5.0,\r\n
+    \                   \"Limit\": 155.0,\r\n                    \"AngleThreshold\":
+    55.0,\r\n                    \"JoystickActive\": false,\r\n                    \"JoystickURDL\":
+    0,\r\n                    \"JoystickDirection\": 0.0,\r\n                    \"JoystickTouch\":
+    false,\r\n                    \"RawActionButtonInput\": false,\r\n                    \"$type\":
+    \"JoystickAspect\"\r\n                },\r\n                \"UnityObjectFields\":
+    {\r\n\r\n                },\r\n                \"FieldsUsingSettings\": {\r\n
+    \                   \"JoystickActive\": \"joystickActiveDefault\"\r\n                },\r\n
+    \               \"FieldsUsingVariables\": {\r\n\r\n                },\r\n                \"Foldout\":
+    true\r\n            }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorAspect,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   },\r\n    \"EditorVariables\": {\r\n        \"$content\": [],\r\n        \"$type\":
+    \"System.Collections.Generic.List`1[[GGEZ.Labkit.GolemVariableEditorData, Assembly-CSharp,
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    }\r\n}"
+  EditorWindowSelectedComponent: 0
+--- !u!1 &1575529669
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 1476382622439632, guid: 8af181924e574f94f852345f5a8b651b,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1575529670}
+  m_Layer: 0
+  m_Name: Body
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1575529670
 Transform:
   m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 4473331959149500, guid: 8af181924e574f94f852345f5a8b651b,
+    type: 2}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 620545422}
+  m_GameObject: {fileID: 1575529669}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 169186973}
+  - {fileID: 1563234889}
+  m_Father: {fileID: 1837945665}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1837945663
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 1851006889258702, guid: 8af181924e574f94f852345f5a8b651b,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1837945665}
+  - component: {fileID: 1837945664}
+  m_Layer: 0
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1837945664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 114373685995417202, guid: 8af181924e574f94f852345f5a8b651b,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1837945663}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34afa38a8fd60ea48a185c09a7d1303a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  References: []
+  Archetype: {fileID: 1571987363}
+--- !u!4 &1837945665
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 4589613537062874, guid: 8af181924e574f94f852345f5a8b651b,
+    type: 2}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1837945663}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 1575529670}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1361454608
-MonoBehaviour:
-  m_ObjectHideFlags: 16
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d08c1321c9878b24b82715640cf03353, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Json: "{\r\n    \"EditorCells\": {\r\n        \"$content\": [\r\n            {\r\n
-    \               \"Name\": \"Position\",\r\n                \"Index\": null,\r\n
-    \               \"Cell\": {\r\n                    \"Transform\": {\r\n                        \"$unity\":
-    0\r\n                    },\r\n                    \"X\": 0,\r\n                    \"Y\":
-    0,\r\n                    \"Z\": 0,\r\n                    \"$type\": \"Position\"\r\n
-    \               },\r\n                \"Inputs\": [\r\n                    {\r\n
-    \                       \"Register\": 0,\r\n                        \"ReadCell\":
-    {\r\n                            \"Name\": \"ReadFloatVariable\",\r\n                            \"Index\":
-    null,\r\n                            \"Cell\": {\r\n                                \"Variable\":
-    {\r\n                                    \"Relationship\": \"Self\",\r\n                                    \"Name\":
-    \"X\"\r\n                                },\r\n                                \"Output\":
-    0,\r\n                                \"$type\": \"ReadFloatVariable\"\r\n                            },\r\n
-    \                           \"Inputs\": [],\r\n                            \"Outputs\":
-    [\r\n                                {\r\n                                    \"$ref\":
-    \"5\"\r\n                                }\r\n                            ],\r\n
-    \                           \"Position\": {\r\n                                \"xMin\":
-    480.0,\r\n                                \"yMin\": 304.0,\r\n                                \"xMax\":
-    832.0,\r\n                                \"yMax\": 368.0\r\n                            },\r\n
-    \                           \"FieldsUsingSettings\": {\r\n\r\n                            },\r\n
-    \                           \"$id\": \"6\"\r\n                        },\r\n                        \"ReadField\":
-    \"Output\",\r\n                        \"WriteCell\": {\r\n                            \"$ref\":
-    \"2\"\r\n                        },\r\n                        \"WriteField\":
-    \"X\",\r\n                        \"$id\": \"5\"\r\n                    },\r\n
-    \                   {\r\n                        \"Register\": 1,\r\n                        \"ReadCell\":
-    {\r\n                            \"Name\": \"ReadFloatVariable\",\r\n                            \"Index\":
-    null,\r\n                            \"Cell\": {\r\n                                \"Variable\":
-    {\r\n                                    \"Relationship\": \"Self\",\r\n                                    \"Name\":
-    \"Y\"\r\n                                },\r\n                                \"Output\":
-    0,\r\n                                \"$type\": \"ReadFloatVariable\"\r\n                            },\r\n
-    \                           \"Inputs\": [],\r\n                            \"Outputs\":
-    [\r\n                                {\r\n                                    \"$ref\":
-    \"11\"\r\n                                }\r\n                            ],\r\n
-    \                           \"Position\": {\r\n                                \"xMin\":
-    480.0,\r\n                                \"yMin\": 384.0,\r\n                                \"xMax\":
-    832.0,\r\n                                \"yMax\": 448.0\r\n                            },\r\n
-    \                           \"FieldsUsingSettings\": {\r\n\r\n                            },\r\n
-    \                           \"$id\": \"12\"\r\n                        },\r\n
-    \                       \"ReadField\": \"Output\",\r\n                        \"WriteCell\":
-    {\r\n                            \"$ref\": \"2\"\r\n                        },\r\n
-    \                       \"WriteField\": \"Y\",\r\n                        \"$id\":
-    \"11\"\r\n                    },\r\n                    {\r\n                        \"Register\":
-    2,\r\n                        \"ReadCell\": {\r\n                            \"Name\":
-    \"ReadFloatVariable\",\r\n                            \"Index\": null,\r\n                            \"Cell\":
-    {\r\n                                \"Variable\": {\r\n                                    \"Relationship\":
-    \"Self\",\r\n                                    \"Name\": \"Z\"\r\n                                },\r\n
-    \                               \"Output\": 0,\r\n                                \"$type\":
-    \"ReadFloatVariable\"\r\n                            },\r\n                            \"Inputs\":
-    [],\r\n                            \"Outputs\": [\r\n                                {\r\n
-    \                                   \"$ref\": \"17\"\r\n                                }\r\n
-    \                           ],\r\n                            \"Position\": {\r\n
-    \                               \"xMin\": 480.0,\r\n                                \"yMin\":
-    464.0,\r\n                                \"xMax\": 832.0,\r\n                                \"yMax\":
-    544.0\r\n                            },\r\n                            \"FieldsUsingSettings\":
-    {\r\n\r\n                            },\r\n                            \"$id\":
-    \"18\"\r\n                        },\r\n                        \"ReadField\":
-    \"Output\",\r\n                        \"WriteCell\": {\r\n                            \"$ref\":
-    \"2\"\r\n                        },\r\n                        \"WriteField\":
-    \"Z\",\r\n                        \"$id\": \"17\"\r\n                    }\r\n
-    \               ],\r\n                \"Outputs\": [],\r\n                \"Position\":
-    {\r\n                    \"xMin\": 960.0,\r\n                    \"yMin\": 352.0,\r\n
-    \                   \"xMax\": 1328.0,\r\n                    \"yMax\": 464.0\r\n
-    \               },\r\n                \"FieldsUsingSettings\": {\r\n                    \"Transform\":
-    \"Body\"\r\n                },\r\n                \"$id\": \"2\"\r\n            },\r\n
-    \           {\r\n                \"$ref\": \"6\"\r\n            },\r\n            {\r\n
-    \               \"$ref\": \"12\"\r\n            },\r\n            {\r\n                \"$ref\":
-    \"18\"\r\n            }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorCell,
-    Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   },\r\n    \"EditorWires\": {\r\n        \"$content\": [\r\n            {\r\n
-    \               \"$ref\": \"5\"\r\n            },\r\n            {\r\n                \"$ref\":
-    \"11\"\r\n            },\r\n            {\r\n                \"$ref\": \"17\"\r\n
-    \           }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorWire,
-    Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   },\r\n    \"EditorStates\": {\r\n        \"$content\": [\r\n            {\r\n
-    \               \"Name\": \"Enter\",\r\n                \"Layer\": 0,\r\n                \"Index\":
-    0,\r\n                \"CompiledIndex\": 2147483647,\r\n                \"SpecialState\":
-    \"LayerEnter\",\r\n                \"Position\": {\r\n                    \"xMin\":
-    480.0,\r\n                    \"yMin\": 0.0,\r\n                    \"xMax\":
-    608.0,\r\n                    \"yMax\": 64.0\r\n                },\r\n                \"Scripts\":
-    [],\r\n                \"TransitionsIn\": [],\r\n                \"TransitionsOut\":
-    [\r\n                    0\r\n                ]\r\n            },\r\n            {\r\n
-    \               \"Name\": \"State\",\r\n                \"Layer\": 0,\r\n                \"Index\":
-    1,\r\n                \"CompiledIndex\": 0,\r\n                \"SpecialState\":
-    \"Normal\",\r\n                \"Position\": {\r\n                    \"xMin\":
-    480.0,\r\n                    \"yMin\": 112.0,\r\n                    \"xMax\":
-    848.0,\r\n                    \"yMax\": 240.0\r\n                },\r\n                \"Scripts\":
-    [\r\n                    {\r\n                        \"Script\": {\r\n                            \"Variable\":
-    {\r\n                                \"Relationship\": \"Self\",\r\n                                \"Name\":
-    \"X\"\r\n                            },\r\n                            \"$type\":
-    \"AddDeltaTimeToVariable\"\r\n                        },\r\n                        \"FieldsUsingSettings\":
-    {\r\n\r\n                        }\r\n                    },\r\n                    {\r\n
-    \                       \"Script\": {\r\n                            \"Delay\":
-    2.0,\r\n                            \"Trigger\": \"Next\",\r\n                            \"$type\":
-    \"TransitionAfterDelay\"\r\n                        },\r\n                        \"FieldsUsingSettings\":
-    {\r\n                            \"Delay\": \"LongDelay\"\r\n                        }\r\n
-    \                   }\r\n                ],\r\n                \"TransitionsIn\":
-    [\r\n                    0,\r\n                    2\r\n                ],\r\n
-    \               \"TransitionsOut\": [\r\n                    1\r\n                ]\r\n
-    \           },\r\n            {\r\n                \"Name\": \"State\",\r\n                \"Layer\":
-    0,\r\n                \"Index\": 2,\r\n                \"CompiledIndex\": 1,\r\n
-    \               \"SpecialState\": \"Normal\",\r\n                \"Position\":
-    {\r\n                    \"xMin\": 960.0,\r\n                    \"yMin\": 112.0,\r\n
-    \                   \"xMax\": 1312.0,\r\n                    \"yMax\": 240.0\r\n
-    \               },\r\n                \"Scripts\": [\r\n                    {\r\n
-    \                       \"Script\": {\r\n                            \"Variable\":
-    {\r\n                                \"Relationship\": \"Self\",\r\n                                \"Name\":
-    \"Y\"\r\n                            },\r\n                            \"$type\":
-    \"AddDeltaTimeToVariable\"\r\n                        },\r\n                        \"FieldsUsingSettings\":
-    {\r\n\r\n                        }\r\n                    },\r\n                    {\r\n
-    \                       \"Script\": {\r\n                            \"Delay\":
-    1.0,\r\n                            \"Trigger\": \"Next\",\r\n                            \"$type\":
-    \"TransitionAfterDelay\"\r\n                        },\r\n                        \"FieldsUsingSettings\":
-    {\r\n                            \"Delay\": \"ShortDelay\"\r\n                        }\r\n
-    \                   }\r\n                ],\r\n                \"TransitionsIn\":
-    [\r\n                    1\r\n                ],\r\n                \"TransitionsOut\":
-    [\r\n                    2\r\n                ]\r\n            }\r\n        ],\r\n
-    \       \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorState,
-    Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   },\r\n    \"EditorTransitions\": {\r\n        \"$content\": [\r\n            {\r\n
-    \               \"Name\": \"Transition\",\r\n                \"Index\": 0,\r\n
-    \               \"Expression\": {\r\n                    \"Type\": \"True\",\r\n
-    \                   \"Position\": {\r\n                        \"xMin\": 640.0,\r\n
-    \                       \"yMin\": 72.0,\r\n                        \"xMax\": 705.0,\r\n
-    \                       \"yMax\": 88.0\r\n                    },\r\n                    \"Trigger\":
-    \"Next\",\r\n                    \"Subexpressions\": []\r\n                },\r\n
-    \               \"ExpressionAnchor\": {\r\n                    \"x\": 640.0,\r\n
-    \                   \"y\": 80.0\r\n                },\r\n                \"Position\":
-    {\r\n                    \"xMin\": 640.0,\r\n                    \"yMin\": 72.0,\r\n
-    \                   \"xMax\": 705.0,\r\n                    \"yMax\": 88.0\r\n
-    \               },\r\n                \"From\": 0,\r\n                \"To\":
-    1\r\n            },\r\n            {\r\n                \"Name\": \"Transition\",\r\n
-    \               \"Index\": 1,\r\n                \"Expression\": {\r\n                    \"Type\":
-    \"Trigger\",\r\n                    \"Position\": {\r\n                        \"xMin\":
-    766.0,\r\n                        \"yMin\": 72.0,\r\n                        \"xMax\":
-    896.0,\r\n                        \"yMax\": 88.0\r\n                    },\r\n
-    \                   \"Trigger\": \"Next\",\r\n                    \"Subexpressions\":
-    []\r\n                },\r\n                \"ExpressionAnchor\": {\r\n                    \"x\":
-    896.0,\r\n                    \"y\": 80.0\r\n                },\r\n                \"Position\":
-    {\r\n                    \"xMin\": 766.0,\r\n                    \"yMin\": 72.0,\r\n
-    \                   \"xMax\": 896.0,\r\n                    \"yMax\": 88.0\r\n
-    \               },\r\n                \"From\": 1,\r\n                \"To\":
-    2\r\n            },\r\n            {\r\n                \"Name\": \"Transition\",\r\n
-    \               \"Index\": 2,\r\n                \"Expression\": {\r\n                    \"Type\":
-    \"Trigger\",\r\n                    \"Position\": {\r\n                        \"xMin\":
-    896.0,\r\n                        \"yMin\": 264.0,\r\n                        \"xMax\":
-    1026.0,\r\n                        \"yMax\": 280.0\r\n                    },\r\n
-    \                   \"Trigger\": \"Next\",\r\n                    \"Subexpressions\":
-    []\r\n                },\r\n                \"ExpressionAnchor\": {\r\n                    \"x\":
-    896.0,\r\n                    \"y\": 272.0\r\n                },\r\n                \"Position\":
-    {\r\n                    \"xMin\": 896.0,\r\n                    \"yMin\": 264.0,\r\n
-    \                   \"xMax\": 1026.0,\r\n                    \"yMax\": 280.0\r\n
-    \               },\r\n                \"From\": 2,\r\n                \"To\":
-    1\r\n            }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorTransition,
-    Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   },\r\n    \"EditorVariables\": {\r\n        \"$content\": [\r\n            {\r\n
-    \               \"Name\": \"X\",\r\n                \"Tooltip\": \"X\\n\\nThe
-    location of this object in 3d space\",\r\n                \"InspectableType\":
-    \"Float\",\r\n                \"Type\": \"System.Single\",\r\n                \"InitialValue\":
-    {\r\n                    \"$content\": 0.0,\r\n                    \"$type\":
-    \"System.Single\"\r\n                }\r\n            },\r\n            {\r\n
-    \               \"Name\": \"Y\",\r\n                \"Tooltip\": \"Y\\n\\nThe
-    location of this object in 3d space\",\r\n                \"InspectableType\":
-    \"Float\",\r\n                \"Type\": \"System.Single\",\r\n                \"InitialValue\":
-    {\r\n                    \"$content\": 0.0,\r\n                    \"$type\":
-    \"System.Single\"\r\n                }\r\n            },\r\n            {\r\n
-    \               \"Name\": \"Z\",\r\n                \"Tooltip\": \"Z\\n\\nThe
-    location of this object in 3d space\",\r\n                \"InspectableType\":
-    \"Float\",\r\n                \"Type\": \"System.Single\",\r\n                \"InitialValue\":
-    {\r\n                    \"$content\": 0.0,\r\n                    \"$type\":
-    \"System.Single\"\r\n                }\r\n            }\r\n        ],\r\n        \"$type\":
-    \"System.Collections.Generic.List`1[[GGEZ.Labkit.GolemVariableEditorData, Assembly-CSharp-Editor,
-    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    },\r\n    \"Settings\":
-    {\r\n        \"$content\": [\r\n            {\r\n                \"Type\": \"System.Single\",\r\n
-    \               \"Name\": \"ShortDelay\",\r\n                \"Value\": {\r\n
-    \                   \"$content\": 1.0,\r\n                    \"$type\": \"System.Single\"\r\n
-    \               }\r\n            },\r\n            {\r\n                \"Type\":
-    \"System.Single\",\r\n                \"Name\": \"LongDelay\",\r\n                \"Value\":
-    {\r\n                    \"$content\": 2.0,\r\n                    \"$type\":
-    \"System.Single\"\r\n                }\r\n            },\r\n            {\r\n
-    \               \"Type\": \"UnityEngine.Transform\",\r\n                \"Name\":
-    \"Body\",\r\n                \"Value\": {\r\n                    \"$unity\": 0\r\n
-    \               }\r\n            }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.Settings+Setting,
-    Assembly-CSharp-Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   }\r\n}"
-  InheritSettingsFrom: {fileID: 0}
---- !u!114 &2007100382
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8bbf9e5c8954af847b617784c62bb4c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Json: "{\r\n    \"Variables\": {\r\n        \"X\": {\r\n            \"$content\":
-    0.0,\r\n            \"$type\": \"System.Single\"\r\n        },\r\n        \"Y\":
-    {\r\n            \"$content\": 0.0,\r\n            \"$type\": \"System.Single\"\r\n
-    \       },\r\n        \"Z\": {\r\n            \"$content\": 0.0,\r\n            \"$type\":
-    \"System.Single\"\r\n        },\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
-    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[System.Object,
-    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]\"\r\n
-    \   },\r\n    \"Aspects\": {\r\n        \"PositionAspect\": {\r\n            \"$type\":
-    \"PositionAspect\"\r\n        },\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
-    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Aspect,
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   },\r\n    \"Registers\": {\r\n        \"$content\": [\r\n            {\r\n
-    \               \"$content\": 0.0,\r\n                \"$type\": \"System.Single\"\r\n
-    \           },\r\n            {\r\n                \"$content\": 0.0,\r\n                \"$type\":
-    \"System.Single\"\r\n            },\r\n            {\r\n                \"$content\":
-    0.0,\r\n                \"$type\": \"System.Single\"\r\n            }\r\n        ],\r\n
-    \       \"$type\": \"System.Object[]\"\r\n    },\r\n    \"CellsThatReadRegister\":
-    {\r\n        \"$content\": [\r\n            [\r\n                3\r\n            ],\r\n
-    \           [\r\n                3\r\n            ],\r\n            [\r\n                3\r\n
-    \           ]\r\n        ],\r\n        \"$type\": \"System.Int32[][]\"\r\n    },\r\n
-    \   \"Cells\": {\r\n        \"$content\": [\r\n            {\r\n                \"Variable\":
-    {\r\n                    \"Relationship\": \"Self\",\r\n                    \"Name\":
-    \"Z\"\r\n                },\r\n                \"Output\": 2,\r\n                \"$type\":
-    \"ReadFloatVariable\"\r\n            },\r\n            {\r\n                \"Variable\":
-    {\r\n                    \"Relationship\": \"Self\",\r\n                    \"Name\":
-    \"X\"\r\n                },\r\n                \"Output\": 0,\r\n                \"$type\":
-    \"ReadFloatVariable\"\r\n            },\r\n            {\r\n                \"Variable\":
-    {\r\n                    \"Relationship\": \"Self\",\r\n                    \"Name\":
-    \"Y\"\r\n                },\r\n                \"Output\": 1,\r\n                \"$type\":
-    \"ReadFloatVariable\"\r\n            },\r\n            {\r\n                \"Transform\":
-    {\r\n                    \"$unity\": 0\r\n                },\r\n                \"X\":
-    0,\r\n                \"Y\": 1,\r\n                \"Z\": 2,\r\n                \"$type\":
-    \"Position\"\r\n            }\r\n        ],\r\n        \"$type\": \"GGEZ.Labkit.Cell[]\"\r\n
-    \   },\r\n    \"Layers\": {\r\n        \"$content\": [\r\n            {\r\n                \"States\":
-    [\r\n                    0,\r\n                    1\r\n                ],\r\n
-    \               \"Transitions\": [\r\n                    {\r\n                        \"FromState\":
-    -1,\r\n                        \"ToState\": 0,\r\n                        \"Expression\":
-    [\r\n                            \"True\"\r\n                        ],\r\n                        \"Triggers\":
-    []\r\n                    },\r\n                    {\r\n                        \"FromState\":
-    0,\r\n                        \"ToState\": 1,\r\n                        \"Expression\":
-    [\r\n                            \"Push\"\r\n                        ],\r\n                        \"Triggers\":
-    [\r\n                            \"Next\"\r\n                        ]\r\n                    },\r\n
-    \                   {\r\n                        \"FromState\": 1,\r\n                        \"ToState\":
-    0,\r\n                        \"Expression\": [\r\n                            \"Push\"\r\n
-    \                       ],\r\n                        \"Triggers\": [\r\n                            \"Next\"\r\n
-    \                       ]\r\n                    }\r\n                ]\r\n            }\r\n
-    \       ],\r\n        \"$type\": \"GGEZ.Labkit.Layer[]\"\r\n    },\r\n    \"Scripts\":
-    {\r\n        \"$content\": [\r\n            {\r\n                \"Variable\":
-    {\r\n                    \"Relationship\": \"Self\",\r\n                    \"Name\":
-    \"X\"\r\n                },\r\n                \"$type\": \"AddDeltaTimeToVariable\"\r\n
-    \           },\r\n            {\r\n                \"Delay\": 2.0,\r\n                \"Trigger\":
-    \"Next\",\r\n                \"$type\": \"TransitionAfterDelay\"\r\n            },\r\n
-    \           {\r\n                \"Variable\": {\r\n                    \"Relationship\":
-    \"Self\",\r\n                    \"Name\": \"Y\"\r\n                },\r\n                \"$type\":
-    \"AddDeltaTimeToVariable\"\r\n            },\r\n            {\r\n                \"Delay\":
-    1.0,\r\n                \"Trigger\": \"Next\",\r\n                \"$type\": \"TransitionAfterDelay\"\r\n
-    \           }\r\n        ],\r\n        \"$type\": \"GGEZ.Labkit.Script[]\"\r\n
-    \   },\r\n    \"States\": {\r\n        \"$content\": [\r\n            {\r\n                \"Scripts\":
-    [\r\n                    0,\r\n                    1\r\n                ]\r\n
-    \           },\r\n            {\r\n                \"Scripts\": [\r\n                    2,\r\n
-    \                   3\r\n                ]\r\n            }\r\n        ],\r\n
-    \       \"$type\": \"GGEZ.Labkit.State[]\"\r\n    }\r\n}"
 --- !u!1 &2069607078
 GameObject:
   m_ObjectHideFlags: 0

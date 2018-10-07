@@ -33,12 +33,12 @@ using UnityObject = UnityEngine.Object;
 namespace GGEZ.Labkit
 {
 
-    public class Golem2 : MonoBehaviour
+    public class Golem : MonoBehaviour
     {
         [SerializeField, HideInInspector]
         public UnityObject[] References;
 
-        [SerializeField, HideInInspector]
+        // [SerializeField, HideInInspector]
         public GolemArchetype Archetype;
 
     #region Runtime
@@ -121,13 +121,23 @@ namespace GGEZ.Labkit
                 Archetype = ScriptableObject.CreateInstance<GolemArchetype>();
             }
 
-            if (!Application.isPlaying)
+            if (References.Length > Archetype.ReferenceNames.Length)
             {
-                Variables = null;
-                Aspects = null;
-                Components = null;
-                Triggers = null;
+                Array.Resize(ref Archetype.ReferenceNames, References.Length);
             }
+            else if (References.Length < Archetype.ReferenceNames.Length)
+            {
+                Array.Resize(ref References, Archetype.ReferenceNames.Length);
+            }
+
+            #warning do something to make sure runtime variables/etc aren't used until deserialization
+            // if (!Application.isPlaying)
+            // {
+            //     Variables = null;
+            //     Aspects = null;
+            //     Components = null;
+            //     Triggers = null;
+            // }
         }
     }
 }

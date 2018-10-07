@@ -36,12 +36,12 @@ namespace GGEZ.Labkit
     {
         private static Dictionary<string, IVariable> s_emptyVariables = new Dictionary<string, IVariable>();
 
-        private static List<Golem2> s_livingGolems = new List<Golem2>();
+        private static List<Golem> s_livingGolems = new List<Golem>();
 
-        public static Golem2 CreateGolem(Golem2 prefab)
+        public static Golem CreateGolem(Golem prefab)
         {
             GameObject gameObject = GameObject.Instantiate(prefab.gameObject);
-            Golem2 golem = gameObject.GetComponent<Golem2>();
+            Golem golem = gameObject.GetComponent<Golem>();
             s_livingGolems.Add(golem);
             GolemArchetype archetype = golem.Archetype;
 
@@ -115,7 +115,7 @@ namespace GGEZ.Labkit
         }
 
         /// <summary>Attach external references to the given relationship target</summary>
-        public static void SetRelationship(Golem2 golem, string relationship, Dictionary<string, IVariable> variables)
+        public static void SetRelationship(Golem golem, string relationship, Dictionary<string, IVariable> variables)
         {
             GolemArchetype archetype = golem.Archetype;
             Assignment[] assignments;
@@ -135,7 +135,7 @@ namespace GGEZ.Labkit
             }
         }
 
-        private static void DoAssignments(Golem2 golem, Assignment[] assignments, Dictionary<string, IVariable> variables, GolemComponentRuntimeData component, IRegister[] registers)
+        private static void DoAssignments(Golem golem, Assignment[] assignments, Dictionary<string, IVariable> variables, GolemComponentRuntimeData component, IRegister[] registers)
         {
             IVariable[] registerVariables = null;
             for (int assignmentIndex = 0; assignmentIndex < assignments.Length; ++assignmentIndex)
@@ -160,6 +160,7 @@ namespace GGEZ.Labkit
                     case AssignmentType.CellSetting:    assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.Archetype.Settings.Get(assignment.Name, fieldInfo.FieldType)); break;
                     case AssignmentType.ScriptSetting:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem.Archetype.Settings.Get(assignment.Name, fieldInfo.FieldType)); break;
 
+                    case AssignmentType.AspectAspect:   assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
                     case AssignmentType.CellAspect:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
                     case AssignmentType.ScriptAspect:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
 
@@ -210,11 +211,8 @@ namespace GGEZ.Labkit
                     case AssignmentType.CellDummyInputRegister:     assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetReadonlyRegister(fieldInfo.FieldType)); break;
                     case AssignmentType.CellDummyOutputRegister:    assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetWriteonlyRegister(fieldInfo.FieldType)); break;
                     case AssignmentType.CellDummyVariable:          assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetWriteonlyRegister(fieldInfo.FieldType)); break;
-                    case AssignmentType.CellDummyInputVariable:     assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetReadonlyVariable(fieldInfo.FieldType)); break;
-                    case AssignmentType.CellDummyOutputVariable:    assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetWriteonlyVariable(fieldInfo.FieldType)); break;
                     case AssignmentType.ScriptDummyVariable:        assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetDummyVariable(fieldInfo.FieldType)); break;
-                    case AssignmentType.ScriptDummyInputVariable:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetReadonlyVariable(fieldInfo.FieldType)); break;
-                    case AssignmentType.ScriptDummyOutputVariable:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetWriteonlyVariable(fieldInfo.FieldType)); break;
+                    case AssignmentType.AspectDummyVariable:        assignment.GetObjectFieldInfo(golem.Aspects, out target, out fieldInfo).SetValue(target, GetDummyVariable(fieldInfo.FieldType)); break;
                 }
             }
         }
@@ -463,7 +461,7 @@ namespace GGEZ.Labkit
 
             for (int golemIndex = 0; golemIndex < s_livingGolems.Count; ++golemIndex)
             {
-                Golem2 golem = s_livingGolems[golemIndex];
+                Golem golem = s_livingGolems[golemIndex];
 
                 bool[] triggers = golem.Triggers;
                 GolemArchetype archetype = golem.Archetype;
@@ -472,7 +470,7 @@ namespace GGEZ.Labkit
                 // Transitions
                 //-----------------------------------
 
-                #warning // TODO: each golem should be able to set a "wants transition" flag
+                #warning TODO: each golem should be able to set a "wants transition" flag
 
                 // TODO: each golem should be able to set a "wants transition" flag
                 //       that can shortcut this check if no triggers are set
@@ -504,7 +502,7 @@ namespace GGEZ.Labkit
                         var archetypeComponent = archetype.Components[componentIndex];
                         var instanceComponent = golem.Components[componentIndex];
 
-                        GolemComponent.Layer[] layers = archetypeComponent.Layers;
+                        Layer[] layers = archetypeComponent.Layers;
                         int layerIndex = 0;
                         while (layerIndex < layers.Length)
                         {

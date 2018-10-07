@@ -66,13 +66,6 @@ namespace GGEZ.Labkit
             NextFrameValues[name] = value;
         }
 
-        public void EditorGUIInspectVariables()
-        {
-            foreach (var variable in Values.Keys)
-            {
-
-            }
-        }
 #endif
 
         /// <summary>

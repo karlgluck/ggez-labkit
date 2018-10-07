@@ -69,8 +69,11 @@ namespace GGEZ.Labkit
             {
                 EditorUtility.SetDirty(golem.gameObject);
             }
-            EditorUtility.SetDirty(golem.Asset);
-            EditorUtility.SetDirty(golem.EditorAsset);
+            EditorUtility.SetDirty(golem.Archetype);
+            foreach (var component in golem.Archetype.Components)
+            {
+                EditorUtility.SetDirty(component);
+            }
         }
 
         //-----------------------------------------------------
@@ -309,11 +312,11 @@ namespace GGEZ.Labkit
                 FieldInfo fieldInfo,
                 object target,
                 Dictionary<string,string> fieldsUsingSettings,
-                GolemEditorData golemEditorData
+                GolemArchetype golemArchetype
                 )
         {
             Rect position = EditorGUILayout.GetControlRect();
-            EditorGUIGolemField(position, inspectableType, specificType, fieldInfo, target, fieldsUsingSettings, golemEditorData);
+            EditorGUIGolemField(position, inspectableType, specificType, fieldInfo, target, fieldsUsingSettings, golemArchetype);
         }
 
         public static void EditorGUIGolemField(
@@ -323,7 +326,7 @@ namespace GGEZ.Labkit
                 FieldInfo fieldInfo,
                 object target,
                 Dictionary<string,string> fieldsUsingSettings,
-                GolemEditorData golemEditorData
+                GolemArchetype golemArchetype
                 )
         {
             if (target == null)
@@ -334,9 +337,9 @@ namespace GGEZ.Labkit
             {
                 throw new ArgumentNullException("fieldsUsingSettings");
             }
-            if (golemEditorData == null)
+            if (golemArchetype == null)
             {
-                throw new ArgumentNullException("golemEditorData");
+                throw new ArgumentNullException("golemArchetype");
             }
             string fieldName = fieldInfo.Name;
             Rect labelRect = new Rect(position);
@@ -364,7 +367,7 @@ namespace GGEZ.Labkit
             object value;
             if (hasSetting)
             {
-                if (!golemEditorData.Settings.Contains(setting, specificType))
+                if (!golemArchetype.Settings.Contains(setting, specificType))
                 {
                     setting = null;
                 }
@@ -381,7 +384,7 @@ namespace GGEZ.Labkit
                     HashSet<string> encounteredSettings = new HashSet<string>();
                     object handle = GolemEditorUtility.GetActiveDropdownFieldHandle();
 
-                    Settings current = golemEditorData.Settings;
+                    Settings current = golemArchetype.Settings;
                     bool needsRootSeparator = false;
                     bool isSelf = true;
                     while (current != null)
@@ -434,7 +437,7 @@ namespace GGEZ.Labkit
                     menu.DropDown(valueRect);
                 }
                 fieldsUsingSettings[fieldName] = setting;
-                value = golemEditorData.Settings.Get(setting, specificType);
+                value = golemArchetype.Settings.Get(setting, specificType);
             }
             else
             {
@@ -457,7 +460,7 @@ namespace GGEZ.Labkit
                         //reference.Relationship = (EntityRelationship)EditorGUI.EnumPopup(left, reference.Relationship);
                         string relationship = null;
 
-                        string variableName = golemEditorData.ContainsVariable(reference.Name, specificType) ? reference.Name : null;
+                        string variableName = golemArchetype.ContainsVariable(reference.Name, specificType) ? reference.Name : null;
 
                         GUIContent content;
                         bool typeNotSet = specificType == null;
@@ -478,9 +481,18 @@ namespace GGEZ.Labkit
                         if (DropdownField(right, content, ref variableName))
                         {
                             GenericMenu menu = new GenericMenu();
-                            var variables = golemEditorData.EditorVariables;
+                            var variables = golemArchetype.EditorVariables;
                             int variablesAdded = 0;
                             ActiveDropdownFieldHandle handle = GetActiveDropdownFieldHandle();
+
+                            menu.AddItem(
+                                new GUIContent("New Variable..."),
+                                false,
+                                SetDropdownFieldValueToNewVariable,
+                                new object[]{ handle, golemArchetype, specificType }
+                                );
+
+                            menu.AddSeparator("");
 
                             for (int i = 0; i < variables.Count; ++i)
                             {
@@ -491,21 +503,13 @@ namespace GGEZ.Labkit
                                     continue;
                                 }
 
-                                foreach (Type aspectType in variable.SourceAspects)
-                                {
-                                    ++variablesAdded;
-                                    menu.AddItem(
-                                        new GUIContent(aspectType.Name + "/" + variable.Name),
-                                        variable.Name == variableName,
-                                        SetDropdownFieldValueMenuFunction2,
-                                        new object[]{ handle, variable.Name }
-                                        );
-                                }
-                            }
-
-                            if (variablesAdded == 0)
-                            {
-                                menu.AddDisabledItem(new GUIContent("Add an Aspect to create variables"));
+                                ++variablesAdded;
+                                menu.AddItem(
+                                    new GUIContent(variable.Name),
+                                    variable.Name == variableName,
+                                    SetDropdownFieldValueMenuFunction2,
+                                    new object[]{ handle, variable.Name }
+                                    );
                             }
 
                             menu.DropDown(right);
@@ -517,6 +521,27 @@ namespace GGEZ.Labkit
                 }
             }
             fieldInfo.SetValue(target, value);
+        }
+
+        private static void SetDropdownFieldValueToNewVariable(object contextParam)
+        {
+            var context = contextParam as object[];
+            var handle = (GolemEditorUtility.ActiveDropdownFieldHandle)context[0];
+            var golemArchetype = context[1] as GolemArchetype;
+            var variableType = context[2] as Type;
+
+            string newVariableName = Guid.NewGuid().ToString();
+            golemArchetype.EditorVariables.Add(new GolemVariableEditorData()
+            {
+                Name = newVariableName,
+                #warning how do get tooltip for new variable
+                Tooltip = "",
+                InspectableType = InspectableTypeExt.GetInspectableTypeOf(variableType),
+                Type = variableType,
+                #warning setting initial value to null probably is not okay but I'm not sure if this is supposed to be an IVariable or what
+                InitialValue = null,
+            });
+            GolemEditorUtility.SetDropdownFieldValue(handle, newVariableName);
         }
 
         private static void SetDropdownFieldValueToNewSetting(object contextParam)
@@ -1233,7 +1258,7 @@ namespace GGEZ.Labkit
 
 
 
-        
+
     }
 
 }

@@ -29,6 +29,9 @@ using System.Collections.Generic;
 using UnityObject = UnityEngine.Object;
 using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
 using GGEZ.FullSerializer;
+#if UNITY_EDITOR
+using System.Linq;
+#endif
 
 namespace GGEZ.Labkit
 {
@@ -46,22 +49,26 @@ namespace GGEZ.Labkit
         /// <summary>Functional parts used by the golem</summary>
         public GolemComponent[] Components;
 
-        /// Groups of functionality used by this archetype
+        /// <summary>Groups of functionality used by this archetype</summary>
         [NonSerialized]
         public Aspect[] Aspects;
 
-        /// Values that get assigned to fields of aspects, cells and scripts
+        /// <summary>Values that get assigned to fields of aspects, cells and scripts</summary>
         [NonSerialized]
         public Settings Settings;
         public SettingsAsset InheritSettingsFrom;
 
-        /// Assignments that map settings and local variables to aspect fields
+        /// <summary>Assignments that map settings and local variables to aspect fields</summary>
         [NonSerialized]
         public Assignment[] Assignments;
 
-        /// Assignments that map external variables to aspect fields
+        /// <summary>Assignments that map external variables to aspect fields</summary>
         [NonSerialized]
         public Dictionary<string, Assignment[]> ExternalAssignments;
+
+        /// <summary>Default values for all variables</summary>
+        [NonSerialized]
+        public Dictionary<string, IVariable> Variables;
 
         /// <summary>Source of data for all the NonSerialized properties</summary>
         public string Json;
@@ -74,15 +81,18 @@ namespace GGEZ.Labkit
         // Aspects
         //------------------
         [NonSerialized]
-        public List<GolemAspectEditorData> EditorAspects = new List<GolemAspectEditorData>();
+        public List<EditorAspect> EditorAspects;
 
         // Variables
         //------------------
         [NonSerialized]
-        public List<GolemVariableEditorData> EditorVariables = new List<GolemVariableEditorData>();
+        public List<GolemVariableEditorData> EditorVariables;
 
         /// <summary>Source of data for all NonSerialized editor-only properties</summary>
         public string EditorJson;
+
+        /// <summary>In the editor, which component is being displayed in the window</summary>
+        public int EditorWindowSelectedComponent;
 
     #endif
 
@@ -105,22 +115,142 @@ namespace GGEZ.Labkit
             // Compile runtime data
             //-------------------------
             List<Assignment> assignments = new List<Assignment>();
-            Dictionary<string, List<Assignment>> externalAssignments = new Dictionary<string, List<Assignment>> externalAssignments;
+            Dictionary<string, List<Assignment>> externalAssignments = new Dictionary<string, List<Assignment>>();
             {
                 Aspects = new Aspect[EditorAspects.Count];
-                for (int i = 0; i < EditorAspects.Count; ++i)
+                for (int aspectIndex = 0; aspectIndex < EditorAspects.Count; ++aspectIndex)
                 {
-                    Aspect aspect = EditorAspects[i].Aspect.Clone();
-                    Aspects[i] = aspect;
+                    EditorAspect editorAspect = EditorAspects[aspectIndex];
+                    Aspect aspect = editorAspect.Aspect.Clone();
+                    Aspects[aspectIndex] = aspect;
 
                     var inspectableType = InspectableAspectType.GetInspectableAspectType(aspect.GetType());
 
-                    var fields = inspectableType.Fields;
-                    for (int j = 0; j < fields.Length; ++j)
+                    //-------------------------------------------------
+                    // Write assignments for fields referencing:
+                    //  * Aspects
+                    //  * Settings
+                    //  * Unity Objects
+                    //  * Variables
+                    //-------------------------------------------------
                     {
-                        fields[j].FieldInfo.Name
+                        var fields = inspectableType.Fields;
+                        for (int fieldIndex = 0; fieldIndex < fields.Length; ++fieldIndex)
+                        {
+                            InspectableAspectType.Field field = fields[fieldIndex];
+                            string fieldName = field.FieldInfo.Name;
+
+                            switch (field.Type)
+                            {
+                                
+                            //-------------------------------------------------
+                            case InspectableType.Golem:
+                            //-------------------------------------------------
+                                assignments.Add(new Assignment()
+                                {
+                                    Type = AssignmentType.AspectGolem,
+                                    TargetIndex = aspectIndex,
+                                    TargetFieldName = fieldName,
+                                });
+                                break;
+
+                            //-------------------------------------------------
+                            case InspectableType.UnityObject:
+                            //-------------------------------------------------
+                                string unityObjectName;
+                                if (editorAspect.UnityObjectFields.TryGetValue(fieldName, out unityObjectName))
+                                {
+                                    assignments.Add(new Assignment()
+                                    {
+                                        Type = AssignmentType.AspectUnityObject,
+                                        Name = unityObjectName,
+                                        TargetIndex = aspectIndex,
+                                        TargetFieldName = fieldName,
+                                    });
+                                }
+                                else
+                                {
+                                    Debug.LogWarning("Field " + fieldName + " is not mapped to a UnityObject and will always be null");
+                                }
+                                break;
+
+                            //-------------------------------------------------
+                            case InspectableType.Aspect:
+                            //-------------------------------------------------
+                                assignments.Add(new Assignment()
+                                {
+                                    Type = AssignmentType.AspectAspect,
+                                    TargetIndex = aspectIndex,
+                                    TargetFieldName = fieldName,
+                                });
+                                break;
+
+                            //-------------------------------------------------
+                            case InspectableType.Variable:
+                            //-------------------------------------------------
+                                VariableRef variableRef;
+                                if (editorAspect.FieldsUsingVariables.TryGetValue(fieldName, out variableRef))
+                                {
+                                    var assignment = new Assignment()
+                                    {
+                                        Name = variableRef.Name,
+                                        TargetIndex = aspectIndex,
+                                        TargetFieldName = fieldName,
+                                    };
+
+                                    if (variableRef.IsExternal)
+                                    {
+                                        assignment.Type = field.CanBeNull
+                                                ? AssignmentType.AspectVariableOrNull
+                                                : AssignmentType.AspectVariableOrDummy;
+                                        externalAssignments.MultiAdd(variableRef.Relationship, assignment);
+                                    }
+                                    else
+                                    {
+                                        Debug.Assert(!variableRef.IsInternalRegister);
+                                        assignment.Type = AssignmentType.AspectVariable;
+                                        assignments.Add(assignment);
+                                    }
+                                }
+                                else
+                                {
+                                    if (!field.CanBeNull)
+                                    {
+                                        assignments.Add(new Assignment()
+                                        {
+                                            Type = AssignmentType.AspectDummyVariable,
+                                            TargetIndex = aspectIndex,
+                                            TargetFieldName = fieldName,
+                                        });
+                                    }
+                                }
+                                break;
+
+                            //-------------------------------------------------
+                            default:
+                            //-------------------------------------------------
+                                string setting;
+                                if (editorAspect.FieldsUsingSettings.TryGetValue(fieldName, out setting))
+                                {
+                                    Debug.Assert(InspectableTypeExt.CanUseSetting(field.Type));
+
+                                    assignments.Add(new Assignment()
+                                    {
+                                        Type = AssignmentType.AspectSetting,
+                                        Name = setting,
+                                        TargetIndex = aspectIndex,
+                                        TargetFieldName = fieldName,
+                                    });
+                                }
+                                break;
+                            }
+                        }
                     }
+
                 }
+
+                Assignments = assignments.ToArray();
+                ExternalAssignments = externalAssignments.MultiToArray();
             }
 
         #else
@@ -166,10 +296,95 @@ namespace GGEZ.Labkit
                 Serialization.ReadOrCreate(this, "EditorAspects", deserialized);
                 Serialization.ReadOrCreate(this, "EditorVariables", deserialized);
 
-                this.RemoveEditorVariablesWithoutSourceAspects();
+                #warning handle the case where you change a field or variable or register's type and try to use data that loads the old type
             }
         #endif
 
-        } 
+        }
+
+    #if UNITY_EDITOR
+
+        public bool ContainsVariable(string name, Type type)
+        {
+            if (name == null || type == null)
+            {
+                return false;
+            }
+            for (int i = 0; i < EditorVariables.Count; ++i)
+            {
+                if (EditorVariables[i].Name == name)
+                {
+                    return type.IsAssignableFrom(EditorVariables[i].Type);
+                }
+            }
+            return false;
+        }
+    
+        public void AddNewAspect(Aspect aspect)
+        {
+            if (aspect == null)
+            {
+                throw new ArgumentNullException("aspect");
+            }
+            var aspectType = aspect.GetType();
+            
+            // Make sure this aspect doesn't already exist
+            for (int i = 0; i < Aspects.Length; ++i)
+            {
+                Debug.Assert(!Aspects[i].GetType().Equals(aspectType));
+            }
+
+            var editorAspect = new EditorAspect();
+            editorAspect.Aspect = aspect;
+            EditorAspects.Add(editorAspect);
+
+            InspectableAspectType inspectableAspectType = InspectableAspectType.GetInspectableAspectType(aspectType);
+
+            // Clean up FieldsUsingSettings to only include existing fields
+            {
+                foreach (var key in editorAspect.FieldsUsingSettings.Keys.Where(
+                    (fieldName) => !inspectableAspectType.Fields.Any((e) => e.FieldInfo.Name == fieldName && InspectableTypeExt.CanUseSetting(e.Type))
+                    ).ToArray())
+                {
+                    editorAspect.FieldsUsingSettings.Remove(key);
+                }
+            }
+
+        }
+
+        public void RemoveAspect(EditorAspect editorAspect)
+        {
+            if (editorAspect == null)
+            {
+                throw new ArgumentNullException("editableAspect");
+            }
+            var index = EditorAspects.IndexOf(editorAspect);
+            if (index < 0)
+            {
+                throw new ArgumentOutOfRangeException("editableAspect");
+            }
+            EditorAspects.RemoveAt(index);
+        }
+
+
+        public void Reset()
+        {
+            ReferenceNames = new string[0];
+            Components = new GolemComponent[0];
+            Aspects = new Aspect[0];
+            Settings = new Settings(this, null);
+            InheritSettingsFrom = null;
+            Assignments = new Assignment[0];
+            ExternalAssignments = new Dictionary<string, Assignment[]>();
+            Variables = new Dictionary<string, IVariable>();
+            Json = "{}";
+            
+            EditorAspects = new List<EditorAspect>();
+            EditorVariables = new List<GolemVariableEditorData>();
+            EditorJson = "{}";
+        }
+
+    #endif
+
     }
 }

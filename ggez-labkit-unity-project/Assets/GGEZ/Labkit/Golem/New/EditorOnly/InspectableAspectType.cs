@@ -51,7 +51,7 @@ namespace GGEZ.Labkit
             public readonly InspectableType Type;
             public readonly Type SpecificType;
             public readonly FieldInfo FieldInfo;
-            public readonly bool WantSetting;
+            public readonly bool WantsSetting;
             public readonly bool CanBeNull;
 
             public Field(InspectableType type, Type targetType, FieldInfo fieldInfo, bool wantsSetting, bool canBeNull)
@@ -59,7 +59,7 @@ namespace GGEZ.Labkit
                 Type = type;
                 SpecificType = targetType;
                 FieldInfo = fieldInfo;
-                WantSetting = wantsSetting;
+                WantsSetting = wantsSetting;
                 CanBeNull = canBeNull;
             }
         }
@@ -106,6 +106,7 @@ namespace GGEZ.Labkit
                     {
                         var specificType = InspectableTypeExt.GetSpecificType(inspectableType, fields[i]);
                         bool wantsSetting = fields[i].IsDefined(typeof(SettingAttribute), true);
+                        Debug.Assert(!wantsSetting || InspectableTypeExt.CanUseSetting(inspectableType));
                         bool canBeNull = fields[i].IsDefined(typeof(CanBeNullAttribute), true);
                         returnedFields[j++] = new Field(inspectableType, specificType, fields[i], wantsSetting, canBeNull);
                     }

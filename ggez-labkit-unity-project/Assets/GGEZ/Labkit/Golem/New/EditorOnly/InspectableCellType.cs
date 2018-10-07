@@ -109,12 +109,28 @@ namespace GGEZ.Labkit
 
         public HashSet<string> GetUnnullableInputs()
         {
-            throw new NotImplementedException();
+            HashSet<string> retval = new HashSet<string>();
+            for (int i = 0; i < Inputs.Length; ++i)
+            {
+                if (!Inputs[i].CanBeNull)
+                {
+                    retval.Add(Inputs[i].Field.Name);
+                }
+            }
+            return retval;
         }
 
         public HashSet<string> GetUnnullableOutputs()
         {
-            throw new NotImplementedException();
+            HashSet<string> retval = new HashSet<string>();
+            for (int i = 0; i < Outputs.Length; ++i)
+            {
+                if (!Outputs[i].CanBeNull)
+                {
+                    retval.Add(Outputs[i].Field.Name);
+                }
+            }
+            return retval;
         }
 
         private static Dictionary<Type, InspectableCellType> s_typeToInspectableType = new Dictionary<Type, InspectableCellType>();
