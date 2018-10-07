@@ -57,24 +57,31 @@ namespace GGEZ.Labkit
 
         public static void SetDirty(Golem golem)
         {
-            var scene = golem.gameObject.scene;
-            if (scene.IsValid())
-            {
-                if (!EditorApplication.isPlaying)
-                {
-                    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
-                }
-            }
-            else
-            {
-                EditorUtility.SetDirty(golem.gameObject);
-            }
-            
+            SetSceneDirty(golem.gameObject);
+
+            EditorUtility.SetDirty(golem);
             EditorUtility.SetDirty(golem.Archetype);
 
             foreach (var component in golem.Archetype.Components)
             {
                 EditorUtility.SetDirty(component);
+            }
+        }
+
+        public static void SetSceneDirty(GameObject gameObject)
+        {
+            switch (PrefabUtility.GetPrefabType(gameObject))
+            {
+                case PrefabType.None:
+                case PrefabType.ModelPrefabInstance:
+                case PrefabType.MissingPrefabInstance:
+                case PrefabType.DisconnectedPrefabInstance:
+                    if (!EditorApplication.isPlaying)
+                    {
+                        Debug.Assert(gameObject.scene.IsValid());
+                        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(gameObject.scene);
+                    }
+                    break;
             }
         }
 

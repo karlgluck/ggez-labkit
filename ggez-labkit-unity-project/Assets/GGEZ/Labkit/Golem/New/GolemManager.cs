@@ -32,17 +32,45 @@ using System.Reflection;
 namespace GGEZ.Labkit
 {
 
-    public static class GolemManager
+    public class GolemManager : MonoBehaviour
     {
-        private static Dictionary<string, IVariable> s_emptyVariables = new Dictionary<string, IVariable>();
+        private List<Golem> _livingGolems = new List<Golem>();
 
-        private static List<Golem> s_livingGolems = new List<Golem>();
+        private static GolemManager s_instance;
+        private static GolemManager Instance
+        {
+            get
+            {
+                Debug.Assert(Application.isPlaying);
+                if (s_instance == null)
+                {
+                    GameObject go = new GameObject("GolemManager");
+                    s_instance = go.AddComponent<GolemManager>();
+                    GameObject.DontDestroyOnLoad(go);
+                }
+                return s_instance;
+            }
+        }
+
+        void Update()
+        {
+            OnCircuitPhase();
+            OnProgramPhase();
+            OnChangedCollectionRollover();
+            OnVariableRollover();
+        }
 
         public static Golem CreateGolem(Golem prefab)
         {
             GameObject gameObject = GameObject.Instantiate(prefab.gameObject);
             Golem golem = gameObject.GetComponent<Golem>();
-            s_livingGolems.Add(golem);
+            return golem;
+        }
+
+        public static void OnAwake(Golem golem)
+        {
+            Instance._livingGolems.Add(golem);
+
             GolemArchetype archetype = golem.Archetype;
 
             // Triggers
@@ -63,7 +91,7 @@ namespace GGEZ.Labkit
             for (int i = 0; i < archetype.Components.Length; ++i)
             {
                 var from = archetype.Components[i];
-                var to = golem.Components[i];
+                var to = golem.Components[i] = new GolemComponentRuntimeData();
 
                 to.Cells = new Cell[from.Cells.Length];
                 for (int j = 0; j < from.Cells.Length; ++j)
@@ -95,7 +123,7 @@ namespace GGEZ.Labkit
                 // Reset external references
                 foreach (var kvp in from.ExternalAssignments)
                 {
-                    DoAssignments(golem, kvp.Value, s_emptyVariables, to, null);
+                    DoAssignments(golem, kvp.Value, null, to, null);
                 }
 
                 // Initialize the cells
@@ -110,8 +138,6 @@ namespace GGEZ.Labkit
                     to.Scripts[j].Acquire();
                 }
             }
-
-            return golem;
         }
 
         /// <summary>Attach external references to the given relationship target</summary>
@@ -135,8 +161,12 @@ namespace GGEZ.Labkit
             }
         }
 
+        private static readonly Dictionary<string, IVariable> s_emptyVariables = new Dictionary<string, IVariable>();
+
         private static void DoAssignments(Golem golem, Assignment[] assignments, Dictionary<string, IVariable> variables, GolemComponentRuntimeData component, IRegister[] registers)
         {
+            variables = variables ?? s_emptyVariables;
+
             IVariable[] registerVariables = null;
             for (int assignmentIndex = 0; assignmentIndex < assignments.Length; ++assignmentIndex)
             {
@@ -352,79 +382,90 @@ namespace GGEZ.Labkit
             return instance;
         }
 
-        private static List<IVariable> s_changedVariables = new List<IVariable>();
+        private List<IVariable> _changedVariables = new List<IVariable>();
         public static void AddChangedVariable(IVariable variable)
         {
-            s_changedVariables.Add(variable);
+            Instance._changedVariables.Add(variable);
         }
 
-        private static List<ICollectionRegister> s_changedCollectionRegisters = new List<ICollectionRegister>();
+        private List<ICollectionRegister> _changedCollectionRegisters = new List<ICollectionRegister>();
         public static void AddChangedCollectionRegister(ICollectionRegister register)
         {
-            s_changedCollectionRegisters.Add(register);
+            Instance._changedCollectionRegisters.Add(register);
         }
 
-        private static List<Cell> s_changedCells = new List<Cell>();
+        public void OnChangedCollectionRollover()
+        {
+            for (int i = 0; i < _changedCollectionRegisters.Count; ++i)
+            {
+                _changedCollectionRegisters[i].OnCollectionRegisterUpdate();
+            }
+            _changedCollectionRegisters.Clear();
+        }
 
-        private static int s_currentCircuitPhaseCellSequencer = 0;
-        private static List<Cell> s_changedCellsBeforeSequencer = new List<Cell>();
+        private List<Cell> _changedCells = new List<Cell>();
+
+        private int _currentCircuitPhaseCellSequencer = 0;
+        private List<Cell> _changedCellsBeforeSequencer = new List<Cell>();
 
         public static void AddChangedCellInputs(List<Cell> cells)
         {
             for (int i = 0; i < cells.Count; ++i)
             {
                 Cell cell = cells[i];
-                if (cell.Sequencer > s_currentCircuitPhaseCellSequencer)
+                if (cell.Sequencer > Instance._currentCircuitPhaseCellSequencer)
                 {
-                    s_changedCells.Add(cell);
+                    Instance._changedCells.Add(cell);
                 }
                 else
                 {
-                    s_changedCellsBeforeSequencer.Add(cell);
+                    #warning Can this still happen if we only update once per frame and don't allow cells to write variables?
+                    Instance._changedCellsBeforeSequencer.Add(cell);
                 }
             }
         }
 
-        public static void OnVariableRollover()
+        public void OnVariableRollover()
         {
             // go through all changed variables and push their changes so that cells are queued
-            for (int i = 0; i < s_changedVariables.Count; ++i)
+            for (int i = 0; i < _changedVariables.Count; ++i)
             {
-                s_changedVariables[i].OnEndProgramPhase();
+                _changedVariables[i].OnEndProgramPhase();
             }
+            _changedVariables.Clear();
         }
 
-        public static void OnCircuitPhase()
+        public void OnCircuitPhase()
         {
             Debug.LogErrorFormat("OnCircuitPhase is REALLY REALLY TERRIBLY BAD, it sorts the list of cells every cell! Make this into a priority queue!");
 
-            Debug.Assert(s_changedCellsBeforeSequencer.Count == 0);
+            Debug.Assert(_changedCellsBeforeSequencer.Count == 0);
 
             int lastSequencer = -1; // used to deduplicate the list
             int sentinel = 999999;
-            while (s_changedCells.Count > 0 && --sentinel > 0)
+            while (_changedCells.Count > 0 && --sentinel > 0)
             {
-                s_changedCells.Sort((Cell lhs, Cell rhs) => lhs.Sequencer - rhs.Sequencer);
-                Debug.Assert(s_changedCells[0].Sequencer >= lastSequencer);
+                _changedCells.Sort((Cell lhs, Cell rhs) => lhs.Sequencer - rhs.Sequencer);
+                Debug.Assert(_changedCells[0].Sequencer >= lastSequencer);
 
-                s_currentCircuitPhaseCellSequencer = s_changedCells[0].Sequencer;
-                if (s_changedCells[0].Sequencer > lastSequencer)
+                _currentCircuitPhaseCellSequencer = _changedCells[0].Sequencer;
+                if (_changedCells[0].Sequencer > lastSequencer)
                 {
-                    s_changedCells[0].Update();
+                    _changedCells[0].Update();
                 }
 
                 // Don't go backward in sequence--cells dirtied with a lower sequence
                 // are handled next-frame, since we already processed the cells' circuit
                 // and there is important change data in collection registers.
-                Debug.Assert(s_changedCells[0].Sequencer >= s_currentCircuitPhaseCellSequencer);
+                Debug.Assert(_changedCells[0].Sequencer >= _currentCircuitPhaseCellSequencer);
 
-                lastSequencer = s_currentCircuitPhaseCellSequencer;
-                s_changedCells.RemoveAt(0);
+                lastSequencer = _currentCircuitPhaseCellSequencer;
+                _changedCells.RemoveAt(0);
             }
 
-            var swap = s_changedCells;
-            s_changedCells = s_changedCellsBeforeSequencer;
-            s_changedCellsBeforeSequencer = swap;
+            var swap = _changedCells;
+            _changedCells = _changedCellsBeforeSequencer;
+            _changedCellsBeforeSequencer = swap;
 
             Debug.Assert(sentinel > 0);
         }
@@ -452,16 +493,16 @@ namespace GGEZ.Labkit
             return shouldTransition;
         }
 
-        private static List<List<Transition>> s_activeTransitions = new List<List<Transition>>();
-        private static List<List<Transition>> s_activeTransitionsCache = new List<List<Transition>>();
+        private List<List<Transition>> _activeTransitions = new List<List<Transition>>();
+        private List<List<Transition>> _activeTransitionsCache = new List<List<Transition>>();
 
-        private static void OnProgramPhase()
+        private void OnProgramPhase()
         {
             const int kMaxTransitionsPerFrame = 10;
 
-            for (int golemIndex = 0; golemIndex < s_livingGolems.Count; ++golemIndex)
+            for (int golemIndex = 0; golemIndex < _livingGolems.Count; ++golemIndex)
             {
-                Golem golem = s_livingGolems[golemIndex];
+                Golem golem = _livingGolems[golemIndex];
 
                 bool[] triggers = golem.Triggers;
                 GolemArchetype archetype = golem.Archetype;
@@ -478,19 +519,19 @@ namespace GGEZ.Labkit
                 // even better: golems only exist in the list at all if they
                 //              need to process transitions
 
-                while (s_activeTransitionsCache.Count < archetype.Components.Length)
+                while (_activeTransitionsCache.Count < archetype.Components.Length)
                 {
-                    s_activeTransitionsCache.Add(new List<Transition>());
+                    _activeTransitionsCache.Add(new List<Transition>());
                 }
-                s_activeTransitions.Clear();
-                s_activeTransitions.AddRange(s_activeTransitionsCache);
+                _activeTransitions.Clear();
+                _activeTransitions.AddRange(_activeTransitionsCache);
 
                 for (int sentinel = 0; sentinel < kMaxTransitionsPerFrame; ++sentinel)
                 {
                     // Determine if any states want to transition
                     for (int componentIndex = 0; componentIndex < archetype.Components.Length; ++componentIndex)
                     {
-                        var activeTransitions = s_activeTransitions[componentIndex];
+                        var activeTransitions = _activeTransitions[componentIndex];
 
                         bool componentIsFinishedTransitioning = activeTransitions == null;
                         if (componentIsFinishedTransitioning)
@@ -541,7 +582,7 @@ namespace GGEZ.Labkit
                         componentIsFinishedTransitioning = activeTransitions.Count == 0;
                         if (componentIsFinishedTransitioning)
                         {
-                            s_activeTransitions[componentIndex] = null;
+                            _activeTransitions[componentIndex] = null;
                             break;
                         }
 
@@ -572,7 +613,7 @@ namespace GGEZ.Labkit
                     // Enter the new states in each component
                     for (int componentIndex = 0; componentIndex < archetype.Components.Length; ++componentIndex)
                     {
-                        var activeTransitions = s_activeTransitions[componentIndex];
+                        var activeTransitions = _activeTransitions[componentIndex];
 
                         bool componentIsFinishedTransitioning = activeTransitions == null;
                         if (componentIsFinishedTransitioning)
@@ -614,7 +655,7 @@ namespace GGEZ.Labkit
 
                 for (int componentIndex = 0; componentIndex < archetype.Components.Length; ++componentIndex)
                 {
-                    var activeTransitions = s_activeTransitions[componentIndex];
+                    var activeTransitions = _activeTransitions[componentIndex];
                     var archetypeComponent = archetype.Components[componentIndex];
                     var instanceComponent = golem.Components[componentIndex];
                     for (int i = 0; i < archetypeComponent.Layers.Length; ++i)

@@ -618,9 +618,6 @@ namespace GGEZ.Labkit
                     }
                 }
 
-                Debug.Log("Cancel = " + cancelTransitionCreation);
-                Debug.Log("Try = " + tryCreatingTransition);
-
                 if (cancelTransitionCreation || tryCreatingTransition)
                 {
                     wantsMouseMove = false;
@@ -1217,8 +1214,14 @@ namespace GGEZ.Labkit
 
             if (_shouldWrite)
             {
-                // Debug.Log("WRITE");
-                EditorUtility.SetDirty(_golem.Archetype.Components[_golem.Archetype.EditorWindowSelectedComponent]);
+                var component = _golem.Archetype.Components[_golem.Archetype.EditorWindowSelectedComponent];
+                EditorUtility.SetDirty(component);
+                if (!AssetDatabase.IsMainAsset(component))
+                {
+                    // EditorUtility.SetDirty(_golem);
+                    // EditorUtility.SetDirty(_golem.Archetype);
+                    GolemEditorUtility.SetSceneDirty(_golem.gameObject);
+                }
                 Repaint();
                 _shouldWrite = false;
             }

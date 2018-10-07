@@ -281,15 +281,14 @@ public class PositionAspect : GGEZ.Labkit.Aspect
 
 
 
-// public class SetVariableToTime : Script
-// {
-//     public VariableRef Variable;
+public class SetVariableToTime : Script
+{
 
-//     public override void OnUpdate(Golem entity)
-//     {
-//         entity.Write(Variable, Time.time);
-//     }
-// }
+    public override void OnUpdate()
+    {
+        Debug.Log("OnUpdate("+Time.time+")");
+    }
+}
 
 // public class SetVariableToTimeInState : Script
 // {

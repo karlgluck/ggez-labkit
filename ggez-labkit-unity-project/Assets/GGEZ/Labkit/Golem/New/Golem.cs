@@ -61,6 +61,11 @@ namespace GGEZ.Labkit
 
     #endregion
 
+        void Awake()
+        {
+            GolemManager.OnAwake(this);
+        }
+
         /// <summary>Gets a Unity Object reference for this golem by name</summary>
         /// <returns>The matching reference or null if none exists</returns>
         /// <remarks>Used during setup</remarks>

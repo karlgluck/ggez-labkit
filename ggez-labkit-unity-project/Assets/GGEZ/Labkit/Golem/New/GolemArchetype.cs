@@ -391,6 +391,32 @@ namespace GGEZ.Labkit
             EditorJson = "{}";
         }
 
+        void OnValidate()
+        {
+            DeduplicateComponents();
+        }
+
+        public void DeduplicateComponents()
+        {
+            HashSet<int> components = new HashSet<int>();
+            for (int i = Components.Length - 1; i >= 0; --i)
+            {
+                if (Components[i] == null || components.Contains(Components[i].GetInstanceID()))
+                {
+                    for (int j = i; j + 1 < Components.Length; ++j)
+                    {
+                        Components[j] = Components[j+1];
+                    }
+                    Array.Resize(ref Components, Components.Length - 1);
+                    // UnityEditor.EditorWindow.focusedWindow.ShowNotification(new GUIContent("Removed Duplicate Component"));
+                }
+                else
+                {
+                    components.Add(Components[i].GetInstanceID());
+                }
+            }
+        }
+
     #endif
 
     }

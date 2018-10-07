@@ -202,15 +202,15 @@ MonoBehaviour:
   m_Name: GameObject-102410RESET
   m_EditorClassIdentifier: 
   ReferenceNames: []
-  Components: []
+  Components:
+  - {fileID: 1595524302}
   InheritSettingsFrom: {fileID: 0}
-  Json: "{\r\n    \"Aspects\": {\r\n        \"$content\": [\r\n            {\r\n                \"$type\":
-    \"PositionAspect\"\r\n            },\r\n            {\r\n                \"fishingRodPosition\":
+  Json: "{\r\n    \"Aspects\": {\r\n        \"$content\": [\r\n            {\r\n                \"fishingRodPosition\":
     4.0,\r\n                \"$type\": \"FishingRodAspect\"\r\n            }\r\n        ],\r\n
     \       \"$type\": \"GGEZ.Labkit.Aspect[]\"\r\n    },\r\n    \"Assignments\":
     {\r\n        \"$content\": [\r\n            {\r\n                \"Type\": \"AspectSetting\",\r\n
     \               \"Name\": \"fd\",\r\n                \"RegisterIndex\": 0,\r\n
-    \               \"TargetIndex\": 1,\r\n                \"TargetFieldName\": \"fishingRodPosition\"\r\n
+    \               \"TargetIndex\": 0,\r\n                \"TargetFieldName\": \"fishingRodPosition\"\r\n
     \           }\r\n        ],\r\n        \"$type\": \"GGEZ.Labkit.Assignment[]\"\r\n
     \   },\r\n    \"ExternalAssignments\": {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
     mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[],
@@ -221,17 +221,15 @@ MonoBehaviour:
     \"System.Single\"\r\n                }\r\n            }\r\n        ],\r\n        \"$type\":
     \"System.Collections.Generic.List`1[[GGEZ.Labkit.Settings+Setting, Assembly-CSharp,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    }\r\n}"
-  EditorJson: "{\r\n    \"EditorAspects\": {\r\n        \"$content\": [\r\n            {\r\n
-    \               \"Aspect\": {\r\n                    \"$type\": \"PositionAspect\"\r\n
-    \               },\r\n                \"UnityObjectFields\": {\r\n\r\n                },\r\n
-    \               \"FieldsUsingSettings\": {\r\n\r\n                },\r\n                \"FieldsUsingVariables\":
-    {\r\n\r\n                },\r\n                \"Foldout\": true\r\n            },\r\n
-    \           {\r\n                \"Aspect\": {\r\n                    \"fishingRodPosition\":
-    4.0,\r\n                    \"$type\": \"FishingRodAspect\"\r\n                },\r\n
-    \               \"UnityObjectFields\": {\r\n\r\n                },\r\n                \"FieldsUsingSettings\":
-    {\r\n                    \"fishingRodPosition\": \"fd\"\r\n                },\r\n
-    \               \"FieldsUsingVariables\": {\r\n\r\n                },\r\n                \"Foldout\":
-    true\r\n            }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorAspect,
+  EditorJson: "{\r\n    \"EditorReferenceTypes\": {\r\n        \"$content\": [],\r\n
+    \       \"$type\": \"System.Type[]\"\r\n    },\r\n    \"EditorAspects\": {\r\n
+    \       \"$content\": [\r\n            {\r\n                \"Aspect\": {\r\n
+    \                   \"fishingRodPosition\": 4.0,\r\n                    \"$type\":
+    \"FishingRodAspect\"\r\n                },\r\n                \"UnityObjectFields\":
+    {\r\n\r\n                },\r\n                \"FieldsUsingSettings\": {\r\n
+    \                   \"fishingRodPosition\": \"fd\"\r\n                },\r\n                \"FieldsUsingVariables\":
+    {\r\n\r\n                },\r\n                \"Foldout\": true\r\n            }\r\n
+    \       ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorAspect,
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
     \   },\r\n    \"EditorVariables\": {\r\n        \"$content\": [],\r\n        \"$type\":
     \"System.Collections.Generic.List`1[[GGEZ.Labkit.GolemVariableEditorData, Assembly-CSharp,
@@ -279,6 +277,81 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1595524302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 586eb5b36413a544abf736664884d25c, type: 3}
+  m_Name: Extracted Golem Component 1(Clone)
+  m_EditorClassIdentifier: 
+  Json: "{\r\n    \"Cells\": {\r\n        \"$content\": [],\r\n        \"$type\":
+    \"GGEZ.Labkit.Cell[]\"\r\n    },\r\n    \"Registers\": {\r\n        \"$content\":
+    [],\r\n        \"$type\": \"GGEZ.Labkit.IRegister[]\"\r\n    },\r\n    \"Layers\":
+    {\r\n        \"$content\": [\r\n            {\r\n                \"States\": [\r\n
+    \                   0\r\n                ],\r\n                \"FromAnyStateTransitions\":
+    [],\r\n                \"Transitions\": [\r\n                    {\r\n                        \"Key\":
+    -1,\r\n                        \"Value\": [\r\n                            {\r\n
+    \                               \"FromState\": -1,\r\n                                \"ToState\":
+    0,\r\n                                \"Expression\": [\r\n                                    \"True\"\r\n
+    \                               ],\r\n                                \"Triggers\":
+    []\r\n                            }\r\n                        ]\r\n                    }\r\n
+    \               ]\r\n            }\r\n        ],\r\n        \"$type\": \"GGEZ.Labkit.Layer[]\"\r\n
+    \   },\r\n    \"Scripts\": {\r\n        \"$content\": [\r\n            {\r\n                \"$type\":
+    \"SetVariableToTime\"\r\n            }\r\n        ],\r\n        \"$type\": \"GGEZ.Labkit.Script[]\"\r\n
+    \   },\r\n    \"States\": {\r\n        \"$content\": [\r\n            {\r\n                \"Scripts\":
+    [\r\n                    0\r\n                ]\r\n            }\r\n        ],\r\n
+    \       \"$type\": \"GGEZ.Labkit.State[]\"\r\n    },\r\n    \"Assignments\": {\r\n
+    \       \"$content\": [],\r\n        \"$type\": \"GGEZ.Labkit.Assignment[]\"\r\n
+    \   },\r\n    \"ExternalAssignments\": {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
+    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[],
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   }\r\n}"
+  EditorJson: "{\r\n    \"EditorCells\": {\r\n        \"$content\": [],\r\n        \"$type\":
+    \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorCell, Assembly-CSharp,
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    },\r\n    \"EditorWires\":
+    {\r\n        \"$content\": [],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorWire,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   },\r\n    \"EditorStates\": {\r\n        \"$content\": [\r\n            {\r\n
+    \               \"Name\": \"State\",\r\n                \"Layer\": 0,\r\n                \"Index\":
+    0,\r\n                \"CompiledIndex\": 0,\r\n                \"SpecialState\":
+    \"Normal\",\r\n                \"Position\": {\r\n                    \"xMin\":
+    544.0,\r\n                    \"yMin\": 160.0,\r\n                    \"xMax\":
+    896.0,\r\n                    \"yMax\": 256.0\r\n                },\r\n                \"Scripts\":
+    [\r\n                    {\r\n                        \"Enabled\": true,\r\n                        \"Script\":
+    {\r\n                            \"$type\": \"SetVariableToTime\"\r\n                        },\r\n
+    \                       \"FieldsUsingSettings\": {\r\n\r\n                        },\r\n
+    \                       \"UnityObjectFields\": {\r\n\r\n                        },\r\n
+    \                       \"FieldsUsingVariables\": {\r\n\r\n                        }\r\n
+    \                   }\r\n                ],\r\n                \"TransitionsIn\":
+    [\r\n                    0\r\n                ],\r\n                \"TransitionsOut\":
+    []\r\n            },\r\n            {\r\n                \"Name\": \"Enter\",\r\n
+    \               \"Layer\": 0,\r\n                \"Index\": 1,\r\n                \"CompiledIndex\":
+    2147483647,\r\n                \"SpecialState\": \"LayerEnter\",\r\n                \"Position\":
+    {\r\n                    \"xMin\": 80.0,\r\n                    \"yMin\": 160.0,\r\n
+    \                   \"xMax\": 416.0,\r\n                    \"yMax\": 256.0\r\n
+    \               },\r\n                \"Scripts\": [],\r\n                \"TransitionsIn\":
+    [],\r\n                \"TransitionsOut\": [\r\n                    0\r\n                ]\r\n
+    \           }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorState,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   },\r\n    \"EditorTransitions\": {\r\n        \"$content\": [\r\n            {\r\n
+    \               \"Name\": \"Transition\",\r\n                \"Index\": 0,\r\n
+    \               \"Expression\": {\r\n                    \"Type\": \"True\",\r\n
+    \                   \"Position\": {\r\n                        \"xMin\": 415.0,\r\n
+    \                       \"yMin\": 136.0,\r\n                        \"xMax\":
+    480.0,\r\n                        \"yMax\": 152.0\r\n                    },\r\n
+    \                   \"Trigger\": \"Next\",\r\n                    \"Subexpressions\":
+    []\r\n                },\r\n                \"ExpressionAnchor\": {\r\n                    \"x\":
+    480.0,\r\n                    \"y\": 144.0\r\n                },\r\n                \"Position\":
+    {\r\n                    \"xMin\": 415.0,\r\n                    \"yMin\": 136.0,\r\n
+    \                   \"xMax\": 480.0,\r\n                    \"yMax\": 152.0\r\n
+    \               },\r\n                \"From\": 1,\r\n                \"To\":
+    0\r\n            }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorTransition,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   }\r\n}"
 --- !u!1 &2069607078
 GameObject:
   m_ObjectHideFlags: 0

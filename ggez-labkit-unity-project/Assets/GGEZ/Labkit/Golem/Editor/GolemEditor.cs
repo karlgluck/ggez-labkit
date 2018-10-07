@@ -202,11 +202,11 @@ namespace GGEZ.Labkit
             // Variables
             //-------------------------------------------------
             EditorGUILayout.Space();
+            EditorGUILayout.LabelField(new GUIContent("Variables"), EditorStyles.boldLabel);
             if (EditorApplication.isPlaying)
             {
                 var variables = _golem.Variables;
                 var editorVariables = _golem.Archetype.EditorVariables;
-                EditorGUILayout.LabelField(new GUIContent("Variables"), EditorStyles.boldLabel);
 
                 for (int i = 0; i < editorVariables.Count; ++i)
                 {
@@ -226,7 +226,6 @@ namespace GGEZ.Labkit
             else
             {
                 var editorVariables = _golem.Archetype.EditorVariables;
-                EditorGUILayout.LabelField(new GUIContent("Variables"), EditorStyles.boldLabel);
 
                 for (int i = 0; i < editorVariables.Count; ++i)
                 {
@@ -246,6 +245,7 @@ namespace GGEZ.Labkit
             // Components
             //-------------------------------------------------
             EditorGUILayout.Space();
+            EditorGUILayout.LabelField(new GUIContent("Components"), EditorStyles.boldLabel);
             if (EditorApplication.isPlaying)
             {
                 #warning TODO draw cell stats on golem at runtime
@@ -255,13 +255,47 @@ namespace GGEZ.Labkit
                 var components = _golem.Archetype.Components;
                 for (int i = 0; i < components.Length; ++i)
                 {
+                    if (components[i] == null)
+                    {
+                        _golem.Archetype.DeduplicateComponents();
+                        --i;
+                    }
+
                     GUILayout.BeginHorizontal();
-                    if (GUILayout.Button(new GUIContent("Open " + components[i].name)))
+
+                    if (AssetDatabase.IsMainAsset(components[i]))
+                    {
+                        // this is an on-disk component
+                        if (GUILayout.Button(new GUIContent("Ping"), GUILayout.Width(20f)))
+                        {
+                            EditorGUIUtility.PingObject(components[i]);
+                        }
+                        if (GUILayout.Button(new GUIContent("Copy to Embedded")))
+                        {
+                            components[i] = ScriptableObject.Instantiate(components[i]);
+                            GUI.changed = true;
+                        }
+                    }
+                    else
+                    {
+                        // this is a local component
+                        if (GUILayout.Button(new GUIContent("Extract to Asset")))
+                        {
+                            string directory = System.IO.Path.GetDirectoryName(AssetDatabase.GetAssetOrScenePath(_golem));
+                            string path = AssetDatabase.GenerateUniqueAssetPath(System.IO.Path.Combine(directory, "Extracted Golem Component.asset"));
+                            AssetDatabase.CreateAsset(components[i], path);
+                            EditorGUIUtility.PingObject(components[i]);
+                            GUI.changed = true;
+                        }
+                    }
+
+
+                    if (GUILayout.Button(new GUIContent("Open Editor")))
                     {
                         _golem.Archetype.EditorWindowSelectedComponent = i;
                         GolemEditorWindow.Open(_golem);
                     }
-                    if (GUILayout.Button(new GUIContent("Remove " + components[i].name)))
+                    if (GUILayout.Button(new GUIContent("X")))
                     {
                         if (_golem.Archetype.EditorWindowSelectedComponent >= i)
                         {
@@ -278,12 +312,22 @@ namespace GGEZ.Labkit
 
                 #warning Create a better way to add components
 
-                var newComponent = EditorGUILayout.ObjectField(new GUIContent("Add Component"), null, typeof(GolemComponent), false) as GolemComponent;
-                if (newComponent != null)
+                Rect rect = EditorGUILayout.GetControlRect();
+                if (EditorGUI.DropdownButton(rect, new GUIContent("Add Component..."), FocusType.Keyboard))
                 {
-                    Array.Resize(ref components, components.Length + 1);
-                    components[components.Length-1] = newComponent;
-                    _golem.Archetype.Components = components.ToArray();
+                    GenericMenu menu = new GenericMenu();
+
+                    menu.AddItem(new GUIContent("New Local Component"), false, AddNewLocalComponentMenuFunction);
+                    menu.AddSeparator("");
+
+                    string[] assetGuids = AssetDatabase.FindAssets("t:" + typeof(GolemComponent).Name);
+                    for (int i = 0; i < assetGuids.Length; ++i)
+                    {
+                        string path = AssetDatabase.GUIDToAssetPath(assetGuids[i]);
+                        menu.AddItem(new GUIContent(path), false, AddAssetComponentMenuFunction, assetGuids[i]);
+                    }
+
+                    menu.DropDown(rect);
                 }
             }
 
@@ -304,15 +348,52 @@ namespace GGEZ.Labkit
             EditorPrefs.SetBool("GolemEditorAdvancedFoldout", advanced);
             if (advanced)
             {
-                EditorGUILayout.LabelField("Json", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("Archetype - Json", EditorStyles.boldLabel);
                 EditorGUILayout.TextArea(_golem.Archetype.Json, GUILayout.ExpandWidth(false));
 
                 EditorGUILayout.Space();
 
-                EditorGUILayout.LabelField("Editor Json", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("Archetype - Editor Json", EditorStyles.boldLabel);
                 EditorGUILayout.TextArea(_golem.Archetype.EditorJson, GUILayout.ExpandWidth(false));
+                
+                var components = _golem.Archetype.Components;
+                for (int i = 0; i < components.Length; ++i)
+                {
+                    EditorGUILayout.Space();
+
+                    EditorGUILayout.LabelField("["+i+"] - Json", EditorStyles.boldLabel);
+                    EditorGUILayout.TextArea(components[i].Json, GUILayout.ExpandWidth(false));
+
+                    EditorGUILayout.Space();
+
+                    EditorGUILayout.LabelField("["+i+"] - Editor Json", EditorStyles.boldLabel);
+                    EditorGUILayout.TextArea(components[i].EditorJson, GUILayout.ExpandWidth(false));
+                
+                }
             }
 
+
+        }
+
+        private void AddNewLocalComponentMenuFunction()
+        {
+            var components = _golem.Archetype.Components;
+            Array.Resize(ref components, components.Length + 1);
+            components[components.Length-1] = ScriptableObject.CreateInstance<GolemComponent>();
+            _golem.Archetype.Components = components;
+        }
+
+        private void AddAssetComponentMenuFunction(object guid)
+        {
+            var component = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath((string)guid)) as GolemComponent;
+            Debug.Assert(component != null);
+
+            var components = _golem.Archetype.Components;
+            Array.Resize(ref components, components.Length + 1);
+            components[components.Length-1] = component;
+            _golem.Archetype.Components = components;
+            _golem.Archetype.DeduplicateComponents();
+            GolemEditorUtility.SetDirty(_golem);
 
         }
 
@@ -321,6 +402,7 @@ namespace GGEZ.Labkit
         {
             Debug.Assert(typeof(Aspect).IsAssignableFrom(type));
             _golem.Archetype.AddNewAspect(Activator.CreateInstance(type) as Aspect);
+            GolemEditorUtility.SetDirty(_golem);
         }
     }
 }
