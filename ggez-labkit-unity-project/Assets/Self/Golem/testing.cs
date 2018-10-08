@@ -280,13 +280,26 @@ public class PositionAspect : GGEZ.Labkit.Aspect
 // }
 
 
+public class SetObjectNameToTime : Script
+{
+    [GGEZ.FullSerializer.fsIgnore]
+    public GameObject GameObject;
+
+    public override void OnUpdate()
+    {
+        GameObject.name = Time.time.ToString();
+    }
+}
+
 
 public class SetVariableToTime : Script
 {
+    public StructVariable<float> Variable;
 
     public override void OnUpdate()
     {
         Debug.Log("OnUpdate("+Time.time+")");
+        Variable.Value = Time.time;
     }
 }
 

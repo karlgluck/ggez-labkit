@@ -49,6 +49,9 @@ namespace GGEZ.Labkit
         [Represents(typeof(Color))] Color,
         [Represents(typeof(Vector2))] Vector2,
         [Represents(typeof(Vector3))] Vector3,
+        // [Represents(typeof(MonoBehaviour))] MonoBehaviour,
+        // [Represents(typeof(Component))] UnityComponent,
+        // [Represents(typeof(GameObject))] GameObject,
         [Represents(typeof(UnityEngine.Object))] UnityObject,
         [Represents(typeof(VariableRef), false)] VariableRef,
         [Represents(typeof(Enum))] Enum,
@@ -57,6 +60,8 @@ namespace GGEZ.Labkit
         [Represents(typeof(Golem), false)] Golem,
         [Represents(typeof(Aspect), false)] Aspect,
         [Represents(typeof(IVariable), false)] Variable,
+
+        #warning TODO: bounds, boundsint, AnimationCurve, double, Texture, Sprite, long, mask, object? RectInt, vector2int, vector4,
 
         Invalid = int.MaxValue,
     }

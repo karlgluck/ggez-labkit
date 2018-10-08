@@ -33,13 +33,22 @@ using UnityObject = UnityEngine.Object;
 namespace GGEZ.Labkit
 {
 
-    public class Golem : MonoBehaviour
+    public class Golem : MonoBehaviour, ISerializationCallbackReceiver
     {
         [SerializeField, HideInInspector]
-        public UnityObject[] References;
-
-        // [SerializeField, HideInInspector]
         public GolemArchetype Archetype;
+
+        /// <summary>Golem-local settings used for prefab Unity Object references and individual overrides.</summary>
+        public Settings Settings;
+
+        /// <summary>Object references the settings use</summary>
+        /// <remarks>Stored on the Golem so that these references are updated by Unity on Instantiate</remarks>
+        [SerializeField]
+        public List<UnityObject> SettingsObjectReferences;
+
+        /// <summary>Source data for golem-local settings</summary>
+        [SerializeField, HideInInspector]
+        public string SettingsJson;
 
     #region Runtime
 
@@ -64,24 +73,6 @@ namespace GGEZ.Labkit
         void Awake()
         {
             GolemManager.OnAwake(this);
-        }
-
-        /// <summary>Gets a Unity Object reference for this golem by name</summary>
-        /// <returns>The matching reference or null if none exists</returns>
-        /// <remarks>Used during setup</remarks>
-        public UnityEngine.Object GetUnityObjectReference(string reference)
-        {
-            Debug.Assert(Application.isPlaying);
-            Debug.Assert(Archetype.ReferenceNames.Length == References.Length);
-            string[] names = Archetype.ReferenceNames;
-            for (int i = 0; i < names.Length; ++i)
-            {
-                if (names[i] == reference)
-                {
-                    return References[i];
-                }
-            }
-            return null;
         }
 
         /// <summary>Find an aspect of the given type on this golem</summary>
@@ -109,10 +100,52 @@ namespace GGEZ.Labkit
             Triggers[(int)trigger] = true;
         }
 
+        public void OnBeforeSerialize()
+        {
+
+            SettingsObjectReferences.Clear();
+            var serializer = Serialization.GetSerializer(SettingsObjectReferences);
+            fsData data;
+            #warning TODO give the settings a dirty flag so we aren't constantly reserializing in OnBeforeSerialize
+            serializer.TrySerialize(Settings.Values, out data);
+            SettingsJson = fsJsonPrinter.PrettyJson(data);
+
+        }
+
+        public void OnAfterDeserialize()
+        {
+
+            var serializer = Serialization.GetSerializer(SettingsObjectReferences);
+            fsData data;
+            fsResult result;
+
+            List<Settings.Setting> values = null;
+            
+            result = fsJsonParser.Parse(SettingsJson, out data);
+            if (result.Failed)
+            {
+                Debug.LogError(result, this);
+                goto DeserializedSettings;
+            }
+
+            result = serializer.TryDeserialize(data, ref values);
+            if (result.Failed)
+            {
+                Debug.LogError(result, this);
+                goto DeserializedSettings;
+            }
+        
+        DeserializedSettings:
+            Settings = new Settings(this, Archetype.Settings, values);
+
+        }
+
         void Reset()
         {
-            References = new UnityEngine.Object[0];
             Archetype = ScriptableObject.CreateInstance<GolemArchetype>();
+            Settings = new Settings(this, Archetype.Settings);
+            SettingsObjectReferences = new List<UnityObject>();
+            SettingsJson = "[]";
             Variables = null;
             Aspects = null;
             Components = null;
@@ -121,21 +154,11 @@ namespace GGEZ.Labkit
 
         void OnValidate()
         {
-            if (Archetype == null)
-            {
-                Archetype = ScriptableObject.CreateInstance<GolemArchetype>();
-            }
-
-            if (References.Length > Archetype.ReferenceNames.Length)
-            {
-                Array.Resize(ref Archetype.ReferenceNames, References.Length);
-            }
-            else if (References.Length < Archetype.ReferenceNames.Length)
-            {
-                Array.Resize(ref References, Archetype.ReferenceNames.Length);
-            }
+            Archetype = Archetype ?? ScriptableObject.CreateInstance<GolemArchetype>();
+            Settings = Settings ?? new Settings(this, Archetype.Settings);
 
             #warning do something to make sure runtime variables/etc aren't used until deserialization
+
             // if (!Application.isPlaying)
             // {
             //     Variables = null;

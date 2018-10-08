@@ -286,26 +286,6 @@ namespace GGEZ.Labkit
                                 break;
 
                             //-------------------------------------------------
-                            case InspectableType.UnityObject:
-                            //-------------------------------------------------
-                                string unityObjectName;
-                                if (editorCell.UnityObjectFields.TryGetValue(fieldName, out unityObjectName))
-                                {
-                                    assignments.Add(new Assignment()
-                                    {
-                                        Type = AssignmentType.CellAspect,
-                                        Name = unityObjectName,
-                                        TargetIndex = cellIndex,
-                                        TargetFieldName = fieldName,
-                                    });
-                                }
-                                else
-                                {
-                                    Debug.LogWarning("Field " + fieldName + " is not mapped to a UnityObject and will always be null");
-                                }
-                                break;
-
-                            //-------------------------------------------------
                             case InspectableType.Aspect:
                             //-------------------------------------------------
                                 assignments.Add(new Assignment()
@@ -647,26 +627,6 @@ namespace GGEZ.Labkit
                                         break;
 
                                     //-------------------------------------------------
-                                    case InspectableType.UnityObject:
-                                    //-------------------------------------------------
-                                        string unityObjectName;
-                                        if (editorScript.UnityObjectFields.TryGetValue(fieldName, out unityObjectName))
-                                        {
-                                            assignments.Add(new Assignment()
-                                            {
-                                                Type = AssignmentType.ScriptUnityObject,
-                                                Name = unityObjectName,
-                                                TargetIndex = scriptIndex,
-                                                TargetFieldName = fieldName,
-                                            });
-                                        }
-                                        else
-                                        {
-                                            Debug.LogWarning("Field " + fieldName + " is not mapped to a UnityObject and will always be null");
-                                        }
-                                        break;
-
-                                    //-------------------------------------------------
                                     case InspectableType.Aspect:
                                     //-------------------------------------------------
                                         assignments.Add(new Assignment()
@@ -733,7 +693,7 @@ namespace GGEZ.Labkit
 
                                             assignments.Add(new Assignment()
                                             {
-                                                Type = AssignmentType.CellSetting,
+                                                Type = AssignmentType.ScriptSetting,
                                                 Name = setting,
                                                 TargetIndex = scriptIndex,
                                                 TargetFieldName = fieldName,
@@ -968,10 +928,12 @@ namespace GGEZ.Labkit
 
         void OnValidate()
         {
-            if (!Application.isPlaying)
-            {
-                
-            }
+            Json = Json ?? "{}";
+            EditorCells = EditorCells ?? new List<EditorCell>();
+            EditorWires = EditorWires ?? new List<EditorWire>();
+            EditorStates = EditorStates ?? new List<EditorState>();
+            EditorTransitions = EditorTransitions ?? new List<EditorTransition>();
+            EditorJson = EditorJson ?? "{}";
         }
 
     #endif

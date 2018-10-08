@@ -888,7 +888,9 @@ namespace GGEZ.Labkit
                         fieldInfo.FieldInfo,
                         editorCell.Cell,
                         editorCell.FieldsUsingSettings,
-                        _golem.Archetype
+                        editorCell.UnityObjectFields,
+                        editorCell.FieldsUsingVariables,
+                        _golem
                         );
                 }
 
@@ -954,7 +956,9 @@ namespace GGEZ.Labkit
                                 fieldInfo.FieldInfo,
                                 editorScript.Script,
                                 editorScript.FieldsUsingSettings,
-                                _golem.Archetype
+                                editorScript.UnityObjectFields,
+                                editorScript.FieldsUsingVariables,
+                                _golem
                                 );
                     }
                 }

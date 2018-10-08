@@ -57,7 +57,6 @@ namespace GGEZ.Labkit
 
         AspectGolem,                    // The Golem instance
         AspectSetting,                  // The setting [Name] from the archetype
-        AspectUnityObject,              // The UnityObject [Name] from the archetype
         AspectAspect,                   // Aspect of the target field's type or null
         AspectVariable,                 // Find [TargetFieldName] on aspect [TargetIndex] and assign it to variable [Name], creating that variable if necessary
         AspectVariableOrNull,           // The existing variable [Name] or null
@@ -68,9 +67,6 @@ namespace GGEZ.Labkit
 
         CellGolem,                      // The Golem instance
         ScriptGolem,                    // The Golem instance
-
-        CellUnityObject,                // The UnityObject [Name] from the archetype
-        ScriptUnityObject,              // The UnityObject [Name] from the archetype
 
         CellSetting,                    // The setting [Name] from the archetype
         ScriptSetting,                  // The setting [Name] from the archetype

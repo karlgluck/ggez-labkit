@@ -61,27 +61,25 @@ namespace GGEZ.Labkit
             //-------------------------------------------------
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Settings", EditorStyles.boldLabel);
-            
-            // References
-            bool allowSceneObjects = !_golem.gameObject.IsPrefab();
-            for (int i = 0; i < _golem.References.Length; ++i)
+
+            EditorGUI.BeginChangeCheck();
+
+            EditorGUILayout.LabelField("Local Settings", EditorStyles.boldLabel);
+            _golem.Settings.DoEditorGUILayout(true);
+
+            EditorGUILayout.LabelField("Archetype Settings", EditorStyles.boldLabel);
+            _golem.Archetype.Settings.DoEditorGUILayout(true);
+
+            if (EditorGUI.EndChangeCheck())
             {
-                _golem.References[i] = EditorGUILayout.ObjectField(_golem.Archetype.ReferenceNames[i], _golem.References[i], _golem.Archetype.EditorReferenceTypes[i], allowSceneObjects);
+                GolemEditorUtility.SetDirty(_golem);
             }
 
-            // Settings
-            Settings settings = _golem.Archetype.Settings;
-            if (settings != null)
+            // Settings Inheritance
             {
-                EditorGUI.BeginChangeCheck();
-                settings.DoEditorGUILayout(true);
-                if (EditorGUI.EndChangeCheck())
-                {
-                    GolemEditorUtility.SetDirty(_golem);
-                }
                 EditorGUILayout.Space();
                 _golem.Archetype.InheritSettingsFrom = EditorGUILayout.ObjectField("Inherit From", _golem.Archetype.InheritSettingsFrom, typeof(SettingsAsset), false) as SettingsAsset;
-                Settings current = settings.Parent;
+                Settings current = _golem.Archetype.Settings.Parent;
                 while (current != null)
                 {
                     EditorGUI.BeginChangeCheck();
@@ -190,7 +188,9 @@ namespace GGEZ.Labkit
                             field.FieldInfo,
                             editorAspect.Aspect,
                             editorAspect.FieldsUsingSettings,
-                            _golem.Archetype
+                            editorAspect.UnityObjectFields,
+                            editorAspect.FieldsUsingVariables,
+                            _golem
                             );
                     }
 
@@ -310,8 +310,6 @@ namespace GGEZ.Labkit
                     GUILayout.EndHorizontal();
                 }
 
-                #warning Create a better way to add components
-
                 Rect rect = EditorGUILayout.GetControlRect();
                 if (EditorGUI.DropdownButton(rect, new GUIContent("Add Component..."), FocusType.Keyboard))
                 {
@@ -325,6 +323,11 @@ namespace GGEZ.Labkit
                     {
                         string path = AssetDatabase.GUIDToAssetPath(assetGuids[i]);
                         menu.AddItem(new GUIContent(path), false, AddAssetComponentMenuFunction, assetGuids[i]);
+                    }
+
+                    if (assetGuids.Length == 0)
+                    {
+                        menu.AddDisabledItem(new GUIContent("No Components in Assets"));
                     }
 
                     menu.DropDown(rect);
@@ -348,13 +351,18 @@ namespace GGEZ.Labkit
             EditorPrefs.SetBool("GolemEditorAdvancedFoldout", advanced);
             if (advanced)
             {
+                EditorGUILayout.LabelField("Golem - Settings Json", EditorStyles.boldLabel);
+                EditorGUILayout.TextArea(_golem.SettingsJson);
+
+                EditorGUILayout.Space();
+
                 EditorGUILayout.LabelField("Archetype - Json", EditorStyles.boldLabel);
-                EditorGUILayout.TextArea(_golem.Archetype.Json, GUILayout.ExpandWidth(false));
+                EditorGUILayout.TextArea(_golem.Archetype.Json);
 
                 EditorGUILayout.Space();
 
                 EditorGUILayout.LabelField("Archetype - Editor Json", EditorStyles.boldLabel);
-                EditorGUILayout.TextArea(_golem.Archetype.EditorJson, GUILayout.ExpandWidth(false));
+                EditorGUILayout.TextArea(_golem.Archetype.EditorJson);
                 
                 var components = _golem.Archetype.Components;
                 for (int i = 0; i < components.Length; ++i)
@@ -362,12 +370,12 @@ namespace GGEZ.Labkit
                     EditorGUILayout.Space();
 
                     EditorGUILayout.LabelField("["+i+"] - Json", EditorStyles.boldLabel);
-                    EditorGUILayout.TextArea(components[i].Json, GUILayout.ExpandWidth(false));
+                    EditorGUILayout.TextArea(components[i].Json);
 
                     EditorGUILayout.Space();
 
                     EditorGUILayout.LabelField("["+i+"] - Editor Json", EditorStyles.boldLabel);
-                    EditorGUILayout.TextArea(components[i].EditorJson, GUILayout.ExpandWidth(false));
+                    EditorGUILayout.TextArea(components[i].EditorJson);
                 
                 }
             }

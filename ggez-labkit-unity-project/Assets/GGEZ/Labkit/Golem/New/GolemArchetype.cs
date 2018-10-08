@@ -43,9 +43,6 @@ namespace GGEZ.Labkit
     /// </summary>
     public class GolemArchetype : ScriptableObject, ISerializationCallbackReceiver
     {
-        /// <summary>Pairs with the References field in each golem instance</summary>
-        public string[] ReferenceNames;
-
         /// <summary>Functional parts used by the golem</summary>
         public GolemComponent[] Components;
 
@@ -78,10 +75,6 @@ namespace GGEZ.Labkit
         //---------------------------------------------------------------------
     #if UNITY_EDITOR
 
-        // References
-        //------------------
-        public Type[] EditorReferenceTypes;
-
         // Aspects
         //------------------
         [NonSerialized]
@@ -110,7 +103,6 @@ namespace GGEZ.Labkit
             {
                 Dictionary<string, object> serialized = new Dictionary<string, object>();
 
-                serialized["EditorReferenceTypes"] = EditorReferenceTypes;
                 serialized["EditorAspects"] = EditorAspects;
                 serialized["EditorVariables"] = EditorVariables;
 
@@ -157,26 +149,6 @@ namespace GGEZ.Labkit
                                     TargetIndex = aspectIndex,
                                     TargetFieldName = fieldName,
                                 });
-                                break;
-
-                            //-------------------------------------------------
-                            case InspectableType.UnityObject:
-                            //-------------------------------------------------
-                                string unityObjectName;
-                                if (editorAspect.UnityObjectFields.TryGetValue(fieldName, out unityObjectName))
-                                {
-                                    assignments.Add(new Assignment()
-                                    {
-                                        Type = AssignmentType.AspectUnityObject,
-                                        Name = unityObjectName,
-                                        TargetIndex = aspectIndex,
-                                        TargetFieldName = fieldName,
-                                    });
-                                }
-                                else
-                                {
-                                    Debug.LogWarning("Field " + fieldName + " is not mapped to a UnityObject and will always be null");
-                                }
                                 break;
 
                             //-------------------------------------------------
@@ -289,7 +261,7 @@ namespace GGEZ.Labkit
 
                 Settings = new Settings(
                         this,
-                        InheritSettingsFrom,
+                        InheritSettingsFrom == null ? null : InheritSettingsFrom.Settings,
                         Serialization.Read<List<Settings.Setting>>("Settings", deserialized)
                         );
             }
@@ -298,12 +270,12 @@ namespace GGEZ.Labkit
             {
                 var deserialized = Serialization.DeserializeDictionary(EditorJson, null, this);
 
-                Serialization.ReadOrCreate(this, "EditorReferenceTypes", deserialized);
                 Serialization.ReadOrCreate(this, "EditorAspects", deserialized);
                 Serialization.ReadOrCreate(this, "EditorVariables", deserialized);
 
                 #warning handle the case where you change a field or variable or register's type and try to use data that loads the old type
             }
+
         #endif
 
         }
@@ -375,17 +347,15 @@ namespace GGEZ.Labkit
 
         public void Reset()
         {
-            ReferenceNames = new string[0];
             Components = new GolemComponent[0];
             Aspects = new Aspect[0];
-            Settings = new Settings(this, null);
+            Settings = new Settings(this);
             InheritSettingsFrom = null;
             Assignments = new Assignment[0];
             ExternalAssignments = new Dictionary<string, Assignment[]>();
             Variables = new Dictionary<string, IVariable>();
             Json = "{}";
-            
-            EditorReferenceTypes = new Type[0];
+
             EditorAspects = new List<EditorAspect>();
             EditorVariables = new List<GolemVariableEditorData>();
             EditorJson = "{}";
@@ -393,6 +363,10 @@ namespace GGEZ.Labkit
 
         void OnValidate()
         {
+            Settings = Settings ?? new Settings(this);
+            EditorAspects = EditorAspects ?? new List<EditorAspect>();
+            EditorVariables = EditorVariables ?? new List<GolemVariableEditorData>();
+
             DeduplicateComponents();
         }
 

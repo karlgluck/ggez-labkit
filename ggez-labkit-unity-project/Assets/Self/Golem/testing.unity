@@ -113,6 +113,140 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &272062743
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 272062745}
+  - component: {fileID: 272062744}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &272062744
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 272062743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34afa38a8fd60ea48a185c09a7d1303a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Archetype: {fileID: 1948646228}
+  SettingsObjectReferences:
+  - {fileID: 305252791}
+  SettingsJson: "[\r\n    {\r\n        \"Type\": \"UnityEngine.Object\",\r\n        \"Name\":
+    \"CylinderSetting\",\r\n        \"Value\": {\r\n            \"$unity\": 0\r\n
+    \       }\r\n    }\r\n]"
+--- !u!4 &272062745
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 272062743}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.019040585, y: 0, z: -0.018981934}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 842764749}
+  - {fileID: 305252792}
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &305252791
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 305252792}
+  - component: {fileID: 305252795}
+  - component: {fileID: 305252794}
+  - component: {fileID: 305252793}
+  m_Layer: 0
+  m_Name: Cylinder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &305252792
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 305252791}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 272062745}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &305252793
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 305252791}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5000001
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+--- !u!23 &305252794
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 305252791}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
+  m_Materials:
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!33 &305252795
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 305252791}
+  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &322191693
 GameObject:
   m_ObjectHideFlags: 0
@@ -190,94 +324,121 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1027884278
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a40c0070290a97447a0032ef1032d309, type: 3}
-  m_Name: GameObject-102410RESET
-  m_EditorClassIdentifier: 
-  ReferenceNames: []
-  Components:
-  - {fileID: 1595524302}
-  InheritSettingsFrom: {fileID: 0}
-  Json: "{\r\n    \"Aspects\": {\r\n        \"$content\": [\r\n            {\r\n                \"fishingRodPosition\":
-    4.0,\r\n                \"$type\": \"FishingRodAspect\"\r\n            }\r\n        ],\r\n
-    \       \"$type\": \"GGEZ.Labkit.Aspect[]\"\r\n    },\r\n    \"Assignments\":
-    {\r\n        \"$content\": [\r\n            {\r\n                \"Type\": \"AspectSetting\",\r\n
-    \               \"Name\": \"fd\",\r\n                \"RegisterIndex\": 0,\r\n
-    \               \"TargetIndex\": 0,\r\n                \"TargetFieldName\": \"fishingRodPosition\"\r\n
-    \           }\r\n        ],\r\n        \"$type\": \"GGEZ.Labkit.Assignment[]\"\r\n
-    \   },\r\n    \"ExternalAssignments\": {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
-    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[],
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   },\r\n    \"Settings\": {\r\n        \"$content\": [\r\n            {\r\n
-    \               \"Type\": \"System.Single\",\r\n                \"Name\": \"fd\",\r\n
-    \               \"Value\": {\r\n                    \"$content\": 4.0,\r\n                    \"$type\":
-    \"System.Single\"\r\n                }\r\n            }\r\n        ],\r\n        \"$type\":
-    \"System.Collections.Generic.List`1[[GGEZ.Labkit.Settings+Setting, Assembly-CSharp,
-    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    }\r\n}"
-  EditorJson: "{\r\n    \"EditorReferenceTypes\": {\r\n        \"$content\": [],\r\n
-    \       \"$type\": \"System.Type[]\"\r\n    },\r\n    \"EditorAspects\": {\r\n
-    \       \"$content\": [\r\n            {\r\n                \"Aspect\": {\r\n
-    \                   \"fishingRodPosition\": 4.0,\r\n                    \"$type\":
-    \"FishingRodAspect\"\r\n                },\r\n                \"UnityObjectFields\":
-    {\r\n\r\n                },\r\n                \"FieldsUsingSettings\": {\r\n
-    \                   \"fishingRodPosition\": \"fd\"\r\n                },\r\n                \"FieldsUsingVariables\":
-    {\r\n\r\n                },\r\n                \"Foldout\": true\r\n            }\r\n
-    \       ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorAspect,
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   },\r\n    \"EditorVariables\": {\r\n        \"$content\": [],\r\n        \"$type\":
-    \"System.Collections.Generic.List`1[[GGEZ.Labkit.GolemVariableEditorData, Assembly-CSharp,
-    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    }\r\n}"
-  EditorWindowSelectedComponent: 0
---- !u!1 &1157665393
+--- !u!1 &842764748
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1157665395}
-  - component: {fileID: 1157665394}
+  - component: {fileID: 842764749}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1157665394
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1157665393}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34afa38a8fd60ea48a185c09a7d1303a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  References: []
-  Archetype: {fileID: 1027884278}
---- !u!4 &1157665395
+--- !u!4 &842764749
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1157665393}
+  m_GameObject: {fileID: 842764748}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.019040585, y: 0, z: -0.018981934}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 1382304545}
+  m_Father: {fileID: 272062745}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1382304541
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1382304545}
+  - component: {fileID: 1382304544}
+  - component: {fileID: 1382304543}
+  - component: {fileID: 1382304542}
+  m_Layer: 0
+  m_Name: Cube
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!65 &1382304542
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1382304541}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!23 &1382304543
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1382304541}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
+  m_Materials:
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 0
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+--- !u!33 &1382304544
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1382304541}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!4 &1382304545
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1382304541}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_Father: {fileID: 842764749}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1595524302
+--- !u!114 &1592847142
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -286,7 +447,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 586eb5b36413a544abf736664884d25c, type: 3}
-  m_Name: Extracted Golem Component 1(Clone)
+  m_Name: 
   m_EditorClassIdentifier: 
   Json: "{\r\n    \"Cells\": {\r\n        \"$content\": [],\r\n        \"$type\":
     \"GGEZ.Labkit.Cell[]\"\r\n    },\r\n    \"Registers\": {\r\n        \"$content\":
@@ -301,11 +462,14 @@ MonoBehaviour:
     []\r\n                            }\r\n                        ]\r\n                    }\r\n
     \               ]\r\n            }\r\n        ],\r\n        \"$type\": \"GGEZ.Labkit.Layer[]\"\r\n
     \   },\r\n    \"Scripts\": {\r\n        \"$content\": [\r\n            {\r\n                \"$type\":
-    \"SetVariableToTime\"\r\n            }\r\n        ],\r\n        \"$type\": \"GGEZ.Labkit.Script[]\"\r\n
+    \"SetObjectNameToTime\"\r\n            }\r\n        ],\r\n        \"$type\": \"GGEZ.Labkit.Script[]\"\r\n
     \   },\r\n    \"States\": {\r\n        \"$content\": [\r\n            {\r\n                \"Scripts\":
     [\r\n                    0\r\n                ]\r\n            }\r\n        ],\r\n
     \       \"$type\": \"GGEZ.Labkit.State[]\"\r\n    },\r\n    \"Assignments\": {\r\n
-    \       \"$content\": [],\r\n        \"$type\": \"GGEZ.Labkit.Assignment[]\"\r\n
+    \       \"$content\": [\r\n            {\r\n                \"Type\": \"ScriptSetting\",\r\n
+    \               \"Name\": \"CylinderSetting\",\r\n                \"RegisterIndex\":
+    0,\r\n                \"TargetIndex\": 0,\r\n                \"TargetFieldName\":
+    \"GameObject\"\r\n            }\r\n        ],\r\n        \"$type\": \"GGEZ.Labkit.Assignment[]\"\r\n
     \   },\r\n    \"ExternalAssignments\": {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
     mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[],
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
@@ -316,42 +480,72 @@ MonoBehaviour:
     {\r\n        \"$content\": [],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorWire,
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
     \   },\r\n    \"EditorStates\": {\r\n        \"$content\": [\r\n            {\r\n
+    \               \"Name\": \"Enter\",\r\n                \"Layer\": 0,\r\n                \"Index\":
+    0,\r\n                \"CompiledIndex\": 2147483647,\r\n                \"SpecialState\":
+    \"LayerEnter\",\r\n                \"Position\": {\r\n                    \"xMin\":
+    304.0,\r\n                    \"yMin\": 80.0,\r\n                    \"xMax\":
+    656.0,\r\n                    \"yMax\": 176.0\r\n                },\r\n                \"Scripts\":
+    [],\r\n                \"TransitionsIn\": [],\r\n                \"TransitionsOut\":
+    [\r\n                    0\r\n                ]\r\n            },\r\n            {\r\n
     \               \"Name\": \"State\",\r\n                \"Layer\": 0,\r\n                \"Index\":
-    0,\r\n                \"CompiledIndex\": 0,\r\n                \"SpecialState\":
+    1,\r\n                \"CompiledIndex\": 0,\r\n                \"SpecialState\":
     \"Normal\",\r\n                \"Position\": {\r\n                    \"xMin\":
-    544.0,\r\n                    \"yMin\": 160.0,\r\n                    \"xMax\":
-    896.0,\r\n                    \"yMax\": 256.0\r\n                },\r\n                \"Scripts\":
+    304.0,\r\n                    \"yMin\": 256.0,\r\n                    \"xMax\":
+    640.0,\r\n                    \"yMax\": 352.0\r\n                },\r\n                \"Scripts\":
     [\r\n                    {\r\n                        \"Enabled\": true,\r\n                        \"Script\":
-    {\r\n                            \"$type\": \"SetVariableToTime\"\r\n                        },\r\n
-    \                       \"FieldsUsingSettings\": {\r\n\r\n                        },\r\n
-    \                       \"UnityObjectFields\": {\r\n\r\n                        },\r\n
-    \                       \"FieldsUsingVariables\": {\r\n\r\n                        }\r\n
-    \                   }\r\n                ],\r\n                \"TransitionsIn\":
-    [\r\n                    0\r\n                ],\r\n                \"TransitionsOut\":
-    []\r\n            },\r\n            {\r\n                \"Name\": \"Enter\",\r\n
-    \               \"Layer\": 0,\r\n                \"Index\": 1,\r\n                \"CompiledIndex\":
-    2147483647,\r\n                \"SpecialState\": \"LayerEnter\",\r\n                \"Position\":
-    {\r\n                    \"xMin\": 80.0,\r\n                    \"yMin\": 160.0,\r\n
-    \                   \"xMax\": 416.0,\r\n                    \"yMax\": 256.0\r\n
-    \               },\r\n                \"Scripts\": [],\r\n                \"TransitionsIn\":
-    [],\r\n                \"TransitionsOut\": [\r\n                    0\r\n                ]\r\n
-    \           }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorState,
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   },\r\n    \"EditorTransitions\": {\r\n        \"$content\": [\r\n            {\r\n
-    \               \"Name\": \"Transition\",\r\n                \"Index\": 0,\r\n
-    \               \"Expression\": {\r\n                    \"Type\": \"True\",\r\n
-    \                   \"Position\": {\r\n                        \"xMin\": 415.0,\r\n
-    \                       \"yMin\": 136.0,\r\n                        \"xMax\":
-    480.0,\r\n                        \"yMax\": 152.0\r\n                    },\r\n
+    {\r\n                            \"$type\": \"SetObjectNameToTime\"\r\n                        },\r\n
+    \                       \"FieldsUsingSettings\": {\r\n                            \"GameObject\":
+    \"CylinderSetting\"\r\n                        },\r\n                        \"UnityObjectFields\":
+    {\r\n\r\n                        },\r\n                        \"FieldsUsingVariables\":
+    {\r\n\r\n                        }\r\n                    }\r\n                ],\r\n
+    \               \"TransitionsIn\": [\r\n                    0\r\n                ],\r\n
+    \               \"TransitionsOut\": []\r\n            }\r\n        ],\r\n        \"$type\":
+    \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorState, Assembly-CSharp,
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    },\r\n    \"EditorTransitions\":
+    {\r\n        \"$content\": [\r\n            {\r\n                \"Name\": \"Transition\",\r\n
+    \               \"Index\": 0,\r\n                \"Expression\": {\r\n                    \"Type\":
+    \"True\",\r\n                    \"Position\": {\r\n                        \"xMin\":
+    351.0,\r\n                        \"yMin\": 216.0,\r\n                        \"xMax\":
+    416.0,\r\n                        \"yMax\": 232.0\r\n                    },\r\n
     \                   \"Trigger\": \"Next\",\r\n                    \"Subexpressions\":
     []\r\n                },\r\n                \"ExpressionAnchor\": {\r\n                    \"x\":
-    480.0,\r\n                    \"y\": 144.0\r\n                },\r\n                \"Position\":
-    {\r\n                    \"xMin\": 415.0,\r\n                    \"yMin\": 136.0,\r\n
-    \                   \"xMax\": 480.0,\r\n                    \"yMax\": 152.0\r\n
-    \               },\r\n                \"From\": 1,\r\n                \"To\":
-    0\r\n            }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorTransition,
+    416.0,\r\n                    \"y\": 224.0\r\n                },\r\n                \"Position\":
+    {\r\n                    \"xMin\": 351.0,\r\n                    \"yMin\": 216.0,\r\n
+    \                   \"xMax\": 416.0,\r\n                    \"yMax\": 232.0\r\n
+    \               },\r\n                \"From\": 0,\r\n                \"To\":
+    1\r\n            }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorTransition,
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
     \   }\r\n}"
+--- !u!114 &1948646228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a40c0070290a97447a0032ef1032d309, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Components:
+  - {fileID: 1592847142}
+  InheritSettingsFrom: {fileID: 0}
+  Json: "{\r\n    \"Aspects\": {\r\n        \"$content\": [],\r\n        \"$type\":
+    \"GGEZ.Labkit.Aspect[]\"\r\n    },\r\n    \"Assignments\": {\r\n        \"$content\":
+    [],\r\n        \"$type\": \"GGEZ.Labkit.Assignment[]\"\r\n    },\r\n    \"ExternalAssignments\":
+    {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
+    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[],
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   },\r\n    \"Settings\": {\r\n        \"$content\": [],\r\n        \"$type\":
+    \"System.Collections.Generic.List`1[[GGEZ.Labkit.Settings+Setting, Assembly-CSharp,
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    }\r\n}"
+  EditorJson: "{\r\n    \"EditorAspects\": {\r\n        \"$content\": [],\r\n        \"$type\":
+    \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorAspect, Assembly-CSharp,
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    },\r\n    \"EditorVariables\":
+    {\r\n        \"$content\": [],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.GolemVariableEditorData,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   }\r\n}"
+  EditorWindowSelectedComponent: 0
 --- !u!1 &2069607078
 GameObject:
   m_ObjectHideFlags: 0

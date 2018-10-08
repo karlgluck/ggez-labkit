@@ -40,17 +40,18 @@ namespace GGEZ.Labkit
     /// </summary>
     public class Settings
     {
-        public Settings(UnityObject settingsOwner, SettingsAsset inheritFrom)
-        {
-            SettingsOwner = settingsOwner;
-            InheritFrom = inheritFrom;
-            Values = new List<Setting>();
-        }
+        public Settings(UnityObject settingsOwner)
+            : this(settingsOwner, null, null)
+        { }
 
-        public Settings(UnityObject settingsOwner, SettingsAsset inheritFrom, List<Setting> values)
+        public Settings(UnityObject settingsOwner, Settings inheritFrom)
+            : this(settingsOwner, inheritFrom, null)
+        { }
+
+        public Settings(UnityObject settingsOwner, Settings inheritFrom, List<Setting> values)
         {
             SettingsOwner = settingsOwner;
-            InheritFrom = inheritFrom;
+            Parent = inheritFrom;
             Values = values ?? new List<Setting>();
         }
 
@@ -59,20 +60,18 @@ namespace GGEZ.Labkit
             public Type Type;
             public string Name;
             public object Value;
+
+            public bool CheckType(Type type)
+            {
+                var valueType = Value == null ? Type : Value.GetType();
+                return type.IsAssignableFrom(valueType);
+            }
         }
 
         public string Name { get { return SettingsOwner.name; } }
         public readonly UnityObject SettingsOwner;
-        public readonly SettingsAsset InheritFrom;
+        public readonly Settings Parent;
         public readonly List<Setting> Values;
-
-        public Settings Parent
-        {
-            get
-            {
-                return InheritFrom == null ? null : InheritFrom.Settings;
-            }
-        }
 
         public bool Contains(string name, Type type)
         {
@@ -84,7 +83,7 @@ namespace GGEZ.Labkit
             {
                 if (Values[i].Name.Equals(name))
                 {
-                    return type.IsAssignableFrom(Values[i].Type);
+                    return Values[i].CheckType(type);
                 }
             }
             var parent = Parent;
@@ -103,7 +102,7 @@ namespace GGEZ.Labkit
                 {
                     if (Values[i].Name.Equals(name))
                     {
-                        if (type.IsAssignableFrom(Values[i].Type))
+                        if (Values[i].CheckType(type))
                         {
                             return Values[i].Value;
                         }
@@ -152,19 +151,44 @@ namespace GGEZ.Labkit
                 var position = new Rect(labelRect);
                 position.xMin += EditorGUIUtility.labelWidth;
                 labelRect.xMax = position.xMin;
+
+                Rect lhsToolsRect = labelRect;
+                labelRect.xMin = labelRect.xMin + EditorGUIUtility.singleLineHeight;
+                lhsToolsRect.xMax = labelRect.xMin;
+
+                Rect rhsToolsRect = labelRect;
+                labelRect.xMax = labelRect.xMax - EditorGUIUtility.singleLineHeight;
+                rhsToolsRect.xMin = labelRect.xMax;
+
                 string name = Values[i].Name;
                 string labelControlName = i.ToString("000") + ":" + name;
                 GUI.SetNextControlName(labelControlName);
                 bool isSettingFocused = focusedControlName == labelControlName;
                 string newName = EditorGUI.DelayedTextField(labelRect, name, isSettingFocused ? EditorStyles.textField : EditorStyles.label);
-                Values[i].Value = GolemEditorUtility.EditorGUIField(position, InspectableTypeExt.GetInspectableTypeOf(Values[i].Type), Values[i].Type, Values[i].Value);
+                object newValue = GolemEditorUtility.EditorGUIField(position, InspectableTypeExt.GetInspectableTypeOf(Values[i].Type), Values[i].Type, Values[i].Value);
+                Values[i].Value = newValue;
                 if (newName != name)
                 {
+                    #warning TODO update everything that references a setting when the name changes
                     Values[i].Name = newName;
                     if (isSettingFocused)
                     {
                         GUI.FocusControl(null);
                     }
+                }
+
+                if (newValue != null && newValue.GetType().IsSubclassOf(Values[i].Type))
+                {
+                    if (GUI.Button(rhsToolsRect, "!"))
+                    {
+                        Values[i].Type = newValue.GetType();
+                    }
+                }
+
+                if (GUI.Button(lhsToolsRect, "X"))
+                {
+                    Values.RemoveAt(i);
+                    --i;
                 }
             }
 
@@ -178,7 +202,7 @@ namespace GGEZ.Labkit
                 {
                     var value = (InspectableType)enumValues.GetValue(i);
                     #warning TODO: InspectableType should have a "can be a setting" type
-                    if (value == InspectableType.UnityObject || value == InspectableType.VariableRef
+                    if (value == InspectableType.VariableRef
                      || value == InspectableType.Enum || value == InspectableType.TriggerRef
                       || value == InspectableType.Invalid || value == InspectableType.Golem
                       || value == InspectableType.Aspect || value == InspectableType.Variable)

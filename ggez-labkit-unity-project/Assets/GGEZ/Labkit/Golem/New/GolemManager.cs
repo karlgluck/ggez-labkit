@@ -67,6 +67,11 @@ namespace GGEZ.Labkit
             return golem;
         }
 
+        public static Golem CreateGolem(Golem prefab, Settings localSettings)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public static void OnAwake(Golem golem)
         {
             Instance._livingGolems.Add(golem);
@@ -181,14 +186,9 @@ namespace GGEZ.Labkit
                     case AssignmentType.CellGolem:    assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem); break;
                     case AssignmentType.ScriptGolem:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem); break;
 
-
-                    case AssignmentType.AspectUnityObject:  assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem.GetUnityObjectReference(assignment.Name)); break;
-                    case AssignmentType.CellUnityObject:    assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.GetUnityObjectReference(assignment.Name)); break;
-                    case AssignmentType.ScriptUnityObject:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem.GetUnityObjectReference(assignment.Name)); break;
-
-                    case AssignmentType.AspectSetting:  assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem.Archetype.Settings.Get(assignment.Name, fieldInfo.FieldType)); break;
-                    case AssignmentType.CellSetting:    assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.Archetype.Settings.Get(assignment.Name, fieldInfo.FieldType)); break;
-                    case AssignmentType.ScriptSetting:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem.Archetype.Settings.Get(assignment.Name, fieldInfo.FieldType)); break;
+                    case AssignmentType.AspectSetting:  assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem.Settings.Get(assignment.Name, fieldInfo.FieldType)); break;
+                    case AssignmentType.CellSetting:    assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.Settings.Get(assignment.Name, fieldInfo.FieldType)); break;
+                    case AssignmentType.ScriptSetting:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem.Settings.Get(assignment.Name, fieldInfo.FieldType)); break;
 
                     case AssignmentType.AspectAspect:   assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
                     case AssignmentType.CellAspect:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;

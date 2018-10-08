@@ -23,7 +23,7 @@ namespace GGEZ.FullSerializer.Internal
             public static readonly IEqualityComparer<object> Instance = new UnityObjectReferenceEqualityComparator();
         }
 
-        private Dictionary<object, int> _objectIds = new Dictionary<object, int>(UnityObjectReferenceEqualityComparator.Instance);
+        private Dictionary<object, int> _objectIds;
         private List<UnityObject> _references = null;
 
         public bool Enabled
@@ -40,21 +40,7 @@ namespace GGEZ.FullSerializer.Internal
             set
             {
                 _references = value;
-                _objectIds.Clear();
-                if (_references != null)
-                {
-                    for (int i = _references.Count - 1; i >= 0; --i)
-                    {
-                        if (_references[i] == null)
-                        {
-                            _references.RemoveAt(i);
-                        }
-                    }
-                    for (int id = 0; id < _references.Count; ++id)
-                    {
-                        _objectIds[_references[id]] = id;
-                    }
-                }
+                _objectIds = null;
             }
         }
 
@@ -69,6 +55,29 @@ namespace GGEZ.FullSerializer.Internal
 
         public int GetReferenceId(object item)
         {
+            // Lazy-load the object ID map. This is only used during
+            // serialization, and doing this here means we avoid issues
+            // with objects that have disappeared between serialization
+            // and with calling GetInstanceID during OnAfterDeserialize.
+            if (_objectIds == null)
+            {
+                _objectIds = new Dictionary<object, int>(UnityObjectReferenceEqualityComparator.Instance);
+                if (_references != null)
+                {
+                    for (int i = _references.Count - 1; i >= 0; --i)
+                    {
+                        if (_references[i] == null)
+                        {
+                            _references.RemoveAt(i);
+                        }
+                    }
+                    for (int i = 0; i < _references.Count; ++i)
+                    {
+                        _objectIds[_references[i]] = i;
+                    }
+                }
+            }
+
             UnityObject unityObject = item as UnityObject;
             int id;
             if (_objectIds.TryGetValue(item, out id) == false)

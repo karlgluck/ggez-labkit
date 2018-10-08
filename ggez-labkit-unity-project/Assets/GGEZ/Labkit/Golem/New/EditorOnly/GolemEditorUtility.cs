@@ -235,7 +235,61 @@ namespace GGEZ.Labkit
             {
                 case InspectableType.Int: return EditorGUI.IntField(position, (int)value);
                 case InspectableType.Float: return EditorGUI.FloatField(position, (float)value);
-                case InspectableType.UnityObject: return EditorGUI.ObjectField(position, (UnityObject)value, actualType, true);
+                case InspectableType.Golem:
+                    {
+                        Debug.LogError("The Golem inspectable type should never appear in the editor");
+                        return null;
+                    }
+
+                case InspectableType.UnityObject:
+                    {
+                        if (actualType.IsAssignableFrom(typeof(Component)))
+                        {
+                            Rect lhsToolsRect = position;
+                            position.xMin = position.xMin + EditorGUIUtility.singleLineHeight;
+                            lhsToolsRect.xMax = position.xMin;
+
+                            var component = value as Component;
+                            var gameObject = value as GameObject ?? (component != null ? component.gameObject : null);
+
+                            EditorGUI.BeginDisabledGroup(gameObject == null);
+                            if (DropdownField(lhsToolsRect, new GUIContent(""), ref value))
+                            {
+                                GenericMenu menu = new GenericMenu();
+
+                                if (actualType.IsAssignableFrom(typeof(GameObject)))
+                                {
+                                    menu.AddItem(new GUIContent("GameObject"), component == null, SetDropdownFieldValueMenuFunction2, new object[]{GetActiveDropdownFieldHandle(), gameObject});
+                                    menu.AddSeparator("");
+                                }
+
+                                Type searchType = typeof(Component).IsAssignableFrom(actualType) ? actualType : typeof(Component);
+                                Component[] components = gameObject.GetComponents(searchType);
+                                for (int i = 0; i < components.Length; ++i)
+                                {
+
+                                    // We can't allow the Golem to be directly referenced. At first this seems
+                                    // arbitrary since you can work around this by just getting any other
+                                    // component on an object and querying for the Golem type. However, this
+                                    // function is called for settings, settings are used BY golems, and golem
+                                    // fields are treated specially by the Assignments process. There is no
+                                    // way for a Golem-typed setting to be used in a Cell, Script or Aspect
+                                    // so this cleans up the last loophole that could let a Golem reference in.
+                                    if (components[i].GetType().Equals(typeof(Golem)))
+                                    {
+                                        continue;
+                                    }
+
+                                    menu.AddItem(new GUIContent(components[i].GetType().Name), object.ReferenceEquals(component, components[i]), SetDropdownFieldValueMenuFunction2, new object[]{GetActiveDropdownFieldHandle(), components[i]});
+                                }
+
+                                menu.DropDown(lhsToolsRect);
+                            }
+                            EditorGUI.EndDisabledGroup();
+                        }
+
+                        return EditorGUI.ObjectField(position, (UnityObject)value, actualType, true);
+                    }
                 case InspectableType.Bool: return EditorGUI.Toggle(position, (bool)value);
                 case InspectableType.String: return EditorGUI.TextField(position, (string)value);
                 case InspectableType.Rect: return EditorGUI.RectField(position, (Rect)value);
@@ -262,7 +316,7 @@ namespace GGEZ.Labkit
                     {
                         return EditorGUI.EnumPopup(position, (Enum)value);
                     }
-                // TODO: bounds, boundsint, AnimationCurve, double, Texture, Sprite, long, mask, object? RectInt, vector2int, vector4,
+
                 case InspectableType.KeyCode:
                     {
                         const float widthInput = 18;
@@ -321,11 +375,23 @@ namespace GGEZ.Labkit
                 FieldInfo fieldInfo,
                 object target,
                 Dictionary<string,string> fieldsUsingSettings,
-                GolemArchetype golemArchetype
+                Dictionary<string,string> unityObjectFields,
+                Dictionary<string,VariableRef> fieldsUsingVariables,
+                Golem golem
                 )
         {
             Rect position = EditorGUILayout.GetControlRect();
-            EditorGUIGolemField(position, inspectableType, specificType, fieldInfo, target, fieldsUsingSettings, golemArchetype);
+            EditorGUIGolemField(
+                    position,
+                    inspectableType,
+                    specificType,
+                    fieldInfo,
+                    target,
+                    fieldsUsingSettings,
+                    unityObjectFields,
+                    fieldsUsingVariables,
+                    golem
+                    );
         }
 
         public static void EditorGUIGolemField(
@@ -335,29 +401,36 @@ namespace GGEZ.Labkit
                 FieldInfo fieldInfo,
                 object target,
                 Dictionary<string,string> fieldsUsingSettings,
-                GolemArchetype golemArchetype
+                Dictionary<string,string> unityObjectFields,
+                Dictionary<string,VariableRef> fieldsUsingVariables,
+                Golem golem
                 )
         {
-            if (target == null)
-            {
-                throw new ArgumentNullException("target");
-            }
-            if (fieldsUsingSettings == null)
-            {
-                throw new ArgumentNullException("fieldsUsingSettings");
-            }
-            if (golemArchetype == null)
-            {
-                throw new ArgumentNullException("golemArchetype");
-            }
+            if (target == null) throw new ArgumentNullException("target");
+            if (fieldsUsingSettings == null) throw new ArgumentNullException("fieldsUsingSettings");
+            if (unityObjectFields == null) throw new ArgumentNullException("unityObjectFields");
+            if (fieldsUsingVariables == null) throw new ArgumentNullException("fieldsUsingVariables");
+            if (golem == null) throw new ArgumentNullException("golem");
+
+            GolemArchetype golemArchetype = golem.Archetype;
+
             string fieldName = fieldInfo.Name;
             Rect labelRect = new Rect(position);
             Rect valueRect = new Rect(position);
             valueRect.xMin = valueRect.xMin + Mathf.Min(EditorGUIUtility.labelWidth, valueRect.width / 2f);
             labelRect.xMax = valueRect.xMin;
+
             bool hasSetting = false;
             string setting = null;
-            if (InspectableTypeExt.CanUseSetting(inspectableType))
+
+            bool isUnityObject = inspectableType == InspectableType.UnityObject;
+
+            if (isUnityObject)
+            {
+                hasSetting = fieldsUsingSettings.TryGetValue(fieldName, out setting);
+                EditorGUI.LabelField(labelRect, fieldName);
+            }
+            else if (InspectableTypeExt.CanUseSetting(inspectableType))
             {
                 hasSetting = fieldsUsingSettings.TryGetValue(fieldName, out setting);
                 if (hasSetting != EditorGUI.ToggleLeft(labelRect, fieldName, hasSetting))
@@ -373,10 +446,11 @@ namespace GGEZ.Labkit
             {
                 EditorGUI.LabelField(labelRect, fieldName);
             }
+
             object value;
-            if (hasSetting)
+            if (isUnityObject || hasSetting)
             {
-                if (!golemArchetype.Settings.Contains(setting, specificType))
+                if (!golem.Settings.Contains(setting, specificType))
                 {
                     setting = null;
                 }
@@ -393,7 +467,7 @@ namespace GGEZ.Labkit
                     HashSet<string> encounteredSettings = new HashSet<string>();
                     object handle = GolemEditorUtility.GetActiveDropdownFieldHandle();
 
-                    Settings current = golemArchetype.Settings;
+                    Settings current = golem.Settings;
                     bool needsRootSeparator = false;
                     bool isSelf = true;
                     while (current != null)
@@ -405,22 +479,34 @@ namespace GGEZ.Labkit
                         }
 
                         string prefix = isSelf ? "" : (current.Name + "/");
-                        menu.AddItem(
-                                new GUIContent(prefix + newSettingString),
-                                false,
-                                SetDropdownFieldValueToNewSetting,
-                                new object[]{handle, current, specificType}
-                                );
+                        {
+                            Settings settingsForNewSetting =
+                                isUnityObject && object.ReferenceEquals(golemArchetype.Settings, current)
+                                    ? golem.Settings
+                                    : current;
+                            menu.AddItem(
+                                    new GUIContent(prefix + newSettingString),
+                                    false,
+                                    SetDropdownFieldValueToNewSetting,
+                                    new object[]{handle, settingsForNewSetting, specificType}
+                                    );
+                        }
 
                         var enumerator = current.Values.GetEnumerator();
+                        bool needsSeparator = true;
                         if (enumerator.MoveNext())
                         {
-                            menu.AddSeparator(prefix);
+                            if (needsSeparator)
+                            {
+                                menu.AddSeparator(prefix);
+                                needsSeparator = false;
+                            }
                             do
                             {
                                 string name = enumerator.Current.Name;
-                                if (specificType.IsAssignableFrom(enumerator.Current.Type))
+                                if (enumerator.Current.CheckType(specificType))
                                 {
+                                    needsSeparator = true;
                                     if (encounteredSettings.Contains(name))
                                     {
                                         menu.AddDisabledItem(new GUIContent(prefix + name + " (overridden)"));
@@ -439,14 +525,14 @@ namespace GGEZ.Labkit
                             } while (enumerator.MoveNext());
                         }
 
-                        current = current.InheritFrom == null ? null : current.InheritFrom.Settings;
+                        current = current.Parent;
                         needsRootSeparator = needsRootSeparator || isSelf;
                         isSelf = false;
                     }
                     menu.DropDown(valueRect);
                 }
                 fieldsUsingSettings[fieldName] = setting;
-                value = golemArchetype.Settings.Get(setting, specificType);
+                value = golem.Settings.Get(setting, specificType);
             }
             else
             {
@@ -525,6 +611,12 @@ namespace GGEZ.Labkit
                         }
                         EditorGUI.EndDisabledGroup();
                         value = new VariableRef(relationship, variableName);
+                        break;
+                    }
+
+                    case InspectableType.Variable:
+                    {
+                        
                         break;
                     }
                 }

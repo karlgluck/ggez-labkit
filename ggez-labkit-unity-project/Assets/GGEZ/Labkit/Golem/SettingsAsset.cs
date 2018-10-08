@@ -59,7 +59,7 @@ namespace GGEZ.Labkit
 
         void Reset()
         {
-            Settings = new Settings(this, InheritFrom);
+            Settings = new Settings(this, InheritFrom.Settings);
         }
 
         void OnEnable()
@@ -98,20 +98,21 @@ namespace GGEZ.Labkit
             Dictionary<string, object> deserialized = new Dictionary<string, object>();
             fsData data = fsJsonParser.Parse(Json);
             fsResult result = serializer.TryDeserialize(data, ref deserialized);
+            Settings parent = InheritFrom == null ? null : InheritFrom.Settings;
             if (result.Failed)
             {
                 Debug.LogError(result, this);
-                Settings = new Settings(this, InheritFrom);
+                Settings = new Settings(this, parent);
             }
             else
             {
                 if (deserialized.ContainsKey("Values"))
                 {
-                    Settings = new Settings(this, InheritFrom, deserialized["Values"] as List<Settings.Setting>);
+                    Settings = new Settings(this, parent, deserialized["Values"] as List<Settings.Setting>);
                 }
                 else
                 {
-                    Settings = new Settings(this, InheritFrom);
+                    Settings = new Settings(this, parent);
                 }
             }
         }
