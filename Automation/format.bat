@@ -32,7 +32,7 @@ REM Find all files to be formatted
 REM I did this because I can't figure out how to ask CodeFormatter to exclude files...
 
 REM 1: find all the CS files except those that are part of FullSerializer or LZF
-dir "../ggez-labkit-unity-project/Assets/" /s/b | findstr /e ".cs" | findstr /v /c:"LZF" /c:"FullSerializer" > files_to_format.rsp
+dir "../ggez-labkit-unity-project/Assets/" /s/b | findstr /e ".cs" | findstr /v /c:"LZF" /c:"FullSerializer" /c:"BuiltInResourcesWindow" > files_to_format.rsp
 
 REM 2: Quote each of the lines to take care of spaces
 for /F "tokens=*" %%i in (files_to_format.rsp) do echo "%%i" >> files_to_format_quoted.rsp
