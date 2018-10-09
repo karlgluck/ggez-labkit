@@ -16,12 +16,10 @@ namespace GGEZ.Labkit
 {
     public class AddFloat : Cell
     {
-        // [In] // Hooked up to read-only input if not attached
-        // [In, CanBeNull]  // Not hooked up if not attached
+        [In]
         public StructRegister<float> Input;
 
-        // [Out] // Hooked up to write-only output if not attached
-        // [Out, CanBeNull] // Not hooked up if not attached
+        [Out]
         public StructRegister<float> Output;
 
         public float Amount;

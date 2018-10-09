@@ -37,23 +37,11 @@ namespace GGEZ.Labkit
 
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class InAttribute : Attribute
-    {
-        public Type Type;
-        public InAttribute(Type type)
-        {
-            Type = type;
-        }
-    }
+    { }
 
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class OutAttribute : Attribute
-    {
-        public Type Type;
-        public OutAttribute(Type type)
-        {
-            Type = type;
-        }
-    }
+    { }
 
     //-------------------------------------------------------------------------
     // Register pointers for inputs and outputs
@@ -82,7 +70,7 @@ namespace GGEZ.Labkit
     {
         /// <summary>Key to use to look up a variable</summary>
         public readonly string Name;
-        
+
         /// <remarks>Null/empty for a local variable</remarks>
         public readonly string Relationship;
 
@@ -135,30 +123,4 @@ namespace GGEZ.Labkit
         }
     }
 
-    public struct VariableRegisterPair
-    {
-        public VariableRef Variable;
-        public readonly RegisterPtr Register;
-
-        public VariableRegisterPair(VariableRef variable, RegisterPtr register)
-        {
-            Variable = variable;
-            Register = register;
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
-    public class VariableTypeAttribute : Attribute
-    {
-        public Type Type;
-        public VariableTypeAttribute(Type type)
-        {
-            Type = type;
-        }
-    }
-
-    public class FloatVariableTypeAttribute : VariableTypeAttribute
-    {
-        public FloatVariableTypeAttribute() : base(typeof(float)) { }
-    }
 }
