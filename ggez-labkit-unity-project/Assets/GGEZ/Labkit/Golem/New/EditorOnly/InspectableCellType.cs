@@ -170,20 +170,7 @@ namespace GGEZ.Labkit
             Type writeType = writeCell.Inputs[inputIndex].Type;
             Type readType = readCell.Outputs[outputIndex].Type;
 
-            // If the output wants an object, send 'em anything
-            if (writeType.Equals(typeof(object)))
-            {
-                return true;
-            }
-
-            // If the output is a value type we can't do type conversion so the types must match
-            if (readType.IsValueType || writeType.IsValueType)
-            {
-                return readType.Equals(writeType);
-            }
-
-            // An object is being passed to something that wants an object: make sure the assignment is possible
-            return writeType.IsAssignableFrom(readType);
+            return readType.Equals(writeType);
         }
     }
 

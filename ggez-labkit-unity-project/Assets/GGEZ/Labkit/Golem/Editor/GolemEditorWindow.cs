@@ -945,14 +945,23 @@ namespace GGEZ.Labkit
 
                     EditorGUILayout.LabelField(inspectableType.Name, EditorStyles.boldLabel);
 
+                    var fields = inspectableType.Fields;
+                    var outputs = inspectableType.Outputs;
+
+                    var ioRect = EditorGUILayout.GetControlRect(false, fields.Length * EditorGUIUtility.singleLineHeight);
+
                     //-------------------------------
                     // Script Fields
                     //-------------------------------
-                    var fields = inspectableType.Fields;
                     for (int j = 0; j < fields.Length; ++j)
                     {
+                        bool isOutput = true;
+                        float fieldWidth = isOutput ? (ioRect.width - GolemEditorUtility.PortLayoutWidth) : ioRect.width;
+                        var position = new Rect(ioRect.position + new Vector2(0, EditorGUIUtility.singleLineHeight * j), new Vector2(fieldWidth, EditorGUIUtility.singleLineHeight));
+                        
                         var fieldInfo = fields[j];
-                        GolemEditorUtility.EditorGUILayoutGolemField(
+                        GolemEditorUtility.EditorGUIGolemField(
+                                position,
                                 fieldInfo.Type,
                                 fieldInfo.SpecificType,
                                 fieldInfo.FieldInfo,
@@ -961,6 +970,24 @@ namespace GGEZ.Labkit
                                 editorScript.FieldsUsingVariables,
                                 _golem
                                 );
+                    }
+
+                    // var ioRect = EditorGUILayout.GetControlRect(false, fields.Length * EditorGUIUtility.singleLineHeight);
+
+                    //-------------------------------
+                    // Script Outputs
+                    //-------------------------------
+                    var topRight = ioRect.position + new Vector2(ioRect.width, 0);
+                    for (int j = 0; j < outputs.Length; ++j)
+                    {
+                        var position = new Rect(ioRect.position + new Vector2(ioRect.width * 0.25f, EditorGUIUtility.singleLineHeight * j), new Vector2(ioRect.width * 0.75f - GolemEditorUtility.PortLayoutWidth, EditorGUIUtility.singleLineHeight));
+                        var portCenter = topRight + outputs[j].PortCenterFromTopRight;
+                        GolemEditorUtility.DrawPort(portCenter, false/*editorScript.HasOutputWire(outputs[j].Name)*/, false);
+                        var rect = GolemEditorUtility.GetPortRect(portCenter);
+                        if (!IsCreatingWire)
+                        {
+                            GolemEditorUtility.AddScaledCursorRect(_graphScale, rect, MouseCursor.ArrowPlus);
+                        }
                     }
                 }
                 GolemEditorUtility.EndNode();

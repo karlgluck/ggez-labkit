@@ -369,7 +369,7 @@ namespace GGEZ.Labkit
             }
         }
 
-        public static void EditorGUILayoutGolemField(
+        public static Rect EditorGUILayoutGolemField(
                 InspectableType inspectableType,
                 Type specificType,
                 FieldInfo fieldInfo,
@@ -390,6 +390,7 @@ namespace GGEZ.Labkit
                     fieldsUsingVariables,
                     golem
                     );
+            return position;
         }
 
         public static void EditorGUIGolemField(
@@ -468,7 +469,6 @@ namespace GGEZ.Labkit
                     bool isSelf = true;
                     while (current != null)
                     {
-                        Debug.Log("current = " + current.Name + " isSelf = " + isSelf);
                         if (needsRootSeparator)
                         {
                             menu.AddSeparator("");
@@ -549,9 +549,10 @@ namespace GGEZ.Labkit
                         value = EditorGUIField(valueRect, inspectableType, specificType, value);
                         break;
 
-                    case InspectableType.VariableRef:
+                    case InspectableType.Variable:
                     {
-                        VariableRef reference = (VariableRef)value;
+                        VariableRef reference;
+                        fieldsUsingVariables.TryGetValue(fieldInfo.Name, out reference);
 
                         Rect left = valueRect, right = valueRect;
                         float leftSize = valueRect.width * 0.3f;
@@ -561,7 +562,7 @@ namespace GGEZ.Labkit
                         //reference.Relationship = (EntityRelationship)EditorGUI.EnumPopup(left, reference.Relationship);
                         string relationship = null;
 
-                        string variableName = golemArchetype.ContainsVariable(reference.Name, specificType) ? reference.Name : null;
+                        string variableName = reference != null && golemArchetype.ContainsVariable(reference.Name, specificType) ? reference.Name : null;
 
                         GUIContent content;
                         bool typeNotSet = specificType == null;
@@ -616,12 +617,12 @@ namespace GGEZ.Labkit
                             menu.DropDown(right);
                         }
                         EditorGUI.EndDisabledGroup();
-                        value = new VariableRef(relationship, variableName);
-                        break;
-                    }
 
-                    case InspectableType.Variable:
-                    {
+                        if (!string.IsNullOrEmpty(variableName))
+                        {
+                            reference = new VariableRef(relationship, variableName);
+                            fieldsUsingVariables[fieldInfo.Name] = reference;
+                        }
 
                         break;
                     }

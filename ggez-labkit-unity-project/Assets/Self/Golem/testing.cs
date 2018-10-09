@@ -292,7 +292,10 @@ public class SetObjectNameToTime : Script
 
 public class SetVariableToTime : Script
 {
+    [Out]
     public StructVariable<float> Variable;
+
+    public float Multiplier;
 
     public override void OnUpdate()
     {

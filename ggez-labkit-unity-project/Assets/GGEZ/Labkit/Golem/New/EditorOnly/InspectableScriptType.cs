@@ -43,6 +43,7 @@ namespace GGEZ.Labkit
     {
         public readonly string Name;
         public readonly Field[] Fields;
+        public readonly Output[] Outputs;
 
         public struct Field
         {
@@ -62,10 +63,27 @@ namespace GGEZ.Labkit
             }
         }
 
-        public InspectableScriptType(string name, Field[] fields)
+        public struct Output
+        {
+            public string Name { get { return Field.Name; } }
+            public Type Type { get { return Field.FieldType; } }
+            public readonly FieldInfo Field;
+            public readonly Vector2 PortCenterFromTopRight;
+            public readonly bool CanBeNull;
+
+            public Output(FieldInfo field, Vector2 portCenterFromTopRight, bool canBeNull)
+            {
+                Field = field;
+                PortCenterFromTopRight = portCenterFromTopRight;
+                CanBeNull = canBeNull;
+            }
+        }
+
+        public InspectableScriptType(string name, Field[] fields, Output[] outputs)
         {
             Name = name;
             Fields = fields;
+            Outputs = outputs;
         }
 
         private static Dictionary<Type, InspectableScriptType> s_typeToInspectableType = new Dictionary<Type, InspectableScriptType>();
@@ -82,11 +100,11 @@ namespace GGEZ.Labkit
             FieldInfo[] fields = scriptType.GetFields(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
             var returnedFields = new Field[fields.Length];
             int j = 0;
+            List<Output> outputs = new List<Output>();
             for (int i = 0; i < fields.Length; ++i)
             {
                 #warning these really shouldn't be assertions since the coder can mess this up and it doesn't really matter
                 Debug.Assert(!fields[i].IsDefined(typeof(InAttribute), true));
-                Debug.Assert(!fields[i].IsDefined(typeof(OutAttribute), true));
 
                 InspectableType inspectableType = InspectableTypeExt.GetInspectableTypeOf(fields[i].FieldType);
                 if (inspectableType == InspectableType.Invalid)
@@ -94,13 +112,22 @@ namespace GGEZ.Labkit
                     continue;
                 }
 
-                bool wantsSetting = fields[i].IsDefined(typeof(SettingAttribute), true);
                 bool canBeNull = fields[i].IsDefined(typeof(CanBeNullAttribute), true);
+
+                if (fields[i].IsDefined(typeof(OutAttribute), true))
+                {
+                    Debug.Assert(typeof(IVariable).IsAssignableFrom(fields[i].FieldType));
+                    var portCenter = new Vector2(-GolemEditorUtility.GridSize + GolemEditorUtility.NodeLeftRightMargin, EditorGUIUtility.singleLineHeight * (0.5f + i));
+                    #warning make this into an array
+                    outputs.Add(new Output(fields[i], portCenter, canBeNull));
+                }
+
+                bool wantsSetting = fields[i].IsDefined(typeof(SettingAttribute), true);
                 Type specificType = InspectableTypeExt.GetSpecificType(inspectableType, fields[i]);
                 returnedFields[j++] = new Field(inspectableType, specificType, fields[i], wantsSetting, canBeNull);
             }
 
-            retval = new InspectableScriptType(scriptType.Name, returnedFields);
+            retval = new InspectableScriptType(scriptType.Name, returnedFields, outputs.ToArray());
             s_typeToInspectableType.Add(scriptType, retval);
             return retval;
         }
