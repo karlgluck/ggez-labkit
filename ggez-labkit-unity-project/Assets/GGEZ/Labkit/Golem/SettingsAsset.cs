@@ -37,7 +37,7 @@ namespace GGEZ.Labkit
     // SettingsAsset
     //-----------------------------------------------------------------------------
     [CreateAssetMenu(menuName = "GGEZ/Omnibus/Settings", fileName = "New Settings.asset")]
-    public class SettingsAsset : ScriptableObject, ISerializationCallbackReceiver
+    public class SettingsAsset : ScriptableObject, ISerializationCallbackReceiver, IHasSettings
     {
         //-----------------------------------------------------------------
         // References
@@ -54,12 +54,11 @@ namespace GGEZ.Labkit
         //-----------------------------------------------------------------
         // Runtime
         //-----------------------------------------------------------------
-        [System.NonSerialized]
-        public Settings Settings;
+        public Settings Settings { get; private set; }
 
         void Reset()
         {
-            Settings = new Settings(this, InheritFrom.Settings);
+            Settings = new Settings(this, InheritFrom);
         }
 
         void OnEnable()
@@ -98,21 +97,20 @@ namespace GGEZ.Labkit
             Dictionary<string, object> deserialized = new Dictionary<string, object>();
             fsData data = fsJsonParser.Parse(Json);
             fsResult result = serializer.TryDeserialize(data, ref deserialized);
-            Settings parent = InheritFrom == null ? null : InheritFrom.Settings;
             if (result.Failed)
             {
                 Debug.LogError(result, this);
-                Settings = new Settings(this, parent);
+                Settings = new Settings(this, InheritFrom);
             }
             else
             {
                 if (deserialized.ContainsKey("Values"))
                 {
-                    Settings = new Settings(this, parent, deserialized["Values"] as List<Settings.Setting>);
+                    Settings = new Settings(this, InheritFrom, deserialized["Values"] as List<Settings.Setting>);
                 }
                 else
                 {
-                    Settings = new Settings(this, parent);
+                    Settings = new Settings(this, InheritFrom);
                 }
             }
         }

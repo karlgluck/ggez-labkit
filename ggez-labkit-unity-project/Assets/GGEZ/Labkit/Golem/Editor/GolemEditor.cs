@@ -188,7 +188,6 @@ namespace GGEZ.Labkit
                             field.FieldInfo,
                             editorAspect.Aspect,
                             editorAspect.FieldsUsingSettings,
-                            editorAspect.UnityObjectFields,
                             editorAspect.FieldsUsingVariables,
                             _golem
                             );

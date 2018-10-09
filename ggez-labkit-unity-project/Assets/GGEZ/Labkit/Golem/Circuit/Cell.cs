@@ -48,6 +48,7 @@ namespace GGEZ.Labkit
         // It is in the order of cells in a single golem, and unique between golems
         /// <remarks>Could use the high bits of this sequencer to distinguish
         /// cells of different golems so that they can be parallelized.</remarks>
+        [fsIgnore]
         public int Sequencer { get; private set; }
 
         public virtual void Acquire()

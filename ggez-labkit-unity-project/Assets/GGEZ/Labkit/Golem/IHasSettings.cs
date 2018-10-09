@@ -23,20 +23,16 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
-using UnityEngine;
-using System;
-using System.Reflection;
-using GGEZ.FullSerializer;
-using System.Collections.Generic;
-using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
 
 namespace GGEZ.Labkit
 {
-    public class GolemAsset : ScriptableObject
+    /// <remarks>
+    /// Abstracts the settings object away from the container so
+    /// that deserialization order doesn't affect the linking of settings.
+    /// </remarks>
+    public interface IHasSettings
     {
-        public string Json = "{}";
-
-        [System.NonSerialized]
-        public fsData Data;
+        Settings Settings { get; }
     }
+
 }

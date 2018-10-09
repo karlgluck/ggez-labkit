@@ -46,36 +46,84 @@ namespace GGEZ.Labkit
         public string Name;
         public EditorCellIndex Index = EditorCellIndex.Invalid;
         public Cell Cell;
-        #warning Make things more clear here by making inputs a dictionary and outputs a dictionary-list. This will also clean up compilation.
-        public List<EditorWire> Inputs = new List<EditorWire>();
-        public List<EditorWire> Outputs = new List<EditorWire>();
+
+        #warning Help decouple references by switching to using EditorCellIndex
+        public Dictionary<string,EditorWire> InputWires = new Dictionary<string, EditorWire>();
+        public Dictionary<string,List<EditorWire>> OutputWires = new Dictionary<string, List<EditorWire>>();
+
         public Rect Position;
-        public Dictionary<string,string> UnityObjectFields = new Dictionary<string,string>();
         public Dictionary<string,string> FieldsUsingSettings = new Dictionary<string,string>();
         public Dictionary<string,VariableRef> FieldsUsingVariables = new Dictionary<string,VariableRef>();
 
-        public bool HasInputWire(string name)
+        public IEnumerable<EditorWire> GetAllInputWires()
         {
-            for (int i = 0; i < Inputs.Count; ++i)
+            return InputWires.Values;
+        }
+
+        public IEnumerable<EditorWire> GetAllOutputWires()
+        {
+            foreach (List<EditorWire> list in OutputWires.Values)
             {
-                if (Inputs[i].WriteField == name)
+                foreach (EditorWire wire in list)
                 {
-                    return true;
+                    yield return wire;
                 }
             }
-            return false;
+        }
+
+        public bool HasInputWire(string name)
+        {
+            return InputWires.ContainsKey(name);
         }
 
         public bool HasOutputWire(string name)
         {
-            for (int i = 0; i < Outputs.Count; ++i)
+            return OutputWires.ContainsKey(name);
+        }
+
+        public void AddInputWire(EditorWire inputWire)
+        {
+            Debug.Assert(inputWire.WriteCell == this);
+            InputWires.Add(inputWire.WriteField, inputWire);
+        }
+
+        public void RemoveInputWire(string name)
+        {
+            InputWires.Remove(name);
+        }
+
+        public void RemoveInputWire(EditorWire editorWire)
+        {
+            foreach (var kvp in InputWires)
             {
-                if (Outputs[i].ReadField == name)
+                if (kvp.Value == editorWire)
                 {
-                    return true;
+                    InputWires.Remove(kvp.Key);
+                    Debug.Assert(!new HashSet<EditorWire>(InputWires.Values).Contains(editorWire));
+                    return;
                 }
             }
-            return false;
+        }
+
+        public void AddOutputWire(EditorWire outputWire)
+        {
+            Debug.Assert(outputWire.ReadCell == this);
+            OutputWires.MultiAdd(outputWire.ReadField, outputWire);
+        }
+
+        public void RemoveOutputWire(EditorWire editorWire)
+        {
+            foreach (var kvp in OutputWires)
+            {
+                if (kvp.Value.Remove(editorWire))
+                {
+                    if (kvp.Value.Count == 0)
+                    {
+                        OutputWires.Remove(kvp.Key);
+                    }
+                    return;
+                }
+            }
         }
 
         public IDraggable DragPosition()

@@ -35,18 +35,23 @@ using System.Reflection;
 
 namespace GGEZ.Labkit
 {
+    public enum EditorWireIndex : int { Invalid = int.MaxValue }
 
     //-------------------------------------------------------------------------
     // EditorWire
     //-------------------------------------------------------------------------
     public class EditorWire
     {
+        public EditorWireIndex Index = EditorWireIndex.Invalid;
+
         public RegisterPtr Register;
         [Obsolete("Use ReadCellIndex instead")]
         public EditorCell ReadCell;
+        public EditorCellIndex ReadCellIndex;
         public string ReadField;
         [Obsolete("Use WriteCellIndex instead")]
         public EditorCell WriteCell;
+        public EditorCellIndex WriteCellIndex;
         public string WriteField;
 
         // Other than cells, a wire can also read a register that is

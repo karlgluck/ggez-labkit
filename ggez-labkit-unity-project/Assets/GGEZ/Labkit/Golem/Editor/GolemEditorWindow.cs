@@ -340,26 +340,29 @@ namespace GGEZ.Labkit
 
         private void getEditorWirePoints(EditorWire editorWire, out Vector2 from, out Vector2 to)
         {
-            from = editorWire.ReadCell.Position.center;
-            to = editorWire.WriteCell.Position.center;
+            var readCell = editorWire.ReadCell;
+            var writeCell = editorWire.WriteCell;
 
-            var fromType = GetInspectableCellType(editorWire.ReadCell.Cell.GetType());
+            from = readCell.Position.center;
+            to = writeCell.Position.center;
+
+            var fromType = GetInspectableCellType(readCell.Cell.GetType());
             var outputs = fromType.Outputs;
             for (int i = 0; i < outputs.Length; ++i)
             {
                 if (outputs[i].Name.Equals(editorWire.ReadField))
                 {
-                    from = GolemEditorUtility.GetNodeOutputPortRect(editorWire.ReadCell.Position, outputs[i].PortCenterFromTopRight).center;
+                    from = GolemEditorUtility.GetNodeOutputPortRect(readCell.Position, outputs[i].PortCenterFromTopRight).center;
                     break;
                 }
             }
-            var toType = GetInspectableCellType(editorWire.WriteCell.Cell.GetType());
+            var toType = GetInspectableCellType(writeCell.Cell.GetType());
             var inputs = toType.Inputs;
             for (int i = 0; i < inputs.Length; ++i)
             {
                 if (inputs[i].Name.Equals(editorWire.WriteField))
                 {
-                    to = GolemEditorUtility.GetNodeInputPortRect(editorWire.WriteCell.Position, inputs[i].PortCenterFromTopLeft).center;
+                    to = GolemEditorUtility.GetNodeInputPortRect(writeCell.Position, inputs[i].PortCenterFromTopLeft).center;
                     break;
                 }
             }
@@ -633,8 +636,8 @@ namespace GGEZ.Labkit
                 var editorWireSelection = _selection as EditorWire;
                 if (editorWireSelection != null)
                 {
-                    editorWireSelection.ReadCell.Outputs.Remove(editorWireSelection);
-                    editorWireSelection.WriteCell.Inputs.Remove(editorWireSelection);
+                    editorWireSelection.ReadCell.RemoveOutputWire(editorWireSelection);
+                    editorWireSelection.WriteCell.RemoveInputWire(editorWireSelection);
                     _wires.Remove(editorWireSelection);
                     _selection = null;
                     Repaint();
@@ -888,7 +891,6 @@ namespace GGEZ.Labkit
                         fieldInfo.FieldInfo,
                         editorCell.Cell,
                         editorCell.FieldsUsingSettings,
-                        editorCell.UnityObjectFields,
                         editorCell.FieldsUsingVariables,
                         _golem
                         );
@@ -956,7 +958,6 @@ namespace GGEZ.Labkit
                                 fieldInfo.FieldInfo,
                                 editorScript.Script,
                                 editorScript.FieldsUsingSettings,
-                                editorScript.UnityObjectFields,
                                 editorScript.FieldsUsingVariables,
                                 _golem
                                 );
@@ -1003,8 +1004,8 @@ namespace GGEZ.Labkit
                                 WriteCell = _creatingWireStartCell,
                                 WriteField = _creatingWireStartPortName,
                             };
-                            _creatingWireEndEditorCell.Outputs.Add(wire);
-                            _creatingWireStartCell.Inputs.Add(wire);
+                            _creatingWireEndEditorCell.AddOutputWire(wire);
+                            _creatingWireStartCell.AddInputWire(wire);
                             _wires.Add(wire);
                             IsCreatingWire = false;
                             _shouldWrite = true;
@@ -1032,8 +1033,8 @@ namespace GGEZ.Labkit
                                 WriteCell = _creatingWireEndEditorCell,
                                 WriteField = _creatingWireEndInspectableType.Inputs[_creatingWireEndPort].Name,
                             };
-                            _creatingWireStartCell.Outputs.Add(wire);
-                            _creatingWireEndEditorCell.Inputs.Add(wire);
+                            _creatingWireStartCell.AddOutputWire(wire);
+                            _creatingWireEndEditorCell.AddInputWire(wire);
                             _wires.Add(wire);
                             IsCreatingWire = false;
                             _shouldWrite = true;
@@ -1305,14 +1306,14 @@ namespace GGEZ.Labkit
         private void DeleteEditorCellMenuFunction(object editorCellParam)
         {
             var editorCell = editorCellParam as EditorCell;
-            foreach (var input in editorCell.Inputs)
+            foreach (var input in editorCell.GetAllInputWires())
             {
-                input.ReadCell.Outputs.Remove(input);
+                input.ReadCell.RemoveOutputWire(input);
                 _wires.Remove(input);
             }
-            foreach (var output in editorCell.Outputs)
+            foreach (var output in editorCell.GetAllOutputWires())
             {
-                output.WriteCell.Inputs.Remove(output);
+                output.WriteCell.RemoveInputWire(output);
                 _wires.Remove(output);
             }
             _cells.Remove(editorCell);

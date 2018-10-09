@@ -43,7 +43,6 @@ namespace GGEZ.Labkit
     {
         public Aspect Aspect;
 
-        public Dictionary<string,string> UnityObjectFields = new Dictionary<string,string>();
         public Dictionary<string,string> FieldsUsingSettings = new Dictionary<string,string>();
         public Dictionary<string,VariableRef> FieldsUsingVariables = new Dictionary<string,VariableRef>();
 

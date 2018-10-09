@@ -41,7 +41,7 @@ namespace GGEZ.Labkit
     /// set of Components that it uses, then ties those together with Settings values,
     /// named References and relationship-based external Variables.
     /// </summary>
-    public class GolemArchetype : ScriptableObject, ISerializationCallbackReceiver
+    public class GolemArchetype : ScriptableObject, ISerializationCallbackReceiver, IHasSettings
     {
         /// <summary>Functional parts used by the golem</summary>
         public GolemComponent[] Components;
@@ -51,8 +51,7 @@ namespace GGEZ.Labkit
         public Aspect[] Aspects;
 
         /// <summary>Values that get assigned to fields of aspects, cells and scripts</summary>
-        [NonSerialized]
-        public Settings Settings;
+        public Settings Settings { get; private set; }
         public SettingsAsset InheritSettingsFrom;
 
         /// <summary>Assignments that map settings and local variables to aspect fields</summary>
@@ -261,7 +260,7 @@ namespace GGEZ.Labkit
 
                 Settings = new Settings(
                         this,
-                        InheritSettingsFrom == null ? null : InheritSettingsFrom.Settings,
+                        InheritSettingsFrom,
                         Serialization.Read<List<Settings.Setting>>("Settings", deserialized)
                         );
             }

@@ -40,6 +40,23 @@ namespace GGEZ
             list.Add(item);
         }
 
+        public static bool MultiRemove<Key, ItemType>(this Dictionary<Key, List<ItemType>> self, Key key, ItemType item) where ItemType : new()
+        {
+            List<ItemType> list;
+            if (self.TryGetValue(key, out list))
+            {
+                if (list.Remove(item))
+                {
+                    if (list.Count == 0)
+                    {
+                        self.Remove(key);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public static Dictionary<Key, ItemType[]> MultiToArray<Key, ItemType>(this Dictionary<Key, List<ItemType>> self)
         {
             var retval = new Dictionary<Key, ItemType[]>(self.Count);

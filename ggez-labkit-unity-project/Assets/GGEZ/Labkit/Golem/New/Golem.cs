@@ -136,14 +136,14 @@ namespace GGEZ.Labkit
             }
         
         DeserializedSettings:
-            Settings = new Settings(this, Archetype.Settings, values);
+            Settings = new Settings(this, Archetype, values);
 
         }
 
         void Reset()
         {
             Archetype = ScriptableObject.CreateInstance<GolemArchetype>();
-            Settings = new Settings(this, Archetype.Settings);
+            Settings = new Settings(this, Archetype);
             SettingsObjectReferences = new List<UnityObject>();
             SettingsJson = "[]";
             Variables = null;
@@ -155,7 +155,7 @@ namespace GGEZ.Labkit
         void OnValidate()
         {
             Archetype = Archetype ?? ScriptableObject.CreateInstance<GolemArchetype>();
-            Settings = Settings ?? new Settings(this, Archetype.Settings);
+            Settings = Settings ?? new Settings(this, Archetype);
 
             #warning do something to make sure runtime variables/etc aren't used until deserialization
 

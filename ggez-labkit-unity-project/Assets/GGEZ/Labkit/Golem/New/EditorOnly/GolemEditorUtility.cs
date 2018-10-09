@@ -375,7 +375,6 @@ namespace GGEZ.Labkit
                 FieldInfo fieldInfo,
                 object target,
                 Dictionary<string,string> fieldsUsingSettings,
-                Dictionary<string,string> unityObjectFields,
                 Dictionary<string,VariableRef> fieldsUsingVariables,
                 Golem golem
                 )
@@ -388,7 +387,6 @@ namespace GGEZ.Labkit
                     fieldInfo,
                     target,
                     fieldsUsingSettings,
-                    unityObjectFields,
                     fieldsUsingVariables,
                     golem
                     );
@@ -401,14 +399,12 @@ namespace GGEZ.Labkit
                 FieldInfo fieldInfo,
                 object target,
                 Dictionary<string,string> fieldsUsingSettings,
-                Dictionary<string,string> unityObjectFields,
                 Dictionary<string,VariableRef> fieldsUsingVariables,
                 Golem golem
                 )
         {
             if (target == null) throw new ArgumentNullException("target");
             if (fieldsUsingSettings == null) throw new ArgumentNullException("fieldsUsingSettings");
-            if (unityObjectFields == null) throw new ArgumentNullException("unityObjectFields");
             if (fieldsUsingVariables == null) throw new ArgumentNullException("fieldsUsingVariables");
             if (golem == null) throw new ArgumentNullException("golem");
 

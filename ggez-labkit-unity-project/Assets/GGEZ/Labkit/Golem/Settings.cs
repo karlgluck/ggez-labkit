@@ -44,14 +44,14 @@ namespace GGEZ.Labkit
             : this(settingsOwner, null, null)
         { }
 
-        public Settings(UnityObject settingsOwner, Settings inheritFrom)
+        public Settings(UnityObject settingsOwner, IHasSettings inheritFrom)
             : this(settingsOwner, inheritFrom, null)
         { }
 
-        public Settings(UnityObject settingsOwner, Settings inheritFrom, List<Setting> values)
+        public Settings(UnityObject settingsOwner, IHasSettings inheritFrom, List<Setting> values)
         {
             SettingsOwner = settingsOwner;
-            Parent = inheritFrom;
+            InheritFrom = inheritFrom;
             Values = values ?? new List<Setting>();
         }
 
@@ -70,8 +70,9 @@ namespace GGEZ.Labkit
 
         public string Name { get { return SettingsOwner.name; } }
         public readonly UnityObject SettingsOwner;
-        public readonly Settings Parent;
+        private readonly IHasSettings InheritFrom;
         public readonly List<Setting> Values;
+        public Settings Parent { get { return InheritFrom == null ? null : InheritFrom.Settings; } }
 
         public bool Contains(string name, Type type)
         {

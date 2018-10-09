@@ -45,7 +45,6 @@ namespace GGEZ.Labkit
         public bool Enabled = true;
         public Script Script;
         public Dictionary<string,string> FieldsUsingSettings = new Dictionary<string,string>();
-        public Dictionary<string,string> UnityObjectFields = new Dictionary<string,string>();
         public Dictionary<string,VariableRef> FieldsUsingVariables = new Dictionary<string,VariableRef>();
     }
 

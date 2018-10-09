@@ -44,7 +44,9 @@ namespace GGEZ.Labkit
     {
         public struct Input
         {
+            [Obsolete("This is just a field of Field, so make it a getter")]
             public readonly string Name;
+            [Obsolete("This is just a field of Field, so make it a getter")]
             public readonly Type Type;
             public readonly FieldInfo Field;
             public readonly Vector2 PortCenterFromTopLeft;
@@ -62,7 +64,9 @@ namespace GGEZ.Labkit
 
         public struct Output
         {
+            [Obsolete("This is just a field of Field, so make it a getter")]
             public readonly string Name;
+            [Obsolete("This is just a field of Field, so make it a getter")]
             public readonly Type Type;
             public readonly FieldInfo Field;
             public readonly Vector2 PortCenterFromTopRight;
@@ -106,32 +110,6 @@ namespace GGEZ.Labkit
         public readonly Input[] Inputs;
         public readonly Output[] Outputs;
         public readonly Field[] Fields;
-
-        public HashSet<string> GetUnnullableInputs()
-        {
-            HashSet<string> retval = new HashSet<string>();
-            for (int i = 0; i < Inputs.Length; ++i)
-            {
-                if (!Inputs[i].CanBeNull)
-                {
-                    retval.Add(Inputs[i].Field.Name);
-                }
-            }
-            return retval;
-        }
-
-        public HashSet<string> GetUnnullableOutputs()
-        {
-            HashSet<string> retval = new HashSet<string>();
-            for (int i = 0; i < Outputs.Length; ++i)
-            {
-                if (!Outputs[i].CanBeNull)
-                {
-                    retval.Add(Outputs[i].Field.Name);
-                }
-            }
-            return retval;
-        }
 
         private static Dictionary<Type, InspectableCellType> s_typeToInspectableType = new Dictionary<Type, InspectableCellType>();
         public static InspectableCellType GetInspectableCellType(Type cellType)

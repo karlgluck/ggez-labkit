@@ -66,7 +66,7 @@ namespace GGEZ.Labkit
     /// I chose (2) even though it is a little ugly and requires more work
     /// because it is flexible to users needs and won't cause bugs.
     /// </remarks>
-    public struct VariableRef
+    public class VariableRef
     {
         /// <summary>Key to use to look up a variable</summary>
         public readonly string Name;
@@ -84,7 +84,7 @@ namespace GGEZ.Labkit
         {
             get
             {
-                return string.IsNullOrEmpty(Relationship);
+                return !string.IsNullOrEmpty(Relationship);
             }
         }
 

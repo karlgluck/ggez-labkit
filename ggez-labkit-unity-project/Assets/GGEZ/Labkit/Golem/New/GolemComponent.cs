@@ -114,6 +114,10 @@ namespace GGEZ.Labkit
                 {
                     EditorCells[i].Index = (EditorCellIndex)i;
                 }
+                for (int i = 0; i < EditorWires.Count; ++i)
+                {
+                    EditorWires[i].Index = (EditorWireIndex)i;
+                }
 
                 //-----------------------------------------------------
                 // Compute the correct topographically-sorted traversal
@@ -369,63 +373,67 @@ namespace GGEZ.Labkit
                     // register that hasn't been mapped
                     //-------------------------------------------------
                     {
-                        HashSet<string> inputsThatCantBeNull = inspectableCellType.GetUnnullableInputs();
-                        List<EditorWire> inputWires = editorCell.Inputs;
-                        for (int i = 0; i < inputWires.Count; ++i)
+                        InspectableCellType.Input[] inputs = inspectableCellType.Inputs;
+                        for (int i = 0; i < inputs.Length; ++i)
                         {
-                            EditorWire wire = inputWires[i];
-                            if (wire.ReadCell != null)
+                            InspectableCellType.Input input = inputs[i];
+                            EditorWire wire;
+                            if (editorCell.InputWires.TryGetValue(input.Name, out wire))
                             {
-                                Debug.Assert(wire.ReadVariableInputRegister == null);
-                                string registerKey = wire.ReadCell.Index + ".{" + wire.ReadField + "}";
-                                Debug.Assert(cellOutputToRegister.ContainsKey(registerKey), "A register input was not mapped before it was seen when traversing cells of this circuit. Something is wrong with the dependency sort.", this);
-                                RegisterPtr registerPtr = cellOutputToRegister[registerKey];
+                                Debug.Assert(wire.WriteField == input.Name);
 
-                                assignments.Add(new Assignment()
+                                if (wire.ReadCell != null)
                                 {
-                                    Type = AssignmentType.CellInputRegister,
-                                    RegisterIndex = (int)registerPtr,
-                                    TargetIndex = cellIndex,
-                                    TargetFieldName = wire.WriteField,
-                                });
-                            }
-                            else if (wire.ReadVariableInputRegister != null)
-                            {
-                                bool fieldCanBeNull = !inputsThatCantBeNull.Contains(wire.WriteField);
-                                Assignment assignment = new Assignment()
+                                    Debug.Assert(wire.ReadVariableInputRegister == null);
+                                    string registerKey = wire.ReadCell.Index + ".{" + wire.ReadField + "}";
+                                    Debug.Assert(cellOutputToRegister.ContainsKey(registerKey), "A register input was not mapped before it was seen when traversing cells of this circuit. Something is wrong with the dependency sort.", this);
+                                    RegisterPtr registerPtr = cellOutputToRegister[registerKey];
+
+                                    assignments.Add(new Assignment()
+                                    {
+                                        Type = AssignmentType.CellInputRegister,
+                                        RegisterIndex = (int)registerPtr,
+                                        TargetIndex = cellIndex,
+                                        TargetFieldName = wire.WriteField,
+                                    });
+                                }
+                                else if (wire.ReadVariableInputRegister != null)
                                 {
-                                    Type = fieldCanBeNull
-                                            ? AssignmentType.CellInputVariableRegisterOrNull
-                                            : AssignmentType.CellInputVariableRegisterOrDummy,
-                                    Name = wire.ReadVariableInputRegister.Variable.Name,
-                                    TargetIndex = cellIndex,
-                                    TargetFieldName = wire.WriteField,
-                                };
-                                string relationship = wire.ReadVariableInputRegister.Variable.Relationship;
-                                if (string.IsNullOrEmpty(relationship))
-                                {
-                                    assignments.Add(assignment);
+                                    var variable = wire.ReadVariableInputRegister.Variable;
+
+                                    Assignment assignment = new Assignment()
+                                    {
+                                        Type = input.CanBeNull
+                                                ? AssignmentType.CellInputVariableRegisterOrNull
+                                                : AssignmentType.CellInputVariableRegisterOrDummy,
+                                        Name = variable.Name,
+                                        TargetIndex = cellIndex,
+                                        TargetFieldName = wire.WriteField,
+                                    };
+
+                                    if (variable.IsExternal)
+                                    {
+                                        assignments.Add(assignment);
+                                    }
+                                    else
+                                    {
+                                        externalAssignments.MultiAdd(variable.Relationship, assignment);
+                                    }
                                 }
                                 else
                                 {
-                                    externalAssignments.MultiAdd(relationship, assignment);
+                                    throw new InvalidProgramException("Wire doesn't read from anything");
                                 }
                             }
-                            else
+                            else if (!input.CanBeNull)
                             {
-                                throw new InvalidProgramException("Wire doesn't read from anything");
+                                assignments.Add(new Assignment()
+                                {
+                                    Type = AssignmentType.CellDummyInputRegister,
+                                    TargetIndex = cellIndex,
+                                    TargetFieldName = input.Name,
+                                });
                             }
-                            inputsThatCantBeNull.Remove(wire.WriteField);
-                        }
-
-                        foreach (string input in inputsThatCantBeNull)
-                        {
-                            assignments.Add(new Assignment()
-                            {
-                                Type = AssignmentType.CellDummyInputRegister,
-                                TargetIndex = cellIndex,
-                                TargetFieldName = input,
-                            });
                         }
                     }
 
@@ -435,56 +443,55 @@ namespace GGEZ.Labkit
                     // writing things that don't exist yet.
                     //-------------------------------------------------
                     {
-                        HashSet<string> outputsThatCantBeNull = inspectableCellType.GetUnnullableOutputs();
-                        List<EditorWire> outputWires = editorCell.Outputs;
-                        for (int i = 0; i < outputWires.Count; ++i)
+                        InspectableCellType.Output[] outputs = inspectableCellType.Outputs;
+                        for (int i = 0; i < outputs.Length; ++i)
                         {
-                            EditorWire wire = outputWires[i];
-                            Debug.Assert(wire.ReadVariableInputRegister == null, this);
+                            InspectableCellType.Output output = outputs[i];
 
-                            bool fieldCanBeNull = !outputsThatCantBeNull.Contains(wire.ReadField);
+                            string registerKey = cellIndex + ".{" + output.Name + "}";
+                            Debug.Assert(!cellOutputToRegister.ContainsKey(registerKey), "A register output was already mapped. Are multiple output wires assigned to a single input?", this);
 
-                            string registerKey = wire.ReadCell.Index + ".{" + wire.ReadField + "}";
-
-                            // TODO: this assert breaks if you have fanout > 1
-                            //       write it better when wires are in dictionaries
-                            // Debug.Assert(!cellOutputToRegister.ContainsKey(registerKey), "A register output was already mapped. Are multiple wires assigned to a single input?", this);
-
-                            var readField = cellType.GetField(wire.ReadField);
-                            var fieldType = readField.FieldType;
-                            Debug.Assert(typeof(IRegister).IsAssignableFrom(fieldType));
-
-                            RegisterPtr registerIndex;
-                            if (!cellOutputToRegister.TryGetValue(registerKey, out registerIndex))
+                            List<EditorWire> wires;
+                            if (editorCell.OutputWires.TryGetValue(output.Name, out wires))
                             {
-                                registerIndex = (RegisterPtr)registers.Count;
-                                cellOutputToRegister.Add(registerKey, registerIndex);
-                                IRegister register = Activator.CreateInstance(fieldType) as IRegister;
-                                registers.Add(register);
-                                wire.Register = registerIndex;
+                                Debug.Assert(wires.Count > 0);
+                            
+                                RegisterPtr registerIndex;
+                                {
+                                    registerIndex = (RegisterPtr)registers.Count;
+                                    cellOutputToRegister.Add(registerKey, registerIndex);
+                                    Type fieldType = output.Type;
+                                    Debug.Assert(typeof(IRegister).IsAssignableFrom(fieldType));
+                                    IRegister register = Activator.CreateInstance(fieldType) as IRegister;
+                                    Debug.Assert(register != null);
+                                    registers.Add(register);
+                                }
+
+                                assignments.Add(new Assignment()
+                                {
+                                    Type = AssignmentType.CellOutputRegister,
+                                    RegisterIndex = (int)registerIndex,
+                                    TargetIndex = cellIndex,
+                                    TargetFieldName = output.Name,
+                                });
+
+                                for (int j = 0; j < wires.Count; ++j)
+                                {
+                                    EditorWire wire = wires[j];
+                                    Debug.Assert(wire.ReadField == output.Name);
+                                    wire.Register = registerIndex;
+                                }
                             }
-
-                            Debug.Assert(registers[(int)registerIndex].GetType().Equals(fieldType));
-
-                            assignments.Add(new Assignment()
+                            else if (!output.CanBeNull)
                             {
-                                Type = AssignmentType.CellOutputRegister,
-                                RegisterIndex = (int)registerIndex,
-                                TargetIndex = cellIndex,
-                                TargetFieldName = wire.ReadField,
-                            });
+                                assignments.Add(new Assignment()
+                                {
+                                    Type = AssignmentType.CellDummyOutputRegister,
+                                    TargetIndex = cellIndex,
+                                    TargetFieldName = output.Name,
+                                });
 
-                            outputsThatCantBeNull.Remove(wire.WriteField);
-                        }
-
-                        foreach (string input in outputsThatCantBeNull)
-                        {
-                            assignments.Add(new Assignment()
-                            {
-                                Type = AssignmentType.CellDummyOutputRegister,
-                                TargetIndex = cellIndex,
-                                TargetFieldName = input,
-                            });
+                            }
                         }
                     }
 
@@ -893,6 +900,11 @@ namespace GGEZ.Labkit
                 for (int i = 0; i < EditorCells.Count; ++i)
                 {
                     EditorCells[i].Index = (EditorCellIndex)i;
+                }
+
+                for (int i = 0; i < EditorWires.Count; ++i)
+                {
+                    EditorWires[i].Index = (EditorWireIndex)i;
                 }
             }
         #endif
