@@ -472,23 +472,33 @@ namespace GGEZ.Labkit
                     bool isSelf = true;
                     while (current != null)
                     {
+                        Debug.Log("current = " + current.Name + " isSelf = " + isSelf);
                         if (needsRootSeparator)
                         {
                             menu.AddSeparator("");
                             needsRootSeparator = false;
                         }
 
-                        string prefix = isSelf ? "" : (current.Name + "/");
+                        bool isArchetype = object.ReferenceEquals(golemArchetype.Settings, current);
+                        string prefix = (isSelf || isArchetype) ? "" : (current.Name + "/");
+                        if (isSelf)
                         {
                             Settings settingsForNewSetting =
-                                isUnityObject && object.ReferenceEquals(golemArchetype.Settings, current)
-                                    ? golem.Settings
-                                    : current;
+                                isUnityObject ? golem.Settings : golemArchetype.Settings;
                             menu.AddItem(
                                     new GUIContent(prefix + newSettingString),
                                     false,
                                     SetDropdownFieldValueToNewSetting,
                                     new object[]{handle, settingsForNewSetting, specificType}
+                                    );
+                        }
+                        else if (!isArchetype)
+                        {
+                            menu.AddItem(
+                                    new GUIContent(prefix + newSettingString),
+                                    false,
+                                    SetDropdownFieldValueToNewSetting,
+                                    new object[]{handle, current, specificType}
                                     );
                         }
 
@@ -551,7 +561,7 @@ namespace GGEZ.Labkit
                         float leftSize = valueRect.width * 0.3f;
                         left.xMax = left.xMin + leftSize;
                         right.xMin = left.xMax;
-                        
+
                         //reference.Relationship = (EntityRelationship)EditorGUI.EnumPopup(left, reference.Relationship);
                         string relationship = null;
 
@@ -616,7 +626,7 @@ namespace GGEZ.Labkit
 
                     case InspectableType.Variable:
                     {
-                        
+
                         break;
                     }
                 }

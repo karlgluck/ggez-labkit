@@ -91,30 +91,7 @@ namespace GGEZ.Labkit
         private static Type[] s_representedType;
         public static InspectableType GetInspectableTypeOf(Type type)
         {
-            // If we haven't built our type-map for the enum yet, do it now
-            if (s_typeToInspectableType == null)
-            {
-                s_typeToInspectableType = new Dictionary<Type, InspectableType>();
-                var enumType = typeof(InspectableType);
-                var enumValues = Enum.GetValues(enumType);
-                var enumNames = Enum.GetNames(enumType);
-                s_representedType = new Type[enumValues.Length];
-                for (int i = 0; i < enumValues.Length; ++i)
-                {
-                    var value = (InspectableType)enumValues.GetValue(i);
-                    var member = enumType.GetMember(enumNames[i]);
-                    var attributes = member[0].GetCustomAttributes(typeof(RepresentsAttribute), false);
-                    foreach (RepresentsAttribute attribute in attributes)
-                    {
-                        s_representedType[(int)value] = attribute.Type;
-                        s_typeToInspectableType.Add(attribute.Type, value);
-                        if (attribute.CanUseSettings)
-                        {
-                            s_typesThatCanUseSettings.Add(value);
-                        }
-                    }
-                }
-            }
+            ensureTypeMapExists();
 
             // Try a direct lookup
             InspectableType retval;
@@ -136,32 +113,9 @@ namespace GGEZ.Labkit
             return InspectableType.Invalid;
         }
 
-        public static Type GetSpecificType(InspectableType inspectableType, FieldInfo fieldInfo)
-        {
-            if (inspectableType == InspectableType.VariableRef)
-            {
-                var targetTypeAttributes = fieldInfo.GetCustomAttributes(typeof(VariableTypeAttribute), false);
-                if (targetTypeAttributes.Length > 0)
-                {
-                    var typeAttribute = targetTypeAttributes[0] as VariableTypeAttribute;
-                    return typeAttribute.Type;
-                }
-                Debug.LogError("Field " + fieldInfo.Name + " in " + fieldInfo.DeclaringType.Name + " is not annotated with a variable type");
-                return null;
-            }
-            else
-            {
-                return fieldInfo.FieldType;
-            }
-        }
-
         public static Type GetRepresentedType(InspectableType inspectableType)
         {
-            if (s_representedType == null)
-            {
-                # warning this can be done better
-                GetInspectableTypeOf(typeof(float));
-            }
+            ensureTypeMapExists();
 
             int index = (int)inspectableType;
             if (index < 0 || index >= s_representedType.Length)
@@ -171,11 +125,45 @@ namespace GGEZ.Labkit
             return s_representedType[index];
         }
 
+        public static Type GetSpecificType(InspectableType inspectableType, FieldInfo fieldInfo)
+        {
+            Debug.Assert(GetRepresentedType(inspectableType).IsAssignableFrom(fieldInfo.FieldType));
+            return fieldInfo.FieldType;
+        }
+
         public static bool CanUseSetting(InspectableType inspectableType)
         {
             return s_typesThatCanUseSettings.Contains(inspectableType);
         }
 
+        private static void ensureTypeMapExists()
+        {
+            if (s_typeToInspectableType != null)
+            {
+                return;
+            }
+
+            s_typeToInspectableType = new Dictionary<Type, InspectableType>();
+            var enumType = typeof(InspectableType);
+            var enumValues = Enum.GetValues(enumType);
+            var enumNames = Enum.GetNames(enumType);
+            s_representedType = new Type[enumValues.Length];
+            for (int i = 0; i < enumValues.Length; ++i)
+            {
+                var value = (InspectableType)enumValues.GetValue(i);
+                var member = enumType.GetMember(enumNames[i]);
+                var attributes = member[0].GetCustomAttributes(typeof(RepresentsAttribute), false);
+                foreach (RepresentsAttribute attribute in attributes)
+                {
+                    s_representedType[(int)value] = attribute.Type;
+                    s_typeToInspectableType.Add(attribute.Type, value);
+                    if (attribute.CanUseSettings)
+                    {
+                        s_typesThatCanUseSettings.Add(value);
+                    }
+                }
+            }
+        }
 
     }
 }

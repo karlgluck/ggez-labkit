@@ -151,7 +151,7 @@ namespace GGEZ.Labkit
                 var inAttribute = inputs[i].GetCustomAttributes(typeof(InAttribute), false)[0] as InAttribute;
                 var portCenter = new Vector2(GolemEditorUtility.GridSize - GolemEditorUtility.NodeLeftRightMargin, EditorGUIUtility.singleLineHeight * (0.5f + i));
                 bool canBeNull = CanBeNullAttribute.IsAppliedTo(inputs[i]);
-                returnedInputs[i] = new Input(inputs[i].Name, inAttribute.Type, inputs[i], portCenter, canBeNull);
+                returnedInputs[i] = new Input(inputs[i].Name, inputs[i].FieldType, inputs[i], portCenter, canBeNull);
             }
 
             var outputs = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => f.IsDefined(typeof(OutAttribute), false)).ToArray();
@@ -161,7 +161,7 @@ namespace GGEZ.Labkit
                 var outAttribute = outputs[i].GetCustomAttributes(typeof(OutAttribute), false)[0] as OutAttribute;
                 var portCenter = new Vector2(-GolemEditorUtility.GridSize + GolemEditorUtility.NodeLeftRightMargin, EditorGUIUtility.singleLineHeight * (0.5f + i));
                 bool canBeNull = CanBeNullAttribute.IsAppliedTo(outputs[i]);
-                returnedOutputs[i] = new Output(outputs[i].Name, outAttribute.Type, outputs[i], portCenter, canBeNull);
+                returnedOutputs[i] = new Output(outputs[i].Name, outputs[i].FieldType, outputs[i], portCenter, canBeNull);
             }
 
             var fields = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => !f.IsDefined(typeof(InAttribute), false) && !f.IsDefined(typeof(OutAttribute), false)).ToArray();
