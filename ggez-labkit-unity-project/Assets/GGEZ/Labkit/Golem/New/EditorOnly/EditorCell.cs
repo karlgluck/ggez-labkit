@@ -25,13 +25,13 @@
 
 using System;
 using UnityEngine;
-using UnityEditor;
 using UnityObject = UnityEngine.Object;
 using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
 using System.Collections.Generic;
 using System.Reflection;
 
 #if UNITY_EDITOR
+using UnityEditor;
 
 namespace GGEZ.Labkit
 {

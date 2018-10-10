@@ -972,8 +972,6 @@ namespace GGEZ.Labkit
                                 );
                     }
 
-                    // var ioRect = EditorGUILayout.GetControlRect(false, fields.Length * EditorGUIUtility.singleLineHeight);
-
                     //-------------------------------
                     // Script Outputs
                     //-------------------------------

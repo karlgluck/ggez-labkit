@@ -24,7 +24,6 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using UnityEngine;
-using UnityEditor;
 using System;
 using System.Reflection;
 using UnityObject = UnityEngine.Object;
@@ -32,6 +31,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 #if UNITY_EDITOR
+using UnityEditor;
 
 namespace GGEZ.Labkit
 {
