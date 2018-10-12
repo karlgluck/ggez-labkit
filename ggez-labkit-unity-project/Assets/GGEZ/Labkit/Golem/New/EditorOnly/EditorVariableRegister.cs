@@ -40,6 +40,11 @@ namespace GGEZ.Labkit
     {
         public VariableRef Variable;
         public Rect Position;
+
+        public void RemoveOutputWire(EditorWire wire)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }

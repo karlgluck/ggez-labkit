@@ -29,12 +29,15 @@ using UnityObject = UnityEngine.Object;
 using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
 using System.Collections.Generic;
 using System.Reflection;
+using GGEZ.FullSerializer;
 
 #if UNITY_EDITOR
 using UnityEditor;
 
 namespace GGEZ.Labkit
 {
+    [fsSerializeEnumAsInteger]
+    public enum ScriptIndex : int { Invalid = int.MaxValue }
 
     //-------------------------------------------------------------------------
     // EditorScript
@@ -44,8 +47,55 @@ namespace GGEZ.Labkit
         #warning Enabled flag isn't exposed in the editor
         public bool Enabled = true;
         public Script Script;
-        public Dictionary<string,string> FieldsUsingSettings = new Dictionary<string,string>();
-        public Dictionary<string,VariableRef> FieldsUsingVariables = new Dictionary<string,VariableRef>();
+        /// <summary>The compiled index of the script</summary>
+        public ScriptIndex CompiledIndex;
+        public Dictionary<string, string> FieldsUsingSettings = new Dictionary<string,string>();
+        public Dictionary<string, VariableRef> FieldsUsingVariables = new Dictionary<string,VariableRef>();
+        public Dictionary<string, List<EditorWire>> OutputWires = new Dictionary<string, List<EditorWire>>();
+
+        /// <summary>Which state contains this script</summary>
+        public EditorState State;
+
+        /// <remarks>Position in graph, not within State</remarks>
+        public Rect Position;
+
+        public IEnumerable<EditorWire> GetAllOutputWires()
+        {
+            foreach (List<EditorWire> list in OutputWires.Values)
+            {
+                foreach (EditorWire wire in list)
+                {
+                    yield return wire;
+                }
+            }
+        }
+        public bool HasOutputWire(string name)
+        {
+            return OutputWires.ContainsKey(name);
+        }
+
+        public void AddOutputWire(EditorWire outputWire)
+        {
+            Debug.Assert(outputWire.ReadScript == this);
+            Debug.Assert(outputWire.ReadCell == null);
+            OutputWires.MultiAdd(outputWire.ReadField, outputWire);
+        }
+
+        public void RemoveOutputWire(EditorWire editorWire)
+        {
+            foreach (var kvp in OutputWires)
+            {
+                if (kvp.Value.Remove(editorWire))
+                {
+                    if (kvp.Value.Count == 0)
+                    {
+                        OutputWires.Remove(kvp.Key);
+                    }
+                    return;
+                }
+            }
+        }
+
     }
 
 }

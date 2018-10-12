@@ -102,5 +102,25 @@ namespace GGEZ
             Vector2 center = self.center;
             return new Vector2(direction.x * radius + center.x, direction.y * radius + center.y);
         }
+
+        public static Rect InParentCoordinates(this Rect self, Rect parent)
+        {
+            return new Rect(
+                self.x + parent.x,
+                self.y + parent.y,
+                self.width,
+                self.height
+            );
+        }
+
+        public static Rect MovedBy(this Rect self, Vector2 deltaPosition)
+        {
+            return new Rect(
+                self.x + deltaPosition.x,
+                self.y + deltaPosition.y,
+                self.width,
+                self.height
+            );
+        }
     }
 }

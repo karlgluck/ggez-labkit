@@ -45,13 +45,10 @@ namespace GGEZ.Labkit
         public EditorWireIndex Index = EditorWireIndex.Invalid;
 
         public RegisterPtr Register;
-        [Obsolete("Use ReadCellIndex instead")]
         public EditorCell ReadCell;
-        public EditorCellIndex ReadCellIndex;
+        public EditorScript ReadScript;
         public string ReadField;
-        [Obsolete("Use WriteCellIndex instead")]
         public EditorCell WriteCell;
-        public EditorCellIndex WriteCellIndex;
         public string WriteField;
 
         // Other than cells, a wire can also read a register that is

@@ -949,6 +949,14 @@ namespace GGEZ.Labkit
             return new Rect(position.position, new Vector2(position.size.x, NodeTitleRectHeight));
         }
 
+        //-----------------------------------------------------
+        // GetNodeBodyRect
+        //-----------------------------------------------------
+        public static Rect GetNodeBodyRect(Rect position)
+        {
+            return new Rect(position.position + new Vector2(NodeLeftRightMargin, NodeTopMargin), position.size - new Vector2(NodeLeftRightMargin * 2f, NodeTopMargin + NodeBottomMargin));
+        }
+
         public static float NodeTitleRectHeight { get { return EditorGUIUtility.singleLineHeight; } }
 
         //-----------------------------------------------------

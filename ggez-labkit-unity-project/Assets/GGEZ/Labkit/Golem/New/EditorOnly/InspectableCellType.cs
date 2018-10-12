@@ -111,6 +111,18 @@ namespace GGEZ.Labkit
         public readonly Output[] Outputs;
         public readonly Field[] Fields;
 
+        public Type GetInputType(string name)
+        {
+            for (int i = 0; i < Inputs.Length; ++i)
+            {
+                if (Inputs[i].Name.Equals(name))
+                {
+                    return Inputs[i].Type;
+                }
+            }
+            return null;
+        }
+
         private static Dictionary<Type, InspectableCellType> s_typeToInspectableType = new Dictionary<Type, InspectableCellType>();
         public static InspectableCellType GetInspectableCellType(Type cellType)
         {

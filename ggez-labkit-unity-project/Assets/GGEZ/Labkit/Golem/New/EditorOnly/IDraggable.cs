@@ -44,6 +44,71 @@ namespace GGEZ.Labkit
         Vector2 Offset { set; }
     }
 
+    // if drag object is CreateTransitionDragObject, send it OnInspectorGUI
+    // all objects overlapping the screen receive OnInspectorGUI
+    // selected object receives OnInspectorGUI if it didn't already
+    // if dragobject is not CreateTransitionDragObject, send it OnInspectorGUI
+    // at the end of Layout, objects in the ObjectsToDelete list are processed
+
+    // public interface IGolemEditorWindow
+    // {
+    //     BaseDragObject BeginDrag(CanvasPickResult obj);
+    //     void ContextMenu(CanvasPickResult obj);
+    //     void OnInspectorGUI(CanvasDragObject obj);
+    // }
+
+    // public abstract class BaseDragObject
+    // {
+    //     public abstract void OnInspectorGUI(IGolemEditorWindow window);
+    // }
+
+    // public abstract class BaseEditorGraphObject
+    // {
+    //     public Rect Position;
+
+    //     public abstract void Pick(IGolemEditorWindow window, Vector2 point, List<PickResult> pickResults);
+    //     public abstract void OnInspectorGUI(IGolemEditorWindow window);
+    //     public abstract void BeginDrag(IGolemEditorWindow window);
+    // }
+
+    // public class PickResult
+    // {
+    //     public int Priority;
+    //     public BaseEditorGraphObject GraphObject;
+
+    //     public virtual BaseDragObject BeginDrag (IGolemEditorWindow window) { return null; }
+    //     public virtual void ContextMenu (IGolemEditorWindow window) { }
+    // }
+
+    // public class CanvasPickResult : PickResult
+    // {
+    //     public override BaseDragObject BeginDrag(IGolemEditorWindow window)
+    //     {
+    //         return window.BeginDrag(this);
+    //     }
+
+    //     public override void ContextMenu(IGolemEditorWindow window)
+    //     {
+    //         window.ContextMenu(this);
+    //     }
+    // }
+
+    // public class CanvasDragObject : BaseDragObject
+    // {
+    //     public override void OnInspectorGUI(IGolemEditorWindow window)
+    //     {
+    //         window.OnInspectorGUI(this);
+    //     }
+    // }
+
+    // public class CreateWireDragObject : BaseDragObject
+    // {
+    // }
+
+    // public class BaseEditorCircuitGraphObject : BaseEditorGraphObject
+    // {
+    // }
+
 }
 
 #endif

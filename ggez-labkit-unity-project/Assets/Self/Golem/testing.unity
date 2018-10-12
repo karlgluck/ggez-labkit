@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657838, g: 0.49641234, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -143,9 +143,9 @@ MonoBehaviour:
   Archetype: {fileID: 1948646228}
   SettingsObjectReferences:
   - {fileID: 305252791}
-  SettingsJson: "[\r\n    {\r\n        \"Type\": \"UnityEngine.Object\",\r\n        \"Name\":
-    \"CylinderSetting\",\r\n        \"Value\": {\r\n            \"$unity\": 0\r\n
-    \       }\r\n    }\r\n]"
+  SettingsJson: "[\n    {\n        \"Type\": \"UnityEngine.Object\",\n        \"Name\":
+    \"CylinderSetting\",\n        \"Value\": {\n            \"$unity\": 0\n        }\n
+    \   }\n]"
 --- !u!4 &272062745
 Transform:
   m_ObjectHideFlags: 0
@@ -449,78 +449,123 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 586eb5b36413a544abf736664884d25c, type: 3}
   m_Name: Extracted Golem Component(Clone)
   m_EditorClassIdentifier: 
-  Json: "{\r\n    \"Cells\": {\r\n        \"$content\": [\r\n            {\r\n                \"Amount\":
-    0.0,\r\n                \"$type\": \"GGEZ.Labkit.AddFloat\"\r\n            },\r\n
-    \           {\r\n                \"Amount\": 0.0,\r\n                \"$type\":
-    \"GGEZ.Labkit.AddFloat\"\r\n            }\r\n        ],\r\n        \"$type\":
-    \"GGEZ.Labkit.Cell[]\"\r\n    },\r\n    \"Registers\": {\r\n        \"$content\":
-    [\r\n            {\r\n                \"$type\": \"GGEZ.Labkit.StructRegister`1[[System.Single,
-    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]\"\r\n
-    \           }\r\n        ],\r\n        \"$type\": \"GGEZ.Labkit.IRegister[]\"\r\n
-    \   },\r\n    \"Layers\": {\r\n        \"$content\": [],\r\n        \"$type\":
-    \"GGEZ.Labkit.Layer[]\"\r\n    },\r\n    \"Scripts\": {\r\n        \"$content\":
-    [],\r\n        \"$type\": \"GGEZ.Labkit.Script[]\"\r\n    },\r\n    \"States\":
-    {\r\n        \"$content\": [],\r\n        \"$type\": \"GGEZ.Labkit.State[]\"\r\n
-    \   },\r\n    \"Assignments\": {\r\n        \"$content\": [\r\n            {\r\n
-    \               \"Type\": \"CellDummyInputRegister\",\r\n                \"Name\":
-    null,\r\n                \"RegisterIndex\": 0,\r\n                \"TargetIndex\":
-    0,\r\n                \"TargetFieldName\": \"Input\"\r\n            },\r\n            {\r\n
-    \               \"Type\": \"CellOutputRegister\",\r\n                \"Name\":
-    null,\r\n                \"RegisterIndex\": 0,\r\n                \"TargetIndex\":
-    0,\r\n                \"TargetFieldName\": \"Output\"\r\n            },\r\n            {\r\n
-    \               \"Type\": \"CellInputRegister\",\r\n                \"Name\":
-    null,\r\n                \"RegisterIndex\": 0,\r\n                \"TargetIndex\":
-    1,\r\n                \"TargetFieldName\": \"Input\"\r\n            },\r\n            {\r\n
-    \               \"Type\": \"CellDummyOutputRegister\",\r\n                \"Name\":
-    null,\r\n                \"RegisterIndex\": 0,\r\n                \"TargetIndex\":
-    1,\r\n                \"TargetFieldName\": \"Output\"\r\n            }\r\n        ],\r\n
-    \       \"$type\": \"GGEZ.Labkit.Assignment[]\"\r\n    },\r\n    \"ExternalAssignments\":
-    {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
+  Json: "{\n    \"Cells\": {\n        \"$content\": [\n            {\n                \"Amount\":
+    0.0,\n                \"$type\": \"GGEZ.Labkit.AddFloat\"\n            }\n        ],\n
+    \       \"$type\": \"GGEZ.Labkit.Cell[]\"\n    },\n    \"Registers\": {\n        \"$content\":
+    [\n            {\n                \"$type\": \"GGEZ.Labkit.StructRegister`1[[System.Single,
+    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]\"\n
+    \           }\n        ],\n        \"$type\": \"GGEZ.Labkit.IRegister[]\"\n    },\n
+    \   \"Layers\": {\n        \"$content\": [\n            {\n                \"States\":
+    [\n                    0\n                ],\n                \"FromAnyStateTransitions\":
+    [],\n                \"Transitions\": [\n                    {\n                        \"Key\":
+    -1,\n                        \"Value\": [\n                            {\n                                \"FromState\":
+    -1,\n                                \"ToState\": 0,\n                                \"Expression\":
+    [\n                                    \"True\"\n                                ],\n
+    \                               \"Triggers\": []\n                            }\n
+    \                       ]\n                    }\n                ]\n            }\n
+    \       ],\n        \"$type\": \"GGEZ.Labkit.Layer[]\"\n    },\n    \"Scripts\":
+    {\n        \"$content\": [\n            {\n                \"$type\": \"SetObjectNameToTime\"\n
+    \           },\n            {\n                \"Multiplier\": 0.0,\n                \"$type\":
+    \"SetVariableToTime\"\n            }\n        ],\n        \"$type\": \"GGEZ.Labkit.Script[]\"\n
+    \   },\n    \"States\": {\n        \"$content\": [\n            {\n                \"Scripts\":
+    [\n                    0,\n                    1\n                ]\n            }\n
+    \       ],\n        \"$type\": \"GGEZ.Labkit.State[]\"\n    },\n    \"Assignments\":
+    {\n        \"$content\": [\n            {\n                \"Type\": \"ScriptSetting\",\n
+    \               \"Name\": \"CylinderSetting\",\n                \"RegisterIndex\":
+    0,\n                \"TargetIndex\": 0,\n                \"TargetFieldName\":
+    \"GameObject\"\n            },\n            {\n                \"Type\": \"ScriptDummyVariable\",\n
+    \               \"Name\": null,\n                \"RegisterIndex\": 0,\n                \"TargetIndex\":
+    1,\n                \"TargetFieldName\": \"Variable\"\n            },\n            {\n
+    \               \"Type\": \"ScriptRegisterVariable\",\n                \"Name\":
+    null,\n                \"RegisterIndex\": 0,\n                \"TargetIndex\":
+    1,\n                \"TargetFieldName\": \"Variable\"\n            },\n            {\n
+    \               \"Type\": \"CellInputRegister\",\n                \"Name\": null,\n
+    \               \"RegisterIndex\": 0,\n                \"TargetIndex\": 0,\n                \"TargetFieldName\":
+    \"Input\"\n            },\n            {\n                \"Type\": \"CellDummyOutputRegister\",\n
+    \               \"Name\": null,\n                \"RegisterIndex\": 0,\n                \"TargetIndex\":
+    0,\n                \"TargetFieldName\": \"Output\"\n            }\n        ],\n
+    \       \"$type\": \"GGEZ.Labkit.Assignment[]\"\n    },\n    \"ExternalAssignments\":
+    {\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
     mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[],
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   }\r\n}"
-  EditorJson: "{\r\n    \"EditorCells\": {\r\n        \"$content\": [\r\n            {\r\n
-    \               \"Name\": \"AddFloat\",\r\n                \"Index\": null,\r\n
-    \               \"Cell\": {\r\n                    \"Amount\": 0.0,\r\n                    \"$type\":
-    \"GGEZ.Labkit.AddFloat\"\r\n                },\r\n                \"InputWires\":
-    {\r\n\r\n                },\r\n                \"OutputWires\": {\r\n                    \"Output\":
-    [\r\n                        {\r\n                            \"Index\": null,\r\n
-    \                           \"Register\": 0,\r\n                            \"ReadCell\":
-    {\r\n                                \"$ref\": \"2\"\r\n                            },\r\n
-    \                           \"ReadCellIndex\": null,\r\n                            \"ReadField\":
-    \"Output\",\r\n                            \"WriteCell\": {\r\n                                \"Name\":
-    \"AddFloat\",\r\n                                \"Index\": null,\r\n                                \"Cell\":
-    {\r\n                                    \"Amount\": 0.0,\r\n                                    \"$type\":
-    \"GGEZ.Labkit.AddFloat\"\r\n                                },\r\n                                \"InputWires\":
-    {\r\n                                    \"Input\": {\r\n                                        \"$ref\":
-    \"7\"\r\n                                    }\r\n                                },\r\n
-    \                               \"OutputWires\": {\r\n\r\n                                },\r\n
-    \                               \"Position\": {\r\n                                    \"xMin\":
-    576.0,\r\n                                    \"yMin\": 256.0,\r\n                                    \"xMax\":
-    928.0,\r\n                                    \"yMax\": 352.0\r\n                                },\r\n
-    \                               \"FieldsUsingSettings\": {\r\n\r\n                                },\r\n
-    \                               \"FieldsUsingVariables\": {\r\n\r\n                                },\r\n
-    \                               \"$id\": \"8\"\r\n                            },\r\n
-    \                           \"WriteCellIndex\": null,\r\n                            \"WriteField\":
-    \"Input\",\r\n                            \"ReadVariableInputRegister\": null,\r\n
-    \                           \"$id\": \"7\"\r\n                        }\r\n                    ]\r\n
-    \               },\r\n                \"Position\": {\r\n                    \"xMin\":
-    176.0,\r\n                    \"yMin\": 256.0,\r\n                    \"xMax\":
-    528.0,\r\n                    \"yMax\": 352.0\r\n                },\r\n                \"FieldsUsingSettings\":
-    {\r\n\r\n                },\r\n                \"FieldsUsingVariables\": {\r\n\r\n
-    \               },\r\n                \"$id\": \"2\"\r\n            },\r\n            {\r\n
-    \               \"$ref\": \"8\"\r\n            }\r\n        ],\r\n        \"$type\":
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    }\n}"
+  EditorJson: "{\n    \"EditorCells\": {\n        \"$content\": [\n            {\n
+    \               \"Name\": \"AddFloat\",\n                \"Index\": null,\n                \"Cell\":
+    {\n                    \"Amount\": 0.0,\n                    \"$type\": \"GGEZ.Labkit.AddFloat\"\n
+    \               },\n                \"InputWires\": {\n                    \"Input\":
+    {\n                        \"Index\": null,\n                        \"Register\":
+    2147483647,\n                        \"ReadCell\": null,\n                        \"ReadScript\":
+    {\n                            \"Enabled\": true,\n                            \"Script\":
+    {\n                                \"Multiplier\": 0.0,\n                                \"$type\":
+    \"SetVariableToTime\"\n                            },\n                            \"CompiledIndex\":
+    1,\n                            \"FieldsUsingSettings\": {\n\n                            },\n
+    \                           \"FieldsUsingVariables\": {\n\n                            },\n
+    \                           \"OutputWires\": {\n                                \"Variable\":
+    [\n                                    {\n                                        \"$ref\":
+    \"5\"\n                                    }\n                                ]\n
+    \                           },\n                            \"State\": {\n                                \"Name\":
+    \"State\",\n                                \"Layer\": 0,\n                                \"Index\":
+    0,\n                                \"CompiledIndex\": 0,\n                                \"SpecialState\":
+    \"Normal\",\n                                \"Position\": {\n                                    \"xMin\":
+    176.0,\n                                    \"yMin\": 96.0,\n                                    \"xMax\":
+    528.0,\n                                    \"yMax\": 240.0\n                                },\n
+    \                               \"Scripts\": [\n                                    {\n
+    \                                       \"Enabled\": true,\n                                        \"Script\":
+    {\n                                            \"$type\": \"SetObjectNameToTime\"\n
+    \                                       },\n                                        \"CompiledIndex\":
+    0,\n                                        \"FieldsUsingSettings\": {\n                                            \"GameObject\":
+    \"CylinderSetting\"\n                                        },\n                                        \"FieldsUsingVariables\":
+    {\n\n                                        },\n                                        \"OutputWires\":
+    {\n\n                                        },\n                                        \"State\":
+    {\n                                            \"$ref\": \"12\"\n                                        },\n
+    \                                       \"Position\": {\n                                            \"xMin\":
+    181.0,\n                                            \"yMin\": 138.0,\n                                            \"xMax\":
+    523.0,\n                                            \"yMax\": 154.0\n                                        }\n
+    \                                   },\n                                    {\n
+    \                                       \"$ref\": \"6\"\n                                    }\n
+    \                               ],\n                                \"TransitionsIn\":
+    [\n                                    0\n                                ],\n
+    \                               \"TransitionsOut\": [],\n                                \"$id\":
+    \"12\"\n                            },\n                            \"Position\":
+    {\n                                \"xMin\": 181.0,\n                                \"yMin\":
+    174.0,\n                                \"xMax\": 523.0,\n                                \"yMax\":
+    206.0\n                            },\n                            \"$id\": \"6\"\n
+    \                       },\n                        \"ReadField\": \"Variable\",\n
+    \                       \"WriteCell\": {\n                            \"$ref\":
+    \"2\"\n                        },\n                        \"WriteField\": \"Input\",\n
+    \                       \"ReadVariableInputRegister\": null,\n                        \"$id\":
+    \"5\"\n                    }\n                },\n                \"OutputWires\":
+    {\n\n                },\n                \"Position\": {\n                    \"xMin\":
+    624.0,\n                    \"yMin\": 176.0,\n                    \"xMax\": 976.0,\n
+    \                   \"yMax\": 272.0\n                },\n                \"FieldsUsingSettings\":
+    {\n\n                },\n                \"FieldsUsingVariables\": {\n\n                },\n
+    \               \"$id\": \"2\"\n            }\n        ],\n        \"$type\":
     \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorCell, Assembly-CSharp,
-    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    },\r\n    \"EditorWires\":
-    {\r\n        \"$content\": [\r\n            {\r\n                \"$ref\": \"7\"\r\n
-    \           }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorWire,
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   },\r\n    \"EditorStates\": {\r\n        \"$content\": [],\r\n        \"$type\":
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    },\n    \"EditorWires\":
+    {\n        \"$content\": [\n            {\n                \"$ref\": \"5\"\n            }\n
+    \       ],\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorWire,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    },\n
+    \   \"EditorStates\": {\n        \"$content\": [\n            {\n                \"$ref\":
+    \"12\"\n            },\n            {\n                \"Name\": \"Enter\",\n
+    \               \"Layer\": 0,\n                \"Index\": 1,\n                \"CompiledIndex\":
+    2147483647,\n                \"SpecialState\": \"LayerEnter\",\n                \"Position\":
+    {\n                    \"xMin\": 176.0,\n                    \"yMin\": -48.0,\n
+    \                   \"xMax\": 528.0,\n                    \"yMax\": 64.0\n                },\n
+    \               \"Scripts\": [],\n                \"TransitionsIn\": [],\n                \"TransitionsOut\":
+    [\n                    0\n                ]\n            }\n        ],\n        \"$type\":
     \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorState, Assembly-CSharp,
-    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    },\r\n    \"EditorTransitions\":
-    {\r\n        \"$content\": [],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorTransition,
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   }\r\n}"
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    },\n    \"EditorTransitions\":
+    {\n        \"$content\": [\n            {\n                \"Name\": \"Transition\",\n
+    \               \"Index\": 0,\n                \"Expression\": {\n                    \"Type\":
+    \"True\",\n                    \"Position\": {\n                        \"xMin\":
+    175.0,\n                        \"yMin\": 88.0,\n                        \"xMax\":
+    240.0,\n                        \"yMax\": 104.0\n                    },\n                    \"Trigger\":
+    \"Next\",\n                    \"Subexpressions\": []\n                },\n                \"ExpressionAnchor\":
+    {\n                    \"x\": 240.0,\n                    \"y\": 96.0\n                },\n
+    \               \"Position\": {\n                    \"xMin\": 175.0,\n                    \"yMin\":
+    88.0,\n                    \"xMax\": 240.0,\n                    \"yMax\": 104.0\n
+    \               },\n                \"From\": 1,\n                \"To\": 0\n
+    \           }\n        ],\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorTransition,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    }\n}"
 --- !u!114 &1948646228
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -535,27 +580,25 @@ MonoBehaviour:
   Components:
   - {fileID: 1411783464}
   InheritSettingsFrom: {fileID: 0}
-  Json: "{\r\n    \"Aspects\": {\r\n        \"$content\": [],\r\n        \"$type\":
-    \"GGEZ.Labkit.Aspect[]\"\r\n    },\r\n    \"Assignments\": {\r\n        \"$content\":
-    [],\r\n        \"$type\": \"GGEZ.Labkit.Assignment[]\"\r\n    },\r\n    \"ExternalAssignments\":
-    {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
-    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[],
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   },\r\n    \"Settings\": {\r\n        \"$content\": [\r\n            {\r\n
-    \               \"Type\": \"System.Single\",\r\n                \"Name\": \"Value1\",\r\n
-    \               \"Value\": {\r\n                    \"$content\": 1.25,\r\n                    \"$type\":
-    \"System.Single\"\r\n                }\r\n            },\r\n            {\r\n
-    \               \"Type\": \"System.Single\",\r\n                \"Name\": \"Value2\",\r\n
-    \               \"Value\": {\r\n                    \"$content\": 2.5,\r\n                    \"$type\":
-    \"System.Single\"\r\n                }\r\n            }\r\n        ],\r\n        \"$type\":
-    \"System.Collections.Generic.List`1[[GGEZ.Labkit.Settings+Setting, Assembly-CSharp,
-    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    }\r\n}"
-  EditorJson: "{\r\n    \"EditorAspects\": {\r\n        \"$content\": [],\r\n        \"$type\":
+  Json: "{\n    \"Aspects\": {\n        \"$content\": [],\n        \"$type\": \"GGEZ.Labkit.Aspect[]\"\n
+    \   },\n    \"Assignments\": {\n        \"$content\": [],\n        \"$type\":
+    \"GGEZ.Labkit.Assignment[]\"\n    },\n    \"ExternalAssignments\": {\n        \"$type\":
+    \"System.Collections.Generic.Dictionary`2[[System.String, mscorlib, Version=2.0.0.0,
+    Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[], Assembly-CSharp,
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    },\n    \"Settings\":
+    {\n        \"$content\": [\n            {\n                \"Type\": \"System.Single\",\n
+    \               \"Name\": \"Value1\",\n                \"Value\": {\n                    \"$content\":
+    1.25,\n                    \"$type\": \"System.Single\"\n                }\n            },\n
+    \           {\n                \"Type\": \"System.Single\",\n                \"Name\":
+    \"Value2\",\n                \"Value\": {\n                    \"$content\": 2.5,\n
+    \                   \"$type\": \"System.Single\"\n                }\n            }\n
+    \       ],\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.Settings+Setting,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    }\n}"
+  EditorJson: "{\n    \"EditorAspects\": {\n        \"$content\": [],\n        \"$type\":
     \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorAspect, Assembly-CSharp,
-    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    },\r\n    \"EditorVariables\":
-    {\r\n        \"$content\": [],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.GolemVariableEditorData,
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   }\r\n}"
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    },\n    \"EditorVariables\":
+    {\n        \"$content\": [],\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.GolemVariableEditorData,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    }\n}"
   EditorWindowSelectedComponent: 0
 --- !u!1 &2069607078
 GameObject:

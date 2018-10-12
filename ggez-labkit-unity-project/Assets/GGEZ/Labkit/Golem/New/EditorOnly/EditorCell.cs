@@ -107,6 +107,7 @@ namespace GGEZ.Labkit
 
         public void AddOutputWire(EditorWire outputWire)
         {
+            Debug.Assert(outputWire.ReadScript == null);
             Debug.Assert(outputWire.ReadCell == this);
             OutputWires.MultiAdd(outputWire.ReadField, outputWire);
         }

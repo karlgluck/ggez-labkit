@@ -35,7 +35,7 @@ namespace GGEZ.Labkit
 
         [NonSerialized]
         public Cell[] Cells;
-        
+
         [NonSerialized]
         public IRegister[] Registers;
 
@@ -87,6 +87,8 @@ namespace GGEZ.Labkit
 
         #if UNITY_EDITOR
 
+            OnValidate();
+
             // Save editor-only data
             //-------------------------
             {
@@ -105,20 +107,367 @@ namespace GGEZ.Labkit
             List<Assignment> assignments = new List<Assignment>();
             Dictionary<string, List<Assignment>> externalAssignments = new Dictionary<string, List<Assignment>>();
 
+
+            //-------------------------------------------------------------
+            // Compile the program
+            //-------------------------------------------------------------
+            // This must be done first because wires that read from script
+            // variables rely on the scripts having been compiled.
+            {
+                // Identify entrypoints and assign them to layers
+                List<HashSet<EditorStateIndex>> layersBuilder = new List<HashSet<EditorStateIndex>>();
+                for (int i = 0; i < EditorStates.Count; ++i)
+                {
+                    var editorState = EditorStates[i];
+                    Debug.Assert(editorState.Index == (EditorStateIndex)i, "Wrong editor state index; set to " + editorState.Index + " expecting " + i, this);
+                    editorState.Layer = EditorLayerIndex.Invalid;
+                    if (editorState.SpecialState == EditorSpecialStateType.LayerEnter)
+                    {
+                        editorState.Layer = (EditorLayerIndex)layersBuilder.Count;
+                        layersBuilder.Add(new HashSet<EditorStateIndex>() { editorState.Index });
+                    }
+                }
+
+                // Propagate the layer index from entrypoint to all connected states
+                int removedLayersAboveIndex = layersBuilder.Count;
+                var worklist = new List<EditorStateIndex>();
+                for (int layerIndex = layersBuilder.Count - 1; layerIndex >= 0; --layerIndex)
+                {
+                    var layerStates = layersBuilder[layerIndex];
+                    {
+                        // Grab the value from layerStates
+                        var enumerator = layerStates.GetEnumerator();
+                        enumerator.MoveNext();
+                        worklist.Add(enumerator.Current);
+                    }
+                    while (worklist.Count > 0)
+                    {
+                        var lastIndex = worklist.Count - 1;
+                        var editorState = EditorStates[(int)worklist[lastIndex]];
+                        worklist.RemoveAt(lastIndex);
+                        var transitions = editorState.TransitionsOut;
+                        for (int j = 0; j < transitions.Count; ++j)
+                        {
+                            var toIndex = EditorTransitions[(int)transitions[j]].To;
+                            if (layerStates.Contains(toIndex))
+                            {
+                                continue;
+                            }
+                            var toState = EditorStates[(int)toIndex];
+                            if (toState.Layer != EditorLayerIndex.Invalid)
+                            {
+                                Debug.LogError("State " + toState.Name + " is accessible from more than one entrypoint so one of the entries is being disabled");
+                                layersBuilder.RemoveAt(layerIndex);
+                                removedLayersAboveIndex = layerIndex;
+                                goto NextLayer;
+                            }
+                            toState.Layer = (EditorLayerIndex)layerIndex;
+                            layerStates.Add(toIndex);
+                            worklist.Add(toIndex);
+                        }
+                    }
+                NextLayer:
+                    worklist.Clear();
+                }
+
+                // Reassign layer indices to cells if any layers were removed
+                for (int layerIndex = removedLayersAboveIndex; layerIndex < layersBuilder.Count; ++layerIndex)
+                {
+                    foreach (var editorState in layersBuilder[layerIndex])
+                    {
+                        EditorStates[(int)editorState].Layer = (EditorLayerIndex)layerIndex;
+                    }
+                }
+
+                // Make sure all output indices are reset
+                for (int i = 0; i < EditorStates.Count; ++i)
+                {
+                    var state = EditorStates[i];
+                    state.CompiledIndex = StateIndex.Invalid;
+                    for (int j = 0; j < state.Scripts.Count; ++j)
+                    {
+                        state.Scripts[j].CompiledIndex = ScriptIndex.Invalid;
+                    }
+                }
+
+                // Gather states and scripts into layers
+                Layer[] layers = new Layer[layersBuilder.Count];
+                List<Script> scripts = new List<Script>();
+                List<State> states = new List<State>();
+                var exprWorklist = new List<EditorTransitionExpression>();
+                for (int layerIndex = 0; layerIndex < layersBuilder.Count; ++layerIndex)
+                {
+                    var editorStates = layersBuilder[layerIndex];
+                    var layerStates = new List<StateIndex>();
+                    foreach (var editorStateIndex in editorStates)
+                    {
+                        var editorState = EditorStates[(int)editorStateIndex];
+
+                        if (editorState.SpecialState != EditorSpecialStateType.Normal)
+                        {
+                            continue;
+                        }
+
+                        var editorScripts = editorState.Scripts;
+                        int[] stateScripts = new int[editorScripts.Count];
+                        for (int j = 0; j < editorScripts.Count; ++j)
+                        {
+                            int scriptIndex = scripts.Count;
+                            stateScripts[j] = scriptIndex;
+                            var editorScript = editorScripts[j];
+
+                            if (!editorScript.Enabled)
+                            {
+                                continue;
+                            }
+
+                            var script = editorScript.Script.Clone();
+
+                            var inspectableScriptType = InspectableScriptType.GetInspectableScriptType(script.GetType());
+
+                            //-------------------------------------------------
+                            // Write assignments for fields referencing:
+                            //  * Aspects
+                            //  * Settings
+                            //  * Unity Objects
+                            //  * Variables
+                            //-------------------------------------------------
+                            {
+                                InspectableScriptType.Field[] fields = inspectableScriptType.Fields;
+                                for (int i = 0; i < fields.Length; ++i)
+                                {
+                                    InspectableScriptType.Field field = fields[i];
+                                    string fieldName = field.FieldInfo.Name;
+
+                                    switch (field.Type)
+                                    {
+
+                                    //-------------------------------------------------
+                                    case InspectableType.Golem:
+                                    //-------------------------------------------------
+                                        assignments.Add(new Assignment()
+                                        {
+                                            Type = AssignmentType.ScriptGolem,
+                                            TargetIndex = scriptIndex,
+                                            TargetFieldName = fieldName,
+                                        });
+                                        break;
+
+                                    //-------------------------------------------------
+                                    case InspectableType.Aspect:
+                                    //-------------------------------------------------
+                                        assignments.Add(new Assignment()
+                                        {
+                                            Type = AssignmentType.ScriptAspect,
+                                            TargetIndex = scriptIndex,
+                                            TargetFieldName = fieldName,
+                                        });
+                                        break;
+
+                                    //-------------------------------------------------
+                                    case InspectableType.Variable:
+                                    //-------------------------------------------------
+                                        VariableRef variableRef;
+                                        if (editorScript.FieldsUsingVariables.TryGetValue(fieldName, out variableRef))
+                                        {
+                                            var assignment = new Assignment()
+                                            {
+                                                Name = variableRef.Name,
+                                                TargetIndex = scriptIndex,
+                                                TargetFieldName = fieldName,
+                                            };
+
+                                            if (variableRef.IsExternal)
+                                            {
+                                                assignment.Type = field.CanBeNull
+                                                        ? AssignmentType.ScriptVariableOrNull
+                                                        : AssignmentType.ScriptVariableOrDummy;
+                                                externalAssignments.MultiAdd(variableRef.Relationship, assignment);
+                                            }
+                                            else if (variableRef.IsInternalRegister)
+                                            {
+                                                assignment.Type = AssignmentType.ScriptRegisterVariable;
+                                                assignment.RegisterIndex = variableRef.RegisterIndex;
+                                                assignments.Add(assignment);
+                                            }
+                                            else
+                                            {
+                                                assignment.Type = AssignmentType.ScriptVariable;
+                                                assignments.Add(assignment);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (!field.CanBeNull)
+                                            {
+                                                #warning TODO check to make sure this variable doesn't have an output wire before writing this
+                                                assignments.Add(new Assignment()
+                                                {
+                                                    Type = AssignmentType.ScriptDummyVariable,
+                                                    TargetIndex = scriptIndex,
+                                                    TargetFieldName = fieldName,
+                                                });
+                                            }
+                                        }
+                                        break;
+
+                                    //-------------------------------------------------
+                                    default:
+                                    //-------------------------------------------------
+                                        string setting;
+                                        if (editorScript.FieldsUsingSettings.TryGetValue(fieldName, out setting))
+                                        {
+                                            Debug.Assert(InspectableTypeExt.CanUseSetting(field.Type));
+
+                                            assignments.Add(new Assignment()
+                                            {
+                                                Type = AssignmentType.ScriptSetting,
+                                                Name = setting,
+                                                TargetIndex = scriptIndex,
+                                                TargetFieldName = fieldName,
+                                            });
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+
+                            editorScript.CompiledIndex = (ScriptIndex)scripts.Count;
+                            scripts.Add(script);
+                        }
+
+                        StateIndex stateIndex = (StateIndex)states.Count;
+                        editorState.CompiledIndex = stateIndex;
+                        states.Add(new State { Scripts = stateScripts });
+                        layerStates.Add(stateIndex);
+                    }
+                    layers[layerIndex] = new Layer
+                    {
+                        States = layerStates.ToArray(),
+                    };
+                }
+
+                // Compile all the transitions now that we have state indices in place
+                for (int layerIndex = 0; layerIndex < layersBuilder.Count; ++layerIndex)
+                {
+                    var editorStates = layersBuilder[layerIndex];
+                    var fromAnyStateTransitions = new List<Transition>();
+                    var transitions = new Dictionary<StateIndex, List<Transition>>();
+                    foreach (var editorStateIndex in editorStates)
+                    {
+                        var editorState = EditorStates[(int)editorStateIndex];
+                        foreach (var editorTransitionIndex in editorState.TransitionsOut)
+                        {
+                            var editorTransition = EditorTransitions[(int)editorTransitionIndex];
+                            var transitionTriggers = new List<Trigger>();
+                            var transitionExpression = new List<Transition.Operator>();
+                            exprWorklist.Clear();
+                            exprWorklist.Add(editorTransition.Expression);
+                            while (exprWorklist.Count > 0)
+                            {
+                                int exprIndex = exprWorklist.Count - 1;
+                                var expr = exprWorklist[exprIndex];
+                                exprWorklist.RemoveAt(exprIndex);
+                                exprWorklist.AddRange(expr.Subexpressions);
+                                switch (expr.Type)
+                                {
+                                    case EditorTransitionExpressionType.False:
+                                        transitionExpression.Insert(0, Transition.Operator.False);
+                                        break;
+
+                                    case EditorTransitionExpressionType.True:
+                                        transitionExpression.Insert(0, Transition.Operator.True);
+                                        break;
+
+                                    case EditorTransitionExpressionType.Trigger:
+                                        {
+                                            transitionTriggers.Insert(0, expr.Trigger);
+                                            transitionExpression.Insert(0, Transition.Operator.Push);
+                                        }
+                                        break;
+
+                                    case EditorTransitionExpressionType.And:
+                                        for (int i = 1; i < expr.Subexpressions.Count; ++i)
+                                        {
+                                            transitionExpression.Insert(0, Transition.Operator.And);
+                                        }
+                                        break;
+
+                                    case EditorTransitionExpressionType.Or:
+                                        for (int i = 1; i < expr.Subexpressions.Count; ++i)
+                                        {
+                                            transitionExpression.Insert(0, Transition.Operator.Or);
+                                        }
+                                        break;
+                                }
+                            }
+
+                            var transition = new Transition
+                            {
+                                Expression = transitionExpression.ToArray(),
+                                Triggers = transitionTriggers.ToArray(),
+                            };
+
+                            var fromState = EditorStates[(int)editorTransition.From];
+                            switch (fromState.SpecialState)
+                            {
+                                case EditorSpecialStateType.Normal:
+                                    transition.FromState = fromState.CompiledIndex;
+                                    break;
+                                case EditorSpecialStateType.LayerAny:
+                                    transition.FromState = StateIndex.Any;
+                                    break;
+                                case EditorSpecialStateType.LayerEnter:
+                                    transition.FromState = StateIndex.Idle;
+                                    break;
+                                case EditorSpecialStateType.LayerExit:
+                                    Debug.LogError("Can't transition from a state with the Exit type");
+                                    transition.FromState = StateIndex.Invalid;
+                                    break;
+                            }
+
+                            var toState = EditorStates[(int)editorTransition.To];
+                            switch (toState.SpecialState)
+                            {
+                                case EditorSpecialStateType.Normal:
+                                    transition.ToState = toState.CompiledIndex;
+                                    break;
+                                case EditorSpecialStateType.LayerAny:
+                                    Debug.LogError("Can't transition to a state with the Any type");
+                                    transition.ToState = StateIndex.Invalid;
+                                    break;
+                                case EditorSpecialStateType.LayerEnter:
+                                    Debug.LogError("Can't transition to a state with the Enter type (should be Exit)");
+                                    transition.ToState = StateIndex.Invalid;
+                                    break;
+                                case EditorSpecialStateType.LayerExit:
+                                    transition.ToState = StateIndex.Idle;
+                                    break;
+                            }
+
+                            if (transition.FromState == StateIndex.Any)
+                            {
+                                fromAnyStateTransitions.Add(transition);
+                            }
+                            else
+                            {
+                                transitions.MultiAdd(transition.FromState, transition);
+                            }
+                        }
+                    }
+                    layers[layerIndex].FromAnyStateTransitions = fromAnyStateTransitions.ToArray();
+                    layers[layerIndex].Transitions = transitions.MultiToArray();
+                }
+
+                Layers = layers;
+                Scripts = scripts.ToArray();
+                States = states.ToArray();
+            }
+
             //-------------------------------------------------------------
             // Compile the circuit
             //-------------------------------------------------------------
             {
-                // Do some housekeeping
-                for (int i = 0; i < EditorCells.Count; ++i)
-                {
-                    EditorCells[i].Index = (EditorCellIndex)i;
-                }
-                for (int i = 0; i < EditorWires.Count; ++i)
-                {
-                    EditorWires[i].Index = (EditorWireIndex)i;
-                }
-
                 //-----------------------------------------------------
                 // Compute the correct topographically-sorted traversal
                 // order from the wire connectivity graph.
@@ -242,7 +591,7 @@ namespace GGEZ.Labkit
                 // on cell outputs. These registers then dirty other cells.
                 //---------------------------------------------------------
                 List<IRegister> registers = new List<IRegister>();
-                Dictionary<string, RegisterPtr> cellOutputToRegister = new Dictionary<string, RegisterPtr>();
+                Dictionary<string, RegisterPtr> outputToRegister = new Dictionary<string, RegisterPtr>();
                 Dictionary<VariableRef, RegisterPtr> variablesThatWriteRegister = VariableRef.NewDictionary<RegisterPtr>();
 
 
@@ -277,7 +626,7 @@ namespace GGEZ.Labkit
 
                             switch (field.Type)
                             {
-                                
+
                             //-------------------------------------------------
                             case InspectableType.Golem:
                             //-------------------------------------------------
@@ -385,9 +734,11 @@ namespace GGEZ.Labkit
                                 if (wire.ReadCell != null)
                                 {
                                     Debug.Assert(wire.ReadVariableInputRegister == null);
-                                    string registerKey = wire.ReadCell.Index + ".{" + wire.ReadField + "}";
-                                    Debug.Assert(cellOutputToRegister.ContainsKey(registerKey), "A register input was not mapped before it was seen when traversing cells of this circuit. Something is wrong with the dependency sort.", this);
-                                    RegisterPtr registerPtr = cellOutputToRegister[registerKey];
+                                    Debug.Assert(wire.ReadScript == null);
+
+                                    string registerKey = wire.ReadCell.Index + ".{" + wire.ReadField + "}-cell";
+                                    Debug.Assert(outputToRegister.ContainsKey(registerKey), "A register input was not mapped before it was seen when traversing cells of this circuit. Something is wrong with the dependency sort.", this);
+                                    RegisterPtr registerPtr = outputToRegister[registerKey];
 
                                     assignments.Add(new Assignment()
                                     {
@@ -420,6 +771,58 @@ namespace GGEZ.Labkit
                                         externalAssignments.MultiAdd(variable.Relationship, assignment);
                                     }
                                 }
+                                else if (wire.ReadScript != null)
+                                {
+                                    if (wire.ReadScript.CompiledIndex != ScriptIndex.Invalid)
+                                    {
+                                        Debug.Assert(wire.ReadVariableInputRegister == null);
+                                        Debug.Assert(wire.ReadCell == null);
+
+                                        VariableRef variableRef;
+                                        if (wire.ReadScript.FieldsUsingVariables.TryGetValue(wire.ReadField, out variableRef))
+                                        {
+                                            #warning IMPLEMENT FIELD USING VARIABLE ON SCRIPT
+                                            throw new NotImplementedException();
+                                        }
+                                        else
+                                        {
+                                            string registerKey = wire.ReadScript.State.Index + ".{" + wire.ReadField + "}-script";
+
+                                            RegisterPtr registerIndex;
+                                            if (outputToRegister.TryGetValue(registerKey, out registerIndex))
+                                            {
+                                                #warning TODO check the register's type?
+                                            }
+                                            else
+                                            {
+                                                registerIndex = (RegisterPtr)registers.Count;
+                                                outputToRegister.Add(registerKey, registerIndex);
+                                                InspectableCellType outputCellType = InspectableCellType.GetInspectableCellType(wire.WriteCell.Cell.GetType());
+                                                Type fieldType = outputCellType.GetInputType(wire.WriteField);
+                                                Debug.Assert(typeof(IRegister).IsAssignableFrom(fieldType));
+                                                IRegister register = Activator.CreateInstance(fieldType) as IRegister;
+                                                Debug.Assert(register != null);
+                                                registers.Add(register);
+
+                                                assignments.Add(new Assignment()
+                                                {
+                                                    Type = AssignmentType.ScriptRegisterVariable,
+                                                    RegisterIndex = (int)registerIndex,
+                                                    TargetIndex = (int)wire.ReadScript.CompiledIndex,
+                                                    TargetFieldName = wire.ReadField,
+                                                });
+                                            }
+
+                                            assignments.Add(new Assignment()
+                                            {
+                                                Type = AssignmentType.CellInputRegister,
+                                                RegisterIndex = (int)registerIndex,
+                                                TargetIndex = cellIndex,
+                                                TargetFieldName = wire.WriteField,
+                                            });
+                                        }
+                                    }
+                                }
                                 else
                                 {
                                     throw new InvalidProgramException("Wire doesn't read from anything");
@@ -448,18 +851,18 @@ namespace GGEZ.Labkit
                         {
                             InspectableCellType.Output output = outputs[i];
 
-                            string registerKey = cellIndex + ".{" + output.Name + "}";
-                            Debug.Assert(!cellOutputToRegister.ContainsKey(registerKey), "A register output was already mapped. Are multiple output wires assigned to a single input?", this);
+                            string registerKey = cellIndex + ".{" + output.Name + "}-cell";
+                            Debug.Assert(!outputToRegister.ContainsKey(registerKey), "A register output was already mapped. Are multiple output wires assigned to a single input?", this);
 
                             List<EditorWire> wires;
                             if (editorCell.OutputWires.TryGetValue(output.Name, out wires))
                             {
                                 Debug.Assert(wires.Count > 0);
-                            
+
                                 RegisterPtr registerIndex;
                                 {
                                     registerIndex = (RegisterPtr)registers.Count;
-                                    cellOutputToRegister.Add(registerKey, registerIndex);
+                                    outputToRegister.Add(registerKey, registerIndex);
                                     Type fieldType = output.Type;
                                     Debug.Assert(typeof(IRegister).IsAssignableFrom(fieldType));
                                     IRegister register = Activator.CreateInstance(fieldType) as IRegister;
@@ -501,354 +904,13 @@ namespace GGEZ.Labkit
                 Cells = cells;
             }
 
-            //-------------------------------------------------------------
-            // Compile the program
-            //-------------------------------------------------------------
-            {
-                // Identify entrypoints and assign them to layers
-                List<HashSet<EditorStateIndex>> layersBuilder = new List<HashSet<EditorStateIndex>>();
-                for (int i = 0; i < EditorStates.Count; ++i)
-                {
-                    var editorState = EditorStates[i];
-                    Debug.Assert(editorState.Index == (EditorStateIndex)i, "Wrong editor state index; set to " + editorState.Index + " expecting " + i, this);
-                    editorState.Layer = EditorLayerIndex.Invalid;
-                    if (editorState.SpecialState == EditorSpecialStateType.LayerEnter)
-                    {
-                        editorState.Layer = (EditorLayerIndex)layersBuilder.Count;
-                        layersBuilder.Add(new HashSet<EditorStateIndex>() { editorState.Index });
-                    }
-                }
-
-                // Propagate the layer index from entrypoint to all connected states
-                int removedLayersAboveIndex = layersBuilder.Count;
-                var worklist = new List<EditorStateIndex>();
-                for (int layerIndex = layersBuilder.Count - 1; layerIndex >= 0; --layerIndex)
-                {
-                    var layerStates = layersBuilder[layerIndex];
-                    {
-                        // Grab the value from layerStates
-                        var enumerator = layerStates.GetEnumerator();
-                        enumerator.MoveNext();
-                        worklist.Add(enumerator.Current);
-                    }
-                    while (worklist.Count > 0)
-                    {
-                        var lastIndex = worklist.Count - 1;
-                        var editorState = EditorStates[(int)worklist[lastIndex]];
-                        worklist.RemoveAt(lastIndex);
-                        var transitions = editorState.TransitionsOut;
-                        for (int j = 0; j < transitions.Count; ++j)
-                        {
-                            var toIndex = EditorTransitions[(int)transitions[j]].To;
-                            if (layerStates.Contains(toIndex))
-                            {
-                                continue;
-                            }
-                            var toState = EditorStates[(int)toIndex];
-                            if (toState.Layer != EditorLayerIndex.Invalid)
-                            {
-                                Debug.LogError("State " + toState.Name + " is accessible from more than one entrypoint so one of the entries is being disabled");
-                                layersBuilder.RemoveAt(layerIndex);
-                                removedLayersAboveIndex = layerIndex;
-                                goto NextLayer;
-                            }
-                            toState.Layer = (EditorLayerIndex)layerIndex;
-                            layerStates.Add(toIndex);
-                            worklist.Add(toIndex);
-                        }
-                    }
-                NextLayer:
-                    worklist.Clear();
-                }
-
-                // Reassign layer indices to cells if any layers were removed
-                for (int layerIndex = removedLayersAboveIndex; layerIndex < layersBuilder.Count; ++layerIndex)
-                {
-                    foreach (var editorState in layersBuilder[layerIndex])
-                    {
-                        EditorStates[(int)editorState].Layer = (EditorLayerIndex)layerIndex;
-                    }
-                }
-
-                // Gather states and scripts into layers
-                Layer[] layers = new Layer[layersBuilder.Count];
-                List<Script> scripts = new List<Script>();
-                List<State> states = new List<State>();
-                var exprWorklist = new List<EditorTransitionExpression>();
-                for (int layerIndex = 0; layerIndex < layersBuilder.Count; ++layerIndex)
-                {
-                    var editorStates = layersBuilder[layerIndex];
-                    var layerStates = new List<StateIndex>();
-                    foreach (var editorStateIndex in editorStates)
-                    {
-                        var editorState = EditorStates[(int)editorStateIndex];
-
-                        if (editorState.SpecialState != EditorSpecialStateType.Normal)
-                        {
-                            continue;
-                        }
-
-                        var editorScripts = editorState.Scripts;
-                        int[] stateScripts = new int[editorScripts.Count];
-                        for (int j = 0; j < editorScripts.Count; ++j)
-                        {
-                            int scriptIndex = scripts.Count;
-                            stateScripts[j] = scriptIndex;
-                            var editorScript = editorScripts[j];
-
-                            if (!editorScript.Enabled)
-                            {
-                                continue;
-                            }
-
-                            var script = editorScript.Script.Clone();
-
-                            var inspectableScriptType = InspectableScriptType.GetInspectableScriptType(script.GetType());
-
-                            //-------------------------------------------------
-                            // Write assignments for fields referencing:
-                            //  * Aspects
-                            //  * Settings
-                            //  * Unity Objects
-                            //  * Variables
-                            //-------------------------------------------------
-                            {
-                                InspectableScriptType.Field[] fields = inspectableScriptType.Fields;
-                                for (int i = 0; i < fields.Length; ++i)
-                                {
-                                    InspectableScriptType.Field field = fields[i];
-                                    string fieldName = field.FieldInfo.Name;
-
-                                    switch (field.Type)
-                                    {
-                                        
-                                    //-------------------------------------------------
-                                    case InspectableType.Golem:
-                                    //-------------------------------------------------
-                                        assignments.Add(new Assignment()
-                                        {
-                                            Type = AssignmentType.ScriptGolem,
-                                            TargetIndex = scriptIndex,
-                                            TargetFieldName = fieldName,
-                                        });
-                                        break;
-
-                                    //-------------------------------------------------
-                                    case InspectableType.Aspect:
-                                    //-------------------------------------------------
-                                        assignments.Add(new Assignment()
-                                        {
-                                            Type = AssignmentType.ScriptAspect,
-                                            TargetIndex = scriptIndex,
-                                            TargetFieldName = fieldName,
-                                        });
-                                        break;
-
-                                    //-------------------------------------------------
-                                    case InspectableType.Variable:
-                                    //-------------------------------------------------
-                                        VariableRef variableRef;
-                                        if (editorScript.FieldsUsingVariables.TryGetValue(fieldName, out variableRef))
-                                        {
-                                            var assignment = new Assignment()
-                                            {
-                                                Name = variableRef.Name,
-                                                TargetIndex = scriptIndex,
-                                                TargetFieldName = fieldName,
-                                            };
-
-                                            if (variableRef.IsExternal)
-                                            {
-                                                assignment.Type = field.CanBeNull
-                                                        ? AssignmentType.ScriptVariableOrNull
-                                                        : AssignmentType.ScriptVariableOrDummy;
-                                                externalAssignments.MultiAdd(variableRef.Relationship, assignment);
-                                            }
-                                            else if (variableRef.IsInternalRegister)
-                                            {
-                                                assignment.Type = AssignmentType.ScriptRegisterVariable;
-                                                assignment.RegisterIndex = variableRef.RegisterIndex;
-                                                assignments.Add(assignment);
-                                            }
-                                            else
-                                            {
-                                                assignment.Type = AssignmentType.ScriptVariable;
-                                                assignments.Add(assignment);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if (!field.CanBeNull)
-                                            {
-                                                assignments.Add(new Assignment()
-                                                {
-                                                    Type = AssignmentType.ScriptDummyVariable,
-                                                    TargetIndex = scriptIndex,
-                                                    TargetFieldName = fieldName,
-                                                });
-                                            }
-                                        }
-                                        break;
-
-                                    //-------------------------------------------------
-                                    default:
-                                    //-------------------------------------------------
-                                        string setting;
-                                        if (editorScript.FieldsUsingSettings.TryGetValue(fieldName, out setting))
-                                        {
-                                            Debug.Assert(InspectableTypeExt.CanUseSetting(field.Type));
-
-                                            assignments.Add(new Assignment()
-                                            {
-                                                Type = AssignmentType.ScriptSetting,
-                                                Name = setting,
-                                                TargetIndex = scriptIndex,
-                                                TargetFieldName = fieldName,
-                                            });
-                                        }
-                                        break;
-                                    }
-                                }
-                            }
-
-                            scripts.Add(script);
-                        }
-
-                        int stateIndex = states.Count;
-                        editorState.CompiledIndex = (StateIndex)states.Count;
-                        states.Add(new State { Scripts = stateScripts });
-                        layerStates.Add((StateIndex)(int)stateIndex);
-                    }
-                    layers[layerIndex] = new Layer
-                    {
-                        States = layerStates.ToArray(),
-                    };
-                }
-
-                // Compile all the transitions now that we have state indices in place
-                for (int layerIndex = 0; layerIndex < layersBuilder.Count; ++layerIndex)
-                {
-                    var editorStates = layersBuilder[layerIndex];
-                    var fromAnyStateTransitions = new List<Transition>();
-                    var transitions = new Dictionary<StateIndex, List<Transition>>();
-                    foreach (var editorStateIndex in editorStates)
-                    {
-                        var editorState = EditorStates[(int)editorStateIndex];
-                        foreach (var editorTransitionIndex in editorState.TransitionsOut)
-                        {
-                            var editorTransition = EditorTransitions[(int)editorTransitionIndex];
-                            var transitionTriggers = new List<Trigger>();
-                            var transitionExpression = new List<Transition.Operator>();
-                            exprWorklist.Clear();
-                            exprWorklist.Add(editorTransition.Expression);
-                            while (exprWorklist.Count > 0)
-                            {
-                                int exprIndex = exprWorklist.Count - 1;
-                                var expr = exprWorklist[exprIndex];
-                                exprWorklist.RemoveAt(exprIndex);
-                                exprWorklist.AddRange(expr.Subexpressions);
-                                switch (expr.Type)
-                                {
-                                    case EditorTransitionExpressionType.False:
-                                        transitionExpression.Insert(0, Transition.Operator.False);
-                                        break;
-
-                                    case EditorTransitionExpressionType.True:
-                                        transitionExpression.Insert(0, Transition.Operator.True);
-                                        break;
-
-                                    case EditorTransitionExpressionType.Trigger:
-                                        {
-                                            transitionTriggers.Insert(0, expr.Trigger);
-                                            transitionExpression.Insert(0, Transition.Operator.Push);
-                                        }
-                                        break;
-
-                                    case EditorTransitionExpressionType.And:
-                                        for (int i = 1; i < expr.Subexpressions.Count; ++i)
-                                        {
-                                            transitionExpression.Insert(0, Transition.Operator.And);
-                                        }
-                                        break;
-
-                                    case EditorTransitionExpressionType.Or:
-                                        for (int i = 1; i < expr.Subexpressions.Count; ++i)
-                                        {
-                                            transitionExpression.Insert(0, Transition.Operator.Or);
-                                        }
-                                        break;
-                                }
-                            }
-
-                            var transition = new Transition
-                            {
-                                Expression = transitionExpression.ToArray(),
-                                Triggers = transitionTriggers.ToArray(),
-                            };
-
-                            var fromState = EditorStates[(int)editorTransition.From];
-                            switch (fromState.SpecialState)
-                            {
-                                case EditorSpecialStateType.Normal:
-                                    transition.FromState = fromState.CompiledIndex;
-                                    break;
-                                case EditorSpecialStateType.LayerAny:
-                                    transition.FromState = StateIndex.Any;
-                                    break;
-                                case EditorSpecialStateType.LayerEnter:
-                                    transition.FromState = StateIndex.Idle;
-                                    break;
-                                case EditorSpecialStateType.LayerExit:
-                                    Debug.LogError("Can't transition from a state with the Exit type");
-                                    transition.FromState = StateIndex.Invalid;
-                                    break;
-                            }
-
-                            var toState = EditorStates[(int)editorTransition.To];
-                            switch (toState.SpecialState)
-                            {
-                                case EditorSpecialStateType.Normal:
-                                    transition.ToState = toState.CompiledIndex;
-                                    break;
-                                case EditorSpecialStateType.LayerAny:
-                                    Debug.LogError("Can't transition to a state with the Any type");
-                                    transition.ToState = StateIndex.Invalid;
-                                    break;
-                                case EditorSpecialStateType.LayerEnter:
-                                    Debug.LogError("Can't transition to a state with the Enter type (should be Exit)");
-                                    transition.ToState = StateIndex.Invalid;
-                                    break;
-                                case EditorSpecialStateType.LayerExit:
-                                    transition.ToState = StateIndex.Idle;
-                                    break;
-                            }
-
-                            if (transition.FromState == StateIndex.Any)
-                            {
-                                fromAnyStateTransitions.Add(transition);
-                            }
-                            else
-                            {
-                                transitions.MultiAdd(transition.FromState, transition);
-                            }
-                        }
-                    }
-                    layers[layerIndex].FromAnyStateTransitions = fromAnyStateTransitions.ToArray();
-                    layers[layerIndex].Transitions = transitions.MultiToArray();
-                }
-
-                Layers = layers;
-                Scripts = scripts.ToArray();
-                States = states.ToArray();
-
-                Assignments = assignments.ToArray();
-                ExternalAssignments = externalAssignments.MultiToArray();
-            }
+            Assignments = assignments.ToArray();
+            ExternalAssignments = externalAssignments.MultiToArray();
 
         #else
             Debug.LogError("GolemArchetype.OnBeforeSerialize should never be called at runtime!", this);
         #endif
-        
+
             // Save runtime data
             //-------------------------
             {
@@ -909,7 +971,7 @@ namespace GGEZ.Labkit
             }
         #endif
         }
-    
+
     #if UNITY_EDITOR
 
         void Reset()
@@ -940,12 +1002,135 @@ namespace GGEZ.Labkit
 
         void OnValidate()
         {
+            Debug.Log("OnValidate");
             Json = Json ?? "{}";
             EditorCells = EditorCells ?? new List<EditorCell>();
             EditorWires = EditorWires ?? new List<EditorWire>();
             EditorStates = EditorStates ?? new List<EditorState>();
             EditorTransitions = EditorTransitions ?? new List<EditorTransition>();
             EditorJson = EditorJson ?? "{}";
+
+            #warning TODO: make sure one script isn't contained in multiple states
+
+            // Make sure states have the right index and scripts have the right state link
+            for (int i = 0; i < EditorStates.Count; ++i)
+            {
+                var state = EditorStates[i];
+                state.Index = (EditorStateIndex)i;
+
+                for (int j = 0; j < state.Scripts.Count; ++j)
+                {
+                    state.Scripts[j].State = state;
+                }
+            }
+
+            // Make sure all wires are in the main wires list
+            for (int i = 0; i < EditorCells.Count; ++i)
+            {
+                var cell = EditorCells[i];
+                foreach (var wire in cell.GetAllInputWires())
+                {
+                    if (!EditorWires.Contains(wire))
+                    {
+                        EditorWires.Add(wire);
+                    }
+                }
+                foreach (var wire in cell.GetAllOutputWires())
+                {
+                    if (!EditorWires.Contains(wire))
+                    {
+                        EditorWires.Add(wire);
+                    }
+                }
+            }
+
+            // Remove any wires that are invalid
+            for (int i = EditorWires.Count - 1; i >= 0; --i)
+            {
+                var wire = EditorWires[i];
+
+                int inputCount = 0;
+                bool missingOutput = true;
+                bool checkTypes = true;
+                Type inputType = null, outputType = null;
+
+                if (wire.WriteCell != null)
+                {
+                    missingOutput = false;
+                    if (wire.WriteCell.Cell != null)
+                    {
+                        var field = wire.WriteCell.Cell.GetType().GetField(wire.WriteField);
+                        if (field != null)
+                        {
+                            #warning we can't just blindly assume everything has a generic type argument that maps to the right type because we have collection register types
+                            outputType = field.FieldType.GetGenericArguments()[0];
+                        }
+                    }
+                }
+                if (wire.ReadCell != null)
+                {
+                    ++inputCount;
+                    if (wire.ReadCell.Cell != null)
+                    {
+                        var field = wire.ReadCell.Cell.GetType().GetField(wire.ReadField);
+                        if (field != null)
+                        {
+                            inputType = field.FieldType.GetGenericArguments()[0];
+                        }
+                    }
+                }
+                if (wire.ReadScript != null)
+                {
+                    ++inputCount;
+                    if (wire.ReadScript.Script != null)
+                    {
+                        var field = wire.ReadScript.Script.GetType().GetField(wire.ReadField);
+                        if (field != null)
+                        {
+                            inputType = field.FieldType.GetGenericArguments()[0];
+                        }
+                    }
+                }
+                if (wire.ReadVariableInputRegister != null)
+                {
+                    ++inputCount;
+                    checkTypes = false;
+                }
+
+                bool typesDontMatch = checkTypes && !inputType.Equals(outputType);
+
+                if (inputCount != 1 || missingOutput || typesDontMatch)
+                {
+                    if (wire.WriteCell != null)
+                    {
+                        wire.WriteCell.RemoveInputWire(wire);
+                    }
+                    if (wire.ReadCell != null)
+                    {
+                        wire.ReadCell.RemoveOutputWire(wire);
+                    }
+                    if (wire.ReadScript != null)
+                    {
+                        wire.ReadScript.RemoveOutputWire(wire);
+                    }
+                    if (wire.ReadVariableInputRegister != null)
+                    {
+                        wire.ReadVariableInputRegister.RemoveOutputWire(wire);
+                    }
+                    EditorWires.RemoveAt(i);
+                }
+            }
+
+            // Make sure cells and wires have the right index
+            for (int i = 0; i < EditorCells.Count; ++i)
+            {
+                EditorCells[i].Index = (EditorCellIndex)i;
+            }
+
+            for (int i = 0; i < EditorWires.Count; ++i)
+            {
+                EditorWires[i].Index = (EditorWireIndex)i;
+            }
         }
 
     #endif
