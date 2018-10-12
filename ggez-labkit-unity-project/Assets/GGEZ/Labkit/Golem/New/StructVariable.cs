@@ -27,8 +27,9 @@ using System;
 
 namespace GGEZ.Labkit
 {
+
     [GGEZ.FullSerializer.fsIgnore]
-    public class StructVariable<T> : IVariable where T : struct, IEquatable<T>
+    public class StructVariable<T> : ISingleValueVariable where T : struct, IEquatable<T>
     {
         /// <summary>The backing register for this variable</summary>
         private StructRegister<T> _register;
@@ -72,6 +73,26 @@ namespace GGEZ.Labkit
         public void OnEndProgramPhase()
         {
             _register.ChangeValue(_value);
+        }
+
+        public IVariable Clone()
+        {
+            return MemberwiseClone() as IVariable;
+        }
+
+        public Type GetValueType()
+        {
+            return typeof(T);
+        }
+
+        public object GetValue()
+        {
+            return _value;
+        }
+
+        public void SetValue(object value)
+        {
+            _value = (T)value;
         }
     }
 }

@@ -68,6 +68,92 @@ namespace GGEZ.Labkit
             }
         }
 
+        public static void SetDirtyArchetype(Golem golem)
+        {
+            SetSceneDirty(golem.gameObject);
+            EditorUtility.SetDirty(golem);
+            EditorUtility.SetDirty(golem.Archetype);
+        }
+
+        public static void SetDirty(GolemArchetype archetype)
+        {
+            switch (PrefabUtility.GetPrefabType(archetype))
+            {
+                case PrefabType.None:
+                case PrefabType.MissingPrefabInstance:
+
+                    // This golem is inside the scene since archetypes can't be separated
+                    EditorUtility.SetDirty(archetype);
+                    Debug.Assert(!AssetDatabase.IsMainAsset(archetype));
+                    if (!EditorApplication.isPlaying)
+                    {
+                        UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
+                    }
+
+                    break;
+
+                case PrefabType.Prefab:
+                case PrefabType.ModelPrefabInstance:
+                case PrefabType.DisconnectedPrefabInstance:
+
+                    // This archetype lives in the prefab
+                    var prefab = PrefabUtility.GetPrefabObject(archetype) as GameObject;
+                    SetDirtyArchetype(prefab.GetComponent<Golem>());
+
+                    break;
+
+            }
+        }
+
+        public static void SetDirty(Golem golem, GolemComponent onlyComponent)
+        {
+            SetSceneDirty(golem.gameObject);
+            EditorUtility.SetDirty(golem);
+            EditorUtility.SetDirty(golem.Archetype);
+            Debug.Assert(golem.Archetype.Components.Contains(onlyComponent));
+            EditorUtility.SetDirty(onlyComponent);
+        }
+
+        public static void SetDirty(GolemComponent component)
+        {
+            EditorUtility.SetDirty(component);
+
+            switch (PrefabUtility.GetPrefabType(component))
+            {
+                case PrefabType.None:
+
+                    // This component is either an asset of its own or it's
+                    // inside the scene. If it's an asset, we already marked
+                    // it as dirty so we're done.
+                    if (!AssetDatabase.IsMainAsset(component) && !EditorApplication.isPlaying)
+                    {
+                        UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
+                    }
+
+                    break;
+
+                case PrefabType.Prefab:
+                case PrefabType.ModelPrefabInstance:
+                case PrefabType.DisconnectedPrefabInstance:
+
+                    // This component must be inside an Archetype that is inside a prefab.
+                    var prefab = PrefabUtility.GetPrefabObject(component) as GameObject;
+                    SetDirty(prefab.GetComponent<Golem>(), component);
+
+                    break;
+
+                case PrefabType.MissingPrefabInstance:
+                    
+                    // Detached instances save their data into the scene so just mark all scenes dirty
+                    if (!EditorApplication.isPlaying)
+                    {
+                        UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
+                    }
+
+                    break;
+            }
+        }
+
         public static void SetSceneDirty(GameObject gameObject)
         {
             switch (PrefabUtility.GetPrefabType(gameObject))
@@ -241,6 +327,22 @@ namespace GGEZ.Labkit
                         return null;
                     }
 
+                case InspectableType.Variable:
+                    #warning this is weird because elsewhere a Variable is actually a reference to somewhere
+                    ISingleValueVariable singleValueVariable = value as ISingleValueVariable;
+                    if (singleValueVariable != null)
+                    {
+                        Type valueType = singleValueVariable.GetValueType();
+                        InspectableType inspectableType = InspectableTypeExt.GetInspectableTypeOf(valueType);
+                        singleValueVariable.SetValue(EditorGUIField(position, inspectableType, valueType, singleValueVariable.GetValue()));
+                    }
+                    else
+                    {
+                        #warning implement inspecting collection types
+                        Debug.LogError("Inspecting this variable type is not implemented: " + actualType);
+                    }
+                    return value;
+
                 case InspectableType.UnityObject:
                     {
                         if (actualType.IsAssignableFrom(typeof(Component)))
@@ -401,7 +503,8 @@ namespace GGEZ.Labkit
                 object target,
                 Dictionary<string,string> fieldsUsingSettings,
                 Dictionary<string,VariableRef> fieldsUsingVariables,
-                Golem golem
+                Golem golem,
+                bool hasOutputWire = false // specifically used for script fields that are outputs
                 )
         {
             if (target == null) throw new ArgumentNullException("target");
@@ -573,7 +676,14 @@ namespace GGEZ.Labkit
                         }
                         else if (variableName == null)
                         {
-                            content = GolemEditorUtility.NoVariableErrorGUIContent;
+                            if (hasOutputWire)
+                            {
+                                content = GolemEditorUtility.RegisterVariableGUIContent;
+                            }
+                            else
+                            {
+                                content = GolemEditorUtility.NoVariableErrorGUIContent;
+                            }
                         }
                         else
                         {
@@ -594,7 +704,22 @@ namespace GGEZ.Labkit
                                 new object[]{ handle, golemArchetype, specificType }
                                 );
 
-                            menu.AddSeparator("");
+                            
+                            if (hasOutputWire)
+                            {
+                                menu.AddSeparator("");
+                                menu.AddItem(
+                                    new GUIContent("Register Variable"),
+                                    false,
+                                    GolemEditorUtility.SetDropdownFieldValueMenuFunction2,
+                                    new object[]{ handle, null }
+                                );
+                            }
+
+                            if (variables.Count > 0)
+                            {
+                                menu.AddSeparator("");
+                            }
 
                             for (int i = 0; i < variables.Count; ++i)
                             {
@@ -618,7 +743,7 @@ namespace GGEZ.Labkit
                         }
                         EditorGUI.EndDisabledGroup();
 
-                        if (!string.IsNullOrEmpty(variableName))
+                        // if (!string.IsNullOrEmpty(variableName))
                         {
                             reference = new VariableRef(relationship, variableName);
                             fieldsUsingVariables[fieldInfo.Name] = reference;
@@ -642,12 +767,11 @@ namespace GGEZ.Labkit
             golemArchetype.EditorVariables.Add(new GolemVariableEditorData()
             {
                 Name = newVariableName,
-                #warning how do get tooltip for new variable
+                #warning where do we get the tooltip for new variable??
                 Tooltip = "",
                 InspectableType = InspectableTypeExt.GetInspectableTypeOf(variableType),
                 Type = variableType,
-                #warning setting initial value to null probably is not okay but I'm not sure if this is supposed to be an IVariable or what
-                InitialValue = null,
+                InitialValue = Activator.CreateInstance(variableType) as IVariable,
             });
             GolemEditorUtility.SetDropdownFieldValue(handle, newVariableName);
         }
@@ -812,6 +936,22 @@ namespace GGEZ.Labkit
                     s_noSettingGUIContent = new GUIContent(" No Setting", EditorGUIUtility.FindTexture("d_console.erroricon.sml"));
                 }
                 return s_noSettingGUIContent;
+            }
+        }
+
+        //-----------------------------------------------------
+        // RegisterVariableGUIContent
+        //-----------------------------------------------------
+        private static GUIContent s_registerVariableGUIContent;
+        public static GUIContent RegisterVariableGUIContent
+        {
+            get
+            {
+                if (s_registerVariableGUIContent == null)
+                {
+                    s_registerVariableGUIContent = new GUIContent(" Register Variable", EditorGUIUtility.FindTexture("Icon.ExtrapolationContinue"));
+                }
+                return s_registerVariableGUIContent;
             }
         }
 

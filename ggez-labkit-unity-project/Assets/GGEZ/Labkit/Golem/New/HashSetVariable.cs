@@ -74,6 +74,11 @@ namespace GGEZ.Labkit
             _removed.Clear();
         }
 
+        public IVariable Clone()
+        {
+            return MemberwiseClone() as IVariable;
+        }
+
         public bool Add(T element)
         {
             _removed.Remove(element);

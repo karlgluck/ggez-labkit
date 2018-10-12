@@ -88,7 +88,14 @@ namespace GGEZ.Labkit
                 golem.Aspects[i] = archetype.Aspects[i].Clone();
             }
 
-            // Assign UnityObjects and settings to aspects. Create variables from aspects.
+            // Create variables
+            golem.Variables = new Dictionary<string, IVariable>();
+            foreach (var kvp in golem.Archetype.Variables)
+            {
+                golem.Variables.Add(kvp.Key, kvp.Value.Clone());
+            }
+
+            // Assign UnityObjects and settings to aspects
             DoAssignments(golem, archetype.Assignments, golem.Variables, null, null);
 
             // Create data for all the components
@@ -193,7 +200,7 @@ namespace GGEZ.Labkit
                     case AssignmentType.AspectAspect:   assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
                     case AssignmentType.CellAspect:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
                     case AssignmentType.ScriptAspect:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
-
+#warning variables being defined by aspects is out of date; aspects should just give a nice view and the variables provide defaults
                     case AssignmentType.AspectVariable: assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
                     case AssignmentType.CellVariable:   assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
                     case AssignmentType.ScriptVariable: assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
@@ -413,13 +420,15 @@ namespace GGEZ.Labkit
             for (int i = 0; i < cells.Count; ++i)
             {
                 Cell cell = cells[i];
-                if (cell.Sequencer > Instance._currentCircuitPhaseCellSequencer)
+                int sequenceDifference = cell.Sequencer - Instance._currentCircuitPhaseCellSequencer;
+                if (sequenceDifference > 0)
                 {
                     Instance._changedCells.Add(cell);
                 }
-                else
+                else if (sequenceDifference < 0)
                 {
                     #warning Can this still happen if we only update once per frame and don't allow cells to write variables?
+                    Debug.LogError("Pretty sure this shouldn't be able to happen");
                     Instance._changedCellsBeforeSequencer.Add(cell);
                 }
             }
@@ -466,6 +475,7 @@ namespace GGEZ.Labkit
             var swap = _changedCells;
             _changedCells = _changedCellsBeforeSequencer;
             _changedCellsBeforeSequencer = swap;
+            _currentCircuitPhaseCellSequencer = -1;
 
             Debug.Assert(sentinel > 0);
         }

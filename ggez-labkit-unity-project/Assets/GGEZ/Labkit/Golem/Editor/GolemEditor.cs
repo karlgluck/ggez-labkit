@@ -218,13 +218,14 @@ namespace GGEZ.Labkit
                     labelRect.xMax = position.xMin;
 
                     EditorGUI.LabelField(labelRect, new GUIContent(editorVariable.Name, editorVariable.Tooltip));
-                    #warning Draw variable values at runtime on Golem
-                    // editorVariable.InitialValue = GolemEditorUtility.EditorGUIField(position, editorVariable.InspectableType, editorVariable.Type, editorVariable.InitialValue);
+                    GolemEditorUtility.EditorGUIField(position, editorVariable.InspectableType, editorVariable.Type, variable);
                 }
             }
             else
             {
                 var editorVariables = _golem.Archetype.EditorVariables;
+                
+                string focusedControlName = GUI.GetNameOfFocusedControl();
 
                 for (int i = 0; i < editorVariables.Count; ++i)
                 {
@@ -235,8 +236,23 @@ namespace GGEZ.Labkit
                     position.xMin += EditorGUIUtility.labelWidth;
                     labelRect.xMax = position.xMin;
 
-                    EditorGUI.LabelField(labelRect, new GUIContent(variable.Name, variable.Tooltip));
-                    variable.InitialValue = GolemEditorUtility.EditorGUIField(position, variable.InspectableType, variable.Type, variable.InitialValue);
+                    
+                    string name = variable.Name;
+                    string labelControlName = i.ToString("000") + ":var:" + name;
+                    GUI.SetNextControlName(labelControlName);
+                    bool isSettingFocused = focusedControlName == labelControlName;
+                    string newName = EditorGUI.DelayedTextField(labelRect, name, isSettingFocused ? EditorStyles.textField : EditorStyles.label);
+                    if (newName != name)
+                    {
+                        #warning TODO update everything that references a variable when the name changes
+                        variable.Name = newName;
+                        if (isSettingFocused)
+                        {
+                            GUI.FocusControl(null);
+                        }
+                    }
+
+                    variable.InitialValue = GolemEditorUtility.EditorGUIField(position, variable.InspectableType, variable.Type, variable.InitialValue) as IVariable;
                 }
             }
 
@@ -400,7 +416,7 @@ namespace GGEZ.Labkit
             components[components.Length-1] = component;
             _golem.Archetype.Components = components;
             _golem.Archetype.DeduplicateComponents();
-            GolemEditorUtility.SetDirty(_golem);
+            GolemEditorUtility.SetDirtyArchetype(_golem);
 
         }
 
@@ -409,7 +425,7 @@ namespace GGEZ.Labkit
         {
             Debug.Assert(typeof(Aspect).IsAssignableFrom(type));
             _golem.Archetype.AddNewAspect(Activator.CreateInstance(type) as Aspect);
-            GolemEditorUtility.SetDirty(_golem);
+            GolemEditorUtility.SetDirtyArchetype(_golem);
         }
     }
 }

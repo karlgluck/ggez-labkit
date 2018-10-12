@@ -298,9 +298,8 @@ namespace GGEZ.Labkit
                                         }
                                         else
                                         {
-                                            if (!field.CanBeNull)
+                                            if (!field.CanBeNull && !editorScript.HasOutputWire(field.FieldInfo.Name))
                                             {
-                                                #warning TODO check to make sure this variable doesn't have an output wire before writing this
                                                 assignments.Add(new Assignment()
                                                 {
                                                     Type = AssignmentType.ScriptDummyVariable,
@@ -780,9 +779,34 @@ namespace GGEZ.Labkit
 
                                         VariableRef variableRef;
                                         if (wire.ReadScript.FieldsUsingVariables.TryGetValue(wire.ReadField, out variableRef))
-                                        {
-                                            #warning IMPLEMENT FIELD USING VARIABLE ON SCRIPT
-                                            throw new NotImplementedException();
+                                        {                                            
+                                            var writeCellType = InspectableCellType.GetInspectableCellType(wire.WriteCell.Cell.GetType());
+                                            bool canBeNull = writeCellType.GetInputCanBeNull(wire.WriteField);
+
+                                            if (variableRef.IsExternal)
+                                            {
+                                                externalAssignments.MultiAdd(variableRef.Relationship, new Assignment()
+                                                {
+                                                    Type = canBeNull
+                                                        ? AssignmentType.CellInputVariableRegisterOrNull
+                                                        : AssignmentType.CellInputVariableRegisterOrDummy,
+                                                    Name = variableRef.Name,
+                                                    TargetIndex = cellIndex,
+                                                    TargetFieldName = wire.WriteField,
+                                                });
+                                            }
+                                            else
+                                            {
+                                                assignments.Add(new Assignment()
+                                                {
+                                                    Type = canBeNull
+                                                        ? AssignmentType.CellInputVariableRegisterOrNull
+                                                        : AssignmentType.CellInputVariableRegisterOrDummy,
+                                                    Name = variableRef.Name,
+                                                    TargetIndex = cellIndex,
+                                                    TargetFieldName = wire.WriteField,
+                                                });
+                                            }
                                         }
                                         else
                                         {
@@ -1003,12 +1027,38 @@ namespace GGEZ.Labkit
         void OnValidate()
         {
             Debug.Log("OnValidate");
-            Json = Json ?? "{}";
-            EditorCells = EditorCells ?? new List<EditorCell>();
-            EditorWires = EditorWires ?? new List<EditorWire>();
-            EditorStates = EditorStates ?? new List<EditorState>();
-            EditorTransitions = EditorTransitions ?? new List<EditorTransition>();
-            EditorJson = EditorJson ?? "{}";
+            bool dirty = false;
+
+            if (Json == null)
+            {
+                Json = "{}";
+                dirty = true;
+            }
+            if (EditorCells == null)
+            {
+                EditorCells = new List<EditorCell>();
+                dirty = true;
+            }
+            if (EditorWires == null)
+            {
+                EditorWires = new List<EditorWire>();
+                dirty = true;
+            }
+            if (EditorStates == null)
+            {
+                EditorStates = new List<EditorState>();
+                dirty = true;
+            }
+            if (EditorTransitions == null)
+            {
+                EditorTransitions = new List<EditorTransition>();
+                dirty = true;
+            }
+            if (EditorJson == null)
+            {
+                EditorJson = "{}";
+                dirty = true;
+            }
 
             #warning TODO: make sure one script isn't contained in multiple states
 
@@ -1016,11 +1066,19 @@ namespace GGEZ.Labkit
             for (int i = 0; i < EditorStates.Count; ++i)
             {
                 var state = EditorStates[i];
-                state.Index = (EditorStateIndex)i;
+                if (state.Index != (EditorStateIndex)i)
+                {
+                    state.Index = (EditorStateIndex)i;
+                    dirty = true;
+                }
 
                 for (int j = 0; j < state.Scripts.Count; ++j)
                 {
-                    state.Scripts[j].State = state;
+                    if (state.Scripts[j].State != state)
+                    {
+                        state.Scripts[j].State = state;
+                        dirty = true;
+                    }
                 }
             }
 
@@ -1033,6 +1091,7 @@ namespace GGEZ.Labkit
                     if (!EditorWires.Contains(wire))
                     {
                         EditorWires.Add(wire);
+                        dirty = true;
                     }
                 }
                 foreach (var wire in cell.GetAllOutputWires())
@@ -1040,6 +1099,7 @@ namespace GGEZ.Labkit
                     if (!EditorWires.Contains(wire))
                     {
                         EditorWires.Add(wire);
+                        dirty = true;
                     }
                 }
             }
@@ -1101,6 +1161,7 @@ namespace GGEZ.Labkit
 
                 if (inputCount != 1 || missingOutput || typesDontMatch)
                 {
+                    dirty = true;
                     if (wire.WriteCell != null)
                     {
                         wire.WriteCell.RemoveInputWire(wire);
@@ -1124,12 +1185,27 @@ namespace GGEZ.Labkit
             // Make sure cells and wires have the right index
             for (int i = 0; i < EditorCells.Count; ++i)
             {
-                EditorCells[i].Index = (EditorCellIndex)i;
+                var cell = EditorCells[i];
+                if (cell.Index != (EditorCellIndex)i)
+                {
+                    cell.Index = (EditorCellIndex)i;
+                    dirty = true;
+                }
             }
 
             for (int i = 0; i < EditorWires.Count; ++i)
             {
-                EditorWires[i].Index = (EditorWireIndex)i;
+                var wire = EditorWires[i];
+                if (wire.Index != (EditorWireIndex)i)
+                {
+                    wire.Index = (EditorWireIndex)i;
+                    dirty = true;
+                }
+            }
+
+            if (dirty)
+            {
+                GolemEditorUtility.SetDirty(this);
             }
         }
 

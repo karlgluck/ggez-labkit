@@ -30,6 +30,16 @@ namespace GGEZ.Labkit
         }
     }
 
+    public class DebugLogFloat : Cell
+    {
+        [In]
+        public StructRegister<float> Input;
+
+        public override void Update()
+        {
+            Debug.Log("@ " + Time.time + " Value = " + Input.Value);
+        }
+    }
 }
 
 

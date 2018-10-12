@@ -813,7 +813,6 @@ namespace GGEZ.Labkit
                     }
                     else
                     {
-                        Debug.Log("finding output in " + editorState.Name);
                         for (int i = 0; i < editorState.Scripts.Count; ++i)
                         {
                             var editorScript = editorState.Scripts[i];
@@ -822,7 +821,6 @@ namespace GGEZ.Labkit
                             for (int j = 0; j < outputs.Length; ++j)
                             {
                                 var portRect = GolemEditorUtility.GetNodeOutputPortRect(editorScript.Position, outputs[j].PortCenterFromTopRight);
-                                Debug.Log("PortRect = " + portRect + " vs mouse @ " + mouseGraphPosition + " in " + editorState.Position + " (editor script = " + editorScript.Position + ")");
                                 if (portRect.Contains(mouseGraphPosition))
                                 {
                                     _draggable = DragWire(editorState, editorScript, outputs[j].Name, j, portRect.center);
@@ -1060,7 +1058,8 @@ namespace GGEZ.Labkit
                                 editorScript.Script,
                                 editorScript.FieldsUsingSettings,
                                 editorScript.FieldsUsingVariables,
-                                _golem
+                                _golem,
+                                editorScript.HasOutputWire(fieldInfo.FieldInfo.Name)
                                 );
                     }
 
@@ -1200,7 +1199,6 @@ namespace GGEZ.Labkit
                             };
                             _creatingWireStartScript.AddOutputWire(wire);
                             _creatingWireEndEditorCell.AddInputWire(wire);
-                            Debug.Log("Adding wire " + Util.ObjectToJsonPretty(wire));
                             _wires.Add(wire);
                             IsCreatingWire = false;
                             _shouldWrite = true;

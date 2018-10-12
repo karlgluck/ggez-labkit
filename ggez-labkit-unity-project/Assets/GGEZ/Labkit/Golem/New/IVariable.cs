@@ -29,5 +29,6 @@ namespace GGEZ.Labkit
     {
         IRegister GetRegister();
         void OnEndProgramPhase();
+        IVariable Clone();
     }
 }

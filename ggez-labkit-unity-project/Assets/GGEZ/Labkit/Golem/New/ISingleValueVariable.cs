@@ -24,36 +24,14 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using System;
-using UnityEngine;
-using UnityObject = UnityEngine.Object;
-using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
-using System.Collections.Generic;
-using System.Reflection;
-
-#if UNITY_EDITOR
-using UnityEditor;
 
 namespace GGEZ.Labkit
 {
-
-    //-------------------------------------------------------------------------
-    // GolemVariableEditorData
-    //-------------------------------------------------------------------------
-    public class GolemVariableEditorData
+    public interface ISingleValueVariable : IVariable
     {
-        public string Name;
-        public string Tooltip;
-        public InspectableType InspectableType;
-        public Type Type;
-        public IVariable InitialValue;
-
-        /// Aspect(s) that declare this variable. Recomputed each load so that
-        /// variables removed from aspects (or variables from aspects removed
-        /// from golems) will be erased.
-        [System.NonSerialized]
-        public HashSet<Type> SourceAspects = new HashSet<Type>();
+        Type GetValueType();
+        object GetValue();
+        void SetValue(object value);
     }
 
 }
-
-#endif

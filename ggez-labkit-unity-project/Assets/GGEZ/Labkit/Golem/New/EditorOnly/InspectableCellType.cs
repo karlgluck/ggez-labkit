@@ -120,7 +120,21 @@ namespace GGEZ.Labkit
                     return Inputs[i].Type;
                 }
             }
+            Debug.Assert(false, "Tried to get an input that doesn't exist");
             return null;
+        }
+
+        public bool GetInputCanBeNull(string name)
+        {
+            for (int i = 0; i < Inputs.Length; ++i)
+            {
+                if (Inputs[i].Name.Equals(name))
+                {
+                    return Inputs[i].CanBeNull;
+                }
+            }
+            Debug.Assert(false, "Tried to get an input that doesn't exist");
+            return true;
         }
 
         private static Dictionary<Type, InspectableCellType> s_typeToInspectableType = new Dictionary<Type, InspectableCellType>();

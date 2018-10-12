@@ -23,10 +23,12 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
+using System;
+
 namespace GGEZ.Labkit
 {
     [GGEZ.FullSerializer.fsIgnore]
-    public class ClassVariable<T> : IVariable where T : class
+    public class ClassVariable<T> : ISingleValueVariable where T : class
     {
         /// <summary>The backing register for this variable</summary>
         private ClassRegister<T> _register;
@@ -70,6 +72,26 @@ namespace GGEZ.Labkit
         public void OnEndProgramPhase()
         {
             _register.ChangeValue(_value);
+        }
+
+        public IVariable Clone()
+        {
+            return MemberwiseClone() as IVariable;
+        }
+
+        public Type GetValueType()
+        {
+            return typeof(T);
+        }
+
+        public object GetValue()
+        {
+            return _value;
+        }
+
+        public void SetValue(object value)
+        {
+            _value = (T)value;
         }
     }
 }

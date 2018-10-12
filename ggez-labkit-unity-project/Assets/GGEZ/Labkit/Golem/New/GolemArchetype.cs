@@ -113,6 +113,18 @@ namespace GGEZ.Labkit
             List<Assignment> assignments = new List<Assignment>();
             Dictionary<string, List<Assignment>> externalAssignments = new Dictionary<string, List<Assignment>>();
             {
+                // Variables
+                //--------------------------
+                Variables = new Dictionary<string, IVariable>();
+                for (int i = 0; i < EditorVariables.Count; ++i)
+                {
+                    var editorVariable = EditorVariables[i];
+                    #warning TODO: repair InitialValue if needed (if it's null), delete variable if we can't make it
+                    Variables.Add(editorVariable.Name, editorVariable.InitialValue.Clone());
+                }
+
+                // Aspects
+                //--------------------------
                 Aspects = new Aspect[EditorAspects.Count];
                 for (int aspectIndex = 0; aspectIndex < EditorAspects.Count; ++aspectIndex)
                 {
@@ -242,6 +254,7 @@ namespace GGEZ.Labkit
                 serialized["Assignments"] = Assignments;
                 serialized["ExternalAssignments"] = ExternalAssignments;
                 serialized["Settings"] = Settings.Values;
+                serialized["Variables"] = Variables;
 
                 Json = Serialization.SerializeDictionary(serialized);
             }
@@ -257,6 +270,7 @@ namespace GGEZ.Labkit
                 Serialization.ReadOrCreate(this, "Aspects", deserialized);
                 Serialization.ReadOrCreate(this, "Assignments", deserialized);
                 Serialization.ReadOrCreate(this, "ExternalAssignments", deserialized);
+                Serialization.ReadOrCreate(this, "Variables", deserialized);
 
                 Settings = new Settings(
                         this,
@@ -362,15 +376,49 @@ namespace GGEZ.Labkit
 
         void OnValidate()
         {
-            Settings = Settings ?? new Settings(this);
-            EditorAspects = EditorAspects ?? new List<EditorAspect>();
-            EditorVariables = EditorVariables ?? new List<GolemVariableEditorData>();
+            bool dirty = false;
 
-            DeduplicateComponents();
+            if (Settings == null)
+            {
+                Settings = new Settings(this);
+                dirty = true;
+            }
+            if (EditorAspects == null)
+            {
+                EditorAspects = new List<EditorAspect>();
+                dirty = true;
+            }
+            if (EditorVariables == null)
+            {
+                EditorVariables = new List<GolemVariableEditorData>();
+                dirty = true;
+            }
+
+            dirty = DeduplicateComponents() || dirty;
+            
+            for (int i = EditorVariables.Count - 1; i >= 0; --i)
+            {
+                var variable = EditorVariables[i];
+                if (variable.InitialValue == null)
+                {
+                    dirty = true;
+                    variable.InitialValue = Activator.CreateInstance(variable.Type) as IVariable;
+                    if (variable.InitialValue == null)
+                    {
+                        EditorVariables.RemoveAt(i);
+                    }
+                }
+            }
+
+            if (dirty)
+            {
+                GolemEditorUtility.SetDirty(this);
+            }
         }
 
-        public void DeduplicateComponents()
+        public bool DeduplicateComponents()
         {
+            bool dirty = false;
             HashSet<int> components = new HashSet<int>();
             for (int i = Components.Length - 1; i >= 0; --i)
             {
@@ -381,6 +429,7 @@ namespace GGEZ.Labkit
                         Components[j] = Components[j+1];
                     }
                     Array.Resize(ref Components, Components.Length - 1);
+                    dirty = true;
                     // UnityEditor.EditorWindow.focusedWindow.ShowNotification(new GUIContent("Removed Duplicate Component"));
                 }
                 else
@@ -388,6 +437,7 @@ namespace GGEZ.Labkit
                     components.Add(Components[i].GetInstanceID());
                 }
             }
+            return dirty;
         }
 
     #endif
