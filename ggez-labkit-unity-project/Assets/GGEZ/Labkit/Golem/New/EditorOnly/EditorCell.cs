@@ -29,6 +29,7 @@ using UnityObject = UnityEngine.Object;
 using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
 using System.Collections.Generic;
 using System.Reflection;
+using GGEZ.FullSerializer;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -36,6 +37,7 @@ using UnityEditor;
 namespace GGEZ.Labkit
 {
 
+    [fsSerializeEnumAsInteger]
     public enum EditorCellIndex : int { Invalid = int.MaxValue }
 
     //-------------------------------------------------------------------------

@@ -74,6 +74,7 @@ namespace GGEZ.Labkit
 
         public static void OnAwake(Golem golem)
         {
+            Debug.Assert(!Instance._livingGolems.Contains(golem));
             Instance._livingGolems.Add(golem);
 
             GolemArchetype archetype = golem.Archetype;
@@ -92,7 +93,9 @@ namespace GGEZ.Labkit
             golem.Variables = new Dictionary<string, IVariable>();
             foreach (var kvp in golem.Archetype.Variables)
             {
-                golem.Variables.Add(kvp.Key, kvp.Value.Clone());
+                IVariable clonedVariable = kvp.Value.Clone();
+                AddChangedVariable(clonedVariable);
+                golem.Variables.Add(kvp.Key, clonedVariable);
             }
 
             // Assign UnityObjects and settings to aspects
@@ -110,6 +113,7 @@ namespace GGEZ.Labkit
                 {
                     to.Cells[j] = from.Cells[j].Clone();
                 }
+                AddChangedCellInputs(to.Cells);
 
                 to.Scripts = new Script[from.Scripts.Length];
                 for (int j = 0; j < from.Scripts.Length; ++j)
@@ -150,6 +154,7 @@ namespace GGEZ.Labkit
                     to.Scripts[j].Acquire();
                 }
             }
+
         }
 
         /// <summary>Attach external references to the given relationship target</summary>
@@ -415,7 +420,7 @@ namespace GGEZ.Labkit
         private int _currentCircuitPhaseCellSequencer = 0;
         private List<Cell> _changedCellsBeforeSequencer = new List<Cell>();
 
-        public static void AddChangedCellInputs(List<Cell> cells)
+        public static void AddChangedCellInputs(IList<Cell> cells)
         {
             for (int i = 0; i < cells.Count; ++i)
             {
@@ -428,7 +433,7 @@ namespace GGEZ.Labkit
                 else if (sequenceDifference < 0)
                 {
                     #warning Can this still happen if we only update once per frame and don't allow cells to write variables?
-                    Debug.LogError("Pretty sure this shouldn't be able to happen");
+                    Debug.Assert(false, "I'm like 99.6% sure this shouldn't be able to happen");
                     Instance._changedCellsBeforeSequencer.Add(cell);
                 }
             }

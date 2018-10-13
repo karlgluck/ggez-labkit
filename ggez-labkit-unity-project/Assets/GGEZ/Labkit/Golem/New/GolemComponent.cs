@@ -64,17 +64,19 @@ namespace GGEZ.Labkit
 
         // Circuit
         //------------------
-        [System.NonSerialized]
+        [NonSerialized]
         public List<EditorCell> EditorCells;
-        [System.NonSerialized]
+        [NonSerialized]
         public List<EditorWire> EditorWires;
 
         // Program
         //------------------
-        [System.NonSerialized]
+        [NonSerialized]
         public List<EditorState> EditorStates;
-        [System.NonSerialized]
+        [NonSerialized]
         public List<EditorTransition> EditorTransitions;
+        [NonSerialized]
+        public List<EditorVariableInputRegister> EditorVariableInputRegisters;
 
 
         /// <summary>Source of data for all the NonSerialized editor-only fields</summary>
@@ -98,6 +100,7 @@ namespace GGEZ.Labkit
                 serialized["EditorWires"] = EditorWires;
                 serialized["EditorStates"] = EditorStates;
                 serialized["EditorTransitions"] = EditorTransitions;
+                serialized["EditorVariableInputRegisters"] = EditorVariableInputRegisters;
 
                 EditorJson = Serialization.SerializeDictionary(serialized);
             }
@@ -576,7 +579,7 @@ namespace GGEZ.Labkit
                         {
                             cellRemap[i] = i;
                         }
-                        System.Array.Sort(longestPath, cellRemap);
+                        Array.Sort(longestPath, cellRemap);
                     }
                     else
                     {
@@ -763,11 +766,11 @@ namespace GGEZ.Labkit
 
                                     if (variable.IsExternal)
                                     {
-                                        assignments.Add(assignment);
+                                        externalAssignments.MultiAdd(variable.Relationship, assignment);
                                     }
                                     else
                                     {
-                                        externalAssignments.MultiAdd(variable.Relationship, assignment);
+                                        assignments.Add(assignment);
                                     }
                                 }
                                 else if (wire.ReadScript != null)
@@ -779,7 +782,7 @@ namespace GGEZ.Labkit
 
                                         VariableRef variableRef;
                                         if (wire.ReadScript.FieldsUsingVariables.TryGetValue(wire.ReadField, out variableRef))
-                                        {                                            
+                                        {
                                             var writeCellType = InspectableCellType.GetInspectableCellType(wire.WriteCell.Cell.GetType());
                                             bool canBeNull = writeCellType.GetInputCanBeNull(wire.WriteField);
 
@@ -977,21 +980,11 @@ namespace GGEZ.Labkit
                 Serialization.ReadOrCreate(this, "EditorWires", deserialized);
                 Serialization.ReadOrCreate(this, "EditorStates", deserialized);
                 Serialization.ReadOrCreate(this, "EditorTransitions", deserialized);
+                Serialization.ReadOrCreate(this, "EditorVariableInputRegisters", deserialized);
 
-                for (int i = 0; i < EditorStates.Count; ++i)
-                {
-                    EditorStates[i].Index = (EditorStateIndex)i;
-                }
-
-                for (int i = 0; i < EditorCells.Count; ++i)
-                {
-                    EditorCells[i].Index = (EditorCellIndex)i;
-                }
-
-                for (int i = 0; i < EditorWires.Count; ++i)
-                {
-                    EditorWires[i].Index = (EditorWireIndex)i;
-                }
+                Debug.Log("Serialization Done");
+                #warning Do we need to call OnValidate manually at the end of OnAfterDeserialize?
+                // OnValidate(); // do we need to call this manually?
             }
         #endif
         }
@@ -1054,6 +1047,11 @@ namespace GGEZ.Labkit
                 EditorTransitions = new List<EditorTransition>();
                 dirty = true;
             }
+            if (EditorVariableInputRegisters == null)
+            {
+                EditorVariableInputRegisters = new List<EditorVariableInputRegister>();
+                dirty = true;
+            }
             if (EditorJson == null)
             {
                 EditorJson = "{}";
@@ -1061,6 +1059,16 @@ namespace GGEZ.Labkit
             }
 
             #warning TODO: make sure one script isn't contained in multiple states
+            #warning TODO: make sure nulls in all lists are cleared out
+
+            for (int i = 0; i < EditorVariableInputRegisters.Count; ++i)
+            {
+                if (EditorVariableInputRegisters[i].Variable == null)
+                {
+                    EditorVariableInputRegisters[i].Variable = new VariableRef(null, null);
+                    dirty = true;
+                }
+            }
 
             // Make sure states have the right index and scripts have the right state link
             for (int i = 0; i < EditorStates.Count; ++i)

@@ -143,7 +143,7 @@ namespace GGEZ.Labkit
                     break;
 
                 case PrefabType.MissingPrefabInstance:
-                    
+
                     // Detached instances save their data into the scene so just mark all scenes dirty
                     if (!EditorApplication.isPlaying)
                     {
@@ -508,8 +508,6 @@ namespace GGEZ.Labkit
                 )
         {
             if (target == null) throw new ArgumentNullException("target");
-            if (fieldsUsingSettings == null) throw new ArgumentNullException("fieldsUsingSettings");
-            if (fieldsUsingVariables == null) throw new ArgumentNullException("fieldsUsingVariables");
             if (golem == null) throw new ArgumentNullException("golem");
 
             GolemArchetype golemArchetype = golem.Archetype;
@@ -527,11 +525,13 @@ namespace GGEZ.Labkit
 
             if (isUnityObject)
             {
+                if (fieldsUsingSettings == null) throw new ArgumentNullException("fieldsUsingSettings");
                 hasSetting = fieldsUsingSettings.TryGetValue(fieldName, out setting);
                 EditorGUI.LabelField(labelRect, fieldName);
             }
             else if (InspectableTypeExt.CanUseSetting(inspectableType))
             {
+                if (fieldsUsingSettings == null) throw new ArgumentNullException("fieldsUsingSettings");
                 hasSetting = fieldsUsingSettings.TryGetValue(fieldName, out setting);
                 if (hasSetting != EditorGUI.ToggleLeft(labelRect, fieldName, hasSetting))
                 {
@@ -652,8 +652,90 @@ namespace GGEZ.Labkit
                         value = EditorGUIField(valueRect, inspectableType, specificType, value);
                         break;
 
+                    case InspectableType.VariableRef:
+                    {
+                        #warning TODO put this code in something special for the variable input register type since it's really specific and not used anywhere else
+                        VariableRef reference = value as VariableRef;
+
+                        Rect left = valueRect, right = valueRect;
+                        float leftSize = valueRect.width * 0.3f;
+                        left.xMax = left.xMin + leftSize;
+                        right.xMin = left.xMax;
+
+                        string variableName = null;
+                        GUIContent content;
+                        if (reference != null)
+                        {
+                            IVariable variable;
+                            if (reference.Name != null && !golemArchetype.Variables.TryGetValue(reference.Name, out variable))
+                            {
+                                reference = new VariableRef(reference.Relationship, null);
+                            }
+                            variableName = reference.Name;
+                        }
+
+                        if (string.IsNullOrEmpty(reference.Name))
+                        {
+                            content = GolemEditorUtility.NoVariableErrorGUIContent;
+                        }
+                        else
+                        {
+                            content = new GUIContent(reference.Name);
+                        }
+
+                        if (DropdownField(right, content, ref variableName))
+                        {
+                            #warning todo selecting a variable dropdown is pretty generic and copied from Variable case
+
+                            GenericMenu menu = new GenericMenu();
+                            var variables = golemArchetype.EditorVariables;
+                            int variablesAdded = 0;
+                            ActiveDropdownFieldHandle handle = GetActiveDropdownFieldHandle();
+
+                            menu.AddItem(
+                                new GUIContent("New Variable..."),
+                                false,
+                                SetDropdownFieldValueToNewVariable,
+                                new object[]{ handle, golemArchetype, specificType }
+                                );
+
+                            if (variables.Count > 0)
+                            {
+                                menu.AddSeparator("");
+                            }
+
+                            for (int i = 0; i < variables.Count; ++i)
+                            {
+                                var variable = variables[i];
+
+                                #warning TODO consider specific type when the field has an output wire
+                                // if (!specificType.IsAssignableFrom(variable.Type))
+                                // {
+                                //     continue;
+                                // }
+
+                                ++variablesAdded;
+                                menu.AddItem(
+                                    new GUIContent(variable.Name),
+                                    variable.Name == variableName,
+                                    SetDropdownFieldValueMenuFunction2,
+                                    new object[]{ handle, variable.Name }
+                                    );
+                            }
+
+                            menu.DropDown(right);
+                        }
+
+                        reference = new VariableRef(reference.Relationship, variableName);
+                        value = reference;
+
+                        break;
+                    }
+
                     case InspectableType.Variable:
                     {
+                        if (fieldsUsingVariables == null) throw new ArgumentNullException("fieldsUsingVariables");
+
                         VariableRef reference;
                         fieldsUsingVariables.TryGetValue(fieldInfo.Name, out reference);
 
@@ -704,7 +786,7 @@ namespace GGEZ.Labkit
                                 new object[]{ handle, golemArchetype, specificType }
                                 );
 
-                            
+
                             if (hasOutputWire)
                             {
                                 menu.AddSeparator("");

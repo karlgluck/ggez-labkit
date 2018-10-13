@@ -115,6 +115,7 @@ namespace GGEZ.Labkit
 
         private List<EditorState> _states { get { return _golem.Archetype.Components[_golem.Archetype.EditorWindowSelectedComponent].EditorStates; } }
         private List<EditorTransition> _transitions { get { return _golem.Archetype.Components[_golem.Archetype.EditorWindowSelectedComponent].EditorTransitions; } }
+        private List<EditorVariableInputRegister> _variableInputRegisters { get { return _golem.Archetype.Components[_golem.Archetype.EditorWindowSelectedComponent].EditorVariableInputRegisters; } }
 
         private void Read()
         {
@@ -155,6 +156,18 @@ namespace GGEZ.Labkit
                 if (_states[i].Position.Contains(graphPosition))
                 {
                     return _states[i];
+                }
+            }
+            return null;
+        }
+
+        private EditorVariableInputRegister pickEditorVariableInputRegister(Vector2 graphPosition)
+        {
+            for (int i = 0; i < _variableInputRegisters.Count; ++i)
+            {
+                if (_variableInputRegisters[i].Position.Contains(graphPosition))
+                {
+                    return _variableInputRegisters[i];
                 }
             }
             return null;
@@ -250,6 +263,7 @@ namespace GGEZ.Labkit
             inputPort = -1;
             if (editorCell == null || object.ReferenceEquals(editorCell, _creatingWireStartCell))
             {
+                editorCell = null;
                 return false;
             }
             inspectableType = GetInspectableCellType(editorCell.Cell.GetType());
@@ -262,6 +276,21 @@ namespace GGEZ.Labkit
                     inputPort = i;
                     return true;
                 }
+            }
+            return false;
+        }
+
+        private bool pickEditorVariableInputRegisterOutputPort(Vector2 graphPosition, out EditorVariableInputRegister variableInputRegister)
+        {
+            variableInputRegister = pickEditorVariableInputRegister(graphPosition);
+            if (variableInputRegister != null)
+            {
+                Rect portRect = GolemEditorUtility.GetNodeOutputPortRect(variableInputRegister.Position, EditorVariableInputRegister.PortCenterFromTopRight);
+                if (portRect.Contains(graphPosition))
+                {
+                    return true;
+                }
+                variableInputRegister = null;
             }
             return false;
         }
@@ -398,6 +427,10 @@ namespace GGEZ.Labkit
                     }
                 }
             }
+            else if (editorWire.ReadVariableInputRegister != null)
+            {
+                from = GolemEditorUtility.GetNodeOutputPortRect(editorWire.ReadVariableInputRegister.Position, EditorVariableInputRegister.PortCenterFromTopRight).center;
+            }
             else
             {
                 Debug.LogError("Wire input isn't attached to anything!!!");
@@ -473,9 +506,15 @@ namespace GGEZ.Labkit
             _creatingWireStartScript = null;
             _creatingWireStartPortName = startPortName;
             _creatingWireStartPort = portIndex;
+            _creatingWireStartVariableInputRegister = null;
             _creatingWireStartInspectableCellType = InspectableCellType.GetInspectableCellType(editorCell.Cell.GetType());
             _creatingWireStartPoint = startPoint;
             _creatingWireEndPoint = startPoint;
+            _creatingWireEndEditorCell = null;
+            _creatingWireEndInspectableType = null;
+            _creatingWireEndEditorState = null;
+            _creatingWireEndEditorScript = null;
+            _creatingWireEndVariableInputRegister = null;
             return new DraggableWire() { Window = this };
         }
 
@@ -488,9 +527,36 @@ namespace GGEZ.Labkit
             _creatingWireStartScript = editorScript;
             _creatingWireStartPortName = startPortName;
             _creatingWireStartPort = portIndex;
+            _creatingWireStartVariableInputRegister = null;
             _creatingWireStartInspectableScriptType = InspectableScriptType.GetInspectableScriptType(editorScript.Script.GetType());
             _creatingWireStartPoint = startPoint;
             _creatingWireEndPoint = startPoint;
+            _creatingWireEndEditorCell = null;
+            _creatingWireEndInspectableType = null;
+            _creatingWireEndEditorState = null;
+            _creatingWireEndEditorScript = null;
+            _creatingWireEndVariableInputRegister = null;
+            return new DraggableWire() { Window = this };
+        }
+
+        public IDraggable DragWire(EditorVariableInputRegister editorVariableInputRegister, Vector2 startPoint)
+        {
+            IsCreatingWire = true;
+            IsCreatingInputWire = false;
+            _creatingWireStartCell = null;
+            _creatingWireStartState = null;
+            _creatingWireStartScript = null;
+            _creatingWireStartPortName = null;
+            _creatingWireStartPort = -1;
+            _creatingWireStartVariableInputRegister = editorVariableInputRegister;
+            _creatingWireStartInspectableScriptType = null;
+            _creatingWireStartPoint = startPoint;
+            _creatingWireEndPoint = startPoint;
+            _creatingWireEndEditorCell = null;
+            _creatingWireEndInspectableType = null;
+            _creatingWireEndEditorState = null;
+            _creatingWireEndEditorScript = null;
+            _creatingWireEndVariableInputRegister = null;
             return new DraggableWire() { Window = this };
         }
 
@@ -523,6 +589,9 @@ namespace GGEZ.Labkit
         private EditorState _creatingWireEndEditorState;
         private EditorScript _creatingWireEndEditorScript;
         private InspectableScriptType _creatingWireEndInspectableScriptType;
+
+        private EditorVariableInputRegister _creatingWireStartVariableInputRegister;
+        private EditorVariableInputRegister _creatingWireEndVariableInputRegister;
 
         public IDraggable DragTransition(EditorState editorState)
         {
@@ -715,12 +784,12 @@ namespace GGEZ.Labkit
 
             if (pressedDelete)
             {
-                    Debug.Log("BALEET" + _selection);
                 var editorWireSelection = _selection as EditorWire;
                 if (editorWireSelection != null)
                 {
                     if (editorWireSelection.ReadCell != null) editorWireSelection.ReadCell.RemoveOutputWire(editorWireSelection);
                     if (editorWireSelection.ReadScript != null) editorWireSelection.ReadScript.RemoveOutputWire(editorWireSelection);
+                    if (editorWireSelection.ReadVariableInputRegister != null) editorWireSelection.ReadVariableInputRegister.RemoveOutputWire(editorWireSelection);
                     editorWireSelection.WriteCell.RemoveInputWire(editorWireSelection);
                     _wires.Remove(editorWireSelection);
                     _selection = null;
@@ -749,8 +818,9 @@ namespace GGEZ.Labkit
                 var editorWire = this.pickEditorWire(mouseGraphPosition);
                 var editorTransition = this.pickEditorTransition(mouseGraphPosition);
                 var pickedEditorTransitionExpression = this.pickEditorTransitionExpression(mouseGraphPosition);
+                var editorVariableInputRegister = this.pickEditorVariableInputRegister(mouseGraphPosition);
 
-                _shouldScroll = editorCell == null && editorState == null && editorWire == null && editorTransition == null && pickedEditorTransitionExpression == null;
+                _shouldScroll = editorCell == null && editorState == null && editorWire == null && editorTransition == null && pickedEditorTransitionExpression == null && editorVariableInputRegister == null;
                 if (editorCell != null)
                 {
                     if (_selection != editorCell)
@@ -856,6 +926,30 @@ namespace GGEZ.Labkit
                         Repaint();
                     }
                     _selection = editorTransition;
+                }
+                else if (editorVariableInputRegister != null)
+                {
+                    if (_selection != editorVariableInputRegister)
+                    {
+                        Repaint();
+                    }
+                    _selection = editorVariableInputRegister;
+
+                    if (GolemEditorUtility.GetNodeTitleRect(editorVariableInputRegister.Position).Contains(mouseGraphPosition))
+                    {
+                        _draggable = editorVariableInputRegister.DragPosition();
+                        _shouldDrag = true;
+                    }
+                    else
+                    {
+                        var portRect = GolemEditorUtility.GetNodeOutputPortRect(editorVariableInputRegister.Position, EditorVariableInputRegister.PortCenterFromTopRight);
+                        if (portRect.Contains(mouseGraphPosition))
+                        {
+                            _draggable = DragWire(editorVariableInputRegister, portRect.center);
+                            _shouldDrag = true;
+                            Repaint();
+                        }
+                    }
                 }
                 else
                 {
@@ -1070,7 +1164,7 @@ namespace GGEZ.Labkit
                     for (int j = 0; j < outputs.Length; ++j)
                     {
                         // var position = new Rect(scriptArea.position + new Vector2(scriptArea.width * 0.25f, EditorGUIUtility.singleLineHeight * j), new Vector2(scriptArea.width * 0.75f - GolemEditorUtility.PortLayoutWidth, EditorGUIUtility.singleLineHeight));
-                        var portCenter = topRight + outputs[j].PortCenterFromTopRight;
+                        var portCenter = outputs[j].PortCenterFromTopRight;
                         GolemEditorUtility.DrawPort(portCenter, editorScript.HasOutputWire(outputs[j].Name), false);
                         var rect = GolemEditorUtility.GetPortRect(portCenter);
                         if (!IsCreatingWire)
@@ -1079,6 +1173,41 @@ namespace GGEZ.Labkit
                         }
                     }
                 }
+                GolemEditorUtility.EndNode();
+            }
+
+            _shouldWrite = _shouldWrite || EditorGUI.EndChangeCheck();
+
+            //-------------------------------------------------
+            // Draw variable input registers
+            //-------------------------------------------------
+
+            EditorGUI.BeginChangeCheck();
+
+            foreach (EditorVariableInputRegister variableInputRegister in _variableInputRegisters)
+            {
+                bool selected = object.ReferenceEquals(_selection, variableInputRegister);
+                GolemEditorUtility.BeginNode(variableInputRegister.Variable.Name, variableInputRegister.Position, selected, _scrollPosition + _scrollAnchor, GolemEditorUtility.NodeStyleColor.Orange);
+
+                var area = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
+
+                Rect fieldPosition = area;
+                fieldPosition.xMax -= GolemEditorUtility.PortLayoutWidth;
+                GolemEditorUtility.EditorGUIGolemField(
+                    fieldPosition,
+                    InspectableType.VariableRef,
+                    typeof(VariableRef),
+                    variableInputRegister.GetType().GetField("Variable"),
+                    variableInputRegister,
+                    null,
+                    null,
+                    _golem,
+                    variableInputRegister.HasOutputWire()
+                    );
+
+                var portCenter = GolemEditorUtility.GetNodeOutputPortRect(area, EditorVariableInputRegister.PortCenterFromTopRight).center;
+                GolemEditorUtility.DrawPort(portCenter, variableInputRegister.HasOutputWire(), false);
+
                 GolemEditorUtility.EndNode();
             }
 
@@ -1139,7 +1268,8 @@ namespace GGEZ.Labkit
                                 Repaint();
                             }
                         }
-                        else // if CanConnect
+                        #warning else if (...CanConnect...)
+                        else
                         {
                             var wire = new EditorWire
                             {
@@ -1151,6 +1281,35 @@ namespace GGEZ.Labkit
                                 WriteField = _creatingWireStartPortName,
                             };
                             _creatingWireEndEditorScript.AddOutputWire(wire);
+                            _creatingWireStartCell.AddInputWire(wire);
+                            _wires.Add(wire);
+                            IsCreatingWire = false;
+                            _shouldWrite = true;
+                        }
+                    }
+                    else if (IsCreatingInputWire && pickEditorVariableInputRegisterOutputPort(mouseGraphPosition, out _creatingWireEndVariableInputRegister))
+                    {
+                        if (Event.current.type == EventType.MouseDrag)
+                        {
+                            var endPoint = GolemEditorUtility.GetNodeOutputPortRect(_creatingWireEndVariableInputRegister.Position, EditorVariableInputRegister.PortCenterFromTopRight).center;
+                            if (!CreatingWireHoveringEndPoint || _creatingWireEndPoint != endPoint)
+                            {
+                                CreatingWireHoveringEndPoint = true;
+                                _creatingWireEndPoint = endPoint;
+                                Repaint();
+                            }
+                        }
+                        #warning else if (...CanConnect...)
+                        else
+                        {
+                            var wire = new EditorWire
+                            {
+                                Register = RegisterPtr.Invalid,
+                                ReadVariableInputRegister = _creatingWireEndVariableInputRegister,
+                                WriteCell = _creatingWireStartCell,
+                                WriteField = _creatingWireStartPortName,
+                            };
+                            _creatingWireEndVariableInputRegister.AddOutputWire(wire);
                             _creatingWireStartCell.AddInputWire(wire);
                             _wires.Add(wire);
                             IsCreatingWire = false;
@@ -1169,6 +1328,13 @@ namespace GGEZ.Labkit
                                 Repaint();
                             }
                         }
+                        else if (_creatingWireEndEditorCell.HasInputWire(_creatingWireEndInspectableType.Inputs[_creatingWireEndPort].Name))
+                        {
+                            #warning can probably drag to connect input when an input already exists
+                            ShowNotification(new GUIContent("Can't connect to a port that already has an input"));
+                            CreatingWireHoveringEndPoint = false;
+                            IsCreatingWire = false;
+                        }
                         else if (_creatingWireStartCell != null && InspectableCellType.CanConnect(_creatingWireStartInspectableCellType, _creatingWireStartPort, _creatingWireEndInspectableType, _creatingWireEndPort))
                         {
                             var wire = new EditorWire
@@ -1186,7 +1352,7 @@ namespace GGEZ.Labkit
                             IsCreatingWire = false;
                             _shouldWrite = true;
                         }
-                        else if (_creatingWireStartScript != null && !_creatingWireEndEditorCell.HasInputWire(_creatingWireEndInspectableType.Inputs[_creatingWireEndPort].Name))
+                        else if (_creatingWireStartScript != null)
                         {
                             var wire = new EditorWire
                             {
@@ -1202,6 +1368,25 @@ namespace GGEZ.Labkit
                             _wires.Add(wire);
                             IsCreatingWire = false;
                             _shouldWrite = true;
+                        }
+                        else if (_creatingWireStartVariableInputRegister != null)
+                        {
+                            var wire = new EditorWire
+                            {
+                                Register = RegisterPtr.Invalid,
+                                ReadVariableInputRegister = _creatingWireStartVariableInputRegister,
+                                WriteCell = _creatingWireEndEditorCell,
+                                WriteField = _creatingWireEndInspectableType.Inputs[_creatingWireEndPort].Name,
+                            };
+                            _creatingWireStartVariableInputRegister.AddOutputWire(wire);
+                            _creatingWireEndEditorCell.AddInputWire(wire);
+                            _wires.Add(wire);
+                            IsCreatingWire = false;
+                            _shouldWrite = true;
+                        }
+                        else
+                        {
+                            Debug.LogError("Wire being created doesn't have a starting object???");
                         }
                     }
                     else
@@ -1265,9 +1450,11 @@ namespace GGEZ.Labkit
                 var editorCell = pickEditorCell(mouseGraphPosition);
                 var editorState = pickEditorState(mouseGraphPosition);
                 var pickedEditorTransitionExpression = pickEditorTransitionExpression(mouseGraphPosition);
+                var editorVariableInputRegister = pickEditorVariableInputRegister(mouseGraphPosition);
                 if (editorCell == null
                         && editorState == null
-                        && pickedEditorTransitionExpression == null)
+                        && pickedEditorTransitionExpression == null
+                        && editorVariableInputRegister == null)
                 {
                     menu.AddItem(new GUIContent("New State/Normal"), false, CreateStateMenuFunction, EditorSpecialStateType.Normal);
                     menu.AddSeparator("New State");
@@ -1287,6 +1474,8 @@ namespace GGEZ.Labkit
                     {
                         menu.AddItem(new GUIContent("New Cell/" + type.Name), false, CreateCellMenuFunction, type);
                     }
+                    menu.AddSeparator("");
+                    menu.AddItem(new GUIContent("New Variable Input"), false, CreateVariableInputMenuFunction, null);
                 }
                 else if (editorState != null)
                 {
@@ -1363,7 +1552,11 @@ namespace GGEZ.Labkit
                         menu.AddItem(new GUIContent(value.ToString().Replace('/', '_')), currentType == EditorTransitionExpressionType.Trigger && value == pickedEditorTransitionExpression.Expression.Trigger, SetTransitionExpressionType, new object[] { pickedEditorTransitionExpression, EditorTransitionExpressionType.Trigger, value });
                     }
                 }
-                else if (GolemEditorUtility.GetNodeTitleRect(editorCell.Position).Contains(mouseGraphPosition))
+                else if (editorVariableInputRegister != null)
+                {
+                    menu.AddItem(new GUIContent("Delete"), false, DeleteVariableInputRegister, editorVariableInputRegister);
+                }
+                else if (editorCell != null /* == true */ && GolemEditorUtility.GetNodeTitleRect(editorCell.Position).Contains(mouseGraphPosition))
                 {
                     menu.AddSeparator("");
                     menu.AddItem(new GUIContent("Delete Cell"), false, DeleteEditorCellMenuFunction, editorCell);
@@ -1467,6 +1660,15 @@ namespace GGEZ.Labkit
             _shouldWrite = true;
         }
 
+        private void CreateVariableInputMenuFunction(object nullParam)
+        {
+            var editorVariableInputRegister = new EditorVariableInputRegister();
+            editorVariableInputRegister.Position = GolemEditorUtility.SnapToGrid(new Rect(_menuFunctionPosition, new Vector2(EditorGUIUtility.labelWidth * 2 + EditorGUIUtility.fieldWidth, 50)));
+            editorVariableInputRegister.Variable = new VariableRef(null, null);
+            _variableInputRegisters.Add(editorVariableInputRegister);
+            _shouldWrite = true;
+        }
+
         private void DeleteEditorCellMenuFunction(object editorCellParam)
         {
             var editorCell = editorCellParam as EditorCell;
@@ -1475,12 +1677,20 @@ namespace GGEZ.Labkit
                 if (input.ReadCell != null)
                 {
                     Debug.Assert(input.ReadScript == null);
+                    Debug.Assert(input.ReadVariableInputRegister == null);
                     input.ReadCell.RemoveOutputWire(input);
                 }
                 if (input.ReadScript != null)
                 {
                     Debug.Assert(input.ReadCell == null);
+                    Debug.Assert(input.ReadVariableInputRegister == null);
                     input.ReadScript.RemoveOutputWire(input);
+                }
+                if (input.ReadVariableInputRegister != null)
+                {
+                    Debug.Assert(input.ReadScript == null);
+                    Debug.Assert(input.ReadCell == null);
+                    input.ReadVariableInputRegister.RemoveOutputWire(input);
                 }
                 _wires.Remove(input);
             }
@@ -1533,6 +1743,19 @@ namespace GGEZ.Labkit
         {
             var pickedEditorTransitionExpression = pickedEditorTransitionExpressionParam as PickedEditorTransitionExpression;
             pickedEditorTransitionExpression.Parent.Subexpressions.RemoveAt(pickedEditorTransitionExpression.IndexInParent);
+            _shouldWrite = true;
+        }
+
+        private void DeleteVariableInputRegister(object pickedEditorVariableInputRegisterParam)
+        {
+            EditorVariableInputRegister obj = pickedEditorVariableInputRegisterParam as EditorVariableInputRegister;
+            for (int i = 0; i < obj.OutputWires.Count; ++i)
+            {
+                var wire = obj.OutputWires[i];
+                wire.WriteCell.RemoveInputWire(wire);
+                _wires.Remove(wire);
+            }
+            _variableInputRegisters.Remove(obj);
             _shouldWrite = true;
         }
 

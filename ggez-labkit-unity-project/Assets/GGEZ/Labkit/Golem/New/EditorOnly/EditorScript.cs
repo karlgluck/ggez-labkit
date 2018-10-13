@@ -78,6 +78,7 @@ namespace GGEZ.Labkit
         {
             Debug.Assert(outputWire.ReadScript == this);
             Debug.Assert(outputWire.ReadCell == null);
+            Debug.Assert(outputWire.ReadVariableInputRegister == null);
             OutputWires.MultiAdd(outputWire.ReadField, outputWire);
         }
 
