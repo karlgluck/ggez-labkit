@@ -244,9 +244,9 @@ MonoBehaviour:
   NodeStyle:
     m_Name: Node
     m_Normal:
-      m_Background: {fileID: 2800000, guid: 636f14b3906024c739ae602c9a8c9c7a, type: 3}
+      m_Background: {fileID: 2800000, guid: 9e96e6eb2c6b1489c98025e9b632ce43, type: 3}
       m_ScaledBackgrounds:
-      - {fileID: 2800000, guid: 167dc9785b5a04c08864149b2247439d, type: 3}
+      - {fileID: 2800000, guid: 9e96e6eb2c6b1489c98025e9b632ce43, type: 3}
       m_TextColor: {r: 0, g: 0, b: 0, a: 1}
     m_Hover:
       m_Background: {fileID: 0}
