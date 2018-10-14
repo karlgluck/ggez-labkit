@@ -244,7 +244,7 @@ MonoBehaviour:
   NodeStyle:
     m_Name: Node
     m_Normal:
-      m_Background: {fileID: 2800000, guid: 9e96e6eb2c6b1489c98025e9b632ce43, type: 3}
+      m_Background: {fileID: 2800000, guid: 13a79f8dbde97413483e8f94ed0cc137, type: 3}
       m_ScaledBackgrounds: []
       m_TextColor: {r: 0, g: 0, b: 0, a: 1}
     m_Hover:
@@ -276,8 +276,8 @@ MonoBehaviour:
       m_ScaledBackgrounds: []
       m_TextColor: {r: 0, g: 0, b: 0, a: 1}
     m_Border:
-      m_Left: 24
-      m_Right: 24
+      m_Left: 16
+      m_Right: 16
       m_Top: 16
       m_Bottom: 24
     m_Margin:
@@ -291,10 +291,10 @@ MonoBehaviour:
       m_Top: 47
       m_Bottom: 14
     m_Overflow:
-      m_Left: 3
-      m_Right: 3
-      m_Top: 1
-      m_Bottom: 4
+      m_Left: 7
+      m_Right: 7
+      m_Top: 2
+      m_Bottom: 10
     m_Font: {fileID: 0}
     m_FontSize: 0
     m_FontStyle: 0
