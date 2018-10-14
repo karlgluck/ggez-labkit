@@ -174,11 +174,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Style:
-    m_Name: 
+    m_Name: flow node 0
     m_Normal:
-      m_Background: {fileID: 2800000, guid: 636f14b3906024c739ae602c9a8c9c7a, type: 3}
-      m_ScaledBackgrounds:
-      - {fileID: 2800000, guid: 82cfe52c0838e45feb76a995f56dcfa9, type: 3}
+      m_Background: {fileID: 3345062188058242075, guid: 0000000000000000d000000000000000,
+        type: 0}
+      m_ScaledBackgrounds: []
       m_TextColor: {r: 0, g: 0, b: 0, a: 1}
     m_Hover:
       m_Background: {fileID: 0}
@@ -209,10 +209,10 @@ MonoBehaviour:
       m_ScaledBackgrounds: []
       m_TextColor: {r: 0, g: 0, b: 0, a: 1}
     m_Border:
-      m_Left: 8
-      m_Right: 8
-      m_Top: 8
-      m_Bottom: 12
+      m_Left: 11
+      m_Right: 11
+      m_Top: 11
+      m_Bottom: 15
     m_Margin:
       m_Left: 0
       m_Right: 0
@@ -224,30 +224,29 @@ MonoBehaviour:
       m_Top: 0
       m_Bottom: 0
     m_Overflow:
-      m_Left: 3
-      m_Right: 3
-      m_Top: 1
-      m_Bottom: 4
-    m_Font: {fileID: 3459068928204737762, guid: 0000000000000000d000000000000000,
-      type: 0}
+      m_Left: 7
+      m_Right: 7
+      m_Top: 6
+      m_Bottom: 9
+    m_Font: {fileID: 0}
     m_FontSize: 0
     m_FontStyle: 0
-    m_Alignment: 0
+    m_Alignment: 1
     m_WordWrap: 0
-    m_RichText: 1
+    m_RichText: 0
     m_TextClipping: 0
     m_ImagePosition: 0
-    m_ContentOffset: {x: 0, y: 0}
+    m_ContentOffset: {x: 0, y: -22}
     m_FixedWidth: 0
     m_FixedHeight: 0
-    m_StretchWidth: 1
+    m_StretchWidth: 0
     m_StretchHeight: 0
   NodeStyle:
     m_Name: Node
     m_Normal:
-      m_Background: {fileID: 2800000, guid: 82cfe52c0838e45feb76a995f56dcfa9, type: 3}
+      m_Background: {fileID: 2800000, guid: 636f14b3906024c739ae602c9a8c9c7a, type: 3}
       m_ScaledBackgrounds:
-      - {fileID: 2800000, guid: 82cfe52c0838e45feb76a995f56dcfa9, type: 3}
+      - {fileID: 2800000, guid: 167dc9785b5a04c08864149b2247439d, type: 3}
       m_TextColor: {r: 0, g: 0, b: 0, a: 1}
     m_Hover:
       m_Background: {fileID: 0}
@@ -278,25 +277,25 @@ MonoBehaviour:
       m_ScaledBackgrounds: []
       m_TextColor: {r: 0, g: 0, b: 0, a: 1}
     m_Border:
-      m_Left: 8
-      m_Right: 8
-      m_Top: 8
-      m_Bottom: 12
+      m_Left: 24
+      m_Right: 24
+      m_Top: 16
+      m_Bottom: 24
     m_Margin:
       m_Left: 0
       m_Right: 0
       m_Top: 0
       m_Bottom: 0
     m_Padding:
-      m_Left: 1
-      m_Right: 1
+      m_Left: 0
+      m_Right: 0
       m_Top: 47
       m_Bottom: 14
     m_Overflow:
       m_Left: 3
       m_Right: 3
       m_Top: 1
-      m_Bottom: 0
+      m_Bottom: 4
     m_Font: {fileID: 0}
     m_FontSize: 0
     m_FontStyle: 0
@@ -305,7 +304,7 @@ MonoBehaviour:
     m_RichText: 0
     m_TextClipping: 0
     m_ImagePosition: 0
-    m_ContentOffset: {x: 12, y: 12}
+    m_ContentOffset: {x: 0, y: 12}
     m_FixedWidth: 0
     m_FixedHeight: 0
     m_StretchWidth: 1
@@ -314,8 +313,7 @@ MonoBehaviour:
     m_Name: 
     m_Normal:
       m_Background: {fileID: 2800000, guid: 28849f29bec06431588e4e91c47d164d, type: 3}
-      m_ScaledBackgrounds:
-      - {fileID: 2800000, guid: 28849f29bec06431588e4e91c47d164d, type: 3}
+      m_ScaledBackgrounds: []
       m_TextColor: {r: 0, g: 0, b: 0, a: 1}
     m_Hover:
       m_Background: {fileID: 0}
@@ -761,8 +759,8 @@ MonoBehaviour:
     \           {\n                \"Name\": \"Enter\",\n                \"Layer\":
     0,\n                \"Index\": 1,\n                \"CompiledIndex\": 2147483647,\n
     \               \"SpecialState\": \"LayerEnter\",\n                \"Position\":
-    {\n                    \"xMin\": 432.0,\n                    \"yMin\": -16.0,\n
-    \                   \"xMax\": 784.0,\n                    \"yMax\": 96.0\n                },\n
+    {\n                    \"xMin\": 448.0,\n                    \"yMin\": -16.0,\n
+    \                   \"xMax\": 800.0,\n                    \"yMax\": 96.0\n                },\n
     \               \"Scripts\": [],\n                \"TransitionsIn\": [],\n                \"TransitionsOut\":
     [\n                    0\n                ]\n            }\n        ],\n        \"$type\":
     \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorState, Assembly-CSharp,
