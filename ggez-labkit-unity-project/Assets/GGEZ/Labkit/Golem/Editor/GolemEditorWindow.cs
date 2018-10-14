@@ -716,17 +716,25 @@ namespace GGEZ.Labkit
                 GUI.DrawTextureWithTexCoords(rect, gridTexture, new Rect(tileOffset, tileAmount), false);
             }
 
-            if (_golem != null && Event.current.type == EventType.Repaint)
+            if (_golem != null)
             {
                 Rect nodeRect = GolemEditorUtility.SnapToGrid(new Rect(0, 0, 200, 320)).MovedBy(_scrollPosition + _scrollAnchor);
                 var drawTest = _golem.GetComponent<DrawTest>();
-                drawTest.DrawNode(
-                    nodeRect,
-                    new GUIContent("Entry Node", EditorGUIUtility.FindTexture("AudioEchoFilter Icon"))
-                    );
-                drawTest.DrawBlock(
-                    nodeRect.Inset(0f, 0f, 40f, 12f)
-                    );
+                GUILayout.BeginArea(nodeRect, drawTest.NodeStyle);
+                GUILayout.BeginVertical(drawTest.NodeBlockStyle);
+                GUILayout.Label(new GUIContent("Entry Node", EditorGUIUtility.FindTexture("AudioEchoFilter Icon")));
+                GUILayout.EndVertical();
+                GUILayout.BeginVertical(drawTest.NodeBlockStyle);
+                GUILayout.Label(new GUIContent("Entry Node", EditorGUIUtility.FindTexture("AudioEchoFilter Icon")));
+                GUILayout.EndVertical();
+                GUILayout.EndArea();
+                // drawTest.DrawNode(
+                //     nodeRect,
+                //     new GUIContent("Entry Node", EditorGUIUtility.FindTexture("AudioEchoFilter Icon"))
+                //     );
+                // drawTest.DrawBlock(
+                //     nodeRect.Inset(0f, 0f, 40f, 8f)
+                //     );
                 // foreach (bool isHover in new bool[]{false, true})
                 // foreach (bool isActive in new bool[]{false, true})
                 // foreach (bool on in new bool[]{false, true})
