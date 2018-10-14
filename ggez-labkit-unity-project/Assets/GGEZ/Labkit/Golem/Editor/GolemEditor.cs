@@ -224,7 +224,7 @@ namespace GGEZ.Labkit
             else
             {
                 var editorVariables = _golem.Archetype.EditorVariables;
-                
+
                 string focusedControlName = GUI.GetNameOfFocusedControl();
 
                 for (int i = 0; i < editorVariables.Count; ++i)
@@ -236,7 +236,7 @@ namespace GGEZ.Labkit
                     position.xMin += EditorGUIUtility.labelWidth;
                     labelRect.xMax = position.xMin;
 
-                    
+
                     string name = variable.Name;
                     string labelControlName = i.ToString("000") + ":var:" + name;
                     GUI.SetNextControlName(labelControlName);
@@ -378,7 +378,7 @@ namespace GGEZ.Labkit
 
                 EditorGUILayout.LabelField("Archetype - Editor Json", EditorStyles.boldLabel);
                 EditorGUILayout.TextArea(_golem.Archetype.EditorJson);
-                
+
                 var components = _golem.Archetype.Components;
                 for (int i = 0; i < components.Length; ++i)
                 {
@@ -391,7 +391,7 @@ namespace GGEZ.Labkit
 
                     EditorGUILayout.LabelField("["+i+"] - Editor Json", EditorStyles.boldLabel);
                     EditorGUILayout.TextArea(components[i].EditorJson);
-                
+
                 }
             }
 

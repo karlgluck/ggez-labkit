@@ -122,5 +122,15 @@ namespace GGEZ
                 self.height
             );
         }
+
+        public static Rect Inset(this Rect self, float xMin, float xMax, float yMin, float yMax)
+        {
+            return Rect.MinMaxRect(
+                self.xMin + xMin,
+                self.yMin + yMin,
+                self.xMax - xMax,
+                self.yMax - yMax
+            );
+        }
     }
 }

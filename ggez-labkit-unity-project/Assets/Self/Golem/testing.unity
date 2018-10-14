@@ -122,6 +122,7 @@ GameObject:
   m_Component:
   - component: {fileID: 272062745}
   - component: {fileID: 272062744}
+  - component: {fileID: 272062746}
   m_Layer: 0
   m_Name: MainGO
   m_TagString: Untagged
@@ -161,6 +162,226 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &272062746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 272062743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17f2aa636ff234960b8ce029d7eaae36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Style:
+    m_Name: 
+    m_Normal:
+      m_Background: {fileID: 2800000, guid: 636f14b3906024c739ae602c9a8c9c7a, type: 3}
+      m_ScaledBackgrounds:
+      - {fileID: 2800000, guid: 82cfe52c0838e45feb76a995f56dcfa9, type: 3}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Hover:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Active:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Focused:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnNormal:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnHover:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnActive:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnFocused:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Border:
+      m_Left: 8
+      m_Right: 8
+      m_Top: 8
+      m_Bottom: 12
+    m_Margin:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Padding:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Overflow:
+      m_Left: 3
+      m_Right: 3
+      m_Top: 1
+      m_Bottom: 4
+    m_Font: {fileID: 3459068928204737762, guid: 0000000000000000d000000000000000,
+      type: 0}
+    m_FontSize: 0
+    m_FontStyle: 0
+    m_Alignment: 0
+    m_WordWrap: 0
+    m_RichText: 1
+    m_TextClipping: 0
+    m_ImagePosition: 0
+    m_ContentOffset: {x: 0, y: 0}
+    m_FixedWidth: 0
+    m_FixedHeight: 0
+    m_StretchWidth: 1
+    m_StretchHeight: 0
+  NodeStyle:
+    m_Name: 
+    m_Normal:
+      m_Background: {fileID: 2800000, guid: 636f14b3906024c739ae602c9a8c9c7a, type: 3}
+      m_ScaledBackgrounds:
+      - {fileID: 2800000, guid: 636f14b3906024c739ae602c9a8c9c7a, type: 3}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Hover:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Active:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Focused:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnNormal:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnHover:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnActive:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnFocused:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Border:
+      m_Left: 8
+      m_Right: 8
+      m_Top: 8
+      m_Bottom: 12
+    m_Margin:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Padding:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Overflow:
+      m_Left: 3
+      m_Right: 3
+      m_Top: 1
+      m_Bottom: 4
+    m_Font: {fileID: 0}
+    m_FontSize: 0
+    m_FontStyle: 0
+    m_Alignment: 0
+    m_WordWrap: 0
+    m_RichText: 1
+    m_TextClipping: 0
+    m_ImagePosition: 0
+    m_ContentOffset: {x: 48, y: 12}
+    m_FixedWidth: 0
+    m_FixedHeight: 0
+    m_StretchWidth: 1
+    m_StretchHeight: 0
+  NodeBlockStyle:
+    m_Name: 
+    m_Normal:
+      m_Background: {fileID: 2800000, guid: 28849f29bec06431588e4e91c47d164d, type: 3}
+      m_ScaledBackgrounds:
+      - {fileID: 2800000, guid: 28849f29bec06431588e4e91c47d164d, type: 3}
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Hover:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Active:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Focused:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnNormal:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnHover:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnActive:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnFocused:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Border:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Margin:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Padding:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Overflow:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 2
+      m_Bottom: 2
+    m_Font: {fileID: 0}
+    m_FontSize: 0
+    m_FontStyle: 0
+    m_Alignment: 0
+    m_WordWrap: 0
+    m_RichText: 1
+    m_TextClipping: 0
+    m_ImagePosition: 0
+    m_ContentOffset: {x: 0, y: 0}
+    m_FixedWidth: 0
+    m_FixedHeight: 0
+    m_StretchWidth: 1
+    m_StretchHeight: 0
+  isHover: 0
+  isActive: 0
+  on: 0
+  keyboard: 0
 --- !u!1 &305252791
 GameObject:
   m_ObjectHideFlags: 0
@@ -491,15 +712,15 @@ MonoBehaviour:
     \"Input\",\n                        \"ReadVariableInputRegister\": {\n                            \"Variable\":
     {\n                                \"Name\": \"Time!!\",\n                                \"Relationship\":
     null\n                            },\n                            \"Position\":
-    {\n                                \"xMin\": 176.0,\n                                \"yMin\":
-    288.0,\n                                \"xMax\": 528.0,\n                                \"yMax\":
-    336.0\n                            },\n                            \"OutputWires\":
+    {\n                                \"xMin\": 448.0,\n                                \"yMin\":
+    272.0,\n                                \"xMax\": 800.0,\n                                \"yMax\":
+    320.0\n                            },\n                            \"OutputWires\":
     [\n                                {\n                                    \"$ref\":
     \"5\"\n                                }\n                            ],\n                            \"$id\":
     \"6\"\n                        },\n                        \"$id\": \"5\"\n                    }\n
     \               },\n                \"OutputWires\": {\n\n                },\n
-    \               \"Position\": {\n                    \"xMin\": 576.0,\n                    \"yMin\":
-    288.0,\n                    \"xMax\": 672.0,\n                    \"yMax\": 336.0\n
+    \               \"Position\": {\n                    \"xMin\": 864.0,\n                    \"yMin\":
+    272.0,\n                    \"xMax\": 960.0,\n                    \"yMax\": 320.0\n
     \               },\n                \"FieldsUsingSettings\": {\n\n                },\n
     \               \"FieldsUsingVariables\": {\n\n                },\n                \"$id\":
     \"2\"\n            }\n        ],\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorCell,
@@ -510,8 +731,8 @@ MonoBehaviour:
     \   \"EditorStates\": {\n        \"$content\": [\n            {\n                \"Name\":
     \"State\",\n                \"Layer\": 0,\n                \"Index\": 0,\n                \"CompiledIndex\":
     0,\n                \"SpecialState\": \"Normal\",\n                \"Position\":
-    {\n                    \"xMin\": 176.0,\n                    \"yMin\": 96.0,\n
-    \                   \"xMax\": 528.0,\n                    \"yMax\": 240.0\n                },\n
+    {\n                    \"xMin\": 448.0,\n                    \"yMin\": 112.0,\n
+    \                   \"xMax\": 800.0,\n                    \"yMax\": 256.0\n                },\n
     \               \"Scripts\": [\n                    {\n                        \"Enabled\":
     true,\n                        \"Script\": {\n                            \"$type\":
     \"SetObjectNameToTime\"\n                        },\n                        \"CompiledIndex\":
@@ -520,9 +741,9 @@ MonoBehaviour:
     {\n\n                        },\n                        \"OutputWires\": {\n\n
     \                       },\n                        \"State\": {\n                            \"$ref\":
     \"14\"\n                        },\n                        \"Position\": {\n
-    \                           \"xMin\": 181.0,\n                            \"yMin\":
-    138.0,\n                            \"xMax\": 523.0,\n                            \"yMax\":
-    154.0\n                        }\n                    },\n                    {\n
+    \                           \"xMin\": 453.0,\n                            \"yMin\":
+    154.0,\n                            \"xMax\": 795.0,\n                            \"yMax\":
+    170.0\n                        }\n                    },\n                    {\n
     \                       \"Enabled\": true,\n                        \"Script\":
     {\n                            \"Multiplier\": 0.0,\n                            \"$type\":
     \"SetVariableToTime\"\n                        },\n                        \"CompiledIndex\":
@@ -532,16 +753,16 @@ MonoBehaviour:
     null\n                            }\n                        },\n                        \"OutputWires\":
     {\n\n                        },\n                        \"State\": {\n                            \"$ref\":
     \"14\"\n                        },\n                        \"Position\": {\n
-    \                           \"xMin\": 181.0,\n                            \"yMin\":
-    174.0,\n                            \"xMax\": 523.0,\n                            \"yMax\":
-    206.0\n                        }\n                    }\n                ],\n
+    \                           \"xMin\": 453.0,\n                            \"yMin\":
+    190.0,\n                            \"xMax\": 795.0,\n                            \"yMax\":
+    222.0\n                        }\n                    }\n                ],\n
     \               \"TransitionsIn\": [\n                    0\n                ],\n
     \               \"TransitionsOut\": [],\n                \"$id\": \"14\"\n            },\n
     \           {\n                \"Name\": \"Enter\",\n                \"Layer\":
     0,\n                \"Index\": 1,\n                \"CompiledIndex\": 2147483647,\n
     \               \"SpecialState\": \"LayerEnter\",\n                \"Position\":
-    {\n                    \"xMin\": 176.0,\n                    \"yMin\": -48.0,\n
-    \                   \"xMax\": 528.0,\n                    \"yMax\": 64.0\n                },\n
+    {\n                    \"xMin\": 432.0,\n                    \"yMin\": -16.0,\n
+    \                   \"xMax\": 784.0,\n                    \"yMax\": 96.0\n                },\n
     \               \"Scripts\": [],\n                \"TransitionsIn\": [],\n                \"TransitionsOut\":
     [\n                    0\n                ]\n            }\n        ],\n        \"$type\":
     \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorState, Assembly-CSharp,
@@ -549,12 +770,12 @@ MonoBehaviour:
     {\n        \"$content\": [\n            {\n                \"Name\": \"Transition\",\n
     \               \"Index\": 0,\n                \"Expression\": {\n                    \"Type\":
     \"True\",\n                    \"Position\": {\n                        \"xMin\":
-    95.0,\n                        \"yMin\": 72.0,\n                        \"xMax\":
-    160.0,\n                        \"yMax\": 88.0\n                    },\n                    \"Trigger\":
+    495.0,\n                        \"yMin\": 104.0,\n                        \"xMax\":
+    560.0,\n                        \"yMax\": 120.0\n                    },\n                    \"Trigger\":
     \"Next\",\n                    \"Subexpressions\": []\n                },\n                \"ExpressionAnchor\":
-    {\n                    \"x\": 160.0,\n                    \"y\": 80.0\n                },\n
-    \               \"Position\": {\n                    \"xMin\": 95.0,\n                    \"yMin\":
-    72.0,\n                    \"xMax\": 160.0,\n                    \"yMax\": 88.0\n
+    {\n                    \"x\": 560.0,\n                    \"y\": 112.0\n                },\n
+    \               \"Position\": {\n                    \"xMin\": 495.0,\n                    \"yMin\":
+    104.0,\n                    \"xMax\": 560.0,\n                    \"yMax\": 120.0\n
     \               },\n                \"From\": 1,\n                \"To\": 0\n
     \           }\n        ],\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorTransition,
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    },\n

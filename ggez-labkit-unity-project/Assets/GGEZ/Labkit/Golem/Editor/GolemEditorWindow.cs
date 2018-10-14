@@ -627,6 +627,8 @@ namespace GGEZ.Labkit
         //-----------------------------------------------------
         private void OnGUI()
         {
+
+
             //-------------------------------------------------
             // Draw some placeholder text if no circuit is active
             //-------------------------------------------------
@@ -712,6 +714,41 @@ namespace GGEZ.Labkit
                 Vector2 tileOffset = new Vector2(-offset.x / gridTexture.width, (offset.y - aligningOffset) / gridTexture.height);
                 Vector2 tileAmount = new Vector2(rect.width / gridTexture.width, rect.height / gridTexture.height);
                 GUI.DrawTextureWithTexCoords(rect, gridTexture, new Rect(tileOffset, tileAmount), false);
+            }
+
+            if (_golem != null && Event.current.type == EventType.Repaint)
+            {
+                Rect nodeRect = GolemEditorUtility.SnapToGrid(new Rect(0, 0, 200, 320)).MovedBy(_scrollPosition + _scrollAnchor);
+                var drawTest = _golem.GetComponent<DrawTest>();
+                drawTest.DrawNode(
+                    nodeRect,
+                    new GUIContent("Entry Node", EditorGUIUtility.FindTexture("AudioEchoFilter Icon"))
+                    );
+                drawTest.DrawBlock(
+                    nodeRect.Inset(0f, 0f, 40f, 12f)
+                    );
+                // foreach (bool isHover in new bool[]{false, true})
+                // foreach (bool isActive in new bool[]{false, true})
+                // foreach (bool on in new bool[]{false, true})
+                // foreach (bool keyboard in new bool[]{false, true})
+                // {
+                //     float y =
+                //         (isHover ? 100 : 0) +
+                //         (isActive ? 200 : 0) +
+                //         (on ? 400 : 0) +
+                //         (keyboard ? 800 : 0);
+
+                //     drawTest.Style.font = EditorStyles.standardFont;
+
+                //     drawTest.Style.Draw(
+                //         GolemEditorUtility.SnapToGrid(new Rect(0, y, 200, 80)).MovedBy(_scrollPosition + _scrollAnchor),
+                //         (isHover ? "Hover " : "") + (isActive ? "Active " : "") + (on ? "On " : "") + (keyboard ? "Kbd" : ""),
+                //         isHover,
+                //         isActive,
+                //         on,
+                //         keyboard
+                //     );
+                // }
             }
 
             // Compute and store this at the window level because entering a layout context changes the value of mousePosition!
