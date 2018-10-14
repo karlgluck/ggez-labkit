@@ -720,6 +720,7 @@ namespace GGEZ.Labkit
             {
                 Rect nodeRect = GolemEditorUtility.SnapToGrid(new Rect(0, 0, 200, 320)).MovedBy(_scrollPosition + _scrollAnchor);
                 var drawTest = _golem.GetComponent<DrawTest>();
+                drawTest.Style = GolemEditorUtility.NodeStyles[0];
                 GUILayout.BeginArea(nodeRect, drawTest.NodeStyle);
                 GUILayout.BeginVertical(drawTest.NodeBlockStyle);
                 GUILayout.Label(new GUIContent("Entry Node", EditorGUIUtility.FindTexture("AudioEchoFilter Icon")));
