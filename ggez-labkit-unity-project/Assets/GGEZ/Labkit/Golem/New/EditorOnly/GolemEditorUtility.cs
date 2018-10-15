@@ -248,6 +248,7 @@ namespace GGEZ.Labkit
 
         public static bool DropdownField(Rect position, GUIContent content, ref object value)
         {
+            #warning TODO rewrite this with GUIUtility.GetStateObject to leverage Unity's internal support for control-fixed state info
             var controlId = GUIUtility.GetControlID(FocusType.Keyboard);
             if (EditorGUI.DropdownButton(position, content, FocusType.Keyboard, EditorStyles.popup))
             {

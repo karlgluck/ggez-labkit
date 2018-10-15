@@ -718,17 +718,38 @@ namespace GGEZ.Labkit
 
             if (_golem != null)
             {
-                Rect nodeRect = GolemEditorUtility.SnapToGrid(new Rect(0, 0, 200, 320)).MovedBy(_scrollPosition + _scrollAnchor);
+                Rect nodeRect = GolemEditorUtility.SnapToGrid(new Rect(0, 0, 200, 100)).MovedBy(_scrollPosition + _scrollAnchor);
                 var drawTest = _golem.GetComponent<DrawTest>();
-                drawTest.Style = GolemEditorUtility.NodeStyles[0];
-                GUILayout.BeginArea(nodeRect, drawTest.NodeStyle);
+                // the texture needs to be 48x32 pixels
+                GUILayout.BeginArea(nodeRect, new GUIContent(drawTest.Title.Replace("<br>", "\n"), drawTest.DebugLogFloatTexture), drawTest.NodeStyle);
                 GUILayout.BeginVertical(drawTest.NodeBlockStyle);
-                GUILayout.Label(new GUIContent("Entry Node", EditorGUIUtility.FindTexture("AudioEchoFilter Icon")));
-                GUILayout.EndVertical();
-                GUILayout.BeginVertical(drawTest.NodeBlockStyle);
-                GUILayout.Label(new GUIContent("Entry Node", EditorGUIUtility.FindTexture("AudioEchoFilter Icon")));
+                GUILayout.Label(GolemEditorUtility.NoSettingGUIContent);
                 GUILayout.EndVertical();
                 GUILayout.EndArea();
+
+                Rect bareNodeRect = GolemEditorUtility.SnapToGrid(new Rect(250, 0, 200, 50)).MovedBy(_scrollPosition + _scrollAnchor);
+                GUILayout.BeginArea(bareNodeRect, new GUIContent("<size=12>Bare Node Style</size>\nOne or two IOs", drawTest.DebugLogFloatTexture), drawTest.BareNodeStyle);
+                GUILayout.EndArea();
+
+                Rect configurableNodeRect = GolemEditorUtility.SnapToGrid(new Rect(250, 100, 200, 50)).MovedBy(_scrollPosition + _scrollAnchor);
+                GUILayout.BeginArea(configurableNodeRect, drawTest.DebugLogFloatTexture, drawTest.BareNodeStyle);
+                GUILayout.BeginHorizontal();
+                GUILayout.Space(48f);
+                GUILayout.BeginVertical();
+                GUILayout.Space(4f);
+                GUILayout.FlexibleSpace();
+         
+                // GUILayout.Label(new GUIContent("Read Variable"), EditorStyles.boldLabel);
+                var rect = EditorGUILayout.GetControlRect(false);
+                EditorGUI.DropdownButton(rect, GolemEditorUtility.NoVariableErrorGUIContent, FocusType.Keyboard);
+                // var rect2 = EditorGUILayout.GetControlRect(false);
+                // EditorGUI.DropdownButton(rect2, GolemEditorUtility.NoVariableErrorGUIContent, FocusType.Keyboard);
+
+                GUILayout.FlexibleSpace();
+                GUILayout.EndVertical();
+                GUILayout.EndHorizontal();
+                GUILayout.EndArea();
+
                 // drawTest.DrawNode(
                 //     nodeRect,
                 //     new GUIContent("Entry Node", EditorGUIUtility.FindTexture("AudioEchoFilter Icon"))
