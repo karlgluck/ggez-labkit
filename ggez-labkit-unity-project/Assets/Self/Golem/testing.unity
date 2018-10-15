@@ -175,7 +175,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DebugLogFloatTexture: {fileID: 2800000, guid: 0dcb4374bb271d04598c88b523004b15,
     type: 3}
-  Title: <size=10><b>hi</b></size><br>okay
+  Title: <size=12>Debug Float Output</size><br>Does cool stuff
   NodeStyle:
     m_Name: Node
     m_Normal:
@@ -238,7 +238,7 @@ MonoBehaviour:
     m_RichText: 1
     m_TextClipping: 0
     m_ImagePosition: 0
-    m_ContentOffset: {x: 8, y: -40}
+    m_ContentOffset: {x: 0, y: -40}
     m_FixedWidth: 0
     m_FixedHeight: 0
     m_StretchWidth: 1
@@ -310,6 +310,73 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 1
+  BareNodeStyle:
+    m_Name: 
+    m_Normal:
+      m_Background: {fileID: 2800000, guid: 13a79f8dbde97413483e8f94ed0cc137, type: 3}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Hover:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Active:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Focused:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnNormal:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnHover:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnActive:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_OnFocused:
+      m_Background: {fileID: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0, g: 0, b: 0, a: 1}
+    m_Border:
+      m_Left: 16
+      m_Right: 16
+      m_Top: 16
+      m_Bottom: 24
+    m_Margin:
+      m_Left: 0
+      m_Right: 0
+      m_Top: 0
+      m_Bottom: 0
+    m_Padding:
+      m_Left: 0
+      m_Right: 6
+      m_Top: 0
+      m_Bottom: 0
+    m_Overflow:
+      m_Left: 7
+      m_Right: 7
+      m_Top: 2
+      m_Bottom: 10
+    m_Font: {fileID: 0}
+    m_FontSize: 0
+    m_FontStyle: 0
+    m_Alignment: 3
+    m_WordWrap: 0
+    m_RichText: 1
+    m_TextClipping: 0
+    m_ImagePosition: 0
+    m_ContentOffset: {x: 0, y: 0}
+    m_FixedWidth: 0
+    m_FixedHeight: 0
+    m_StretchWidth: 1
+    m_StretchHeight: 0
   isHover: 0
   isActive: 0
   on: 0
@@ -670,8 +737,8 @@ MonoBehaviour:
     \               \"Name\": \"State\",\r\n                \"Layer\": 0,\r\n                \"Index\":
     0,\r\n                \"CompiledIndex\": 0,\r\n                \"SpecialState\":
     \"Normal\",\r\n                \"Position\": {\r\n                    \"xMin\":
-    448.0,\r\n                    \"yMin\": 112.0,\r\n                    \"xMax\":
-    800.0,\r\n                    \"yMax\": 256.0\r\n                },\r\n                \"Scripts\":
+    528.0,\r\n                    \"yMin\": 112.0,\r\n                    \"xMax\":
+    880.0,\r\n                    \"yMax\": 256.0\r\n                },\r\n                \"Scripts\":
     [\r\n                    {\r\n                        \"Enabled\": true,\r\n                        \"Script\":
     {\r\n                            \"$type\": \"SetObjectNameToTime\"\r\n                        },\r\n
     \                       \"CompiledIndex\": 0,\r\n                        \"FieldsUsingSettings\":
@@ -680,8 +747,8 @@ MonoBehaviour:
     \                       \"OutputWires\": {\r\n\r\n                        },\r\n
     \                       \"State\": {\r\n                            \"$ref\":
     \"14\"\r\n                        },\r\n                        \"Position\":
-    {\r\n                            \"xMin\": 453.0,\r\n                            \"yMin\":
-    154.0,\r\n                            \"xMax\": 795.0,\r\n                            \"yMax\":
+    {\r\n                            \"xMin\": 533.0,\r\n                            \"yMin\":
+    154.0,\r\n                            \"xMax\": 875.0,\r\n                            \"yMax\":
     170.0\r\n                        }\r\n                    },\r\n                    {\r\n
     \                       \"Enabled\": true,\r\n                        \"Script\":
     {\r\n                            \"Multiplier\": 0.0,\r\n                            \"$type\":
@@ -693,16 +760,16 @@ MonoBehaviour:
     {\r\n\r\n                        },\r\n                        \"State\": {\r\n
     \                           \"$ref\": \"14\"\r\n                        },\r\n
     \                       \"Position\": {\r\n                            \"xMin\":
-    453.0,\r\n                            \"yMin\": 190.0,\r\n                            \"xMax\":
-    795.0,\r\n                            \"yMax\": 222.0\r\n                        }\r\n
+    533.0,\r\n                            \"yMin\": 190.0,\r\n                            \"xMax\":
+    875.0,\r\n                            \"yMax\": 222.0\r\n                        }\r\n
     \                   }\r\n                ],\r\n                \"TransitionsIn\":
     [\r\n                    0\r\n                ],\r\n                \"TransitionsOut\":
     [],\r\n                \"$id\": \"14\"\r\n            },\r\n            {\r\n
     \               \"Name\": \"Enter\",\r\n                \"Layer\": 0,\r\n                \"Index\":
     1,\r\n                \"CompiledIndex\": 2147483647,\r\n                \"SpecialState\":
     \"LayerEnter\",\r\n                \"Position\": {\r\n                    \"xMin\":
-    448.0,\r\n                    \"yMin\": -16.0,\r\n                    \"xMax\":
-    800.0,\r\n                    \"yMax\": 96.0\r\n                },\r\n                \"Scripts\":
+    544.0,\r\n                    \"yMin\": -80.0,\r\n                    \"xMax\":
+    896.0,\r\n                    \"yMax\": 32.0\r\n                },\r\n                \"Scripts\":
     [],\r\n                \"TransitionsIn\": [],\r\n                \"TransitionsOut\":
     [\r\n                    0\r\n                ]\r\n            }\r\n        ],\r\n
     \       \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorState,
@@ -710,14 +777,14 @@ MonoBehaviour:
     \   },\r\n    \"EditorTransitions\": {\r\n        \"$content\": [\r\n            {\r\n
     \               \"Name\": \"Transition\",\r\n                \"Index\": 0,\r\n
     \               \"Expression\": {\r\n                    \"Type\": \"True\",\r\n
-    \                   \"Position\": {\r\n                        \"xMin\": 495.0,\r\n
-    \                       \"yMin\": 104.0,\r\n                        \"xMax\":
-    560.0,\r\n                        \"yMax\": 120.0\r\n                    },\r\n
-    \                   \"Trigger\": \"Next\",\r\n                    \"Subexpressions\":
-    []\r\n                },\r\n                \"ExpressionAnchor\": {\r\n                    \"x\":
-    560.0,\r\n                    \"y\": 112.0\r\n                },\r\n                \"Position\":
-    {\r\n                    \"xMin\": 495.0,\r\n                    \"yMin\": 104.0,\r\n
-    \                   \"xMax\": 560.0,\r\n                    \"yMax\": 120.0\r\n
+    \                   \"Position\": {\r\n                        \"xMin\": 479.0,\r\n
+    \                       \"yMin\": 72.0,\r\n                        \"xMax\": 544.0,\r\n
+    \                       \"yMax\": 88.0\r\n                    },\r\n                    \"Trigger\":
+    \"Next\",\r\n                    \"Subexpressions\": []\r\n                },\r\n
+    \               \"ExpressionAnchor\": {\r\n                    \"x\": 544.0,\r\n
+    \                   \"y\": 80.0\r\n                },\r\n                \"Position\":
+    {\r\n                    \"xMin\": 479.0,\r\n                    \"yMin\": 72.0,\r\n
+    \                   \"xMax\": 544.0,\r\n                    \"yMax\": 88.0\r\n
     \               },\r\n                \"From\": 1,\r\n                \"To\":
     0\r\n            }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorTransition,
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
