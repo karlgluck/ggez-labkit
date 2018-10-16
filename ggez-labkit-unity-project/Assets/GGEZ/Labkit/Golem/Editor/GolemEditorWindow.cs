@@ -720,26 +720,30 @@ namespace GGEZ.Labkit
             {
                 Rect nodeRect = GolemEditorUtility.SnapToGrid(new Rect(0, 0, 200, 100)).MovedBy(_scrollPosition + _scrollAnchor);
                 var drawTest = _golem.GetComponent<DrawTest>();
-                // the texture needs to be 48x32 pixels
-                GUILayout.BeginArea(nodeRect, new GUIContent(drawTest.Title.Replace("<br>", "\n"), drawTest.DebugLogFloatTexture), drawTest.NodeStyle);
-                GUILayout.BeginVertical(drawTest.NodeBlockStyle);
+
+                GolemEditorSkin skin = GolemEditorSkin.Current;
+
+                GUILayout.BeginArea(nodeRect, new GUIContent(drawTest.Title.Replace("<br>", "\n"), drawTest.DebugLogFloatTexture), skin.CellStyle);
+                GUILayout.BeginVertical(skin.CellBodyStyle);
                 GUILayout.Label(GolemEditorUtility.NoSettingGUIContent);
                 GUILayout.EndVertical();
+                // Debug.Log("mouse = " + Event.current.mousePosition + ", Last Vertical Rect: " + GUILayoutUtility.GetLastRect());
                 GUILayout.EndArea();
+// Debug.Log("X mouse = " + Event.current.mousePosition + ", Last Vertical Rect: " + GUILayoutUtility.GetLastRect());
 
                 Rect bareNodeRect = GolemEditorUtility.SnapToGrid(new Rect(250, 0, 200, 50)).MovedBy(_scrollPosition + _scrollAnchor);
-                GUILayout.BeginArea(bareNodeRect, new GUIContent("<size=12>Bare Node Style</size>\nOne or two IOs", drawTest.DebugLogFloatTexture), drawTest.BareNodeStyle);
+                GUILayout.BeginArea(bareNodeRect, new GUIContent("<size=12>Bare Node Style</size>\nOne or two IOs", drawTest.DebugLogFloatTexture), skin.CellWithoutBodyStyle);
                 GUILayout.EndArea();
 
                 Rect configurableNodeRect = GolemEditorUtility.SnapToGrid(new Rect(250, 100, 200, 50)).MovedBy(_scrollPosition + _scrollAnchor);
-                GUILayout.BeginArea(configurableNodeRect, drawTest.DebugLogFloatTexture, drawTest.BareNodeStyle);
+                GUILayout.BeginArea(configurableNodeRect, drawTest.DebugLogFloatTexture, skin.CellWithoutBodyStyle);
                 GUILayout.BeginHorizontal();
                 GUILayout.Space(48f);
                 GUILayout.BeginVertical();
                 GUILayout.Space(4f);
                 GUILayout.FlexibleSpace();
-         
-                // GUILayout.Label(new GUIContent("Read Variable"), EditorStyles.boldLabel);
+
+                GUILayout.Label(new GUIContent("Read Variable"), EditorStyles.boldLabel);
                 var rect = EditorGUILayout.GetControlRect(false);
                 EditorGUI.DropdownButton(rect, GolemEditorUtility.NoVariableErrorGUIContent, FocusType.Keyboard);
                 // var rect2 = EditorGUILayout.GetControlRect(false);
@@ -749,36 +753,6 @@ namespace GGEZ.Labkit
                 GUILayout.EndVertical();
                 GUILayout.EndHorizontal();
                 GUILayout.EndArea();
-
-                // drawTest.DrawNode(
-                //     nodeRect,
-                //     new GUIContent("Entry Node", EditorGUIUtility.FindTexture("AudioEchoFilter Icon"))
-                //     );
-                // drawTest.DrawBlock(
-                //     nodeRect.Inset(0f, 0f, 40f, 8f)
-                //     );
-                // foreach (bool isHover in new bool[]{false, true})
-                // foreach (bool isActive in new bool[]{false, true})
-                // foreach (bool on in new bool[]{false, true})
-                // foreach (bool keyboard in new bool[]{false, true})
-                // {
-                //     float y =
-                //         (isHover ? 100 : 0) +
-                //         (isActive ? 200 : 0) +
-                //         (on ? 400 : 0) +
-                //         (keyboard ? 800 : 0);
-
-                //     drawTest.Style.font = EditorStyles.standardFont;
-
-                //     drawTest.Style.Draw(
-                //         GolemEditorUtility.SnapToGrid(new Rect(0, y, 200, 80)).MovedBy(_scrollPosition + _scrollAnchor),
-                //         (isHover ? "Hover " : "") + (isActive ? "Active " : "") + (on ? "On " : "") + (keyboard ? "Kbd" : ""),
-                //         isHover,
-                //         isActive,
-                //         on,
-                //         keyboard
-                //     );
-                // }
             }
 
             // Compute and store this at the window level because entering a layout context changes the value of mousePosition!

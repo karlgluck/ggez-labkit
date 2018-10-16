@@ -60,16 +60,52 @@ namespace GGEZ.Labkit
             OnVariableRollover();
         }
 
-        public static Golem CreateGolem(Golem prefab)
+        #warning TODO do we need to weak reference the golem pool?
+        private Dictionary<int, List<Golem>> _golemPool = new Dictionary<int, List<Golem>>();
+
+        public static Golem AcquireGolem(Golem prefab)
         {
-            GameObject gameObject = GameObject.Instantiate(prefab.gameObject);
-            Golem golem = gameObject.GetComponent<Golem>();
+            Debug.Assert(!Application.isPlaying);
+
+            Golem golem;
+            if (Instance._golemPool.MultiPop(prefab.Archetype.GetInstanceID(), out golem))
+            {
+                // For now, don't handle the case of memory being cleaned up
+                Debug.Assert(golem != null);
+                OnAwake(golem);
+                golem.gameObject.SetActive(true);
+            }
+            else
+            {
+                GameObject gameObject = GameObject.Instantiate(prefab.gameObject);
+                golem = gameObject.GetComponent<Golem>();
+            }
+
             return golem;
         }
 
-        public static Golem CreateGolem(Golem prefab, Settings localSettings)
+        public static Golem AcquireGolem(Golem prefab, Settings localSettings)
         {
             throw new System.NotImplementedException();
+        }
+
+        public static void ReleaseGolem(Golem golem)
+        {
+            var archetype = golem.Archetype;
+            DoAssignments(golem, archetype.Assignments, null, null, null);
+            for (int i = 0; i < archetype.Components.Length; ++i)
+            {
+                var from = archetype.Components[i];
+                var to = golem.Components[i];
+
+                foreach (var kvp in from.ExternalAssignments)
+                {
+                    DoAssignments(golem, kvp.Value, null, to, null);
+                }
+            }
+
+            golem.gameObject.SetActive(false);
+            Instance._golemPool.MultiAdd(archetype.GetInstanceID(), golem);
         }
 
         public static void OnAwake(Golem golem)
@@ -192,6 +228,8 @@ namespace GGEZ.Labkit
                 object target;
                 FieldInfo fieldInfo;
 
+                #warning If we assign and unassign a register, cell listeners still remain! We need to remove these!
+
                 switch (assignment.Type)
                 {
                     case AssignmentType.AspectGolem:  assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem); break;
@@ -221,31 +259,72 @@ namespace GGEZ.Labkit
                     case AssignmentType.CellRegisterVariable:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetOrCreateRegisterVariable(assignment.RegisterIndex, registers, ref registerVariables)); break;
                     case AssignmentType.ScriptRegisterVariable:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetOrCreateRegisterVariable(assignment.RegisterIndex, registers, ref registerVariables)); break;
 
-                    case AssignmentType.CellInputVariableRegisterOrNull:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetVariableRegisterOrNull(variables, assignment.Name)); break;
+                    case AssignmentType.CellInputVariableRegisterOrNull:
+                        {
+                            Cell targetCell = component.Cells[assignment.TargetIndex];
+                            fieldInfo = assignment.GetFieldInfo(targetCell);
+                            {
+                                IRegister oldRegister = fieldInfo.GetValue(targetCell) as IRegister;
+                                if (oldRegister != null)
+                                {
+                                    oldRegister.RemoveListener(targetCell);
+                                }
+                            }
+                            {
+                                IRegister register = GetVariableRegisterOrNull(variables, assignment.Name);
+                                if (register != null)
+                                {
+                                    register.AddListener(targetCell);
+                                }
+                                fieldInfo.SetValue(targetCell, register);
+                            }
+                        }
+                        break;
 
                     case AssignmentType.CellInputVariableRegisterOrDummy:
                         {
                             Cell targetCell = component.Cells[assignment.TargetIndex];
                             fieldInfo = assignment.GetFieldInfo(targetCell);
-                            IRegister register = GetVariableRegisterOrNull(variables, assignment.Name);
-                            if (register == null)
                             {
-                                register = GetReadonlyRegister(fieldInfo.FieldType);
+                                IRegister oldRegister = fieldInfo.GetValue(targetCell) as IRegister;
+                                if (oldRegister != null)
+                                {
+                                    oldRegister.RemoveListener(targetCell);
+                                }
                             }
-                            else
                             {
-                                register.AddListener(targetCell);
+                                IRegister register = GetVariableRegisterOrNull(variables, assignment.Name);
+                                if (register == null)
+                                {
+                                    register = GetReadonlyRegister(fieldInfo.FieldType);
+                                }
+                                else
+                                {
+                                    register.AddListener(targetCell);
+                                }
+                                fieldInfo.SetValue(targetCell, register);
                             }
-                            fieldInfo.SetValue(targetCell, register);
                         }
                         break;
 
                     case AssignmentType.CellInputRegister:
                         {
+                            #warning we only need to update straight cell input registers when the golem is brand new
+
                             Cell targetCell = component.Cells[assignment.TargetIndex];
-                            IRegister register = registers[assignment.RegisterIndex];
-                            register.AddListener(targetCell);
-                            assignment.GetFieldInfo(targetCell).SetValue(targetCell, register);
+                            fieldInfo = assignment.GetFieldInfo(targetCell);
+                            {
+                                IRegister oldRegister = fieldInfo.GetValue(targetCell) as IRegister;
+                                if (oldRegister != null)
+                                {
+                                    oldRegister.RemoveListener(targetCell);
+                                }
+                            }
+                            {
+                                IRegister register = registers[assignment.RegisterIndex];
+                                register.AddListener(targetCell);
+                                fieldInfo.SetValue(targetCell, register);
+                            }
                         }
                         break;
 

@@ -38,18 +38,11 @@ Because:
 
 ## Scripts can only write variables
 
-As a consequence of the phase order:
+If scripts only write variables, changes leapfrog the Collection Register phase so that they'll be seen by cells (and scripts) on the next frame. Otherwise, circuits would be able to propagate changes to scripts correctly but the reverse would not be true. Doing this also removes the ambiguity of whether scripts can expect to share data with one another through registers by answering "no".
 
- * Circuits that write collection registers propagate changes correctly to both cells and scripts
- * Scripts that write collection registers would have their changes erased before they are seen by a cell
+## Cells that use collection registers need to handle connecting/disconnecting a register themselves
 
- The solution is for scripts to only write variables. This makes changes leapfrog the Collection Register phase so that they'll be seen by cells (and scripts) on the next frame.
- 
- As a bonus, it removes the ambiguity of whether scripts can expect to share data with one another through registers.
-
-
-
-
+Each cell will be able to use a collection register's `Added` and `Removed` values while a register stays the same, but the register/variable itself does not track that its reference has been added to a cell. TODO: change this?
 
 
 
@@ -87,20 +80,6 @@ As a consequence of the phase order:
     the Golem says "I have these settings, these Aspects and these Components"
         - And, transparently, "these object references" as contained in Aspects.
 
-    the Golem contains:
-        - A list of GolemComponents it uses
-        - A list of settings, a superset of settings used in the GolemComponents
-        - A list of aspect types that Golem uses
-        - A map of name -> Unity Object references
-            - And what aspects to write the references into
-        - A list of {variable name / register index / aspect index / field name} for variables
-
-    the GolemComponent:
-        - Contains a list of {variable name / [cell/script index] / field name / reftype} for local variables
-        - Contains {setting name, [cell/script index], field name } to write values on load
-        (contains variables to write to field values on load)
-        (contains unity object references to write to field values on load)
-
 
 
                              frame start
@@ -137,7 +116,7 @@ within a circuit, we want a collection register to immediately track adds/remove
         cell sees the same thing (so added has to be updated DURING circuit)
         and that a variable reading that register sees the same thing (so added can't be cleared between circuit & program)
         and that a cell reading a variable sees added (so added can't be cleared between variable update and circuit)
-    
+
 So where is the boundary where "Added" gets cleared?
     in the circuit case, it's just before circuits are updated; in the script case, it's jsut before scripts are updated
 
@@ -152,13 +131,13 @@ So where is the boundary where "Added" gets cleared?
             - if a cell has 2 inputs, one of which is a collection register and the other of which
               reads a remote cell's value, which changes after that cell is dirtied, then the
               cell will get used twice and the reader will see "added" twice.
-        
+
         basically, this construction would require that cells be IDEMPOTENT on their inputs
             scripts can be non-idempotent since they are only evaluated once per frame at most
-        
+
             - if a cell has a register input and a script has a register variable input for that
               register, and a script has a register output
-            
+
         if we say that scripts can't write registers--they can only write variables--then
         we know that all writes will survive a clear after the program phase. this would mean that
         collections written during the circuit phase propagate immediatly between cells and to scripts,

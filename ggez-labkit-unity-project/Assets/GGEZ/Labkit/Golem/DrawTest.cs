@@ -10,13 +10,4 @@ public class DrawTest : MonoBehaviour
 
     public bool isHover, isActive, on, keyboard;
 
-    public void DrawNode(Rect position, GUIContent content)
-    {
-        NodeStyle.Draw(position, content, isHover, isActive, on, keyboard);
-    }
-
-    public void DrawBlock(Rect position)
-    {
-        NodeBlockStyle.Draw(position, isHover, isActive, on, keyboard);
-    }
 }

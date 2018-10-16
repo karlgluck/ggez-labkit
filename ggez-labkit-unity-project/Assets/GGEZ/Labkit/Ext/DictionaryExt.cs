@@ -24,6 +24,7 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using System.Collections.Generic;
+using System;
 
 namespace GGEZ
 {
@@ -66,5 +67,23 @@ namespace GGEZ
             }
             return retval;
         }
+
+        public static bool MultiPop<Key, ItemType>(this Dictionary<Key, List<ItemType>> self, Key key, out ItemType item)
+        {
+            List<ItemType> list;
+            if (self.TryGetValue(key, out list))
+            {
+                int index = list.Count - 1;
+                if (index >= 0)
+                {
+                    item = list[index];
+                    list.RemoveAt(index);
+                    return true;
+                }
+            }
+            item = default(ItemType);
+            return false;
+        }
+
     }
 }
