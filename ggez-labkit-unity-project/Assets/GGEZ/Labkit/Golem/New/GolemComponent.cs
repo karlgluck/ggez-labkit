@@ -1014,6 +1014,7 @@ namespace GGEZ.Labkit
             EditorWires = new List<EditorWire>();
             EditorStates = new List<EditorState>();
             EditorTransitions = new List<EditorTransition>();
+            EditorVariableInputRegisters = new List<EditorVariableInputRegister>();
             EditorJson = "{}";
         }
 

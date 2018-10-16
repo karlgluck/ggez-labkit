@@ -80,6 +80,10 @@ namespace GGEZ.Labkit
         public GUIStyle CellStyle;
         public GUIStyle CellBodyStyle;
         public GUIStyle CellWithoutBodyStyle;
+        public GUIStyle InputLabelStyle;
+        public GUIStyle OutputLabelStyle;
+
+        public GUIStyle PortStyle;
 
         void Reset()
         {

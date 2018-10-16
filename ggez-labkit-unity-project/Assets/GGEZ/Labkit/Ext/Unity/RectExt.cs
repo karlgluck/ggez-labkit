@@ -56,6 +56,19 @@ namespace GGEZ
         }
 
         /// <summary>
+        /// Return the rect decreased in size by fixed amounts on each edge
+        /// </summary>
+        public static Rect ContractedBy(this Rect self, float xMin, float xMax, float yMin, float yMax)
+        {
+            return Rect.MinMaxRect(
+                self.xMin + xMin,
+                self.yMin + yMin,
+                self.xMax - xMax,
+                self.yMax - yMax
+            );
+        }
+
+        /// <summary>
         /// Return the rect increased in size evenly around its border
         /// </summary>
         public static Rect ExpandedBy(this Rect self, float margin)
@@ -67,6 +80,19 @@ namespace GGEZ
                     self.width + twiceMargin,
                     self.height + twiceMargin
                     );
+        }
+
+        /// <summary>
+        /// Return the rect increased in size by fixed amounts on each edge
+        /// </summary>
+        public static Rect ExpandedBy(this Rect self, float xMin, float xMax, float yMin, float yMax)
+        {
+            return Rect.MinMaxRect(
+                self.xMin - xMin,
+                self.yMin - yMin,
+                self.xMax + xMax,
+                self.yMax + yMax
+            );
         }
 
         /// <summary>
@@ -123,13 +149,48 @@ namespace GGEZ
             );
         }
 
-        public static Rect Inset(this Rect self, float xMin, float xMax, float yMin, float yMax)
+        public static Rect WithWidth(this Rect self, float width)
         {
-            return Rect.MinMaxRect(
-                self.xMin + xMin,
-                self.yMin + yMin,
-                self.xMax - xMax,
-                self.yMax - yMax
+            return new Rect(
+                self.x,
+                self.y,
+                width,
+                self.height
+            );
+        }
+
+        public static Rect WithHeight(this Rect self, float height)
+        {
+            return new Rect(
+                self.x,
+                self.y,
+                self.width,
+                height
+            );
+        }
+
+        public static Rect GetRow(this Rect self, int row, float rowHeight)
+        {
+            return new Rect(self.x, self.y + row * rowHeight, self.width, rowHeight);
+        }
+
+        public static Rect GetCenteredRight(this Rect self, float xOffset, float width, float height)
+        {
+            return new Rect(
+                self.xMax + xOffset - width * 0.5f,
+                (self.yMin + self.yMax) * 0.5f - height * 0.5f,
+                width,
+                height
+            );
+        }
+
+        public static Rect GetCenteredLeft(this Rect self, float xOffset, float width, float height)
+        {
+            return new Rect(
+                self.xMin + xOffset - width * 0.5f,
+                (self.yMin + self.yMax) * 0.5f - height * 0.5f,
+                width,
+                height
             );
         }
     }
