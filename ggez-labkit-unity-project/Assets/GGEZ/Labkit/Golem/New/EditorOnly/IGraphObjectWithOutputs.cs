@@ -36,50 +36,12 @@ using UnityEditor;
 namespace GGEZ.Labkit
 {
 
-    public class EditorVariableInputRegister : IGraphObjectWithOutputs
+    public interface IGraphObjectWithOutputs
     {
-        public static readonly Vector2 PortCenterFromTopRight = new Vector2(-GolemEditorUtility.GridSize + GolemEditorUtility.NodeLeftRightMargin, EditorGUIUtility.singleLineHeight * (0.5f + 0));
-
-        public VariableRef Variable;
-        public Rect Position;
-
-        public List<EditorWire> OutputWires = new List<EditorWire>();
-
-        public IEnumerable<EditorWire> GetAllOutputWires()
-        {
-            return OutputWires;
-        }
-        public bool HasOutputWire()
-        {
-            return OutputWires.Count > 0;
-        }
-
-        public void AddOutputWire(EditorWire outputWire)
-        {
-            Debug.Assert(object.ReferenceEquals(outputWire.ReadObject, this));
-            OutputWires.Add(outputWire);
-        }
-
-        public void RemoveOutputWire(EditorWire wire)
-        {
-            OutputWires.Remove(wire);
-        }
-
-        public IDraggable DragPosition()
-        {
-            return new DraggablePosition() { EditorVariableRegister = this, Position = Position.position };
-        }
-        private class DraggablePosition : IDraggable
-        {
-            public EditorVariableInputRegister EditorVariableRegister;
-            public Vector2 Position;
-            public Vector2 Offset
-            {
-                set { EditorVariableRegister.Position.position = GolemEditorUtility.SnapToGrid(Position + value); }
-            }
-        }
+        IEnumerable<EditorWire> GetAllOutputWires();
+        void AddOutputWire(EditorWire outputWire);
+        void RemoveOutputWire(EditorWire editorWire);
     }
-
 }
 
 #endif

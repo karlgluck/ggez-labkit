@@ -1166,7 +1166,7 @@ namespace GGEZ.Labkit
                     checkTypes = false;
                 }
 
-                bool typesDontMatch = checkTypes && !inputType.Equals(outputType);
+                bool typesDontMatch = checkTypes && !object.Equals(inputType, outputType);
 
                 if (inputCount != 1 || missingOutput || typesDontMatch)
                 {

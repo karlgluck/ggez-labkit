@@ -1595,7 +1595,26 @@ namespace GGEZ.Labkit
         }
 
 
+        public static void SetWireReadPoints(string output, Dictionary<string, List<EditorWire>> outputWires, Vector2 point)
+        {
+            List<EditorWire> wires;
+            if (outputWires.TryGetValue(output, out wires))
+            {
+                for (int i = 0; i < wires.Count; ++i)
+                {
+                    wires[i].ReadPoint = point;
+                }
+            }
+        }
 
+        public static void SetWireWritePoints(string input, Dictionary<string, EditorWire> inputWires, Vector2 point)
+        {
+            EditorWire wire;
+            if (inputWires.TryGetValue(input, out wire))
+            {
+                wire.WritePoint = point;
+            }
+        }
 
 
     }

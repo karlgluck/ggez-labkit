@@ -43,7 +43,7 @@ namespace GGEZ.Labkit
     //-------------------------------------------------------------------------
     // EditorCell
     //-------------------------------------------------------------------------
-    public class EditorCell
+    public class EditorCell : IGraphObjectWithInputs, IGraphObjectWithOutputs
     {
         public string Name;
         public EditorCellIndex Index = EditorCellIndex.Invalid;
@@ -62,17 +62,6 @@ namespace GGEZ.Labkit
             return InputWires.Values;
         }
 
-        public IEnumerable<EditorWire> GetAllOutputWires()
-        {
-            foreach (List<EditorWire> list in OutputWires.Values)
-            {
-                foreach (EditorWire wire in list)
-                {
-                    yield return wire;
-                }
-            }
-        }
-
         public bool HasInputWire(string name)
         {
             return InputWires.ContainsKey(name);
@@ -85,7 +74,7 @@ namespace GGEZ.Labkit
 
         public void AddInputWire(EditorWire inputWire)
         {
-            Debug.Assert(inputWire.WriteCell == this);
+            Debug.Assert(object.ReferenceEquals(inputWire.WriteObject, this));
             InputWires.Add(inputWire.WriteField, inputWire);
         }
 
@@ -107,10 +96,20 @@ namespace GGEZ.Labkit
             }
         }
 
+        public IEnumerable<EditorWire> GetAllOutputWires()
+        {
+            foreach (List<EditorWire> list in OutputWires.Values)
+            {
+                foreach (EditorWire wire in list)
+                {
+                    yield return wire;
+                }
+            }
+        }
+
         public void AddOutputWire(EditorWire outputWire)
         {
-            Debug.Assert(outputWire.ReadScript == null);
-            Debug.Assert(outputWire.ReadCell == this);
+            Debug.Assert(object.ReferenceEquals(outputWire.ReadObject, this));
             OutputWires.MultiAdd(outputWire.ReadField, outputWire);
         }
 

@@ -46,12 +46,18 @@ namespace GGEZ.Labkit
     {
         public EditorWireIndex Index = EditorWireIndex.Invalid;
 
-        public RegisterPtr Register;
+        public RegisterPtr Register; // needed for live debug view
+
         public EditorCell ReadCell;
         public EditorScript ReadScript;
         public string ReadField;
         public EditorCell WriteCell;
         public string WriteField;
+
+        public IGraphObjectWithOutputs ReadObject;
+        public IGraphObjectWithInputs WriteObject;
+
+        public Vector2 ReadPoint, WritePoint;
 
         // Other than cells, a wire can also read a register that is
         // filled with a variable's value.

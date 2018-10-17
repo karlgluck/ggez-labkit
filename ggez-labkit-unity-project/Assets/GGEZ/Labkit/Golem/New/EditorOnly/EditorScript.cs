@@ -42,7 +42,7 @@ namespace GGEZ.Labkit
     //-------------------------------------------------------------------------
     // EditorScript
     //-------------------------------------------------------------------------
-    public class EditorScript
+    public class EditorScript : IGraphObjectWithOutputs
     {
         #warning Enabled flag isn't exposed in the editor
         public bool Enabled = true;
@@ -76,9 +76,7 @@ namespace GGEZ.Labkit
 
         public void AddOutputWire(EditorWire outputWire)
         {
-            Debug.Assert(outputWire.ReadScript == this);
-            Debug.Assert(outputWire.ReadCell == null);
-            Debug.Assert(outputWire.ReadVariableInputRegister == null);
+            Debug.Assert(object.ReferenceEquals(outputWire.ReadObject, this));
             OutputWires.MultiAdd(outputWire.ReadField, outputWire);
         }
 
