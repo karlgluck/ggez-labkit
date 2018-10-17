@@ -930,14 +930,19 @@ namespace GGEZ.Labkit
                 }
 
                 var inspectableCellType = GetInspectableCellType(editorCell.Cell.GetType());
+                bool selected = object.ReferenceEquals(_selection, editorCell);
 
                 Rect cellPosition = editorCell.Position.MovedBy(_scrollAnchor+_scrollPosition);
                 if (Event.current.type == EventType.Repaint)
-                    GolemEditorSkin.Current.CellStyle.Draw(cellPosition, new GUIContent(editorCell.Name), false, false, false, false);
+                {
+                    GolemEditorSkin.Current.CellStyle.Draw(cellPosition, new GUIContent(editorCell.Name), false, false, false, selected);
+                }
 
                 Rect clientPosition = GolemEditorSkin.Current.CellStyle.padding.Remove(cellPosition);
                 if (Event.current.type == EventType.Repaint)
+                {
                     GolemEditorSkin.Current.CellBodyStyle.Draw(clientPosition, false, false, false, false);
+                }
 
                 //-------------------------------
                 // Cell Inputs
@@ -1075,39 +1080,41 @@ namespace GGEZ.Labkit
                     }
                 }
 
-                Rect clientFieldsRect = GolemEditorSkin.Current.CellBodyStyle.padding.Remove(new Rect(
-                    clientPosition.x,
-                    Mathf.Max(clientInputsRect.yMax, clientOutputsRect.yMax),
-                    clientPosition.width,
-                    clientPosition.yMax - clientOutputsRect.yMax
-                    ));
-                GUILayout.BeginArea(clientFieldsRect);
-                GUILayout.BeginVertical();
-
                 //-------------------------------
                 // Cell Fields
                 //-------------------------------
-                for (int i = 0; i < inspectableCellType.Fields.Length; ++i)
                 {
-                    var fieldInfo = inspectableCellType.Fields[i];
-                    GolemEditorUtility.EditorGUILayoutGolemField(
-                        fieldInfo.Type,
-                        fieldInfo.SpecificType,
-                        fieldInfo.FieldInfo,
-                        editorCell.Cell,
-                        editorCell.FieldsUsingSettings,
-                        editorCell.FieldsUsingVariables,
-                        _golem
-                        );
-                }
+                    Rect clientFieldsRect = GolemEditorSkin.Current.CellBodyStyle.padding.Remove(Rect.MinMaxRect(
+                        clientPosition.xMin,
+                        Mathf.Max(clientInputsRect.yMax, clientOutputsRect.yMax),
+                        clientPosition.xMax,
+                        clientPosition.yMax
+                        ));
+                    GUILayout.BeginArea(clientFieldsRect);
+                    GUILayout.BeginVertical();
 
-                GUILayout.EndVertical();
-                if (Event.current.type == EventType.Repaint)
-                {
-                    clientPosition.yMax = clientFieldsRect.yMin + GolemEditorSkin.Current.CellBodyStyle.padding.Add(GUILayoutUtility.GetLastRect()).height;
-                    editorCell.Position.size = GolemEditorSkin.Current.CellStyle.padding.Add(clientPosition).size;
+                    for (int i = 0; i < inspectableCellType.Fields.Length; ++i)
+                    {
+                        var fieldInfo = inspectableCellType.Fields[i];
+                        GolemEditorUtility.EditorGUILayoutGolemField(
+                            fieldInfo.Type,
+                            fieldInfo.SpecificType,
+                            fieldInfo.FieldInfo,
+                            editorCell.Cell,
+                            editorCell.FieldsUsingSettings,
+                            editorCell.FieldsUsingVariables,
+                            _golem
+                            );
+                    }
+
+                    GUILayout.EndVertical();
+                    if (Event.current.type == EventType.Repaint)
+                    {
+                        clientPosition.yMax = clientFieldsRect.yMin + GolemEditorSkin.Current.CellBodyStyle.padding.Add(GUILayoutUtility.GetLastRect()).height;
+                        editorCell.Position.size = GolemEditorSkin.Current.CellStyle.padding.Add(clientPosition).size;
+                    }
+                    GUILayout.EndArea();
                 }
-                GUILayout.EndArea();
 
                 if (Event.current.type == EventType.MouseDown && GolemEditorSkin.Current.CellStyle.overflow.Add(editorCell.Position.MovedBy(_scrollAnchor+_scrollPosition)).Contains(Event.current.mousePosition))
                 {
@@ -1154,6 +1161,137 @@ namespace GGEZ.Labkit
             }
 
             //-------------------------------------------------
+            // Draw states to the graph
+            //-------------------------------------------------
+
+            EditorGUI.BeginChangeCheck();
+
+            foreach (EditorState editorState in _states)
+            {
+                bool selected = object.ReferenceEquals(_selection, editorState);
+
+                Rect cellPosition = editorState.Position.MovedBy(_scrollAnchor+_scrollPosition);
+                if (Event.current.type == EventType.Repaint)
+                {
+                    GolemEditorSkin.Current.CellStyle.Draw(cellPosition, new GUIContent(editorState.Name), false, false, false, selected);
+                }
+
+                Rect clientPosition = GolemEditorSkin.Current.CellStyle.padding.Remove(cellPosition);
+                if (Event.current.type == EventType.Repaint)
+                {
+                    GolemEditorSkin.Current.CellBodyStyle.Draw(clientPosition, false, false, false, false);
+                }
+
+                Rect clientRect = GolemEditorSkin.Current.CellBodyStyle.padding.Remove(clientPosition);
+                GUILayout.BeginArea(clientRect);
+                GUILayout.BeginVertical();
+
+                //-------------------------------
+                // State Scripts
+                //-------------------------------
+                var editorScripts = editorState.Scripts;
+                for (int i = 0; i < editorScripts.Count; ++i)
+                {
+                    var editorScript = editorScripts[i];
+                    var inspectableType = GetInspectableScriptType(editorScript.Script.GetType());
+
+                    EditorGUILayout.LabelField(inspectableType.Name, EditorStyles.boldLabel);
+                    
+                    //-------------------------------
+                    // Script Fields
+                    //-------------------------------
+                    var fields = inspectableType.Fields;
+                    for (int j = 0; j < fields.Length; ++j)
+                    {
+                        var field = fields[j];
+
+                        if (fields[j].IsOutput)
+                        {
+                            int id = GUIUtility.GetControlID(FocusType.Passive);
+                            GUI.SetNextControlName(id.ToString());
+                            GolemEditorUtility.EditorGUILayoutGolemField(
+                                    field.Type,
+                                    field.SpecificType,
+                                    field.FieldInfo,
+                                    editorScript.Script,
+                                    editorScript.FieldsUsingSettings,
+                                    editorScript.FieldsUsingVariables,
+                                    _golem
+                                    );
+
+                            Rect labelPosition = GUILayoutUtility.GetLastRect();
+                            Rect portPosition = labelPosition.GetCenteredRight(EditorGUIUtility.singleLineHeight, GolemEditorSkin.Current.PortStyle.fixedWidth, GolemEditorSkin.Current.PortStyle.fixedHeight);
+                            bool focused = GUIUtility.hotControl == id || GUI.GetNameOfFocusedControl() == id.ToString();
+                            bool on = editorScript.HasOutputWire(field.FieldInfo.Name);
+                            
+                            if (_createWire.Disabled || _createWire.StartIsInput)
+                            {
+                                EditorGUIUtility.AddCursorRect(portPosition, MouseCursor.Link);
+                            }
+
+                            switch (Event.current.type)
+                            {
+                                case EventType.MouseDown:
+                                    if (labelPosition.Contains(Event.current.mousePosition))
+                                    {
+                                        Event.current.Use();
+                                        Repaint();
+                                        GUI.FocusControl(id.ToString());
+                                    }
+                                    if (portPosition.Contains(Event.current.mousePosition))
+                                    {
+                                        GUIUtility.hotControl = id;
+                                        GUI.FocusControl(id.ToString());
+                                        Event.current.Use();
+                                        _shouldScroll = false;
+                                        _createWire = CreateWire.Output(editorScript, field.FieldInfo, portPosition.center);
+                                        Repaint();
+                                    }
+                                    break;
+
+                                case EventType.MouseMove:
+                                case EventType.MouseDrag:
+                                    if (_createWire.Enabled && portPosition.Contains(Event.current.mousePosition))
+                                    {
+                                        _createWire.HoverEndOutput(editorScript, field.FieldInfo, portPosition.center);
+                                        GUIUtility.hotControl = id;
+                                    }
+                                    break;
+
+                                case EventType.MouseUp:
+                                    break;
+
+                                case EventType.Repaint:
+                                    GolemEditorSkin.Current.PortStyle.Draw(portPosition, false, false, on, focused);
+                                    GolemEditorUtility.SetWireReadPoints(field.FieldInfo.Name, editorScript.OutputWires, portPosition.center);
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            GolemEditorUtility.EditorGUILayoutGolemField(
+                                    field.Type,
+                                    field.SpecificType,
+                                    field.FieldInfo,
+                                    editorScript.Script,
+                                    editorScript.FieldsUsingSettings,
+                                    editorScript.FieldsUsingVariables,
+                                    _golem
+                                    );
+                        }
+                    }
+                }
+
+                GUILayout.EndVertical();
+                if (Event.current.type == EventType.Repaint)
+                {
+                    clientPosition.yMax = clientRect.yMin + GolemEditorSkin.Current.CellBodyStyle.padding.Add(GUILayoutUtility.GetLastRect()).height;
+                    editorState.Position.size = GolemEditorSkin.Current.CellStyle.padding.Add(clientPosition).size;
+                }
+                GUILayout.EndArea();
+            }
+
+            //-------------------------------------------------
             // Draw the states
             //-------------------------------------------------
 
@@ -1161,6 +1299,7 @@ namespace GGEZ.Labkit
 
             foreach (EditorState editorState in _states)
             {
+                break;
                 bool selected = object.ReferenceEquals(_selection, editorState);
                 GolemEditorUtility.BeginNode(editorState.Name, editorState.Position, selected, _scrollPosition + _scrollAnchor, editorState.NodeColor);
 
@@ -1241,11 +1380,15 @@ namespace GGEZ.Labkit
 
                 Rect cellPosition = variableInputRegister.Position.MovedBy(_scrollAnchor+_scrollPosition);
                 if (Event.current.type == EventType.Repaint)
+                {
                     GolemEditorSkin.Current.CellStyle.Draw(cellPosition, new GUIContent("Read Variable"), false, false, false, false);
+                }
 
                 Rect clientPosition = GolemEditorSkin.Current.CellStyle.padding.Remove(cellPosition);
                 if (Event.current.type == EventType.Repaint)
+                {
                     GolemEditorSkin.Current.CellBodyStyle.Draw(clientPosition, false, false, false, false);
+                }
 
                 Rect clientOutputsRect = new Rect(
                     clientPosition.x,
@@ -1348,198 +1491,6 @@ namespace GGEZ.Labkit
             _shouldWrite = _shouldWrite || EditorGUI.EndChangeCheck();
 
             //-------------------------------------------------
-            // Draw a wire we are creating
-            //-------------------------------------------------
-            // if (IsCreatingWire)
-            // {
-            //     GolemEditorUtility.DrawBezier(_scrollPosition + _scrollAnchor + _creatingWireStartPoint, _scrollPosition + _scrollAnchor + _creatingWireEndPoint, Vector2.zero, Vector2.zero, false);
-            //     GolemEditorUtility.DrawPort(_scrollPosition + _scrollAnchor + _creatingWireStartPoint, true, false);
-            //     if (CreatingWireHoveringEndPoint)
-            //     {
-            //         GolemEditorUtility.DrawPort(_scrollPosition + _scrollAnchor + _creatingWireEndPoint, true, false);
-            //     }
-
-            //     if (Event.current.type == EventType.MouseDrag || (Event.current.type == EventType.MouseUp && Event.current.button == 0))
-            //     {
-            //         if (IsCreatingInputWire && pickEditorCellOutputPort(mouseGraphPosition, out _creatingWireEndEditorCell, out _creatingWireEndInspectableType, out _creatingWireEndPort))
-            //         {
-            //             if (Event.current.type == EventType.MouseDrag)
-            //             {
-            //                 var endPoint = GolemEditorUtility.GetNodeOutputPortRect(_creatingWireEndEditorCell.Position, _creatingWireEndInspectableType.Outputs[_creatingWireEndPort].PortCenterFromTopRight).center;
-            //                 if (!CreatingWireHoveringEndPoint || _creatingWireEndPoint != endPoint)
-            //                 {
-            //                     CreatingWireHoveringEndPoint = true;
-            //                     _creatingWireEndPoint = endPoint;
-            //                     Repaint();
-            //                 }
-            //             }
-            //             else if (InspectableCellType.CanConnect(_creatingWireEndInspectableType, _creatingWireEndPort, _creatingWireStartInspectableCellType, _creatingWireStartPort))
-            //             {
-            //                 var wire = new EditorWire
-            //                 {
-            //                     Register = RegisterPtr.Invalid,
-            //                     ReadCell = _creatingWireEndEditorCell,
-            //                     ReadField = _creatingWireEndInspectableType.Outputs[_creatingWireEndPort].Name,
-            //                     WriteCell = _creatingWireStartCell,
-            //                     WriteField = _creatingWireStartPortName,
-            //                 };
-            //                 _creatingWireEndEditorCell.AddOutputWire(wire);
-            //                 _creatingWireStartCell.AddInputWire(wire);
-            //                 _wires.Add(wire);
-            //                 IsCreatingWire = false;
-            //                 _shouldWrite = true;
-            //             }
-            //         }
-            //         else if (IsCreatingInputWire && pickEditorScriptOutputPort(mouseGraphPosition, out _creatingWireEndEditorState, out _creatingWireEndEditorScript, out _creatingWireEndInspectableScriptType, out _creatingWireEndPort))
-            //         {
-            //             if (Event.current.type == EventType.MouseDrag)
-            //             {
-            //                 var endPoint = GolemEditorUtility.GetNodeOutputPortRect(_creatingWireEndEditorScript.Position, _creatingWireEndInspectableScriptType.Outputs[_creatingWireEndPort].PortCenterFromTopRight).center;
-            //                 if (!CreatingWireHoveringEndPoint || _creatingWireEndPoint != endPoint)
-            //                 {
-            //                     CreatingWireHoveringEndPoint = true;
-            //                     _creatingWireEndPoint = endPoint;
-            //                     Repaint();
-            //                 }
-            //             }
-            //             #warning else if (...CanConnect...)
-            //             else
-            //             {
-            //                 var wire = new EditorWire
-            //                 {
-            //                     Register = RegisterPtr.Invalid,
-            //                     ReadCell = null,
-            //                     ReadScript = _creatingWireEndEditorScript,
-            //                     ReadField = _creatingWireEndInspectableScriptType.Outputs[_creatingWireEndPort].Name,
-            //                     WriteCell = _creatingWireStartCell,
-            //                     WriteField = _creatingWireStartPortName,
-            //                 };
-            //                 _creatingWireEndEditorScript.AddOutputWire(wire);
-            //                 _creatingWireStartCell.AddInputWire(wire);
-            //                 _wires.Add(wire);
-            //                 IsCreatingWire = false;
-            //                 _shouldWrite = true;
-            //             }
-            //         }
-            //         else if (IsCreatingInputWire && pickEditorVariableInputRegisterOutputPort(mouseGraphPosition, out _creatingWireEndVariableInputRegister))
-            //         {
-            //             if (Event.current.type == EventType.MouseDrag)
-            //             {
-            //                 var endPoint = GolemEditorUtility.GetNodeOutputPortRect(_creatingWireEndVariableInputRegister.Position, EditorVariableInputRegister.PortCenterFromTopRight).center;
-            //                 if (!CreatingWireHoveringEndPoint || _creatingWireEndPoint != endPoint)
-            //                 {
-            //                     CreatingWireHoveringEndPoint = true;
-            //                     _creatingWireEndPoint = endPoint;
-            //                     Repaint();
-            //                 }
-            //             }
-            //             #warning else if (...CanConnect...)
-            //             else
-            //             {
-            //                 var wire = new EditorWire
-            //                 {
-            //                     Register = RegisterPtr.Invalid,
-            //                     ReadVariableInputRegister = _creatingWireEndVariableInputRegister,
-            //                     WriteCell = _creatingWireStartCell,
-            //                     WriteField = _creatingWireStartPortName,
-            //                 };
-            //                 _creatingWireEndVariableInputRegister.AddOutputWire(wire);
-            //                 _creatingWireStartCell.AddInputWire(wire);
-            //                 _wires.Add(wire);
-            //                 IsCreatingWire = false;
-            //                 _shouldWrite = true;
-            //             }
-            //         }
-            //         else if (!IsCreatingInputWire && pickEditorCellInputPort(mouseGraphPosition, out _creatingWireEndEditorCell, out _creatingWireEndInspectableType, out _creatingWireEndPort))
-            //         {
-            //             if (Event.current.type == EventType.MouseDrag)
-            //             {
-            //                 var endPoint = GolemEditorUtility.GetNodeInputPortRect(_creatingWireEndEditorCell.Position, _creatingWireEndInspectableType.Inputs[_creatingWireEndPort].PortCenterFromTopLeft).center;
-            //                 if (!CreatingWireHoveringEndPoint || _creatingWireEndPoint != endPoint)
-            //                 {
-            //                     CreatingWireHoveringEndPoint = true;
-            //                     _creatingWireEndPoint = endPoint;
-            //                     Repaint();
-            //                 }
-            //             }
-            //             else if (_creatingWireEndEditorCell.HasInputWire(_creatingWireEndInspectableType.Inputs[_creatingWireEndPort].Name))
-            //             {
-            //                 #warning can probably drag to connect input when an input already exists
-            //                 ShowNotification(new GUIContent("Can't connect to a port that already has an input"));
-            //                 CreatingWireHoveringEndPoint = false;
-            //                 IsCreatingWire = false;
-            //             }
-            //             else if (_creatingWireStartCell != null && InspectableCellType.CanConnect(_creatingWireStartInspectableCellType, _creatingWireStartPort, _creatingWireEndInspectableType, _creatingWireEndPort))
-            //             {
-            //                 var wire = new EditorWire
-            //                 {
-            //                     Register = RegisterPtr.Invalid,
-            //                     ReadCell = _creatingWireStartCell,
-            //                     ReadScript = null,
-            //                     ReadField = _creatingWireStartPortName,
-            //                     WriteCell = _creatingWireEndEditorCell,
-            //                     WriteField = _creatingWireEndInspectableType.Inputs[_creatingWireEndPort].Name,
-            //                 };
-            //                 _creatingWireStartCell.AddOutputWire(wire);
-            //                 _creatingWireEndEditorCell.AddInputWire(wire);
-            //                 _wires.Add(wire);
-            //                 IsCreatingWire = false;
-            //                 _shouldWrite = true;
-            //             }
-            //             else if (_creatingWireStartScript != null)
-            //             {
-            //                 var wire = new EditorWire
-            //                 {
-            //                     Register = RegisterPtr.Invalid,
-            //                     ReadCell = null,
-            //                     ReadScript = _creatingWireStartScript,
-            //                     ReadField = _creatingWireStartPortName,
-            //                     WriteCell = _creatingWireEndEditorCell,
-            //                     WriteField = _creatingWireEndInspectableType.Inputs[_creatingWireEndPort].Name,
-            //                 };
-            //                 _creatingWireStartScript.AddOutputWire(wire);
-            //                 _creatingWireEndEditorCell.AddInputWire(wire);
-            //                 _wires.Add(wire);
-            //                 IsCreatingWire = false;
-            //                 _shouldWrite = true;
-            //             }
-            //             else if (_creatingWireStartVariableInputRegister != null)
-            //             {
-            //                 var wire = new EditorWire
-            //                 {
-            //                     Register = RegisterPtr.Invalid,
-            //                     ReadVariableInputRegister = _creatingWireStartVariableInputRegister,
-            //                     WriteCell = _creatingWireEndEditorCell,
-            //                     WriteField = _creatingWireEndInspectableType.Inputs[_creatingWireEndPort].Name,
-            //                 };
-            //                 _creatingWireStartVariableInputRegister.AddOutputWire(wire);
-            //                 _creatingWireEndEditorCell.AddInputWire(wire);
-            //                 _wires.Add(wire);
-            //                 IsCreatingWire = false;
-            //                 _shouldWrite = true;
-            //             }
-            //             else
-            //             {
-            //                 Debug.LogError("Wire being created doesn't have a starting object???");
-            //             }
-            //         }
-            //         else
-            //         {
-            //             if (CreatingWireHoveringEndPoint)
-            //             {
-            //                 CreatingWireHoveringEndPoint = false;
-            //                 Repaint();
-            //             }
-            //         }
-            //     }
-            //     if (Event.current.type == EventType.MouseUp)
-            //     {
-            //         IsCreatingWire = false;
-            //         Repaint();
-            //     }
-            // }
-
-            //-------------------------------------------------
             // Draw wires in the graph
             //-------------------------------------------------
             switch (Event.current.type)
@@ -1549,8 +1500,8 @@ namespace GGEZ.Labkit
                     {
                         bool selected = object.ReferenceEquals(_selection, editorWire);
                         GolemEditorUtility.DrawEdge(
-                            new ControlPoint { Point = editorWire.ReadPoint },
-                            new ControlPoint { Point = editorWire.WritePoint },
+                            new ControlPoint { Point = EditorGUIUtility.ScreenToGUIPoint(editorWire.ReadPoint) },
+                            new ControlPoint { Point = EditorGUIUtility.ScreenToGUIPoint(editorWire.WritePoint) },
                             null,
                             selected,
                             Vector2.zero
@@ -1562,7 +1513,7 @@ namespace GGEZ.Labkit
                     foreach (EditorWire editorWire in _wires)
                     {
                         const float toleranceSquared = 10f * 10f;
-                        if (Vector2Ext.DistanceToLineSegmentSquared(Event.current.mousePosition, editorWire.ReadPoint, editorWire.WritePoint) < toleranceSquared)
+                        if (Vector2Ext.DistanceToLineSegmentSquared(Event.current.mousePosition, EditorGUIUtility.ScreenToGUIPoint(editorWire.ReadPoint), EditorGUIUtility.ScreenToGUIPoint(editorWire.WritePoint)) < toleranceSquared)
                         {
                             _selection = editorWire;
                             Repaint();

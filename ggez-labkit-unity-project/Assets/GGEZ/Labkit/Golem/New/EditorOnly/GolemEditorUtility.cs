@@ -1601,6 +1601,7 @@ namespace GGEZ.Labkit
             List<EditorWire> wires;
             if (outputWires.TryGetValue(output, out wires))
             {
+                point = EditorGUIUtility.GUIToScreenPoint(point);
                 for (int i = 0; i < wires.Count; ++i)
                 {
                     wires[i].ReadPoint = point;
@@ -1610,6 +1611,7 @@ namespace GGEZ.Labkit
 
         public static void SetWireReadPoints(List<EditorWire> outputWires, Vector2 point)
         {
+            point = EditorGUIUtility.GUIToScreenPoint(point);
             for (int i = 0; i < outputWires.Count; ++i)
             {
                 outputWires[i].ReadPoint = point;
@@ -1618,6 +1620,7 @@ namespace GGEZ.Labkit
 
         public static void SetWireWritePoints(string input, Dictionary<string, EditorWire> inputWires, Vector2 point)
         {
+            point = EditorGUIUtility.GUIToScreenPoint(point);
             EditorWire wire;
             if (inputWires.TryGetValue(input, out wire))
             {

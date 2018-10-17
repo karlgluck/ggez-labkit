@@ -52,14 +52,16 @@ namespace GGEZ.Labkit
             public readonly FieldInfo FieldInfo;
             public readonly bool WantSetting;
             public readonly bool CanBeNull;
+            public readonly bool IsOutput;
 
-            public Field(InspectableType type, Type targetType, FieldInfo fieldInfo, bool wantsSetting, bool canBeNull)
+            public Field(InspectableType type, Type targetType, FieldInfo fieldInfo, bool wantsSetting, bool canBeNull, bool isOutput)
             {
                 Type = type;
                 SpecificType = targetType;
                 FieldInfo = fieldInfo;
                 WantSetting = wantsSetting;
                 CanBeNull = canBeNull;
+                IsOutput = isOutput;
             }
         }
 
@@ -113,8 +115,9 @@ namespace GGEZ.Labkit
                 }
 
                 bool canBeNull = fields[i].IsDefined(typeof(CanBeNullAttribute), true);
+                bool isOutput = fields[i].IsDefined(typeof(OutAttribute), true);
 
-                if (fields[i].IsDefined(typeof(OutAttribute), true))
+                if (isOutput)
                 {
                     Debug.Assert(typeof(IVariable).IsAssignableFrom(fields[i].FieldType));
                     var portCenter = new Vector2(-GolemEditorUtility.GridSize + GolemEditorUtility.NodeLeftRightMargin, EditorGUIUtility.singleLineHeight * (0.5f + i));
@@ -124,7 +127,7 @@ namespace GGEZ.Labkit
 
                 bool wantsSetting = fields[i].IsDefined(typeof(SettingAttribute), true);
                 Type specificType = InspectableTypeExt.GetSpecificType(inspectableType, fields[i]);
-                returnedFields[j++] = new Field(inspectableType, specificType, fields[i], wantsSetting, canBeNull);
+                returnedFields[j++] = new Field(inspectableType, specificType, fields[i], wantsSetting, canBeNull, isOutput);
             }
 
             retval = new InspectableScriptType(scriptType.Name, returnedFields, outputs.ToArray());
