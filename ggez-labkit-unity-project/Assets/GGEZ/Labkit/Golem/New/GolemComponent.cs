@@ -767,6 +767,7 @@ namespace GGEZ.Labkit
                                     {
 
                                         VariableRef variableRef;
+                                        #warning need to add a "GetValidVariableRef(wire.ReadField, FieldsUsingVariables, out variableRef)" command and use it everywhere, or prevent invalid variable refs from being stored in the array
                                         if (wire.ReadScript.FieldsUsingVariables.TryGetValue(wire.ReadField, out variableRef) && variableRef.IsValid)
                                         {
                                             var writeCellType = InspectableCellType.GetInspectableCellType(wire.WriteCell.Cell.GetType());
