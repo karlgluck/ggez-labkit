@@ -767,7 +767,7 @@ namespace GGEZ.Labkit
                                     {
 
                                         VariableRef variableRef;
-                                        if (wire.ReadScript.FieldsUsingVariables.TryGetValue(wire.ReadField, out variableRef))
+                                        if (wire.ReadScript.FieldsUsingVariables.TryGetValue(wire.ReadField, out variableRef) && variableRef.IsValid)
                                         {
                                             var writeCellType = InspectableCellType.GetInspectableCellType(wire.WriteCell.Cell.GetType());
                                             bool canBeNull = writeCellType.GetInputCanBeNull(wire.WriteField);
