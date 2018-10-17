@@ -1109,7 +1109,7 @@ namespace GGEZ.Labkit
                 }
                 GUILayout.EndArea();
 
-                if (Event.current.type == EventType.MouseDown && editorCell.Position.Contains(Event.current.mousePosition))
+                if (Event.current.type == EventType.MouseDown && GolemEditorSkin.Current.CellStyle.overflow.Add(editorCell.Position.MovedBy(_scrollAnchor+_scrollPosition)).Contains(Event.current.mousePosition))
                 {
                     if (Event.current.button == 0)
                     {
@@ -1121,7 +1121,8 @@ namespace GGEZ.Labkit
                     {
                         GenericMenu menu = new GenericMenu();
                         menu.AddItem(new GUIContent("Delete Cell"), false, DeleteEditorCellMenuFunction, editorCell);
-                        menu.ShowAsContext();
+                        #warning TODO: better dropdown that works when scaling
+                        menu.DropDown(new Rect(Event.current.mousePosition, Vector2.zero));
                     }
                     Event.current.Use();
                 }
@@ -1326,7 +1327,7 @@ namespace GGEZ.Labkit
                     variableInputRegister.Position.size = GolemEditorSkin.Current.CellStyle.padding.Add(clientPosition).size;
                 }
 
-                if (Event.current.type == EventType.MouseDown && GolemEditorSkin.Current.CellBodyStyle.overflow.Add(variableInputRegister.Position).Contains(Event.current.mousePosition))
+                if (Event.current.type == EventType.MouseDown && GolemEditorSkin.Current.CellStyle.overflow.Add(variableInputRegister.Position.MovedBy(_scrollAnchor+_scrollPosition)).Contains(Event.current.mousePosition))
                 {
                     if (Event.current.button == 0)
                     {
