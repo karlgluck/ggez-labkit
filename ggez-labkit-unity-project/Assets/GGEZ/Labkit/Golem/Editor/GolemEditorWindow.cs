@@ -2066,7 +2066,7 @@ namespace GGEZ.Labkit
 
                 EndObject = endObject;
                 EndField = endField;
-                EndPoint = endPoint;
+                EndPoint = GUIUtility.GUIToScreenPoint(endPoint);
             }
 
             public EditorWire DropWire()
@@ -2124,7 +2124,7 @@ namespace GGEZ.Labkit
                     if (!_createWire.HasEnd || _createWire.Valid)
                     GolemEditorUtility.DrawBezier(
                         _createWire.StartPoint + canvasOffset,
-                        _createWire.HasEnd ? _createWire.EndPoint : Event.current.mousePosition,
+                        _createWire.HasEnd ? GUIUtility.ScreenToGUIPoint(_createWire.EndPoint) : Event.current.mousePosition,
                         Vector2.zero,
                         Vector2.zero,
                         true
