@@ -869,6 +869,7 @@ namespace GGEZ.Labkit
             string newSettingName = Guid.NewGuid().ToString();
             settings.Add(newSettingName, settingType);
             GolemEditorUtility.SetDropdownFieldValue(handle, newSettingName);
+            #warning TODO refresh inspector window
         }
 
         //-----------------------------------------------------
@@ -1604,6 +1605,14 @@ namespace GGEZ.Labkit
                 {
                     wires[i].ReadPoint = point;
                 }
+            }
+        }
+
+        public static void SetWireReadPoints(List<EditorWire> outputWires, Vector2 point)
+        {
+            for (int i = 0; i < outputWires.Count; ++i)
+            {
+                outputWires[i].ReadPoint = point;
             }
         }
 

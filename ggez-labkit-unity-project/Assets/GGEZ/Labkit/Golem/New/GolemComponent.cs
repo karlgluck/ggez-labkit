@@ -777,8 +777,6 @@ namespace GGEZ.Labkit
                                 {
                                     if (wire.ReadScript.CompiledIndex != ScriptIndex.Invalid)
                                     {
-                                        Debug.Assert(wire.ReadVariableInputRegister == null);
-                                        Debug.Assert(wire.ReadCell == null);
 
                                         VariableRef variableRef;
                                         if (wire.ReadScript.FieldsUsingVariables.TryGetValue(wire.ReadField, out variableRef))
@@ -878,7 +876,7 @@ namespace GGEZ.Labkit
                         {
                             InspectableCellType.Output output = outputs[i];
 
-                            string registerKey = cellIndex + ".{" + output.Name + "}-cell";
+                            string registerKey = editorCell.Index + ".{" + output.Name + "}-cell";
                             Debug.Assert(!outputToRegister.ContainsKey(registerKey), "A register output was already mapped. Are multiple output wires assigned to a single input?", this);
 
                             List<EditorWire> wires;
