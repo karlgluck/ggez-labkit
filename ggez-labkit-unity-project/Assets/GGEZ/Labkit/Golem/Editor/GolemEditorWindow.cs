@@ -1184,6 +1184,8 @@ namespace GGEZ.Labkit
 
                 Rect clientRect = GolemEditorSkin.Current.CellBodyStyle.padding.Remove(clientPosition);
                 GUILayout.BeginArea(clientRect);
+                GUI.EndClip();
+                GUI.BeginClip(clientRect.ExpandedBy(0, EditorGUIUtility.singleLineHeight + GolemEditorSkin.Current.PortStyle.fixedWidth, 0f, 0f));
                 GUILayout.BeginVertical();
 
                 //-------------------------------
@@ -1209,20 +1211,22 @@ namespace GGEZ.Labkit
                         {
                             int id = GUIUtility.GetControlID(FocusType.Passive);
                             GUI.SetNextControlName(id.ToString());
-                            GolemEditorUtility.EditorGUILayoutGolemField(
+                            Rect labelPosition = EditorGUILayout.GetControlRect();
+                            bool focused = GUIUtility.hotControl == id || GUI.GetNameOfFocusedControl() == id.ToString();
+                            bool on = editorScript.HasOutputWire(field.FieldInfo.Name);
+                            GolemEditorUtility.EditorGUIGolemField(
+                                    labelPosition,
                                     field.Type,
                                     field.SpecificType,
                                     field.FieldInfo,
                                     editorScript.Script,
                                     editorScript.FieldsUsingSettings,
                                     editorScript.FieldsUsingVariables,
-                                    _golem
+                                    _golem,
+                                    on
                                     );
 
-                            Rect labelPosition = GUILayoutUtility.GetLastRect();
-                            Rect portPosition = labelPosition.GetCenteredRight(EditorGUIUtility.singleLineHeight, GolemEditorSkin.Current.PortStyle.fixedWidth, GolemEditorSkin.Current.PortStyle.fixedHeight);
-                            bool focused = GUIUtility.hotControl == id || GUI.GetNameOfFocusedControl() == id.ToString();
-                            bool on = editorScript.HasOutputWire(field.FieldInfo.Name);
+                            Rect portPosition = labelPosition.GetCenteredRight(EditorGUIUtility.singleLineHeight + GolemEditorSkin.Current.CellBodyStyle.padding.right, GolemEditorSkin.Current.PortStyle.fixedWidth, GolemEditorSkin.Current.PortStyle.fixedHeight);
                             
                             if (_createWire.Disabled || _createWire.StartIsInput)
                             {
@@ -1288,6 +1292,7 @@ namespace GGEZ.Labkit
                     clientPosition.yMax = clientRect.yMin + GolemEditorSkin.Current.CellBodyStyle.padding.Add(GUILayoutUtility.GetLastRect()).height;
                     editorState.Position.size = GolemEditorSkin.Current.CellStyle.padding.Add(clientPosition).size;
                 }
+                // GUI.BeginClip(clientPosition);
                 GUILayout.EndArea();
             }
 
@@ -2044,7 +2049,7 @@ namespace GGEZ.Labkit
                 Valid =
                     StartIsOutput
                 && !object.ReferenceEquals(StartObject, endObject)
-                && (endField == null || StartField == null || object.Equals(endField.FieldType, StartField.FieldType));
+                && (endField == null || StartField == null || object.Equals(endField.FieldType.GetGenericArguments()[0], StartField.FieldType.GetGenericArguments()[0]));
 
                 EndObject = endObject;
                 EndField = endField;
@@ -2057,7 +2062,7 @@ namespace GGEZ.Labkit
                 Valid =
                     StartIsInput
                 && !object.ReferenceEquals(StartObject, endObject)
-                && (endField == null || StartField == null || object.Equals(endField.FieldType, StartField.FieldType));
+                && (endField == null || StartField == null || object.Equals(endField.FieldType.GetGenericArguments()[0], StartField.FieldType.GetGenericArguments()[0]));
 
                 EndObject = endObject;
                 EndField = endField;

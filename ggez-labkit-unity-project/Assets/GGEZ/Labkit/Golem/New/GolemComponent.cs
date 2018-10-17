@@ -271,7 +271,7 @@ namespace GGEZ.Labkit
                                     case InspectableType.Variable:
                                     //-------------------------------------------------
                                         VariableRef variableRef;
-                                        if (editorScript.FieldsUsingVariables.TryGetValue(fieldName, out variableRef))
+                                        if (editorScript.FieldsUsingVariables.TryGetValue(fieldName, out variableRef) && variableRef.IsValid)
                                         {
                                             var assignment = new Assignment()
                                             {
@@ -286,12 +286,6 @@ namespace GGEZ.Labkit
                                                         ? AssignmentType.ScriptVariableOrNull
                                                         : AssignmentType.ScriptVariableOrDummy;
                                                 externalAssignments.MultiAdd(variableRef.Relationship, assignment);
-                                            }
-                                            else if (variableRef.IsInternalRegister)
-                                            {
-                                                assignment.Type = AssignmentType.ScriptRegisterVariable;
-                                                assignment.RegisterIndex = variableRef.RegisterIndex;
-                                                assignments.Add(assignment);
                                             }
                                             else
                                             {
@@ -655,7 +649,7 @@ namespace GGEZ.Labkit
                             case InspectableType.Variable:
                             //-------------------------------------------------
                                 VariableRef variableRef;
-                                if (editorCell.FieldsUsingVariables.TryGetValue(fieldName, out variableRef))
+                                if (editorCell.FieldsUsingVariables.TryGetValue(fieldName, out variableRef) && variableRef.IsValid)
                                 {
                                     var assignment = new Assignment()
                                     {
@@ -670,12 +664,6 @@ namespace GGEZ.Labkit
                                                 ? AssignmentType.CellVariableOrNull
                                                 : AssignmentType.CellVariableOrDummy;
                                         externalAssignments.MultiAdd(variableRef.Relationship, assignment);
-                                    }
-                                    else if (variableRef.IsInternalRegister)
-                                    {
-                                        assignment.Type = AssignmentType.CellRegisterVariable;
-                                        assignment.RegisterIndex = variableRef.RegisterIndex;
-                                        assignments.Add(assignment);
                                     }
                                     else
                                     {

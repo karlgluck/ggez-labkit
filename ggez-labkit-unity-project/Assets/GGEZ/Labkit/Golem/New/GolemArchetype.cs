@@ -177,7 +177,7 @@ namespace GGEZ.Labkit
                             case InspectableType.Variable:
                             //-------------------------------------------------
                                 VariableRef variableRef;
-                                if (editorAspect.FieldsUsingVariables.TryGetValue(fieldName, out variableRef))
+                                if (editorAspect.FieldsUsingVariables.TryGetValue(fieldName, out variableRef) && variableRef.IsValid)
                                 {
                                     var assignment = new Assignment()
                                     {
@@ -195,7 +195,6 @@ namespace GGEZ.Labkit
                                     }
                                     else
                                     {
-                                        Debug.Assert(!variableRef.IsInternalRegister);
                                         assignment.Type = AssignmentType.AspectVariable;
                                         assignments.Add(assignment);
                                     }

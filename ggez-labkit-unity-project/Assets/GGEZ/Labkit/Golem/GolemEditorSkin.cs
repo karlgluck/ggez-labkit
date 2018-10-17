@@ -85,6 +85,8 @@ namespace GGEZ.Labkit
 
         public GUIStyle PortStyle;
 
+        public GUIStyle ScriptStyle;
+
         void Reset()
         {
         }

@@ -88,9 +88,9 @@ namespace GGEZ.Labkit
             }
         }
 
-        public bool IsInternalRegister
+        public bool IsValid
         {
-            get { return false; }
+            get { return !string.IsNullOrEmpty(Name); }
         }
 
         public int RegisterIndex

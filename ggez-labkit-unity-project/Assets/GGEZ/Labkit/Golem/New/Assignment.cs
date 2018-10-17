@@ -58,6 +58,7 @@ namespace GGEZ.Labkit
         AspectGolem,                    // The Golem instance
         AspectSetting,                  // The setting [Name] from the archetype
         AspectAspect,                   // Aspect of the target field's type or null
+        [Obsolete]
         AspectVariable,                 // Find [TargetFieldName] on aspect [TargetIndex] and assign it to variable [Name], creating that variable if necessary
         AspectVariableOrNull,           // The existing variable [Name] or null
         AspectVariableOrDummy,          // The existing variable [Name] or a newly allocated variable
@@ -73,7 +74,7 @@ namespace GGEZ.Labkit
 
         CellAspect,                     // Aspect of the target field's type or null
         ScriptAspect,                   // Aspect of the target field's type or null
-
+[Obsolete]
         CellVariable,                   // Find [TargetFieldName] on cell [TargetIndex] and assign it to variable [Name], creating that variable if necessary
         CellVariableOrNull,             // The variable [Name] or null
         CellVariableOrDummy,            // The variable [Name] or a newly allocated variable
@@ -85,7 +86,7 @@ namespace GGEZ.Labkit
         CellDummyInputRegister,         // Global read-only register
         CellDummyOutputRegister,        // Global write-only register
         CellDummyVariable,              // Newly allocated variable
-
+[Obsolete]
         ScriptVariable,                 // Find [TargetFieldName] on script [TargetIndex] and assign it to variable [Name], creating that variable if necessary
         ScriptVariableOrNull,           // The variable [Name] or null
         ScriptVariableOrDummy,          // The variable [Name] or a newly allocated variable
