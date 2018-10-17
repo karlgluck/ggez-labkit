@@ -169,6 +169,18 @@ namespace GGEZ
             );
         }
 
+        public static bool ContainsInLeftHalf(this Rect self, Vector2 position)
+        {
+            return self.xMin <= position.x && position.x <= self.xMin + self.width * 0.5f
+                && self.yMin <= position.y && position.y <= self.yMax;
+        }
+
+        public static bool ContainsInRightHalf(this Rect self, Vector2 position)
+        {
+            return self.xMax - self.width * 0.5f <= position.x && position.x <= self.xMax
+                                    && self.yMin <= position.y && position.y <= self.yMax;
+        }
+
         public static Rect GetRow(this Rect self, int row, float rowHeight)
         {
             return new Rect(self.x, self.y + row * rowHeight, self.width, rowHeight);

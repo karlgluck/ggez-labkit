@@ -37,6 +37,10 @@ namespace GGEZ.Labkit
 {
     public class GolemEditorWindow : EditorWindow
     {
+        public static bool _newCreatingWire;
+        public static Vector2 _newCreatingWireStartScreenPoint;
+
+
         public static void Open(Golem golem)
         {
             var window = EditorWindow.GetWindow<GolemEditorWindow>("Golem Editor");
@@ -621,6 +625,8 @@ namespace GGEZ.Labkit
 
         bool _shouldWrite = false;
 
+
+
         //-----------------------------------------------------
         // OnGUI
         //-----------------------------------------------------
@@ -1033,6 +1039,31 @@ namespace GGEZ.Labkit
                 }
             }
 
+            if (_newCreatingWire)
+            {
+                switch (Event.current.type)
+                {
+                    case EventType.Repaint:
+                        GolemEditorUtility.DrawBezier(
+                            EditorGUIUtility.ScreenToGUIPoint(_newCreatingWireStartScreenPoint),
+                            Event.current.mousePosition,
+                            Vector2.zero,
+                            Vector2.zero,
+                            true
+                            );
+                        break;
+
+                    case EventType.MouseMove:
+                        Repaint();
+                        break;
+
+                    case EventType.MouseUp:
+                        _newCreatingWire = false;
+                        Repaint();
+                        break;
+                }
+            }
+
             //-------------------------------------------------
             // Draw the circuit to the graph
             //-------------------------------------------------
@@ -1079,7 +1110,7 @@ namespace GGEZ.Labkit
                     switch (Event.current.type)
                     {
                         case EventType.MouseDown:
-                            if (labelPosition.Contains(Event.current.mousePosition))
+                            if (labelPosition.ContainsInLeftHalf(Event.current.mousePosition))
                             {
                                 Event.current.Use();
                                 Repaint();
@@ -1091,7 +1122,15 @@ namespace GGEZ.Labkit
                                 GUI.FocusControl(id.ToString());
                                 Event.current.Use();
                                 Repaint();
-                                Debug.Log("start point = " + GUIUtility.GUIToScreenPoint(portPosition.center));
+                                _shouldScroll = false;
+                                _newCreatingWire = true;
+                                _newCreatingWireStartScreenPoint = GUIUtility.GUIToScreenPoint(portPosition.center);
+                            }
+                            break;
+
+                        case EventType.MouseMove:
+                            if (portPosition.Contains(Event.current.mousePosition))
+                            {
                             }
                             break;
 
@@ -1125,7 +1164,7 @@ namespace GGEZ.Labkit
                     switch (Event.current.type)
                     {
                         case EventType.MouseDown:
-                            if (labelPosition.Contains(Event.current.mousePosition))
+                            if (labelPosition.ContainsInRightHalf(Event.current.mousePosition))
                             {
                                 Event.current.Use();
                                 Repaint();
