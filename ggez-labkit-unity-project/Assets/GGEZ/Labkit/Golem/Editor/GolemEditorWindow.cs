@@ -741,11 +741,11 @@ namespace GGEZ.Labkit
                 mouseGraphPosition = WindowToGraphPosition(Event.current.mousePosition);
                 _mouseDownPosition = mouseGraphPosition;
 
-                var editorCell = this.pickEditorCell(mouseGraphPosition);
-                var editorState = this.pickEditorState(mouseGraphPosition);
+                EditorCell editorCell = null;//this.pickEditorCell(mouseGraphPosition);
+                EditorState editorState = null;//this.pickEditorState(mouseGraphPosition);
                 var editorTransition = this.pickEditorTransition(mouseGraphPosition);
                 var pickedEditorTransitionExpression = this.pickEditorTransitionExpression(mouseGraphPosition);
-                var editorVariableInputRegister = this.pickEditorVariableInputRegister(mouseGraphPosition);
+                EditorVariableInputRegister editorVariableInputRegister = null;//this.pickEditorVariableInputRegister(mouseGraphPosition);
 
                 _shouldScroll = editorCell == null && editorState == null && editorTransition == null && pickedEditorTransitionExpression == null && editorVariableInputRegister == null;
                 if (editorCell != null)
@@ -1293,85 +1293,61 @@ namespace GGEZ.Labkit
                     clientPosition.yMax = clientRect.yMin + GolemEditorSkin.Current.CellBodyStyle.padding.Add(GUILayoutUtility.GetLastRect()).height;
                     editorState.Position.size = GolemEditorSkin.Current.CellStyle.padding.Add(clientPosition).size;
                 }
-                // GUI.BeginClip(clientPosition);
+                
                 GUILayout.EndArea();
-            }
-
-            //-------------------------------------------------
-            // Draw the states
-            //-------------------------------------------------
-
-            EditorGUI.BeginChangeCheck();
-
-            foreach (EditorState editorState in _states)
-            {
-                break;
-                bool selected = object.ReferenceEquals(_selection, editorState);
-                GolemEditorUtility.BeginNode(editorState.Name, editorState.Position, selected, _scrollPosition + _scrollAnchor, editorState.NodeColor);
-
-                //-------------------------------
-                // State Scripts
-                //-------------------------------
-                var editorScripts = editorState.Scripts;
-                for (int i = 0; i < editorScripts.Count; ++i)
+                
+                if (Event.current.type == EventType.MouseDown && GolemEditorSkin.Current.CellStyle.overflow.Add(editorState.Position.MovedBy(_scrollAnchor+_scrollPosition)).Contains(Event.current.mousePosition))
                 {
-                    var editorScript = editorScripts[i];
-                    var inspectableType = GetInspectableScriptType(editorScript.Script.GetType());
-
-                    EditorGUILayout.LabelField(inspectableType.Name, EditorStyles.boldLabel);
-
-                    var fields = inspectableType.Fields;
-                    var outputs = inspectableType.Outputs;
-
-                    var scriptArea = EditorGUILayout.GetControlRect(false, fields.Length * EditorGUIUtility.singleLineHeight);
-
-                    if (Event.current.type == EventType.Repaint)
+                    if (Event.current.button == 0)
                     {
-                        editorScript.Position = scriptArea.InParentCoordinates(GolemEditorUtility.GetNodeBodyRect(editorState.Position));
+                        _draggable = editorState.DragPosition();
+                        _shouldDrag = true;
+                        _shouldScroll = false;
                     }
-
-                    //-------------------------------
-                    // Script Fields
-                    //-------------------------------
-                    for (int j = 0; j < fields.Length; ++j)
+                    else
                     {
-                        #warning TODO: only bump fields that are outputs (or really, just put outputs on the exterior of the cell/script)
-                        bool isOutput = true;
-                        float fieldWidth = isOutput ? (scriptArea.width - GolemEditorUtility.PortLayoutWidth) : scriptArea.width;
-                        var position = new Rect(scriptArea.position + new Vector2(0, EditorGUIUtility.singleLineHeight * j), new Vector2(fieldWidth, EditorGUIUtility.singleLineHeight));
-
-                        var fieldInfo = fields[j];
-                        GolemEditorUtility.EditorGUIGolemField(
-                                position,
-                                fieldInfo.Type,
-                                fieldInfo.SpecificType,
-                                fieldInfo.FieldInfo,
-                                editorScript.Script,
-                                editorScript.FieldsUsingSettings,
-                                editorScript.FieldsUsingVariables,
-                                _golem,
-                                editorScript.HasOutputWire(fieldInfo.FieldInfo.Name)
-                                );
-                    }
-
-                    //-------------------------------
-                    // Script Outputs
-                    //-------------------------------
-                    var topRight = scriptArea.position + new Vector2(scriptArea.width, 0);
-                    for (int j = 0; j < outputs.Length; ++j)
-                    {
-                        // var position = new Rect(scriptArea.position + new Vector2(scriptArea.width * 0.25f, EditorGUIUtility.singleLineHeight * j), new Vector2(scriptArea.width * 0.75f - GolemEditorUtility.PortLayoutWidth, EditorGUIUtility.singleLineHeight));
-                        var portCenter = outputs[j].PortCenterFromTopRight;
-                        GolemEditorUtility.DrawPort(portCenter, editorScript.HasOutputWire(outputs[j].Name), false);
-                        var rect = GolemEditorUtility.GetPortRect(portCenter);
-                        if (!IsCreatingWire)
+                        GenericMenu menu = new GenericMenu();
+                        menu.AddItem(new GUIContent("Create Transition"), false, CreateTransitionMenuFunction, editorState);
+                        menu.AddSeparator("");
+                        var scriptTypes = Assembly.GetAssembly(typeof(Script))
+                            .GetTypes()
+                            .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Script)))
+                            .ToList();
+                        scriptTypes.Sort((a, b) => a.Name.CompareTo(b.Name));
                         {
-                            GolemEditorUtility.AddScaledCursorRect(_graphScale, rect, MouseCursor.ArrowPlus);
+                            var removeable = scriptTypes.Where((type) => editorState.Scripts.Any((editorScript) => editorScript.Script.GetType().Equals(type))).ToList();
+                            var addable = scriptTypes.Except(removeable);
+                            if (addable.Any((type) => true))
+                            {
+                                foreach (var type in addable)
+                                {
+                                    menu.AddItem(new GUIContent("Add/" + type.Name), false, AddScriptMenuFunction, new object[] { editorState, type });
+                                }
+                            }
+                            else
+                            {
+                                menu.AddDisabledItem(new GUIContent("Add/(empty)"));
+                            }
+                            if (removeable.Any((type) => true))
+                            {
+                                foreach (var type in removeable)
+                                {
+                                    menu.AddItem(new GUIContent("Remove/" + type.Name), false, RemoveScriptMenuFunction, new object[] { editorState, type });
+                                }
+                            }
+                            else
+                            {
+                                menu.AddDisabledItem(new GUIContent("Remove/(empty)"));
+                            }
+                            menu.AddSeparator("");
+                            menu.AddItem(new GUIContent("Delete State"), false, DeleteEditorStateMenuFunction, editorState);
                         }
+                        menu.ShowAsContext();
                     }
+                    Event.current.Use();
                 }
-                GolemEditorUtility.EndNode();
             }
+
 
             _shouldWrite = _shouldWrite || EditorGUI.EndChangeCheck();
 
@@ -1555,10 +1531,8 @@ namespace GGEZ.Labkit
                 _shouldScroll = false;
 
                 var editorCell = pickEditorCell(mouseGraphPosition);
-                var editorState = pickEditorState(mouseGraphPosition);
                 var pickedEditorTransitionExpression = pickEditorTransitionExpression(mouseGraphPosition);
-                if (editorState == null
-                        && pickedEditorTransitionExpression == null)
+                if (pickedEditorTransitionExpression == null)
                 {
                     menu.AddItem(new GUIContent("New State/Normal"), false, CreateStateMenuFunction, EditorSpecialStateType.Normal);
                     menu.AddSeparator("New State");
@@ -1580,44 +1554,6 @@ namespace GGEZ.Labkit
                     }
                     menu.AddSeparator("");
                     menu.AddItem(new GUIContent("New Variable Input"), false, CreateVariableInputMenuFunction, null);
-                }
-                else if (editorState != null)
-                {
-                    menu.AddItem(new GUIContent("Create Transition"), false, CreateTransitionMenuFunction, editorState);
-                    menu.AddSeparator("");
-                    var scriptTypes = Assembly.GetAssembly(typeof(Script))
-                        .GetTypes()
-                        .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Script)))
-                        .ToList();
-                    scriptTypes.Sort((a, b) => a.Name.CompareTo(b.Name));
-                    {
-                        var removeable = scriptTypes.Where((type) => editorState.Scripts.Any((editorScript) => editorScript.Script.GetType().Equals(type))).ToList();
-                        var addable = scriptTypes.Except(removeable);
-                        if (addable.Any((type) => true))
-                        {
-                            foreach (var type in addable)
-                            {
-                                menu.AddItem(new GUIContent("Add/" + type.Name), false, AddScriptMenuFunction, new object[] { editorState, type });
-                            }
-                        }
-                        else
-                        {
-                            menu.AddDisabledItem(new GUIContent("Add/(empty)"));
-                        }
-                        if (removeable.Any((type) => true))
-                        {
-                            foreach (var type in removeable)
-                            {
-                                menu.AddItem(new GUIContent("Remove/" + type.Name), false, RemoveScriptMenuFunction, new object[] { editorState, type });
-                            }
-                        }
-                        else
-                        {
-                            menu.AddDisabledItem(new GUIContent("Remove/(empty)"));
-                        }
-                        menu.AddSeparator("");
-                        menu.AddItem(new GUIContent("Delete State"), false, DeleteEditorStateMenuFunction, editorState);
-                    }
                 }
                 else if (pickedEditorTransitionExpression != null)
                 {
