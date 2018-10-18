@@ -29,6 +29,7 @@ using System.Reflection;
 using UnityObject = UnityEngine.Object;
 using System.Collections.Generic;
 using System.Linq;
+using GGEZ;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -386,7 +387,7 @@ namespace GGEZ.Labkit
                                     menu.AddItem(new GUIContent(components[i].GetType().Name), object.ReferenceEquals(component, components[i]), SetDropdownFieldValueMenuFunction2, new object[]{GetActiveDropdownFieldHandle(), components[i]});
                                 }
 
-                                menu.DropDown(lhsToolsRect);
+                                menu.DropDown(new Rect(lhsToolsRect.position, Vector2.Scale(lhsToolsRect.size, GUI.matrix.lossyScale)));
                             }
                             EditorGUI.EndDisabledGroup();
                         }
@@ -639,7 +640,7 @@ namespace GGEZ.Labkit
                         needsRootSeparator = needsRootSeparator || isSelf;
                         isSelf = false;
                     }
-                    menu.DropDown(valueRect);
+                    menu.DropDown(new Rect(valueRect.position, Vector2.Scale(valueRect.size, GUI.matrix.lossyScale)));
                 }
                 fieldsUsingSettings[fieldName] = setting;
                 value = golem.Settings.Get(setting, specificType);
@@ -724,7 +725,7 @@ namespace GGEZ.Labkit
                                     );
                             }
 
-                            menu.DropDown(right);
+                            menu.DropDown(new Rect(right.position, Vector2.Scale(right.size, GUI.matrix.lossyScale)));
                         }
 
                         reference = new VariableRef(reference.Relationship, variableName);
@@ -822,7 +823,8 @@ namespace GGEZ.Labkit
                                     );
                             }
 
-                            menu.DropDown(right);
+                            # warning because this gets called inside a layout, it doesn't appear at the right spot when zoomed...
+                            menu.DropDown(new Rect(right.position, Vector2.Scale(right.size, GUI.matrix.lossyScale)));
                         }
                         EditorGUI.EndDisabledGroup();
 

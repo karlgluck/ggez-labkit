@@ -625,9 +625,10 @@ namespace GGEZ.Labkit
             if (isRescaling)
             {
                 GUI.EndGroup();
-                GUI.BeginGroup(new Rect(new Vector2(0f, GolemEditorUtility.editorWindowTabHeight / _graphScale), position.size / _graphScale));
+                GUI.BeginGroup(new Rect(new Vector2(0f, 0f), position.size / _graphScale));
+                
                 previousGuiMatrix = GUI.matrix;
-                GUI.matrix = Matrix4x4.Scale(Vector3.one * _graphScale);
+                GUI.matrix = Matrix4x4.TRS(new Vector2(0f, GolemEditorUtility.editorWindowTabHeight), Quaternion.identity, Vector3.one * _graphScale);
             }
 
             //-------------------------------------------------
@@ -2053,7 +2054,7 @@ namespace GGEZ.Labkit
 
                 EndObject = endObject;
                 EndField = endField;
-                EndPoint = endPoint;
+                EndPoint = GUIUtility.GUIToScreenPoint(endPoint);
             }
 
             public void HoverEndOutput(IGraphObjectWithOutputs endObject, FieldInfo endField, Vector2 endPoint)
@@ -2163,5 +2164,23 @@ namespace GGEZ.Labkit
             }
         }
 
+        public Vector2 ScreenToGUIPoint(Vector2 point)
+        {
+            return point;
+        }
+
+        public Vector2 GUIToScreenPoint(Vector2 guiPoint)
+        {
+            Vector2 raw = EditorGUIUtility.GUIToScreenPoint(guiPoint);
+            Vector2 unscaledPoint = (guiPoint - _scrollAnchor - _scrollPosition) * _graphScale + _scrollAnchor + _scrollPosition;
+            Vector2 retval = EditorGUIUtility.GUIToScreenPoint(unscaledPoint);
+            return retval;
+        }
+
+        public Vector2 UnscaledGUIPoint(Vector2 guiPoint)
+        {
+            Vector2 unscaledPoint = (guiPoint - _scrollAnchor - _scrollPosition) / _graphScale + _scrollAnchor + _scrollPosition;
+            return unscaledPoint;
+        }
     }
 }

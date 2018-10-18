@@ -205,5 +205,43 @@ namespace GGEZ
                 height
             );
         }
+
+        public static Vector2 TopLeft(this Rect self)
+        {
+            return new Vector2(self.xMin, self.yMin);
+        }
+
+        public static Vector2 TopRight(this Rect self)
+        {
+            return new Vector2(self.xMax, self.yMin);
+        }
+
+        public static Vector2 BottomLeft(this Rect self)
+        {
+            return new Vector2(self.xMin, self.yMax);
+        }
+
+        public static Vector2 BottomRight(this Rect self)
+        {
+            return new Vector2(self.xMax, self.yMax);
+        }
+
+        public static Rect ScaleAroundPivot(this Rect self, float scale, Vector2 pivot)
+        {
+            return ScaleAroundPivot(self, Vector2.one * scale, pivot);
+        }
+
+        public static Rect ScaleAroundPivot(this Rect self, Vector2 scale, Vector2 pivot)
+        {
+			return new Rect(
+                Vector2.Scale(self.position - pivot, scale) + pivot,
+			    Vector2.Scale(self.size, scale)
+            );
+        }
+
+        public static Rect MinMaxRect(Vector2 min, Vector2 max)
+        {
+            return new Rect(min.x, min.y, max.x - min.x, max.y - min.y);
+        }
     }
 }
