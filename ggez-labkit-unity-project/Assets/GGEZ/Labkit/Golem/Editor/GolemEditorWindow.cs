@@ -135,19 +135,6 @@ namespace GGEZ.Labkit
             _shouldRead = false;
         }
 
-
-        private EditorCell pickEditorCell(Vector2 graphPosition)
-        {
-            for (int i = 0; i < _cells.Count; ++i)
-            {
-                if (_cells[i].Position.Contains(graphPosition))
-                {
-                    return _cells[i];
-                }
-            }
-            return null;
-        }
-
         private EditorState pickEditorState(Vector2 graphPosition)
         {
             for (int i = 0; i < _states.Count; ++i)
@@ -160,17 +147,6 @@ namespace GGEZ.Labkit
             return null;
         }
 
-        private EditorVariableInputRegister pickEditorVariableInputRegister(Vector2 graphPosition)
-        {
-            for (int i = 0; i < _variableInputRegisters.Count; ++i)
-            {
-                if (_variableInputRegisters[i].Position.Contains(graphPosition))
-                {
-                    return _variableInputRegisters[i];
-                }
-            }
-            return null;
-        }
 
         private EditorTransition pickEditorTransition(Vector2 graphPosition)
         {
@@ -188,95 +164,6 @@ namespace GGEZ.Labkit
             return null;
         }
 
-        private bool pickEditorScriptOutputPort(Vector2 graphPosition, out EditorState editorState, out EditorScript editorScript, out InspectableScriptType inspectableType, out int outputPort)
-        {
-            editorState = pickEditorState(graphPosition);
-            if (editorState != null && !object.ReferenceEquals(editorState, _creatingWireStartState))
-            {
-                Debug.Log("considering EditorState " + editorState.Name);
-                for (int i = 0; i < editorState.Scripts.Count; ++i)
-                {
-                    editorScript = editorState.Scripts[i];
-                    inspectableType = GetInspectableScriptType(editorScript.Script.GetType());
-                    var outputs = inspectableType.Outputs;
-                    for (int j = 0; j < outputs.Length; ++j)
-                    {
-                        var portRect = GolemEditorUtility.GetNodeOutputPortRect(editorScript.Position, outputs[j].PortCenterFromTopRight);
-                        if (portRect.Contains(graphPosition))
-                        {
-                            outputPort = j;
-                            return true;
-                        }
-                    }
-                }
-            }
-            inspectableType = null;
-            editorScript = null;
-            outputPort = -1;
-            return false;
-        }
-
-        private bool pickEditorCellOutputPort(Vector2 graphPosition, out EditorCell editorCell, out InspectableCellType inspectableType, out int outputPort)
-        {
-            editorCell = pickEditorCell(graphPosition);
-            inspectableType = null;
-            outputPort = -1;
-            if (editorCell == null || object.ReferenceEquals(editorCell, _creatingWireStartCell))
-            {
-                return false;
-            }
-            inspectableType = GetInspectableCellType(editorCell.Cell.GetType());
-            var outputs = inspectableType.Outputs;
-            for (int i = 0; i < outputs.Length; ++i)
-            {
-                var portRect = GolemEditorUtility.GetNodeOutputPortRect(editorCell.Position, outputs[i].PortCenterFromTopRight);
-                if (portRect.Contains(graphPosition))
-                {
-                    outputPort = i;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private bool pickEditorCellInputPort(Vector2 graphPosition, out EditorCell editorCell, out InspectableCellType inspectableType, out int inputPort)
-        {
-            editorCell = pickEditorCell(graphPosition);
-            inspectableType = null;
-            inputPort = -1;
-            if (editorCell == null || object.ReferenceEquals(editorCell, _creatingWireStartCell))
-            {
-                editorCell = null;
-                return false;
-            }
-            inspectableType = GetInspectableCellType(editorCell.Cell.GetType());
-            var inputs = inspectableType.Inputs;
-            for (int i = 0; i < inputs.Length; ++i)
-            {
-                var portRect = GolemEditorUtility.GetNodeInputPortRect(editorCell.Position, inputs[i].PortCenterFromTopLeft);
-                if (portRect.Contains(graphPosition))
-                {
-                    inputPort = i;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private bool pickEditorVariableInputRegisterOutputPort(Vector2 graphPosition, out EditorVariableInputRegister variableInputRegister)
-        {
-            variableInputRegister = pickEditorVariableInputRegister(graphPosition);
-            if (variableInputRegister != null)
-            {
-                Rect portRect = GolemEditorUtility.GetNodeOutputPortRect(variableInputRegister.Position, EditorVariableInputRegister.PortCenterFromTopRight);
-                if (portRect.Contains(graphPosition))
-                {
-                    return true;
-                }
-                variableInputRegister = null;
-            }
-            return false;
-        }
 
         private EditorTransition pickEditorTransitionExpressionHitbox(Vector2 graphPosition)
         {
@@ -741,97 +628,11 @@ namespace GGEZ.Labkit
                 mouseGraphPosition = WindowToGraphPosition(Event.current.mousePosition);
                 _mouseDownPosition = mouseGraphPosition;
 
-                EditorCell editorCell = null;//this.pickEditorCell(mouseGraphPosition);
-                EditorState editorState = null;//this.pickEditorState(mouseGraphPosition);
                 var editorTransition = this.pickEditorTransition(mouseGraphPosition);
                 var pickedEditorTransitionExpression = this.pickEditorTransitionExpression(mouseGraphPosition);
-                EditorVariableInputRegister editorVariableInputRegister = null;//this.pickEditorVariableInputRegister(mouseGraphPosition);
 
-                _shouldScroll = editorCell == null && editorState == null && editorTransition == null && pickedEditorTransitionExpression == null && editorVariableInputRegister == null;
-                if (editorCell != null)
-                {
-                    if (_selection != editorCell)
-                    {
-                        Repaint();
-                    }
-                    _selection = editorCell;
-                    _draggable = null;
-                    if (GolemEditorUtility.GetNodeTitleRect(editorCell.Position).Contains(mouseGraphPosition))
-                    {
-                        _draggable = editorCell.DragPosition();
-                    }
-                    else if (GolemEditorUtility.GetNodeResizeRect(editorCell.Position).Contains(mouseGraphPosition))
-                    {
-                        _draggable = editorCell.DragSize();
-                    }
-                    else
-                    {
-                        var inspectableType = GetInspectableCellType(editorCell.Cell.GetType());
-                        var inputs = inspectableType.Inputs;
-                        for (int i = 0; i < inputs.Length; ++i)
-                        {
-                            var portRect = GolemEditorUtility.GetNodeInputPortRect(editorCell.Position, inputs[i].PortCenterFromTopLeft);
-                            if (portRect.Contains(mouseGraphPosition))
-                            {
-                                _draggable = DragWire(editorCell, true, inputs[i].Name, i, portRect.center);
-                            }
-                        }
-                        var outputs = inspectableType.Outputs;
-                        for (int i = 0; i < outputs.Length; ++i)
-                        {
-                            var portRect = GolemEditorUtility.GetNodeOutputPortRect(editorCell.Position, outputs[i].PortCenterFromTopRight);
-                            if (portRect.Contains(mouseGraphPosition))
-                            {
-                                _draggable = DragWire(editorCell, false, outputs[i].Name, i, portRect.center);
-                            }
-                        }
-                    }
-                    _shouldDrag = _draggable != null;
-                    if (_shouldDrag)
-                    {
-                        Repaint();
-                    }
-                }
-                else if (editorState != null)
-                {
-                    if (_selection != editorState)
-                    {
-                        Repaint();
-                    }
-                    _selection = editorState;
-                    _draggable = null;
-                    if (GolemEditorUtility.GetNodeTitleRect(editorState.Position).Contains(mouseGraphPosition))
-                    {
-                        _draggable = editorState.DragPosition();
-                    }
-                    else if (GolemEditorUtility.GetNodeResizeRect(editorState.Position).Contains(mouseGraphPosition))
-                    {
-                        _draggable = editorState.DragSize();
-                    }
-                    else
-                    {
-                        for (int i = 0; i < editorState.Scripts.Count; ++i)
-                        {
-                            var editorScript = editorState.Scripts[i];
-                            var inspectableType = GetInspectableScriptType(editorScript.Script.GetType());
-                            var outputs = inspectableType.Outputs;
-                            for (int j = 0; j < outputs.Length; ++j)
-                            {
-                                var portRect = GolemEditorUtility.GetNodeOutputPortRect(editorScript.Position, outputs[j].PortCenterFromTopRight);
-                                if (portRect.Contains(mouseGraphPosition))
-                                {
-                                    _draggable = DragWire(editorState, editorScript, outputs[j].Name, j, portRect.center);
-                                }
-                            }
-                        }
-                    }
-                    _shouldDrag = _draggable != null;
-                    if (_shouldDrag)
-                    {
-                        Repaint();
-                    }
-                }
-                else if (pickedEditorTransitionExpression != null)
+                _shouldScroll = editorTransition == null && pickedEditorTransitionExpression == null;
+                if (pickedEditorTransitionExpression != null)
                 {
                     _draggable = pickedEditorTransitionExpression.Transition.DragExpressionAnchor();
                     _shouldDrag = true;
@@ -845,30 +646,6 @@ namespace GGEZ.Labkit
                         Repaint();
                     }
                     _selection = editorTransition;
-                }
-                else if (editorVariableInputRegister != null)
-                {
-                    if (_selection != editorVariableInputRegister)
-                    {
-                        Repaint();
-                    }
-                    _selection = editorVariableInputRegister;
-
-                    if (GolemEditorUtility.GetNodeTitleRect(editorVariableInputRegister.Position).Contains(mouseGraphPosition))
-                    {
-                        _draggable = editorVariableInputRegister.DragPosition();
-                        _shouldDrag = true;
-                    }
-                    else
-                    {
-                        var portRect = GolemEditorUtility.GetNodeOutputPortRect(editorVariableInputRegister.Position, EditorVariableInputRegister.PortCenterFromTopRight);
-                        if (portRect.Contains(mouseGraphPosition))
-                        {
-                            _draggable = DragWire(editorVariableInputRegister, portRect.center);
-                            _shouldDrag = true;
-                            Repaint();
-                        }
-                    }
                 }
                 else
                 {
@@ -1268,7 +1045,7 @@ namespace GGEZ.Labkit
 
                                 case EventType.Repaint:
                                     GolemEditorSkin.Current.PortStyle.Draw(portPosition, false, false, on, focused);
-                                    GolemEditorUtility.SetWireReadPoints(field.FieldInfo.Name, editorScript.OutputWires, portPosition.center);
+                                    GolemEditorUtility.SetWireReadPoints(field.FieldInfo.Name, editorScript.OutputWires, portPosition.center - clientRect.TopLeft() * (1f - _graphScale)); // something like this
                                     break;
                             }
                         }
@@ -1530,7 +1307,6 @@ namespace GGEZ.Labkit
                 _mouseDownPosition = mouseGraphPosition;
                 _shouldScroll = false;
 
-                var editorCell = pickEditorCell(mouseGraphPosition);
                 var pickedEditorTransitionExpression = pickEditorTransitionExpression(mouseGraphPosition);
                 if (pickedEditorTransitionExpression == null)
                 {

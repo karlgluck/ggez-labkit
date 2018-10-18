@@ -484,6 +484,7 @@ namespace GGEZ.Labkit
                 )
         {
             Rect position = EditorGUILayout.GetControlRect();
+            
             EditorGUIGolemField(
                     position,
                     inspectableType,
