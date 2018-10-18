@@ -1011,6 +1011,9 @@ namespace GGEZ.Labkit
                                 EditorGUIUtility.AddCursorRect(portPosition, MouseCursor.Link);
                             }
 
+                            // Calculate the center of the port when the screen is being scaled
+                            Vector2 portCenter = portPosition.center - (1 - _graphScale)/_graphScale*(clientRect.position);
+
                             switch (Event.current.type)
                             {
                                 case EventType.MouseDown:
@@ -1026,7 +1029,7 @@ namespace GGEZ.Labkit
                                         GUI.FocusControl(id.ToString());
                                         Event.current.Use();
                                         _shouldScroll = false;
-                                        _createWire = CreateWire.Output(editorScript, field.FieldInfo, portPosition.center);
+                                        _createWire = CreateWire.Output(editorScript, field.FieldInfo, portCenter);
                                         Repaint();
                                     }
                                     break;
@@ -1035,7 +1038,7 @@ namespace GGEZ.Labkit
                                 case EventType.MouseDrag:
                                     if (_createWire.Enabled && portPosition.Contains(Event.current.mousePosition))
                                     {
-                                        _createWire.HoverEndOutput(editorScript, field.FieldInfo, portPosition.center);
+                                        _createWire.HoverEndOutput(editorScript, field.FieldInfo, portCenter);
                                         GUIUtility.hotControl = id;
                                     }
                                     break;
@@ -1045,7 +1048,7 @@ namespace GGEZ.Labkit
 
                                 case EventType.Repaint:
                                     GolemEditorSkin.Current.PortStyle.Draw(portPosition, false, false, on, focused);
-                                    GolemEditorUtility.SetWireReadPoints(field.FieldInfo.Name, editorScript.OutputWires, portPosition.center - clientRect.TopLeft() * (1f - _graphScale)); // something like this
+                                    GolemEditorUtility.SetWireReadPoints(field.FieldInfo.Name, editorScript.OutputWires, portCenter);
                                     break;
                             }
                         }
