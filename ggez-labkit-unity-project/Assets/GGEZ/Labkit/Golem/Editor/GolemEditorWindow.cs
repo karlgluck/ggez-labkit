@@ -465,14 +465,13 @@ namespace GGEZ.Labkit
 
                     GUILayout.BeginHorizontal();
                     GUILayout.FlexibleSpace();
-                    GUILayout.Label("No golem is selected for editing", EditorStyles.largeLabel);
+                    GUILayout.Label("Golem Component Editor", EditorStyles.largeLabel);
                     GUILayout.FlexibleSpace();
                     GUILayout.EndHorizontal();
 
                     GUILayout.BeginHorizontal();
                     GUILayout.FlexibleSpace();
-                    #warning this text is wrong
-                    GUILayout.Label("Select an golem then press 'Open Editor' from the inspector.", EditorStyles.miniLabel);
+                    GUILayout.Label("Select a golem, pick a Component, and press 'Open Editor'", EditorStyles.miniLabel);
                     GUILayout.FlexibleSpace();
                     GUILayout.EndHorizontal();
 
@@ -513,7 +512,7 @@ namespace GGEZ.Labkit
             {
                 GUI.EndGroup();
                 GUI.BeginGroup(new Rect(new Vector2(0f, 0f), position.size / _graphScale));
-                
+
                 previousGuiMatrix = GUI.matrix;
                 GUI.matrix = Matrix4x4.TRS(new Vector2(0f, GolemEditorUtility.editorWindowTabHeight), Quaternion.identity, Vector3.one * _graphScale);
             }
@@ -534,62 +533,62 @@ namespace GGEZ.Labkit
             // Compute and store this at the window level because entering a layout context changes the value of mousePosition!
             var mouseGraphPosition = WindowToGraphPosition(Event.current.mousePosition);
 
-            if (IsCreatingTransition)
-            {
-                bool cancelTransitionCreation = false;// Event.current.type == EventType.MouseDown && Event.current.button == 1;
-                bool tryCreatingTransition = _shouldDrag && Event.current.button == 0 && (Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDown);
+            // if (IsCreatingTransition)
+            // {
+            //     bool cancelTransitionCreation = false;// Event.current.type == EventType.MouseDown && Event.current.button == 1;
+            //     bool tryCreatingTransition = _shouldDrag && Event.current.button == 0 && (Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDown);
 
-                if ((Event.current.type == EventType.MouseDrag || Event.current.type == EventType.MouseMove) || tryCreatingTransition)
-                {
-                    var endState = pickEditorState(mouseGraphPosition);
-                    if (endState != _creatingTransitionEndState)
-                    {
-                        _creatingTransitionEndState = endState;
-                        _creatingTransitionHoveringEndPoint = endState != null;
-                        Repaint();
-                    }
-                    if (endState != null)
-                    {
-                        if (tryCreatingTransition)
-                        {
-                            var transition = new EditorTransition
-                            {
-                                Name = "Transition",
-                                Index = (EditorTransitionIndex)_transitions.Count,
-                                Expression = new EditorTransitionExpression
-                                {
-                                    Type = EditorTransitionExpressionType.True,
-                                },
-                                From = _creatingTransitionStartState.Index,
-                                To = _creatingTransitionEndState.Index,
-                            };
-                            _creatingTransitionStartState.TransitionsOut.Add(transition.Index);
-                            _creatingTransitionEndState.TransitionsIn.Add(transition.Index);
-                            {
-                                Vector2 fromPosition, toPosition;
-                                getEditorTransitionPoints(transition, out fromPosition, out toPosition);
-                                transition.ExpressionAnchor = (fromPosition + toPosition) * 0.5f;
-                            }
-                            _transitions.Add(transition);
-                            IsCreatingTransition = false;
-                            _shouldWrite = true;
-                        }
-                        else
-                        {
-                            _creatingTransitionEndPoint = endState.Position.center;
-                        }
-                    }
-                }
+            //     if ((Event.current.type == EventType.MouseDrag || Event.current.type == EventType.MouseMove) || tryCreatingTransition)
+            //     {
+            //         var endState = pickEditorState(mouseGraphPosition);
+            //         if (endState != _creatingTransitionEndState)
+            //         {
+            //             _creatingTransitionEndState = endState;
+            //             _creatingTransitionHoveringEndPoint = endState != null;
+            //             Repaint();
+            //         }
+            //         if (endState != null)
+            //         {
+            //             if (tryCreatingTransition)
+            //             {
+            //                 var transition = new EditorTransition
+            //                 {
+            //                     Name = "Transition",
+            //                     Index = (EditorTransitionIndex)_transitions.Count,
+            //                     Expression = new EditorTransitionExpression
+            //                     {
+            //                         Type = EditorTransitionExpressionType.True,
+            //                     },
+            //                     From = _creatingTransitionStartState.Index,
+            //                     To = _creatingTransitionEndState.Index,
+            //                 };
+            //                 _creatingTransitionStartState.TransitionsOut.Add(transition.Index);
+            //                 _creatingTransitionEndState.TransitionsIn.Add(transition.Index);
+            //                 {
+            //                     Vector2 fromPosition, toPosition;
+            //                     getEditorTransitionPoints(transition, out fromPosition, out toPosition);
+            //                     transition.ExpressionAnchor = (fromPosition + toPosition) * 0.5f;
+            //                 }
+            //                 _transitions.Add(transition);
+            //                 IsCreatingTransition = false;
+            //                 _shouldWrite = true;
+            //             }
+            //             else
+            //             {
+            //                 _creatingTransitionEndPoint = endState.Position.center;
+            //             }
+            //         }
+            //     }
 
-                if (cancelTransitionCreation || tryCreatingTransition)
-                {
-                    wantsMouseMove = false;
-                    IsCreatingTransition = false;
-                    _draggable = null;
-                    _shouldWrite = true;
-                    Repaint();
-                }
-            }
+            //     if (cancelTransitionCreation || tryCreatingTransition)
+            //     {
+            //         wantsMouseMove = false;
+            //         IsCreatingTransition = false;
+            //         _draggable = null;
+            //         _shouldWrite = true;
+            //         Repaint();
+            //     }
+            // }
 
             // The key labeled "Delete" on OSX is actually backspace
             bool pressedDelete =
@@ -691,7 +690,7 @@ namespace GGEZ.Labkit
                 }
             }
 
-            CreateWireDraw(_scrollAnchor + _scrollPosition);
+            DrawCreateWire(_scrollAnchor + _scrollPosition);
 
             //-------------------------------------------------
             // Draw the circuit to the graph
@@ -808,7 +807,7 @@ namespace GGEZ.Labkit
                         int id = GUIUtility.GetControlID(FocusType.Passive);
                         bool focused = GUIUtility.hotControl == id || GUI.GetNameOfFocusedControl() == id.ToString();
                         bool on = editorCell.HasOutputWire(outputs[i].Name);
-                        
+
                         if (_createWire.Disabled || _createWire.StartIsInput)
                         {
                             EditorGUIUtility.AddCursorRect(portPosition, MouseCursor.Link);
@@ -919,11 +918,11 @@ namespace GGEZ.Labkit
 
             // Draw transition we are creating
             //-------------------------------------------------
-            if (IsCreatingTransition)
-            {
-                GolemEditorUtility.DrawBezier(_scrollPosition + _scrollAnchor + _creatingTransitionStartPoint, _scrollPosition + _scrollAnchor + _creatingTransitionEndPoint, Vector2.zero, Vector2.zero, _creatingTransitionHoveringEndPoint);
-            }
-
+            // if (IsCreatingTransition)
+            // {
+            //     GolemEditorUtility.DrawBezier(_scrollPosition + _scrollAnchor + _creatingTransitionStartPoint, _scrollPosition + _scrollAnchor + _creatingTransitionEndPoint, Vector2.zero, Vector2.zero, _creatingTransitionHoveringEndPoint);
+            // }
+            DrawCreateTransition(_scrollAnchor + _scrollPosition);
 
             //-------------------------------------------------
             // Draw transitions
@@ -976,7 +975,7 @@ namespace GGEZ.Labkit
                     var inspectableType = GetInspectableScriptType(editorScript.Script.GetType());
 
                     EditorGUILayout.LabelField(inspectableType.Name, EditorStyles.boldLabel);
-                    
+
                     //-------------------------------
                     // Script Fields
                     //-------------------------------
@@ -1005,14 +1004,14 @@ namespace GGEZ.Labkit
                                     );
 
                             Rect portPosition = labelPosition.GetCenteredRight(EditorGUIUtility.singleLineHeight + GolemEditorSkin.Current.CellBodyStyle.padding.right, GolemEditorSkin.Current.PortStyle.fixedWidth, GolemEditorSkin.Current.PortStyle.fixedHeight);
-                            
+
                             if (_createWire.Disabled || _createWire.StartIsInput)
                             {
                                 EditorGUIUtility.AddCursorRect(portPosition, MouseCursor.Link);
                             }
 
                             // Calculate the center of the port when the screen is being scaled
-                            Vector2 portCenter = portPosition.center - (1 - _graphScale)/_graphScale*(clientRect.position);
+                            Vector2 portCenter = portPosition.center - (1 - _graphScale) / _graphScale * clientRect.position;
 
                             switch (Event.current.type)
                             {
@@ -1073,58 +1072,78 @@ namespace GGEZ.Labkit
                     clientPosition.yMax = clientRect.yMin + GolemEditorSkin.Current.CellBodyStyle.padding.Add(GUILayoutUtility.GetLastRect()).height;
                     editorState.Position.size = GolemEditorSkin.Current.CellStyle.padding.Add(clientPosition).size;
                 }
-                
+
                 GUILayout.EndArea();
-                
-                if (Event.current.type == EventType.MouseDown && GolemEditorSkin.Current.CellStyle.overflow.Add(editorState.Position.MovedBy(_scrollAnchor+_scrollPosition)).Contains(Event.current.mousePosition))
+
+                if (GolemEditorSkin.Current.CellStyle.overflow.Add(editorState.Position.MovedBy(_scrollAnchor+_scrollPosition)).Contains(Event.current.mousePosition))
                 {
-                    if (Event.current.button == 0)
+                    if (Event.current.type == EventType.MouseDown)
                     {
-                        _draggable = editorState.DragPosition();
-                        _shouldDrag = true;
-                        _shouldScroll = false;
-                    }
-                    else
-                    {
-                        GenericMenu menu = new GenericMenu();
-                        menu.AddItem(new GUIContent("Create Transition"), false, CreateTransitionMenuFunction, editorState);
-                        menu.AddSeparator("");
-                        var scriptTypes = Assembly.GetAssembly(typeof(Script))
-                            .GetTypes()
-                            .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Script)))
-                            .ToList();
-                        scriptTypes.Sort((a, b) => a.Name.CompareTo(b.Name));
+                        if (Event.current.button == 0)
                         {
-                            var removeable = scriptTypes.Where((type) => editorState.Scripts.Any((editorScript) => editorScript.Script.GetType().Equals(type))).ToList();
-                            var addable = scriptTypes.Except(removeable);
-                            if (addable.Any((type) => true))
+                            if (Event.current.shift)
                             {
-                                foreach (var type in addable)
-                                {
-                                    menu.AddItem(new GUIContent("Add/" + type.Name), false, AddScriptMenuFunction, new object[] { editorState, type });
-                                }
+                                Debug.Log ("HELLO");
+                                _shouldDrag = false;
+                                _shouldScroll = false;
+                                _createTransition = CreateTransition.Create(editorState, editorState.Position.center);
                             }
                             else
                             {
-                                menu.AddDisabledItem(new GUIContent("Add/(empty)"));
+                                _draggable = editorState.DragPosition();
+                                _shouldDrag = true;
+                                _shouldScroll = false;
                             }
-                            if (removeable.Any((type) => true))
-                            {
-                                foreach (var type in removeable)
-                                {
-                                    menu.AddItem(new GUIContent("Remove/" + type.Name), false, RemoveScriptMenuFunction, new object[] { editorState, type });
-                                }
-                            }
-                            else
-                            {
-                                menu.AddDisabledItem(new GUIContent("Remove/(empty)"));
-                            }
-                            menu.AddSeparator("");
-                            menu.AddItem(new GUIContent("Delete State"), false, DeleteEditorStateMenuFunction, editorState);
                         }
-                        menu.ShowAsContext();
+                        else
+                        {
+                            GenericMenu menu = new GenericMenu();
+                            menu.AddItem(new GUIContent("Create Transition"), false, CreateTransitionMenuFunction, new object[]{editorState});
+                            menu.AddSeparator("");
+                            var scriptTypes = Assembly.GetAssembly(typeof(Script))
+                                .GetTypes()
+                                .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Script)))
+                                .ToList();
+                            scriptTypes.Sort((a, b) => a.Name.CompareTo(b.Name));
+                            {
+                                var removeable = scriptTypes.Where((type) => editorState.Scripts.Any((editorScript) => editorScript.Script.GetType().Equals(type))).ToList();
+                                var addable = scriptTypes.Except(removeable);
+                                if (addable.Any((type) => true))
+                                {
+                                    foreach (var type in addable)
+                                    {
+                                        menu.AddItem(new GUIContent("Add/" + type.Name), false, AddScriptMenuFunction, new object[] { editorState, type });
+                                    }
+                                }
+                                else
+                                {
+                                    menu.AddDisabledItem(new GUIContent("Add/(empty)"));
+                                }
+                                if (removeable.Any((type) => true))
+                                {
+                                    foreach (var type in removeable)
+                                    {
+                                        menu.AddItem(new GUIContent("Remove/" + type.Name), false, RemoveScriptMenuFunction, new object[] { editorState, type });
+                                    }
+                                }
+                                else
+                                {
+                                    menu.AddDisabledItem(new GUIContent("Remove/(empty)"));
+                                }
+                                menu.AddSeparator("");
+                                menu.AddItem(new GUIContent("Delete State"), false, DeleteEditorStateMenuFunction, editorState);
+                            }
+                            menu.ShowAsContext();
+                        }
+                        Event.current.Use();
                     }
-                    Event.current.Use();
+                    else if (Event.current.type == EventType.MouseMove || Event.current.type == EventType.MouseDrag)
+                    {
+                        if (_createTransition.Enabled)
+                        {
+                            _createTransition.HoverEnd(editorState, editorState.Position.center);
+                        }
+                    }
                 }
             }
 
@@ -1164,7 +1183,7 @@ namespace GGEZ.Labkit
                 int id = GUIUtility.GetControlID(FocusType.Passive);
                 bool focused = GUIUtility.hotControl == id || GUI.GetNameOfFocusedControl() == id.ToString();
                 bool on = variableInputRegister.HasOutputWire();
-                
+
                 if (_createWire.Disabled || _createWire.StartIsInput)
                 {
                     EditorGUIUtility.AddCursorRect(portPosition, MouseCursor.Link);
@@ -1270,7 +1289,7 @@ namespace GGEZ.Labkit
                             );
                     }
                     break;
-                
+
                 case EventType.MouseDown:
                     foreach (EditorWire editorWire in _wires)
                     {
@@ -1612,11 +1631,19 @@ namespace GGEZ.Labkit
 
         private void DeleteEditorStateMenuFunction(object editorStateParam)
         {
-            var editorStateBeingRemoved = editorStateParam as EditorState;
+            EditorState editorStateBeingRemoved = editorStateParam as EditorState;
             EditorStateIndex indexToRemove = editorStateBeingRemoved.Index;
             Debug.Assert(editorStateBeingRemoved.Index == indexToRemove);
             removeTransitionsAt(editorStateBeingRemoved.TransitionsIn);
             removeTransitionsAt(editorStateBeingRemoved.TransitionsOut);
+            foreach (EditorScript script in editorStateBeingRemoved.Scripts)
+            {
+                foreach (EditorWire output in script.GetAllOutputWires())
+                {
+                    output.WriteObject.RemoveInputWire(output);
+                    _wires.Remove(output);
+                }
+            }
 #if UNITY_EDITOR
             foreach (var transitionIndex in editorStateBeingRemoved.TransitionsIn)
             {
@@ -1627,6 +1654,7 @@ namespace GGEZ.Labkit
                 Debug.Assert(transitionIndex == EditorTransitionIndex.Invalid);
             }
 #endif
+
             _states.RemoveAt((int)indexToRemove);
 
 
@@ -1636,12 +1664,13 @@ namespace GGEZ.Labkit
             _shouldWrite = true;
         }
 
-        private void CreateTransitionMenuFunction(object editorStateParam)
+        private void CreateTransitionMenuFunction(object paramsArray)
         {
-            var editorState = (EditorState)editorStateParam;
-            _draggable = DragTransition(editorState);
-            _shouldDrag = true;
-            wantsMouseMove = true;
+            var tuple = paramsArray as object[];
+            var editorState = tuple[0] as EditorState;
+            // var point = (Vector2)tuple[1];
+            var point = editorState.Position.center;
+            _createTransition = CreateTransition.Create(editorState, point);
         }
 
         private void AddScriptMenuFunction(object paramsArray)
@@ -1711,8 +1740,6 @@ namespace GGEZ.Labkit
         }
 
 
-
-
         internal struct CreateWire
         {
             public readonly object StartObject;
@@ -1751,6 +1778,7 @@ namespace GGEZ.Labkit
 
             public static CreateWire Input(IGraphObjectWithInputs startObject, FieldInfo startField, Vector2 startPoint)
             {
+                #warning make sure that there isn't an input on this field already
                 return new CreateWire(startObject, startField, GUIUtility.GUIToScreenPoint(startPoint), true);
             }
 
@@ -1766,6 +1794,7 @@ namespace GGEZ.Labkit
                     StartIsOutput
                 && !object.ReferenceEquals(StartObject, endObject)
                 && (endField == null || StartField == null || object.Equals(endField.FieldType.GetGenericArguments()[0], StartField.FieldType.GetGenericArguments()[0]));
+                #warning make sure that no wire already exists
 
                 EndObject = endObject;
                 EndField = endField;
@@ -1779,6 +1808,7 @@ namespace GGEZ.Labkit
                     StartIsInput
                 && !object.ReferenceEquals(StartObject, endObject)
                 && (endField == null || StartField == null || object.Equals(endField.FieldType.GetGenericArguments()[0], StartField.FieldType.GetGenericArguments()[0]));
+                #warning make sure that no wire already exists
 
                 EndObject = endObject;
                 EndField = endField;
@@ -1816,12 +1846,11 @@ namespace GGEZ.Labkit
                 }
                 return wire;
             }
-
         }
 
         private static CreateWire _createWire = new CreateWire();
 
-        public void CreateWireDraw(Vector2 canvasOffset)
+        public void DrawCreateWire(Vector2 canvasOffset)
         {
             if (!_createWire.Enabled)
             {
@@ -1833,18 +1862,20 @@ namespace GGEZ.Labkit
                 _createWire.StartPoint = GUIUtility.ScreenToGUIPoint(_createWire.StartPoint) - canvasOffset;
                 _createWire.HasGraphPosition = true;
             }
-        
+
             switch (Event.current.type)
             {
                 case EventType.Repaint:
                     if (!_createWire.HasEnd || _createWire.Valid)
-                    GolemEditorUtility.DrawBezier(
-                        _createWire.StartPoint + canvasOffset,
-                        _createWire.HasEnd ? GUIUtility.ScreenToGUIPoint(_createWire.EndPoint) : Event.current.mousePosition,
-                        Vector2.zero,
-                        Vector2.zero,
-                        true
-                        );
+                    {
+                        GolemEditorUtility.DrawBezier(
+                            _createWire.StartPoint + canvasOffset,
+                            _createWire.HasEnd ? GUIUtility.ScreenToGUIPoint(_createWire.EndPoint) : Event.current.mousePosition,
+                            Vector2.zero,
+                            Vector2.zero,
+                            true
+                            );
+                    }
                     break;
 
                 case EventType.MouseMove:
@@ -1879,23 +1910,134 @@ namespace GGEZ.Labkit
             }
         }
 
-        public Vector2 ScreenToGUIPoint(Vector2 point)
+
+        internal struct CreateTransition
         {
-            return point;
+            public readonly object StartObject;
+            public Vector2 StartPoint;
+
+            public bool Enabled;
+            public bool Disabled { get { return !Enabled; } }
+            public bool HasGraphPosition;
+
+            public bool HasEnd;
+            public bool Valid;
+
+            public object EndObject;
+            public Vector2 EndPoint;
+
+            public CreateTransition(object startObject, Vector2 startPoint)
+            {
+                StartObject = startObject;
+                StartPoint = startPoint;
+                Enabled = true;
+                HasGraphPosition = false;
+                HasEnd = false;
+                Valid = false;
+                EndObject = null;
+                EndPoint = startPoint;
+            }
+
+            public static CreateTransition Create(object startObject, Vector2 startPoint)
+            {
+                return new CreateTransition(startObject, GUIUtility.GUIToScreenPoint(startPoint));
+            }
+
+            public void HoverEnd(object endObject, Vector2 endPoint)
+            {
+                HasEnd = true;
+                Valid = !object.ReferenceEquals(StartObject, endObject);
+                #warning also check that no transition in the same direction already exists between these
+
+                EndObject = endObject;
+                EndPoint = GUIUtility.GUIToScreenPoint(endPoint);
+            }
+
+            public EditorTransition DropTransition()
+            {
+                Enabled = false;
+                if (!HasEnd || !Valid)
+                {
+                    return null;
+                }
+
+                EditorTransition transition = new EditorTransition
+                {
+                    Name = "Transition",
+                    Expression = new EditorTransitionExpression
+                    {
+                        Type = EditorTransitionExpressionType.True,
+                    },
+                    From = (StartObject as EditorState).Index,
+                    To = (EndObject as EditorState).Index,
+                    ExpressionAnchor = (StartPoint + EndPoint) * 0.5f
+                };
+                return transition;
+            }
+
         }
 
-        public Vector2 GUIToScreenPoint(Vector2 guiPoint)
-        {
-            Vector2 raw = EditorGUIUtility.GUIToScreenPoint(guiPoint);
-            Vector2 unscaledPoint = (guiPoint - _scrollAnchor - _scrollPosition) * _graphScale + _scrollAnchor + _scrollPosition;
-            Vector2 retval = EditorGUIUtility.GUIToScreenPoint(unscaledPoint);
-            return retval;
-        }
+        private CreateTransition _createTransition;
 
-        public Vector2 UnscaledGUIPoint(Vector2 guiPoint)
+        public void DrawCreateTransition(Vector2 canvasOffset)
         {
-            Vector2 unscaledPoint = (guiPoint - _scrollAnchor - _scrollPosition) / _graphScale + _scrollAnchor + _scrollPosition;
-            return unscaledPoint;
+            if (!_createTransition.Enabled)
+            {
+                return;
+            }
+
+            if (!_createTransition.HasGraphPosition)
+            {
+                _createTransition.StartPoint = GUIUtility.ScreenToGUIPoint(_createTransition.StartPoint) - canvasOffset;
+                _createTransition.HasGraphPosition = true;
+            }
+
+            switch (Event.current.type)
+            {
+                case EventType.Repaint:
+                    if (!_createTransition.HasEnd || _createTransition.Valid)
+                    {
+                        GolemEditorUtility.DrawBezier(
+                            _createTransition.StartPoint + canvasOffset,
+                            _createTransition.HasEnd ? GUIUtility.ScreenToGUIPoint(_createTransition.EndPoint) : Event.current.mousePosition,
+                            Vector2.zero,
+                            Vector2.zero,
+                            true
+                            );
+                    }
+                    break;
+
+                case EventType.MouseMove:
+                case EventType.MouseDrag:
+                    _createTransition.HasEnd = false;
+                    Repaint();
+                    break;
+
+                case EventType.MouseUp:
+
+                    EditorTransition transition = _createTransition.DropTransition();
+                    if (transition != null)
+                    {
+                        transition.Index = (EditorTransitionIndex)_transitions.Count;
+                        _states[(int)transition.From].TransitionsOut.Add(transition.Index);
+                        _states[(int)transition.To].TransitionsIn.Add(transition.Index);
+                        _transitions.Add(transition);
+                    }
+                    Repaint();
+
+                    break;
+
+                case EventType.KeyDown:
+                    switch (Event.current.keyCode)
+                    {
+                        case KeyCode.Escape:
+                            _createTransition.Enabled = false;
+                            Repaint();
+                            Event.current.Use();
+                            break;
+                    }
+                    break;
+            }
         }
     }
 }

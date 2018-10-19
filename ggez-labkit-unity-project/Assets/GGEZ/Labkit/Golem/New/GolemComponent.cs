@@ -969,7 +969,7 @@ namespace GGEZ.Labkit
                 Serialization.ReadOrCreate(this, "EditorTransitions", deserialized);
                 Serialization.ReadOrCreate(this, "EditorVariableInputRegisters", deserialized);
 
-                Debug.Log("Serialization Done");
+                Debug.Log("GolemComponent.OnAfterDeserialize Done");
                 #warning Do we need to call OnValidate manually at the end of OnAfterDeserialize?
                 // OnValidate(); // do we need to call this manually?
             }
@@ -1007,7 +1007,7 @@ namespace GGEZ.Labkit
 
         void OnValidate()
         {
-            Debug.Log("OnValidate");
+            Debug.Log("GolemComponent.OnValidate");
             bool dirty = false;
 
             if (Json == null)
