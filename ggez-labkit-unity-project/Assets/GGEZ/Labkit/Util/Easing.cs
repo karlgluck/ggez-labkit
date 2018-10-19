@@ -53,6 +53,11 @@ namespace GGEZ
             return 4 * t * (1 - t);
         }
 
+        public static float EaseInOut(float t)
+        {
+            return t * t * (3 - 2 * t);
+        }
+
         /// <summary>
         /// Turns a linear parameter into a bouncing parameter.
         /// </summary>
