@@ -123,45 +123,11 @@ namespace GGEZ.Labkit
                 return;
             }
 
-            // Make sure all references are reset so there are no dangling objects
-            IsCreatingWire = false;
-            _creatingWireStartCell = null;
-            _creatingWireEndEditorCell = null;
-            IsCreatingTransition = false;
-            _creatingTransitionStartState = null;
-            _creatingTransitionEndState = null;
+            _createTransition.Enabled = false;
+            _createWire.Enabled = false;
 
             // Reload the object
             _shouldRead = false;
-        }
-
-        private EditorState pickEditorState(Vector2 graphPosition)
-        {
-            for (int i = 0; i < _states.Count; ++i)
-            {
-                if (_states[i].Position.Contains(graphPosition))
-                {
-                    return _states[i];
-                }
-            }
-            return null;
-        }
-
-
-        private EditorTransition pickEditorTransition(Vector2 graphPosition)
-        {
-            const float toleranceSquared = 10f * 10f;
-            for (int i = 0; i < _transitions.Count; ++i)
-            {
-                Vector2 from, to;
-                var transition = _transitions[i];
-                getEditorTransitionPoints(transition, out from, out to);
-                if (Vector2Ext.DistanceToLineSegmentSquared(graphPosition, from, to) < toleranceSquared)
-                {
-                    return transition;
-                }
-            }
-            return null;
         }
 
 
@@ -203,9 +169,7 @@ namespace GGEZ.Labkit
             public int IndexInParent;
         }
 
-        private PickedEditorTransitionExpression pickEditorTransitionExpression(
-                Vector2 graphPosition
-                )
+        private PickedEditorTransitionExpression pickEditorTransitionExpression(Vector2 graphPosition)
         {
             var transition = pickEditorTransitionExpressionHitbox(graphPosition);
             if (transition == null)
@@ -311,126 +275,6 @@ namespace GGEZ.Labkit
             return InspectableScriptType.GetInspectableScriptType(scriptType);
         }
 
-        public IDraggable DragWire(EditorCell editorCell, bool isInput, string startPortName, int portIndex, Vector2 startPoint)
-        {
-            IsCreatingWire = true;
-            IsCreatingInputWire = isInput;
-            _creatingWireStartCell = editorCell;
-            _creatingWireStartState = null;
-            _creatingWireStartScript = null;
-            _creatingWireStartPortName = startPortName;
-            _creatingWireStartPort = portIndex;
-            _creatingWireStartVariableInputRegister = null;
-            _creatingWireStartInspectableCellType = InspectableCellType.GetInspectableCellType(editorCell.Cell.GetType());
-            _creatingWireStartPoint = startPoint;
-            _creatingWireEndPoint = startPoint;
-            _creatingWireEndEditorCell = null;
-            _creatingWireEndInspectableType = null;
-            _creatingWireEndEditorState = null;
-            _creatingWireEndEditorScript = null;
-            _creatingWireEndVariableInputRegister = null;
-            return new DraggableWire() { Window = this };
-        }
-
-        public IDraggable DragWire(EditorState editorState, EditorScript editorScript, string startPortName, int portIndex, Vector2 startPoint)
-        {
-            IsCreatingWire = true;
-            IsCreatingInputWire = false;
-            _creatingWireStartCell = null;
-            _creatingWireStartState = editorState;
-            _creatingWireStartScript = editorScript;
-            _creatingWireStartPortName = startPortName;
-            _creatingWireStartPort = portIndex;
-            _creatingWireStartVariableInputRegister = null;
-            _creatingWireStartInspectableScriptType = InspectableScriptType.GetInspectableScriptType(editorScript.Script.GetType());
-            _creatingWireStartPoint = startPoint;
-            _creatingWireEndPoint = startPoint;
-            _creatingWireEndEditorCell = null;
-            _creatingWireEndInspectableType = null;
-            _creatingWireEndEditorState = null;
-            _creatingWireEndEditorScript = null;
-            _creatingWireEndVariableInputRegister = null;
-            return new DraggableWire() { Window = this };
-        }
-
-        public IDraggable DragWire(EditorVariableInputRegister editorVariableInputRegister, Vector2 startPoint)
-        {
-            IsCreatingWire = true;
-            IsCreatingInputWire = false;
-            _creatingWireStartCell = null;
-            _creatingWireStartState = null;
-            _creatingWireStartScript = null;
-            _creatingWireStartPortName = null;
-            _creatingWireStartPort = -1;
-            _creatingWireStartVariableInputRegister = editorVariableInputRegister;
-            _creatingWireStartInspectableScriptType = null;
-            _creatingWireStartPoint = startPoint;
-            _creatingWireEndPoint = startPoint;
-            _creatingWireEndEditorCell = null;
-            _creatingWireEndInspectableType = null;
-            _creatingWireEndEditorState = null;
-            _creatingWireEndEditorScript = null;
-            _creatingWireEndVariableInputRegister = null;
-            return new DraggableWire() { Window = this };
-        }
-
-        internal class DraggableWire : IDraggable
-        {
-            public GolemEditorWindow Window;
-            public Vector2 Offset
-            {
-                set { Window._creatingWireEndPoint = Window._creatingWireStartPoint + value; }
-            }
-        }
-
-        public bool IsCreatingWire;
-        public bool IsCreatingInputWire;
-        private EditorCell _creatingWireStartCell;
-        private InspectableCellType _creatingWireStartInspectableCellType;
-        private string _creatingWireStartPortName;
-        private int _creatingWireStartPort;
-        private Vector2 _creatingWireStartPoint;
-        public bool CreatingWireHoveringEndPoint;
-        public bool CreatingWireHoveringInvalidEndPoint;
-        private Vector2 _creatingWireEndPoint;
-        private EditorCell _creatingWireEndEditorCell;
-        private InspectableCellType _creatingWireEndInspectableType;
-        private int _creatingWireEndPort;
-
-        private EditorState _creatingWireStartState;
-        private EditorScript _creatingWireStartScript;
-        private InspectableScriptType _creatingWireStartInspectableScriptType;
-        private EditorState _creatingWireEndEditorState;
-        private EditorScript _creatingWireEndEditorScript;
-        private InspectableScriptType _creatingWireEndInspectableScriptType;
-
-        private EditorVariableInputRegister _creatingWireStartVariableInputRegister;
-        private EditorVariableInputRegister _creatingWireEndVariableInputRegister;
-
-        public IDraggable DragTransition(EditorState editorState)
-        {
-            IsCreatingTransition = true;
-            _creatingTransitionStartState = editorState;
-            _creatingTransitionStartPoint = editorState.Position.center;
-            _creatingTransitionEndPoint = _mouseDownPosition;
-            return new DraggableTransition() { Window = this };
-        }
-
-        internal class DraggableTransition : IDraggable
-        {
-            public GolemEditorWindow Window;
-            public Vector2 Offset
-            {
-                set { Window._creatingTransitionEndPoint = Window._mouseDownPosition + value; }
-            }
-        }
-
-        public bool IsCreatingTransition;
-        private EditorState _creatingTransitionStartState;
-        private Vector2 _creatingTransitionStartPoint;
-        private bool _creatingTransitionHoveringEndPoint;
-        private Vector2 _creatingTransitionEndPoint;
-        private EditorState _creatingTransitionEndState;
 
         private float _graphScale = 1f;
 
@@ -533,63 +377,6 @@ namespace GGEZ.Labkit
             // Compute and store this at the window level because entering a layout context changes the value of mousePosition!
             var mouseGraphPosition = WindowToGraphPosition(Event.current.mousePosition);
 
-            // if (IsCreatingTransition)
-            // {
-            //     bool cancelTransitionCreation = false;// Event.current.type == EventType.MouseDown && Event.current.button == 1;
-            //     bool tryCreatingTransition = _shouldDrag && Event.current.button == 0 && (Event.current.type == EventType.MouseUp || Event.current.type == EventType.MouseDown);
-
-            //     if ((Event.current.type == EventType.MouseDrag || Event.current.type == EventType.MouseMove) || tryCreatingTransition)
-            //     {
-            //         var endState = pickEditorState(mouseGraphPosition);
-            //         if (endState != _creatingTransitionEndState)
-            //         {
-            //             _creatingTransitionEndState = endState;
-            //             _creatingTransitionHoveringEndPoint = endState != null;
-            //             Repaint();
-            //         }
-            //         if (endState != null)
-            //         {
-            //             if (tryCreatingTransition)
-            //             {
-            //                 var transition = new EditorTransition
-            //                 {
-            //                     Name = "Transition",
-            //                     Index = (EditorTransitionIndex)_transitions.Count,
-            //                     Expression = new EditorTransitionExpression
-            //                     {
-            //                         Type = EditorTransitionExpressionType.True,
-            //                     },
-            //                     From = _creatingTransitionStartState.Index,
-            //                     To = _creatingTransitionEndState.Index,
-            //                 };
-            //                 _creatingTransitionStartState.TransitionsOut.Add(transition.Index);
-            //                 _creatingTransitionEndState.TransitionsIn.Add(transition.Index);
-            //                 {
-            //                     Vector2 fromPosition, toPosition;
-            //                     getEditorTransitionPoints(transition, out fromPosition, out toPosition);
-            //                     transition.ExpressionAnchor = (fromPosition + toPosition) * 0.5f;
-            //                 }
-            //                 _transitions.Add(transition);
-            //                 IsCreatingTransition = false;
-            //                 _shouldWrite = true;
-            //             }
-            //             else
-            //             {
-            //                 _creatingTransitionEndPoint = endState.Position.center;
-            //             }
-            //         }
-            //     }
-
-            //     if (cancelTransitionCreation || tryCreatingTransition)
-            //     {
-            //         wantsMouseMove = false;
-            //         IsCreatingTransition = false;
-            //         _draggable = null;
-            //         _shouldWrite = true;
-            //         Repaint();
-            //     }
-            // }
-
             // The key labeled "Delete" on OSX is actually backspace
             bool pressedDelete =
             #if UNITY_EDITOR_OSX
@@ -627,24 +414,15 @@ namespace GGEZ.Labkit
                 mouseGraphPosition = WindowToGraphPosition(Event.current.mousePosition);
                 _mouseDownPosition = mouseGraphPosition;
 
-                var editorTransition = this.pickEditorTransition(mouseGraphPosition);
                 var pickedEditorTransitionExpression = this.pickEditorTransitionExpression(mouseGraphPosition);
 
-                _shouldScroll = editorTransition == null && pickedEditorTransitionExpression == null;
+                _shouldScroll = pickedEditorTransitionExpression == null;
                 if (pickedEditorTransitionExpression != null)
                 {
                     _draggable = pickedEditorTransitionExpression.Transition.DragExpressionAnchor();
                     _shouldDrag = true;
                     Repaint();
                     _selection = null;
-                }
-                else if (editorTransition != null)
-                {
-                    if (_selection != editorTransition)
-                    {
-                        Repaint();
-                    }
-                    _selection = editorTransition;
                 }
                 else
                 {
@@ -900,6 +678,10 @@ namespace GGEZ.Labkit
                         _draggable = editorCell.DragPosition();
                         _shouldDrag = true;
                         _shouldScroll = false;
+                        _selection = editorCell;
+                        GUI.FocusControl(null);
+                        GUIUtility.hotControl = 0;
+                        Repaint();
                     }
                     else
                     {
@@ -918,10 +700,6 @@ namespace GGEZ.Labkit
 
             // Draw transition we are creating
             //-------------------------------------------------
-            // if (IsCreatingTransition)
-            // {
-            //     GolemEditorUtility.DrawBezier(_scrollPosition + _scrollAnchor + _creatingTransitionStartPoint, _scrollPosition + _scrollAnchor + _creatingTransitionEndPoint, Vector2.zero, Vector2.zero, _creatingTransitionHoveringEndPoint);
-            // }
             DrawCreateTransition(_scrollAnchor + _scrollPosition);
 
             //-------------------------------------------------
@@ -933,6 +711,19 @@ namespace GGEZ.Labkit
                 var toState = _states[(int)editorTransition.To];
                 bool selected = object.ReferenceEquals(_selection, editorTransition);
                 bool hasReverse = editorTransitionHasReverse(editorTransition);
+
+                if (Event.current.type == EventType.MouseDown)
+                {
+                    #warning this code is duplicated with DrawTransition
+                    const float toleranceSquared = 10f * 10f;
+                    Vector2 from, to;
+                    getEditorTransitionPoints(editorTransition, out from, out to);
+                    if (Vector2Ext.DistanceToLineSegmentSquared(Event.current.mousePosition - (_scrollPosition + _scrollAnchor), from, to) < toleranceSquared)
+                    {
+                        Repaint();
+                        _selection = editorTransition;
+                    }
+                }
 
                 GolemEditorUtility.DrawTransition(editorTransition, fromState, toState, hasReverse, selected, _scrollPosition + _scrollAnchor);
             }

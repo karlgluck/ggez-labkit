@@ -187,10 +187,10 @@ MonoBehaviour:
     \"6\"\n                        },\n                        \"ReadField\": \"Variable\",\n
     \                       \"WriteObject\": {\n                            \"$ref\":
     \"2\"\n                        },\n                        \"WriteField\": \"Input\",\n
-    \                       \"ReadPoint\": {\n                            \"x\": 688.2891,\n
-    \                           \"y\": 360.3398\n                        },\n                        \"WritePoint\":
-    {\n                            \"x\": 752.2891,\n                            \"y\":
-    362.3398\n                        },\n                        \"Register\": 0,\n
+    \                       \"ReadPoint\": {\n                            \"x\": 410.8154,\n
+    \                           \"y\": 280.0811\n                        },\n                        \"WritePoint\":
+    {\n                            \"x\": 474.8154,\n                            \"y\":
+    282.0811\n                        },\n                        \"Register\": 0,\n
     \                       \"$id\": \"5\"\n                    }\n                },\n
     \               \"OutputWires\": {\n\n                },\n                \"Position\":
     {\n                    \"xMin\": 528.0,\n                    \"yMin\": 208.0,\n
@@ -205,9 +205,9 @@ MonoBehaviour:
     \   \"EditorStates\": {\n        \"$content\": [\n            {\n                \"Name\":
     \"Enter\",\n                \"Layer\": 0,\n                \"Index\": 0,\n                \"CompiledIndex\":
     2147483647,\n                \"SpecialState\": \"LayerEnter\",\n                \"Position\":
-    {\n                    \"xMin\": 64.0,\n                    \"yMin\": 16.0,\n
-    \                   \"xMax\": 432.0,\n                    \"yMax\": 83.0\n                },\n
-    \               \"Scripts\": [],\n                \"TransitionsIn\": [],\n                \"TransitionsOut\":
+    {\n                    \"xMin\": 64.0,\n                    \"yMin\": 0.0,\n                    \"xMax\":
+    432.0,\n                    \"yMax\": 67.0\n                },\n                \"Scripts\":
+    [],\n                \"TransitionsIn\": [],\n                \"TransitionsOut\":
     [\n                    0\n                ]\n            },\n            {\n                \"$ref\":
     \"13\"\n            }\n        ],\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorState,
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    },\n
