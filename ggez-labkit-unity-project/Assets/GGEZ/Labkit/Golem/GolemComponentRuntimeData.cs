@@ -35,6 +35,10 @@ namespace GGEZ.Labkit
         public Cell[] Cells;
         public Script[] Scripts;
         public StateIndex[] LayerStates;
+
+    #if UNITY_EDITOR
+        public IRegister[] Registers;
+    #endif
     }
 
 }

@@ -102,6 +102,7 @@ namespace GGEZ.Labkit
 
         private Vector2 _scrollPosition;
         private Vector2 _scrollAnchor;
+        private Vector2 _anchor { get { return _scrollPosition + _scrollAnchor; } }
         private Vector2 _scrollSize;
 
         private bool _shouldScroll = true;
@@ -115,6 +116,8 @@ namespace GGEZ.Labkit
         private List<EditorState> _states { get { return _golem.Archetype.Components[_golem.Archetype.EditorWindowSelectedComponent].EditorStates; } }
         private List<EditorTransition> _transitions { get { return _golem.Archetype.Components[_golem.Archetype.EditorWindowSelectedComponent].EditorTransitions; } }
         private List<EditorVariableInputRegister> _variableInputRegisters { get { return _golem.Archetype.Components[_golem.Archetype.EditorWindowSelectedComponent].EditorVariableInputRegisters; } }
+
+        private bool _rightClickIsContextMenu;
 
         private void Read()
         {
@@ -261,7 +264,6 @@ namespace GGEZ.Labkit
 
         private object _selection = null;
 
-        private bool _shouldDrag = false;
         private IDraggable _draggable = null;
 
 
@@ -347,6 +349,33 @@ namespace GGEZ.Labkit
                 Repaint();
             }
 
+            if (Event.current.type == EventType.MouseDown)
+            {
+                bool shouldCancelScroll = Event.current.button == 0 && _shouldScroll;
+                bool shouldCancelDrag = false;//Event.current.button == 0 && _draggable != null;
+                if (shouldCancelScroll)
+                {
+                    _scrollPosition = _scrollPositionOnMouseDown;
+                    _shouldScroll = false;
+                    Repaint();
+                }
+                if (shouldCancelDrag)
+                {
+                    _draggable.Offset = Vector2.zero;
+                    _draggable = null;
+                    Repaint();
+                }
+                else if (Event.current.button == 1)
+                {
+                    _rightClickIsContextMenu = true;
+                }
+            }
+
+            if (_draggable != null || _shouldScroll)
+            {
+                EditorGUIUtility.AddCursorRect(new Rect(Vector2.zero, position.size), MouseCursor.MoveArrow);
+            }
+
             // We need to do some black magic here to work around Unity,
             // otherwise the scaling will apply to the clipping area!
             // http://martinecker.com/martincodes/unity-editor-window-zooming/
@@ -367,9 +396,8 @@ namespace GGEZ.Labkit
             {
                 var rect = new Rect(Vector2.zero, this.position.size / _graphScale);
                 Texture2D gridTexture = GolemEditorUtility.GridTexture;
-                Vector2 offset = _scrollPosition + _scrollAnchor;
                 float aligningOffset = rect.height - (int)(1 + rect.height / gridTexture.height) * gridTexture.height;
-                Vector2 tileOffset = new Vector2(-offset.x / gridTexture.width, (offset.y - aligningOffset) / gridTexture.height);
+                Vector2 tileOffset = new Vector2(-_anchor.x / gridTexture.width, (_anchor.y - aligningOffset) / gridTexture.height);
                 Vector2 tileAmount = new Vector2(rect.width / gridTexture.width, rect.height / gridTexture.height);
                 GUI.DrawTextureWithTexCoords(rect, gridTexture, new Rect(tileOffset, tileAmount), false);
             }
@@ -377,70 +405,67 @@ namespace GGEZ.Labkit
             // Compute and store this at the window level because entering a layout context changes the value of mousePosition!
             var mouseGraphPosition = WindowToGraphPosition(Event.current.mousePosition);
 
-            // The key labeled "Delete" on OSX is actually backspace
-            bool pressedDelete =
-            #if UNITY_EDITOR_OSX
-                Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Backspace;
-            #else
-                Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Delete;
-            #endif
-
-            if (pressedDelete)
+            if (_selection != null)
             {
-                var editorWireSelection = _selection as EditorWire;
-                if (editorWireSelection != null)
-                {
-                    editorWireSelection.ReadObject.RemoveOutputWire(editorWireSelection);
-                    editorWireSelection.WriteObject.RemoveInputWire(editorWireSelection);
-                    _wires.Remove(editorWireSelection);
-                    _selection = null;
-                    Repaint();
-                    _shouldWrite = true;
-                }
+                // The key labeled "Delete" on OSX is actually backspace
+                bool pressedDelete =
+                #if UNITY_EDITOR_OSX
+                    Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Backspace;
+                #else
+                    Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Delete;
+                #endif
 
-                var editorTransitionSelection = _selection as EditorTransition;
-                if (editorTransitionSelection != null)
+                if (pressedDelete)
                 {
-                    removeTransitionAt(editorTransitionSelection.Index);
-                    _selection = null;
+                    var editorWireSelection = _selection as EditorWire;
+                    if (editorWireSelection != null)
+                    {
+                        DeleteEditorWire(editorWireSelection);
+                    }
+
+                    var editorTransitionSelection = _selection as EditorTransition;
+                    if (editorTransitionSelection != null)
+                    {
+                        DeleteTransition(editorTransitionSelection.Index);
+                    }
+
+                    var editorStateSelection = _selection as EditorState;
+                    if (editorStateSelection != null)
+                    {
+                        DeleteEditorState(editorStateSelection);
+                    }
+
                     Repaint();
                     _shouldWrite = true;
+                    _selection = null;
                 }
             }
 
-            if (Event.current.type == EventType.MouseDown && Event.current.button == 0)
+            if (Event.current.type == EventType.MouseDown)
             {
                 _scrollPositionOnMouseDown = _scrollPosition;
                 mouseGraphPosition = WindowToGraphPosition(Event.current.mousePosition);
                 _mouseDownPosition = mouseGraphPosition;
 
-                var pickedEditorTransitionExpression = this.pickEditorTransitionExpression(mouseGraphPosition);
+                if (Event.current.button == 0)
+                {
+                    var pickedEditorTransitionExpression = this.pickEditorTransitionExpression(mouseGraphPosition);
 
-                _shouldScroll = pickedEditorTransitionExpression == null;
-                if (pickedEditorTransitionExpression != null)
-                {
-                    _draggable = pickedEditorTransitionExpression.Transition.DragExpressionAnchor();
-                    _shouldDrag = true;
-                    Repaint();
-                    _selection = null;
-                }
-                else
-                {
-                    if (_selection != null)
+                    if (pickedEditorTransitionExpression != null)
                     {
-                        _selection = null;
+                        _draggable = pickedEditorTransitionExpression.Transition.DragExpressionAnchor();
                         Repaint();
+                        _selection = null;
                     }
-                    if (_draggable != null)
-                    {
-                        _shouldWrite = true;
-                    }
-                    _draggable = null;
-                    _shouldDrag = false;
+                }
+                else if (Event.current.button == 1)
+                {
+                    _shouldScroll = true;
+
                 }
             }
 
-            if (Event.current.type == EventType.MouseUp && Event.current.button == 0)
+            if (Event.current.type == EventType.MouseUp)
             {
                 _shouldScroll = false;
                 if (_draggable != null)
@@ -453,22 +478,24 @@ namespace GGEZ.Labkit
 
             if (_shouldScroll)
             {
-                if (Event.current.type == EventType.MouseDrag && Event.current.button == 0)
+                if (Event.current.type == EventType.MouseDrag && Event.current.button == 1)
                 {
+                    _rightClickIsContextMenu = false;
                     _scrollPosition = _scrollPositionOnMouseDown + (mouseGraphPosition - _mouseDownPosition);
                     Repaint();
                 }
             }
-            if (_shouldDrag)
+            if (_draggable != null)
             {
-                if ((Event.current.type == EventType.MouseDrag && Event.current.button == 0) || Event.current.type == EventType.MouseMove)
+                if (Event.current.type == EventType.MouseDrag || Event.current.type == EventType.MouseMove)
                 {
+                    _rightClickIsContextMenu = false;
                     _draggable.Offset = mouseGraphPosition - _mouseDownPosition;
                     Repaint();
                 }
             }
 
-            DrawCreateWire(_scrollAnchor + _scrollPosition);
+            DrawCreateWire(_anchor);
 
             //-------------------------------------------------
             // Draw the circuit to the graph
@@ -487,7 +514,7 @@ namespace GGEZ.Labkit
                 var inspectableCellType = GetInspectableCellType(editorCell.Cell.GetType());
                 bool selected = object.ReferenceEquals(_selection, editorCell);
 
-                Rect cellPosition = editorCell.Position.MovedBy(_scrollAnchor+_scrollPosition);
+                Rect cellPosition = editorCell.Position.MovedBy(_anchor);
                 if (Event.current.type == EventType.Repaint)
                 {
                     GolemEditorSkin.Current.CellStyle.Draw(cellPosition, new GUIContent(editorCell.Name), false, false, false, selected);
@@ -671,24 +698,32 @@ namespace GGEZ.Labkit
                     GUILayout.EndArea();
                 }
 
-                if (Event.current.type == EventType.MouseDown && GolemEditorSkin.Current.CellStyle.overflow.Add(editorCell.Position.MovedBy(_scrollAnchor+_scrollPosition)).Contains(Event.current.mousePosition))
+                bool isMouseInside = Event.current.isMouse && GolemEditorSkin.Current.CellStyle.overflow.Add(editorCell.Position.MovedBy(_anchor)).Contains(Event.current.mousePosition);
+                if (isMouseInside)
                 {
-                    if (Event.current.button == 0)
+                    switch (Event.current.type)
                     {
-                        _draggable = editorCell.DragPosition();
-                        _shouldDrag = true;
-                        _shouldScroll = false;
-                        _selection = editorCell;
-                        GUI.FocusControl(null);
-                        GUIUtility.hotControl = 0;
-                        Repaint();
-                    }
-                    else
-                    {
-                        GenericMenu menu = new GenericMenu();
-                        menu.AddItem(new GUIContent("Delete Cell"), false, DeleteEditorCellMenuFunction, editorCell);
-                        #warning TODO: better dropdown that works when scaling
-                        menu.DropDown(new Rect(Event.current.mousePosition, Vector2.zero));
+                        case EventType.MouseDown:
+                            _shouldScroll = false;
+                            _selection = editorCell;
+                            GUI.FocusControl(null);
+                            GUIUtility.hotControl = 0;
+                            Repaint();
+                            if (Event.current.button == 0)
+                            {
+                                _draggable = editorCell.DragPosition();
+                            }
+                            break;
+
+                        case EventType.MouseUp:
+                            if (Event.current.button == 1 && _rightClickIsContextMenu)
+                            {
+                                GenericMenu menu = new GenericMenu();
+                                menu.AddItem(new GUIContent("Delete Cell"), false, DeleteEditorCellMenuFunction, editorCell);
+                                #warning TODO: better dropdown that works when scaling
+                                menu.DropDown(new Rect(Event.current.mousePosition, Vector2.zero));
+                            }
+                            break;
                     }
                     Event.current.Use();
                 }
@@ -700,32 +735,109 @@ namespace GGEZ.Labkit
 
             // Draw transition we are creating
             //-------------------------------------------------
-            DrawCreateTransition(_scrollAnchor + _scrollPosition);
+            DrawCreateTransition(_anchor);
 
             //-------------------------------------------------
             // Draw transitions
             //-------------------------------------------------
-            foreach (EditorTransition editorTransition in _transitions)
             {
-                var fromState = _states[(int)editorTransition.From];
-                var toState = _states[(int)editorTransition.To];
-                bool selected = object.ReferenceEquals(_selection, editorTransition);
-                bool hasReverse = editorTransitionHasReverse(editorTransition);
-
-                if (Event.current.type == EventType.MouseDown)
+                EditorTransition pickedTransition = null;
+                foreach (EditorTransition editorTransition in _transitions)
                 {
-                    #warning this code is duplicated with DrawTransition
-                    const float toleranceSquared = 10f * 10f;
-                    Vector2 from, to;
-                    getEditorTransitionPoints(editorTransition, out from, out to);
-                    if (Vector2Ext.DistanceToLineSegmentSquared(Event.current.mousePosition - (_scrollPosition + _scrollAnchor), from, to) < toleranceSquared)
+                    var fromState = _states[(int)editorTransition.From];
+                    var toState = _states[(int)editorTransition.To];
+                    bool selected = object.ReferenceEquals(_selection, editorTransition);
+                    bool hasReverse = editorTransitionHasReverse(editorTransition);
+
+                    if (Event.current.type == EventType.MouseDown)
                     {
-                        Repaint();
-                        _selection = editorTransition;
+                        #warning this code is duplicated with DrawTransition
+                        const float toleranceSquared = 10f * 10f;
+                        Vector2 from, to;
+                        getEditorTransitionPoints(editorTransition, out from, out to);
+                        if (Vector2Ext.DistanceToLineSegmentSquared(Event.current.mousePosition - _anchor, from, to) < toleranceSquared)
+                        {
+                            pickedTransition = editorTransition;
+                        }
+                    }
+
+                    // Draw the transition
+                    {
+                        Vector2 from, to;
+                        GolemEditorUtility.GetEditorTransitionPoints(
+                            fromState,
+                            toState,
+                            hasReverse,
+                            out from,
+                            out to
+                        );
+
+                        GolemEditorUtility.DrawEdge(
+                            new ControlPoint { Point = from },
+                            new ControlPoint { Point = to },
+                            null,
+                            selected,
+                            _anchor
+                            );
+
+                        // Draw the triangle
+                        var middle = _anchor + (from + to) * 0.5f;
+                        var parallel = (to - from).normalized;
+                        var bumpVector3 = Vector3.Cross(Vector3.forward, parallel);
+                        const float arrowHalfWidth = 7f;
+                        const float arrowForward = 7f;
+                        const float arrowBackward = 6f;
+                        var bump = new Vector2(bumpVector3.x * arrowHalfWidth, bumpVector3.y * arrowHalfWidth);
+                        var oldColor = Handles.color;
+                        Handles.color = selected ? GolemEditorUtility.SelectedColor : GolemEditorUtility.WireColor;
+                        Handles.DrawAAConvexPolygon(middle + parallel * arrowForward, middle + bump - parallel * arrowBackward, middle - bump - parallel * arrowBackward);
+
+                        var deltaA = editorTransition.ExpressionAnchor - from;
+                        var deltaB = to - from;
+                        float side = deltaA.x * deltaB.y - deltaA.y * deltaB.x;
+                        bool flipTreeSide;
+
+                        if (Mathf.Abs(deltaB.x) > Mathf.Abs(deltaB.y))
+                        {
+                            flipTreeSide = deltaB.x > 0;
+                        }
+                        else
+                        {
+                            flipTreeSide = side < 0f == deltaB.y > 0f;
+                        }
+
+
+                        GolemEditorUtility.DrawExpressionSquiggle(
+                            from,
+                            to,
+                            editorTransition.ExpressionAnchor,
+                            selected,
+                            flipTreeSide,
+                            _anchor
+                            );
+
+                        GolemEditorUtility.UpdateExpressionPositions(editorTransition, flipTreeSide);
+                        GolemEditorUtility.DrawTransitionExpression(_anchor, editorTransition.Expression, flipTreeSide);
+
+                        Handles.color = oldColor;
                     }
                 }
-
-                GolemEditorUtility.DrawTransition(editorTransition, fromState, toState, hasReverse, selected, _scrollPosition + _scrollAnchor);
+                if (pickedTransition != null)
+                {
+                    if (Event.current.button == 1)
+                    {
+                        _rightClickIsContextMenu = false;
+                        DeleteTransition(pickedTransition);
+                    }
+                    else
+                    {
+                        _selection = pickedTransition;
+                    }
+                    GUI.FocusControl("");
+                    GUIUtility.hotControl = 0;
+                    Repaint();
+                    Event.current.Use();
+                }
             }
 
             //-------------------------------------------------
@@ -738,7 +850,7 @@ namespace GGEZ.Labkit
             {
                 bool selected = object.ReferenceEquals(_selection, editorState);
 
-                Rect cellPosition = editorState.Position.MovedBy(_scrollAnchor+_scrollPosition);
+                Rect cellPosition = editorState.Position.MovedBy(_anchor);
                 if (Event.current.type == EventType.Repaint)
                 {
                     GolemEditorSkin.Current.CellStyle.Draw(cellPosition, new GUIContent(editorState.Name), false, false, false, selected);
@@ -866,74 +978,82 @@ namespace GGEZ.Labkit
 
                 GUILayout.EndArea();
 
-                if (GolemEditorSkin.Current.CellStyle.overflow.Add(editorState.Position.MovedBy(_scrollAnchor+_scrollPosition)).Contains(Event.current.mousePosition))
+                bool mouseIsInside = GolemEditorSkin.Current.CellStyle.overflow.Add(editorState.Position.MovedBy(_anchor)).Contains(Event.current.mousePosition);
+                if (mouseIsInside)
                 {
-                    if (Event.current.type == EventType.MouseDown)
+                    switch (Event.current.type)
                     {
-                        if (Event.current.button == 0)
-                        {
-                            if (Event.current.shift)
+                        case EventType.MouseDown:
+
+                            Event.current.Use();
+                            Repaint();
+
+                            _shouldScroll = false;
+                            _selection = editorState;
+                            GUI.FocusControl(null);
+                            GUIUtility.hotControl = 0;
+
+                            if (Event.current.button == 0)
                             {
-                                Debug.Log ("HELLO");
-                                _shouldDrag = false;
-                                _shouldScroll = false;
-                                _createTransition = CreateTransition.Create(editorState, editorState.Position.center);
+                                _draggable = editorState.DragPosition();
                             }
                             else
                             {
-                                _draggable = editorState.DragPosition();
-                                _shouldDrag = true;
-                                _shouldScroll = false;
+                                _createTransition = CreateTransition.Create(editorState, editorState.Position.MovedBy(_anchor).center);
                             }
-                        }
-                        else
-                        {
-                            GenericMenu menu = new GenericMenu();
-                            menu.AddItem(new GUIContent("Create Transition"), false, CreateTransitionMenuFunction, new object[]{editorState});
-                            menu.AddSeparator("");
-                            var scriptTypes = Assembly.GetAssembly(typeof(Script))
-                                .GetTypes()
-                                .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Script)))
-                                .ToList();
-                            scriptTypes.Sort((a, b) => a.Name.CompareTo(b.Name));
+
+                            break;
+
+                        
+                        case EventType.MouseUp:
+                            if (Event.current.button == 1 && _rightClickIsContextMenu)
                             {
-                                var removeable = scriptTypes.Where((type) => editorState.Scripts.Any((editorScript) => editorScript.Script.GetType().Equals(type))).ToList();
-                                var addable = scriptTypes.Except(removeable);
-                                if (addable.Any((type) => true))
+                                GenericMenu menu = new GenericMenu();
+                                var scriptTypes = Assembly.GetAssembly(typeof(Script))
+                                    .GetTypes()
+                                    .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Script)))
+                                    .ToList();
+                                scriptTypes.Sort((a, b) => a.Name.CompareTo(b.Name));
                                 {
-                                    foreach (var type in addable)
+                                    var removeable = scriptTypes.Where((type) => editorState.Scripts.Any((editorScript) => editorScript.Script.GetType().Equals(type))).ToList();
+                                    var addable = scriptTypes.Except(removeable);
+                                    if (addable.Any((type) => true))
                                     {
-                                        menu.AddItem(new GUIContent("Add/" + type.Name), false, AddScriptMenuFunction, new object[] { editorState, type });
+                                        foreach (var type in addable)
+                                        {
+                                            menu.AddItem(new GUIContent("Add/" + type.Name), false, AddScriptMenuFunction, new object[] { editorState, type });
+                                        }
                                     }
-                                }
-                                else
-                                {
-                                    menu.AddDisabledItem(new GUIContent("Add/(empty)"));
-                                }
-                                if (removeable.Any((type) => true))
-                                {
-                                    foreach (var type in removeable)
+                                    else
                                     {
-                                        menu.AddItem(new GUIContent("Remove/" + type.Name), false, RemoveScriptMenuFunction, new object[] { editorState, type });
+                                        menu.AddDisabledItem(new GUIContent("Add/(empty)"));
                                     }
+                                    if (removeable.Any((type) => true))
+                                    {
+                                        foreach (var type in removeable)
+                                        {
+                                            menu.AddItem(new GUIContent("Remove/" + type.Name), false, RemoveScriptMenuFunction, new object[] { editorState, type });
+                                        }
+                                    }
+                                    else
+                                    {
+                                        menu.AddDisabledItem(new GUIContent("Remove/(empty)"));
+                                    }
+                                    menu.AddSeparator("");
+                                    menu.AddItem(new GUIContent("Delete State"), false, DeleteEditorStateMenuFunction, editorState);
                                 }
-                                else
-                                {
-                                    menu.AddDisabledItem(new GUIContent("Remove/(empty)"));
-                                }
-                                menu.AddSeparator("");
-                                menu.AddItem(new GUIContent("Delete State"), false, DeleteEditorStateMenuFunction, editorState);
+                                menu.ShowAsContext();
                             }
-                            menu.ShowAsContext();
-                        }
-                        Event.current.Use();
-                    }
-                    else if (Event.current.type == EventType.MouseMove || Event.current.type == EventType.MouseDrag)
-                    {
-                        if (_createTransition.Enabled)
-                        {
-                            _createTransition.HoverEnd(editorState, editorState.Position.center);
-                        }
+                            Event.current.Use();
+                            break;
+                        
+                        case EventType.MouseMove:
+                        case EventType.MouseDrag:
+                            if (_createTransition.Enabled)
+                            {
+                                _createTransition.HoverEnd(editorState, editorState.Position.MovedBy(_anchor).center);
+                            }
+                            break;
                     }
                 }
             }
@@ -949,11 +1069,10 @@ namespace GGEZ.Labkit
             {
                 bool selected = object.ReferenceEquals(_selection, variableInputRegister);
 
-
-                Rect cellPosition = variableInputRegister.Position.MovedBy(_scrollAnchor+_scrollPosition);
+                Rect cellPosition = variableInputRegister.Position.MovedBy(_anchor);
                 if (Event.current.type == EventType.Repaint)
                 {
-                    GolemEditorSkin.Current.CellStyle.Draw(cellPosition, new GUIContent("Read Variable"), false, false, false, false);
+                    GolemEditorSkin.Current.CellStyle.Draw(cellPosition, new GUIContent("Read Variable"), false, false, false, selected);
                 }
 
                 Rect clientPosition = GolemEditorSkin.Current.CellStyle.padding.Remove(cellPosition);
@@ -1042,19 +1161,31 @@ namespace GGEZ.Labkit
                     variableInputRegister.Position.size = GolemEditorSkin.Current.CellStyle.padding.Add(clientPosition).size;
                 }
 
-                if (Event.current.type == EventType.MouseDown && GolemEditorSkin.Current.CellStyle.overflow.Add(variableInputRegister.Position.MovedBy(_scrollAnchor+_scrollPosition)).Contains(Event.current.mousePosition))
+                bool mouseIsInside = Event.current.isMouse && GolemEditorSkin.Current.CellStyle.overflow.Add(variableInputRegister.Position.MovedBy(_anchor)).Contains(Event.current.mousePosition);
+                if (mouseIsInside)
                 {
-                    if (Event.current.button == 0)
+                    switch (Event.current.type)
                     {
-                        _draggable = variableInputRegister.DragPosition();
-                        _shouldDrag = true;
-                        _shouldScroll = false;
-                    }
-                    else
-                    {
-                        GenericMenu menu = new GenericMenu();
-                        menu.AddItem(new GUIContent("Delete"), false, DeleteVariableInputRegister, variableInputRegister);
-                        menu.ShowAsContext();
+                        case EventType.MouseDown:
+                            _selection = variableInputRegister;
+                            GUI.FocusControl(null);
+                            GUIUtility.hotControl = 0;
+                            _shouldScroll = false;
+                            Repaint();
+                            if (Event.current.button == 0)
+                            {
+                                _draggable = variableInputRegister.DragPosition();
+                            }
+                            break;
+
+                        case EventType.MouseUp:
+                            if (Event.current.button == 1 && _rightClickIsContextMenu)
+                            {
+                                GenericMenu menu = new GenericMenu();
+                                menu.AddItem(new GUIContent("Delete"), false, DeleteVariableInputRegister, variableInputRegister);
+                                menu.ShowAsContext();
+                            }
+                            break;
                     }
                     Event.current.Use();
                 }
@@ -1082,15 +1213,30 @@ namespace GGEZ.Labkit
                     break;
 
                 case EventType.MouseDown:
+                    EditorWire pickedWire = null;
                     foreach (EditorWire editorWire in _wires)
                     {
                         const float toleranceSquared = 10f * 10f;
                         if (Vector2Ext.DistanceToLineSegmentSquared(Event.current.mousePosition, EditorGUIUtility.ScreenToGUIPoint(editorWire.ReadPoint), EditorGUIUtility.ScreenToGUIPoint(editorWire.WritePoint)) < toleranceSquared)
                         {
-                            _selection = editorWire;
-                            Repaint();
-                            Event.current.Use();
+                            pickedWire = editorWire;
                         }
+                    }
+                    if (pickedWire != null)
+                    {
+                        if (Event.current.button == 1)
+                        {
+                            _rightClickIsContextMenu = false;
+                            DeleteEditorWire(pickedWire);
+                        }
+                        else
+                        {
+                            _selection = pickedWire;
+                        }
+                        GUI.FocusControl("");
+                        GUIUtility.hotControl = 0;
+                        Repaint();
+                        Event.current.Use();
                     }
                     break;
             }
@@ -1110,7 +1256,7 @@ namespace GGEZ.Labkit
             // Do this outside of the rescaled context
             // otherwise positioning doesn't work correctly.
             //-------------------------------------------------
-            if (Event.current.type == EventType.MouseDown && Event.current.button == 1)
+            if (Event.current.type == EventType.MouseUp && Event.current.button == 1 && _rightClickIsContextMenu)
             {
                 Event.current.Use();
                 var menu = new GenericMenu();
@@ -1191,11 +1337,25 @@ namespace GGEZ.Labkit
             var height = this.position.height;
             var width = this.position.width;
             GUILayout.BeginArea(new Rect(0, height - kStatusBarHeight, width, kStatusBarHeight));
-            GUILayout.Label("_scrollPosition: " + _scrollPosition.ToString() + " - _scrollAnchor: " + _scrollAnchor.ToString() + " - _scrollSize: " + _scrollSize.ToString() + " - mouseDown: " + _mouseDownPosition.ToString() + " - graphPos: " + mouseGraphPosition.ToString());
+            if (Application.isPlaying)
+            {
+                EditorWire wire = _selection as EditorWire;
+                if (wire != null)
+                {
+                    GolemComponentRuntimeData runtimeComponent = _golem.Components[_golem.Archetype.EditorWindowSelectedComponent];
+                    GUILayout.Label(runtimeComponent.Registers[(int)wire.Register].ToString());
+                    Repaint(); // constant repaint
+                }
+            }
+            else
+            {
+                GUILayout.Label("_scrollPosition: " + _scrollPosition.ToString() + " - _scrollAnchor: " + _scrollAnchor.ToString() + " - _scrollSize: " + _scrollSize.ToString() + " - mouseDown: " + _mouseDownPosition.ToString() + " - graphPos: " + mouseGraphPosition.ToString());
+            }
             GUILayout.EndArea();
 
             switch (Event.current.type)
             {
+
                 case EventType.KeyDown:
                     switch (Event.current.keyCode)
                     {
@@ -1236,20 +1396,17 @@ namespace GGEZ.Labkit
 
             if (_shouldWrite)
             {
-                var component = _golem.Archetype.Components[_golem.Archetype.EditorWindowSelectedComponent];
-                EditorUtility.SetDirty(component);
-                if (!AssetDatabase.IsMainAsset(component))
-                {
-                    // EditorUtility.SetDirty(_golem);
-                    // EditorUtility.SetDirty(_golem.Archetype);
-                    GolemEditorUtility.SetSceneDirty(_golem.gameObject);
-                }
+                GolemEditorUtility.SetDirty(_golem, _golem.Archetype.Components[_golem.Archetype.EditorWindowSelectedComponent]);
                 Repaint();
                 _shouldWrite = false;
             }
         }
+        private void DeleteTransition(EditorTransition transitionToRemove)
+        {
+            DeleteTransition(transitionToRemove.Index);
+        }
 
-        private void removeTransitionAt(EditorTransitionIndex indexToRemove)
+        private void DeleteTransition(EditorTransitionIndex indexToRemove)
         {
             var transitionBeingRemoved = _transitions[(int)indexToRemove];
             Debug.Assert(object.ReferenceEquals(_transitions[(int)transitionBeingRemoved.Index], transitionBeingRemoved));
@@ -1303,7 +1460,7 @@ namespace GGEZ.Labkit
         {
             for (int i = 0; i < indicesToRemove.Count; ++i)
             {
-                removeTransitionAt(indicesToRemove[i]);
+                DeleteTransition(indicesToRemove[i]);
             }
         }
 
@@ -1418,16 +1575,28 @@ namespace GGEZ.Labkit
             editorState.Index = (EditorStateIndex)_states.Count;
             _states.Add(editorState);
             _shouldWrite = true;
+            Repaint();
         }
 
-        private void DeleteEditorStateMenuFunction(object editorStateParam)
+        private void DeleteEditorWire(EditorWire editorWire)
         {
-            EditorState editorStateBeingRemoved = editorStateParam as EditorState;
-            EditorStateIndex indexToRemove = editorStateBeingRemoved.Index;
-            Debug.Assert(editorStateBeingRemoved.Index == indexToRemove);
-            removeTransitionsAt(editorStateBeingRemoved.TransitionsIn);
-            removeTransitionsAt(editorStateBeingRemoved.TransitionsOut);
-            foreach (EditorScript script in editorStateBeingRemoved.Scripts)
+            editorWire.ReadObject.RemoveOutputWire(editorWire);
+            editorWire.WriteObject.RemoveInputWire(editorWire);
+            _wires.Remove(editorWire);
+            if (object.ReferenceEquals(editorWire, _selection))
+            {
+                _selection = null;
+            }
+            Repaint();
+        }
+
+        private void DeleteEditorState(EditorState editorState)
+        {
+            EditorStateIndex indexToRemove = editorState.Index;
+            Debug.Assert(editorState.Index == indexToRemove);
+            removeTransitionsAt(editorState.TransitionsIn);
+            removeTransitionsAt(editorState.TransitionsOut);
+            foreach (EditorScript script in editorState.Scripts)
             {
                 foreach (EditorWire output in script.GetAllOutputWires())
                 {
@@ -1436,11 +1605,11 @@ namespace GGEZ.Labkit
                 }
             }
 #if UNITY_EDITOR
-            foreach (var transitionIndex in editorStateBeingRemoved.TransitionsIn)
+            foreach (var transitionIndex in editorState.TransitionsIn)
             {
                 Debug.Assert(transitionIndex == EditorTransitionIndex.Invalid);
             }
-            foreach (var transitionIndex in editorStateBeingRemoved.TransitionsOut)
+            foreach (var transitionIndex in editorState.TransitionsOut)
             {
                 Debug.Assert(transitionIndex == EditorTransitionIndex.Invalid);
             }
@@ -1448,20 +1617,21 @@ namespace GGEZ.Labkit
 
             _states.RemoveAt((int)indexToRemove);
 
+            if (object.ReferenceEquals(editorState, _selection))
+            {
+                _selection = null;
+            }
 
             // If anything uses EditorStateIndex other than the transitions that are into or out of this state,
             // we need to update those references here.
 
             _shouldWrite = true;
+            Repaint();
         }
 
-        private void CreateTransitionMenuFunction(object paramsArray)
+        private void DeleteEditorStateMenuFunction(object editorStateParam)
         {
-            var tuple = paramsArray as object[];
-            var editorState = tuple[0] as EditorState;
-            // var point = (Vector2)tuple[1];
-            var point = editorState.Position.center;
-            _createTransition = CreateTransition.Create(editorState, point);
+            DeleteEditorState(editorStateParam as EditorState);
         }
 
         private void AddScriptMenuFunction(object paramsArray)
@@ -1761,7 +1931,7 @@ namespace GGEZ.Labkit
                     },
                     From = (StartObject as EditorState).Index,
                     To = (EndObject as EditorState).Index,
-                    ExpressionAnchor = (StartPoint + EndPoint) * 0.5f
+                    ExpressionAnchor = (StartPoint + GUIUtility.ScreenToGUIPoint(EndPoint)) * 0.5f
                 };
                 return transition;
             }
@@ -1801,6 +1971,7 @@ namespace GGEZ.Labkit
                 case EventType.MouseMove:
                 case EventType.MouseDrag:
                     _createTransition.HasEnd = false;
+                    _rightClickIsContextMenu = false;
                     Repaint();
                     break;
 

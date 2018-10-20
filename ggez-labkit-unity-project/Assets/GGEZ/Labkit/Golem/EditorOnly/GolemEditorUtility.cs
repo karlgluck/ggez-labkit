@@ -1074,7 +1074,7 @@ namespace GGEZ.Labkit
         //-----------------------------------------------------
         // SelectedColor
         //-----------------------------------------------------
-        public static readonly Color SelectedColor = new Color(116f / 255f, 184f / 255f, 242f / 255f);
+        public static readonly Color SelectedColor = new Color(12 / 255f, 61 / 255f, 226 / 255f);
         public static readonly Color WireColor = new Color(0.3f, 0.3f, 0.3f);
         public const float SelectedWireWidth = 6f;
         public const float WireWidth = 4f;
@@ -1344,9 +1344,6 @@ namespace GGEZ.Labkit
             var fromCenter = fromState.Position.center - Vector2.down * GolemEditorUtility.NodeTitleRectHeight * 0.5f;
             var toCenter = toState.Position.center - Vector2.down * GolemEditorUtility.NodeTitleRectHeight * 0.5f;
 
-            // fromCenter = OmnibusEditorUtility.SnapToGrid(fromCenter);
-            // toCenter = OmnibusEditorUtility.SnapToGrid(toCenter);
-
             if (hasReverse)
             {
                 const float halfSeparation = 8f;
@@ -1362,69 +1359,6 @@ namespace GGEZ.Labkit
             }
         }
 
-        //-----------------------------------------------------
-        // DrawTransition
-        //-----------------------------------------------------
-        public static void DrawTransition(EditorTransition editorTransition, EditorState fromState, EditorState toState, bool hasReverse, bool selected, Vector2 anchor)
-        {
-            Vector2 from, to;
-            GolemEditorUtility.GetEditorTransitionPoints(
-                fromState,
-                toState,
-                hasReverse,
-                out from,
-                out to
-            );
-
-            GolemEditorUtility.DrawEdge(
-                new ControlPoint { Point = from },
-                new ControlPoint { Point = to },
-                null,
-                selected,
-                anchor
-                );
-
-            // Draw the triangle
-            var middle = anchor + (from + to) * 0.5f;
-            var parallel = (to - from).normalized;
-            var bumpVector3 = Vector3.Cross(Vector3.forward, parallel);
-            const float arrowHalfWidth = 7f;
-            const float arrowForward = 7f;
-            const float arrowBackward = 6f;
-            var bump = new Vector2(bumpVector3.x * arrowHalfWidth, bumpVector3.y * arrowHalfWidth);
-            var oldColor = Handles.color;
-            Handles.color = selected ? SelectedColor : WireColor;
-            Handles.DrawAAConvexPolygon(middle + parallel * arrowForward, middle + bump - parallel * arrowBackward, middle - bump - parallel * arrowBackward);
-
-            var deltaA = editorTransition.ExpressionAnchor - from;
-            var deltaB = to - from;
-            float side = deltaA.x * deltaB.y - deltaA.y * deltaB.x;
-            bool flipTreeSide;
-
-            if (Mathf.Abs(deltaB.x) > Mathf.Abs(deltaB.y))
-            {
-                flipTreeSide = deltaB.x > 0;
-            }
-            else
-            {
-                flipTreeSide = side < 0f == deltaB.y > 0f;
-            }
-
-
-            GolemEditorUtility.DrawExpressionSquiggle(
-                from,
-                to,
-                editorTransition.ExpressionAnchor,
-                selected,
-                flipTreeSide,
-                anchor
-                );
-
-            GolemEditorUtility.UpdateExpressionPositions(editorTransition, flipTreeSide);
-            GolemEditorUtility.DrawTransitionExpression(anchor, editorTransition.Expression, flipTreeSide);
-
-            Handles.color = oldColor;
-        }
 
         //-----------------------------------------------------
         // DrawTransitionExpression

@@ -47,7 +47,13 @@ namespace GGEZ.Labkit
 
         public IVariable CreateVariable()
         {
+            #warning TODO make sure only up to 1 variable is ever created for each register
             return new ClassVariable<T>(this);
+        }
+
+        public override string ToString()
+        {
+            return _value.ToString();
         }
 
         public bool ChangeValue(T value)

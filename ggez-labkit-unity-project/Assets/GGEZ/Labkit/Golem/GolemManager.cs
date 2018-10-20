@@ -169,6 +169,11 @@ namespace GGEZ.Labkit
                     registers[j] = from.Registers[j].Clone();
                 }
 
+                // Save registers for live debugging
+            #if UNITY_EDITOR
+                to.Registers = registers;
+            #endif
+
                 // Assign UnityObjects, variables, registers, settings
                 DoAssignments(golem, from.Assignments, golem.Variables, to, registers);
 

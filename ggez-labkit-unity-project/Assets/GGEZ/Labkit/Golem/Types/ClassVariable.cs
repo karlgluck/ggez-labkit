@@ -93,5 +93,10 @@ namespace GGEZ.Labkit
         {
             _value = (T)value;
         }
+
+        public override string ToString()
+        {
+            return _register.ToString();
+        }
     }
 }

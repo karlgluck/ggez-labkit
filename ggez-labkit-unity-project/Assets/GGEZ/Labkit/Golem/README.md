@@ -94,6 +94,10 @@ There are several ways this could be done and the choice is largely a matter of 
 
 # Future Plans
 
+## Undo / Redo
+
+Involves making classes like `EditorCell`, `EditorState` and `EditorScript` into `ScriptableObject`s. Nice side-benefit is that Unity will then take care of serializing these things' references to each other, so we can back out the JSON serialization of the classes into just the user's runtime classes themselves.
+
 ## Upgrade to the Unity 2018 Elements UI
 
 It's got a built-in node editor. That's why I didn't spend too long getting all the node editing right in this version... just 40 hours or so. RIP.

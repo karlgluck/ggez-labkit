@@ -49,7 +49,35 @@ namespace GGEZ.Labkit
 
         public IVariable CreateVariable()
         {
+            #warning TODO make sure only up to 1 variable is ever created for each register
             return new HashSetVariable<T>(this);
+        }
+
+        public override string ToString()
+        {
+            string retval = "HashSet {";
+            string separator = "";
+            foreach (T value in _values)
+            {
+                retval += separator + value.ToString();
+                separator = ", ";
+            }
+            retval += "} = <prev> + {";
+            separator = "";
+            foreach (T value in _added)
+            {
+                retval += separator + value.ToString();
+                separator = ", ";
+            }
+            retval += "} - {";
+            separator = "";
+            foreach (T value in _removed)
+            {
+                retval += separator + value.ToString();
+                separator = ", ";
+            }
+            retval += "}";
+            return retval;
         }
 
         public void AddListener(Cell cell)

@@ -106,5 +106,10 @@ namespace GGEZ.Labkit
                 Remove(element);
             }
         }
+
+        public override string ToString()
+        {
+            return _register.ToString();
+        }
     }
 }
