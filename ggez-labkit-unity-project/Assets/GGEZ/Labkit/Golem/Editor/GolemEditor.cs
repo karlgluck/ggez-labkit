@@ -264,6 +264,20 @@ namespace GGEZ.Labkit
             if (EditorApplication.isPlaying)
             {
                 #warning TODO draw cell stats on golem at runtime
+
+                var components = _golem.Archetype.Components;
+                for (int i = 0; i < components.Length; ++i)
+                {
+                    if (components[i] == null)
+                    {
+                        continue;
+                    }
+                    if (GUILayout.Button(new GUIContent("Open Editor")))
+                    {
+                        _golem.Archetype.EditorWindowSelectedComponent = i;
+                        GolemEditorWindow.Open(_golem);
+                    }
+                }
             }
             else
             {

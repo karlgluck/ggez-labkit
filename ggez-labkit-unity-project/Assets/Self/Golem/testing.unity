@@ -345,9 +345,9 @@ MonoBehaviour:
     \"Variable\",\r\n                        \"WriteObject\": {\r\n                            \"$ref\":
     \"2\"\r\n                        },\r\n                        \"WriteField\":
     \"Input\",\r\n                        \"ReadPoint\": {\r\n                            \"x\":
-    -1061.0,\r\n                            \"y\": -2059.0\r\n                        },\r\n
+    -1039.0,\r\n                            \"y\": -2103.0\r\n                        },\r\n
     \                       \"WritePoint\": {\r\n                            \"x\":
-    -981.0,\r\n                            \"y\": -2057.0\r\n                        },\r\n
+    -959.0,\r\n                            \"y\": -2101.0\r\n                        },\r\n
     \                       \"Register\": 0,\r\n                        \"$id\": \"5\"\r\n
     \                   }\r\n                },\r\n                \"OutputWires\":
     {\r\n\r\n                },\r\n                \"Position\": {\r\n                    \"xMin\":

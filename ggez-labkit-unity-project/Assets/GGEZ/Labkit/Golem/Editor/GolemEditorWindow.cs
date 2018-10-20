@@ -849,11 +849,12 @@ namespace GGEZ.Labkit
             foreach (EditorState editorState in _states)
             {
                 bool selected = object.ReferenceEquals(_selection, editorState);
+                bool on = Application.isPlaying && _golem.Components[_golem.Archetype.EditorWindowSelectedComponent].LayerStates[(int)editorState.Layer] == editorState.CompiledIndex;
 
                 Rect cellPosition = editorState.Position.MovedBy(_anchor);
                 if (Event.current.type == EventType.Repaint)
                 {
-                    GolemEditorSkin.Current.CellStyle.Draw(cellPosition, new GUIContent(editorState.Name), false, false, false, selected);
+                    GolemEditorSkin.Current.CellStyle.Draw(cellPosition, new GUIContent(editorState.Name), false, false, on, selected);
                 }
 
                 Rect clientPosition = GolemEditorSkin.Current.CellStyle.padding.Remove(cellPosition);
@@ -892,8 +893,8 @@ namespace GGEZ.Labkit
                             int id = GUIUtility.GetControlID(FocusType.Passive);
                             GUI.SetNextControlName(id.ToString());
                             Rect labelPosition = EditorGUILayout.GetControlRect();
-                            bool focused = GUIUtility.hotControl == id || GUI.GetNameOfFocusedControl() == id.ToString();
-                            bool on = editorScript.HasOutputWire(field.FieldInfo.Name);
+                            bool fieldFocused = GUIUtility.hotControl == id || GUI.GetNameOfFocusedControl() == id.ToString();
+                            bool fieldOn = editorScript.HasOutputWire(field.FieldInfo.Name);
                             GolemEditorUtility.EditorGUIGolemField(
                                     labelPosition,
                                     field.Type,
@@ -903,7 +904,7 @@ namespace GGEZ.Labkit
                                     editorScript.FieldsUsingSettings,
                                     editorScript.FieldsUsingVariables,
                                     _golem,
-                                    on
+                                    fieldOn
                                     );
 
                             Rect portPosition = labelPosition.GetCenteredRight(EditorGUIUtility.singleLineHeight + GolemEditorSkin.Current.CellBodyStyle.padding.right, GolemEditorSkin.Current.PortStyle.fixedWidth, GolemEditorSkin.Current.PortStyle.fixedHeight);
@@ -949,7 +950,7 @@ namespace GGEZ.Labkit
                                     break;
 
                                 case EventType.Repaint:
-                                    GolemEditorSkin.Current.PortStyle.Draw(portPosition, false, false, on, focused);
+                                    GolemEditorSkin.Current.PortStyle.Draw(portPosition, false, false, fieldOn, fieldFocused);
                                     GolemEditorUtility.SetWireReadPoints(field.FieldInfo.Name, editorScript.OutputWires, portCenter);
                                     break;
                             }
@@ -1344,8 +1345,8 @@ namespace GGEZ.Labkit
                 {
                     GolemComponentRuntimeData runtimeComponent = _golem.Components[_golem.Archetype.EditorWindowSelectedComponent];
                     GUILayout.Label(runtimeComponent.Registers[(int)wire.Register].ToString());
-                    Repaint(); // constant repaint
                 }
+                Repaint(); // constant repaint
             }
             else
             {
