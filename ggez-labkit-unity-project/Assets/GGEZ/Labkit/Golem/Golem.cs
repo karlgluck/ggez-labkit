@@ -33,7 +33,7 @@ using UnityObject = UnityEngine.Object;
 namespace GGEZ.Labkit
 {
 
-    public class Golem : MonoBehaviour, ISerializationCallbackReceiver
+    public sealed class Golem : MonoBehaviour, ISerializationCallbackReceiver
     {
         [SerializeField, HideInInspector]
         public GolemArchetype Archetype;

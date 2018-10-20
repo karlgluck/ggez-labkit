@@ -1,6 +1,40 @@
+# What is Golem?
 
+Golem accelerates game prototyping by erasing **glue code** from your game.
 
-# Design Principles
+**Glue code** is code that doesn't do much other than connect two (or more) systems to each other. An easy example is tying the `Hitpoints` and `MaxHitpoints` fields on a character to the UI bar floating above their head in-game. It's not hard code. We've all written it... but it's everywhere, it can quickly turn into spaghetti, and it's annoying to write over and over again. 
+
+Golem fixes that! It gives you:
+
+ - [x] **Circuits** - Visual expression of data-flow logic (declarative programming)
+ - [x] **Programs** - Visual expression of state-machine logic (synchronous parallelized imperative programming)
+ - [x] **Aspects** - Aribtrary classes for your own code to use that benefit from Golem's magic assignments
+ - [x] **Settings** - To put values in fields of many aspects/circuits/programs from one single place. Inheritable!
+ - [ ] **Mirrors** - To solve "for each member of list Y, give me an X, even if Y changes or I swap Y for Z". Great for UI.
+ - [ ] **Channels** - Publisher/subscriber event notifications to help golems talk to each other
+
+It gives you all this while also:
+
+ - Minimizing overhead
+ - Working on all Unity platforms
+ - Respecting performance
+
+# How does it work?
+
+First things first: **using Golem requires you to write C# code**. The editor resembles visual scripting in a lot of ways, but that's really not what it's good at. If you try to use it that way it will kinda work but you'll mostly be sad.
+
+Golem is a tool for programmers. It helps you focus on writing the part of your scripts you actually care about in prototyping. With Golem, you get to just sit down and write gameplay. The golem editor provides an interface for two kinds of behavior that are much more easily expressed in graphs than in text:
+
+ 1. Data logic that describes how inputs become outputs (e.g. "when my HP goes down, update my hp bar and for 250 milliseconds leave a white section showing how much I just lost")
+ 2. State machine logic that describes how parallel behaviors interact
+
+## How do I use it?
+
+Attach the Golem component to something. Add a Golem Component. Edit it to set up a **program** and/or a **circuit**. Hit play and away you go! ... more detail to come here ...
+
+# Architectural Decisions
+
+In this section, I describe why Golem is implemented the way it is. I've tried to write down the stuff that's not obvious from the code because it's either high level structural stuff or important nitty-gritty choices that could seem arbitrary at first glance.
 
 ## Phase Order
 
@@ -11,9 +45,12 @@ The phase order is:
  3. **Collection Register** - Registers deriving from `ICollectionRegister` clear their change-tracking members
  4. **Variable Rollover** - Variables assign their new values to registers and mark changed cells for update
 
-## Principles
+Because we need to maintain this phase order across all golems, the central `GolemManager` class manages all golem updates. A Golem itself has no `Update` function.
 
- * Variables allow golems to be update-order independent since variables only change their value on a frame-boundary.
+## Variables only change their value on a frame-boundary
+
+So that each golem's update can be mutually order-independent. It also tees 
+
  * Golems running without modification quickly require no allocation and no reflection to execute. In particular, this means no boxing.
 
 ## Cells can be updated even if their inputs don't change
@@ -40,131 +77,34 @@ Because:
 
 If scripts only write variables, changes leapfrog the Collection Register phase so that they'll be seen by cells (and scripts) on the next frame. Otherwise, circuits would be able to propagate changes to scripts correctly but the reverse would not be true. Doing this also removes the ambiguity of whether scripts can expect to share data with one another through registers by answering "no".
 
-## Cells that use collection registers need to handle connecting/disconnecting a register themselves
+## Registers and Variables must be properties not fields
 
-Each cell will be able to use a collection register's `Added` and `Removed` values while a register stays the same, but the register/variable itself does not track that its reference has been added to a cell. TODO: change this?
+A cell can use an input collection register's `Added` / `Removed` sets to track changes in the input. However, the cell also needs to track changes in the entire collection itself, since those changes are reflected in neither the old nor the new collection register's `Added` / `Removed` sets. This can be done in a setter.
 
+This is not strictly necessary for outputs. However, keeping inputs and outputs consistent seems correct.
 
+## Port direction is identified by name
 
+ * Input registers are either called `Input` or they end in `In`.
+ * Output registers are either called `Output` or they end in `Out`.
 
-
-
-
-
-
-
-
+There are several ways this could be done and the choice is largely a matter of style. This was chosen because it reinforces the nature of the register each time it is used, which should help avoid bugs and it minimizes extra typing in an editor with autocomplete.
 
 
 
+# Future Plans
 
-    OKAY AND in this verion SPECIAL BONUS
+## Upgrade to the Unity 2018 Elements UI
 
-    - GolemClass becomes GolemComponent
-    - You can add multiple components to a single Golem
-        - When it's in a prefab, that's an Archetype!
-    - This means that references need to be separable from the class
-        - Which means that a Golem holds a list of references keyed by name
-        - When a GolemComponent instantiates, it reads Unity Object references by name from the Golem and writes them into fields of aspects/cells/scripts
+It's got a built-in node editor. That's why I didn't spend too long getting all the node editing right in this version... just 40 hours or so. RIP.
 
-    WAAAAAIt what if the references were just in the Aspects for the golem? Just like variables!!!
-        Inside of a GolemComponent, you get a dropdown for picking a reference to a name based on the field in the aspect
-    An aspect declares a field that is of type UnityObject, and all fields with the same name get the same value
-        When the golem instantiates, the list of references gets cloned
-        the Golem itself maps which fields of which aspects get each UnityObject index
+## Network Variable Replication
 
-    For debugging purposes, each GolemClass can have a list of the Aspects it depends on
-    And each external reference can have a list of the Aspects they require of the target
-        These can both be checked at runtime
+One of the cool things about variables only changing on frame boundaries and having control of that from within Golem itself is that this naturally makes replication easy. Explore this!
 
-    the Golem says "I have these settings, these Aspects and these Components"
-        - And, transparently, "these object references" as contained in Aspects.
+# Ideas
 
-
-
-                             frame start
-----------------------------------------------------------------------
-
-                         CIRCUIT UPDATE PHASE
-
-----------------------------------------------------------------------
-
-                         PROGRAM UPDATE PHASE
-
-----------------------------------------------------------------------
-
-                      COLLECTION REGISTER UPDATE
-
-----------------------------------------------------------------------
-
-                           VARIABLE ROLLOVER
-
-----------------------------------------------------------------------
-                               frame end
-
-collection registers are tricky...
-
-within a circuit, we want a collection register to immediately track adds/removes
-    lets say we have a cell that adds numbers in sequence to a hashset
-    and another cell that has that hashset as an input
-        the input should see "Added" contain each number in sequence and "Values" contain all the numbers
-
-    if a script does the same thing, we expect that the cell gets
-        to see "Added" the exact same thing
-
-    if a script writes to a variable, we again expect that a dependent
-        cell sees the same thing (so added has to be updated DURING circuit)
-        and that a variable reading that register sees the same thing (so added can't be cleared between circuit & program)
-        and that a cell reading a variable sees added (so added can't be cleared between variable update and circuit)
-
-So where is the boundary where "Added" gets cleared?
-    in the circuit case, it's just before circuits are updated; in the script case, it's jsut before scripts are updated
-
-    but actually it's even more subtle than that:
-        if a circuit is evaluated multiple times because it is in a cell that gets its inputs re-dirtied
-        by an external dependency, the cell COULD be evaluated multiple times in a frame
-
-    SO multiple-evaluation is actually a problem...
-
-        "added" really wants to mean "added since you last saw this"
-        and the problem is multiple readers:
-            - if a cell has 2 inputs, one of which is a collection register and the other of which
-              reads a remote cell's value, which changes after that cell is dirtied, then the
-              cell will get used twice and the reader will see "added" twice.
-
-        basically, this construction would require that cells be IDEMPOTENT on their inputs
-            scripts can be non-idempotent since they are only evaluated once per frame at most
-
-            - if a cell has a register input and a script has a register variable input for that
-              register, and a script has a register output
-
-        if we say that scripts can't write registers--they can only write variables--then
-        we know that all writes will survive a clear after the program phase. this would mean that
-        collections written during the circuit phase propagate immediatly between cells and to scripts,
-        and collections written during the program phase would propagate to cells and to scripts on
-        the next frame. BAM!
-
-
-problem registers on different golems that listen to each other
-possibly creates an infinite loop if you aren't careful...
- - when iterating, dirty instructions for the current cell should
-   be executed immediately, but dirty instructions for later
-   cells should be batched, sorted and done later
-
- - if sequence > current:
-    add to priority queue
- - else:
-    add to new queue
-
-
-
-
-
-
-
-
-
-
+Buncha crazy stuff down here... all WIP notes to myself
 
 
 
@@ -177,16 +117,6 @@ cells only get updated when an input was changed
 don't want to make different versions of every cell where
 some read from variables in different combinations and
 some read from registers
-
-variables are just named registers, possibly in other golems
-
-each variable in a golem is stored in that golem's registers
-    so internal variables are easily mapped
-    and the "self" reference never changes so we don't have to worry about how to update it
-
-external variables that read from other golems are different
-    #1 we don't know if they exist
-    #2 references can change, which changes the variable
 
 so for external references, maybe polling is fine?
     we want things like "owner" though which doesn't change
