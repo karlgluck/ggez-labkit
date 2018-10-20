@@ -345,14 +345,14 @@ MonoBehaviour:
     \"Variable\",\r\n                        \"WriteObject\": {\r\n                            \"$ref\":
     \"2\"\r\n                        },\r\n                        \"WriteField\":
     \"Input\",\r\n                        \"ReadPoint\": {\r\n                            \"x\":
-    -1039.0,\r\n                            \"y\": -2103.0\r\n                        },\r\n
+    -1061.0,\r\n                            \"y\": -2059.0\r\n                        },\r\n
     \                       \"WritePoint\": {\r\n                            \"x\":
-    -943.0,\r\n                            \"y\": -2101.0\r\n                        },\r\n
+    -981.0,\r\n                            \"y\": -2057.0\r\n                        },\r\n
     \                       \"Register\": 0,\r\n                        \"$id\": \"5\"\r\n
     \                   }\r\n                },\r\n                \"OutputWires\":
     {\r\n\r\n                },\r\n                \"Position\": {\r\n                    \"xMin\":
-    640.0,\r\n                    \"yMin\": 304.0,\r\n                    \"xMax\":
-    992.0,\r\n                    \"yMax\": 395.0\r\n                },\r\n                \"FieldsUsingSettings\":
+    624.0,\r\n                    \"yMin\": 304.0,\r\n                    \"xMax\":
+    976.0,\r\n                    \"yMax\": 395.0\r\n                },\r\n                \"FieldsUsingSettings\":
     {\r\n\r\n                },\r\n                \"FieldsUsingVariables\": {\r\n\r\n
     \               },\r\n                \"$id\": \"2\"\r\n            }\r\n        ],\r\n
     \       \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorCell,
@@ -364,8 +364,8 @@ MonoBehaviour:
     {\r\n        \"$content\": [\r\n            {\r\n                \"Name\": \"Enter\",\r\n
     \               \"Layer\": 0,\r\n                \"Index\": 0,\r\n                \"CompiledIndex\":
     2147483647,\r\n                \"SpecialState\": \"LayerEnter\",\r\n                \"Position\":
-    {\r\n                    \"xMin\": 160.0,\r\n                    \"yMin\": 96.0,\r\n
-    \                   \"xMax\": 512.0,\r\n                    \"yMax\": 163.0\r\n
+    {\r\n                    \"xMin\": 160.0,\r\n                    \"yMin\": 48.0,\r\n
+    \                   \"xMax\": 512.0,\r\n                    \"yMax\": 115.0\r\n
     \               },\r\n                \"Scripts\": [],\r\n                \"TransitionsIn\":
     [],\r\n                \"TransitionsOut\": [\r\n                    0\r\n                ]\r\n
     \           },\r\n            {\r\n                \"$ref\": \"13\"\r\n            }\r\n
@@ -374,14 +374,14 @@ MonoBehaviour:
     \   },\r\n    \"EditorTransitions\": {\r\n        \"$content\": [\r\n            {\r\n
     \               \"Name\": \"Transition\",\r\n                \"Index\": 0,\r\n
     \               \"Expression\": {\r\n                    \"Type\": \"True\",\r\n
-    \                   \"Position\": {\r\n                        \"xMin\": 207.0,\r\n
-    \                       \"yMin\": 216.0,\r\n                        \"xMax\":
-    272.0,\r\n                        \"yMax\": 232.0\r\n                    },\r\n
+    \                   \"Position\": {\r\n                        \"xMin\": 432.0,\r\n
+    \                       \"yMin\": 168.0,\r\n                        \"xMax\":
+    497.0,\r\n                        \"yMax\": 184.0\r\n                    },\r\n
     \                   \"Trigger\": \"Next\",\r\n                    \"Subexpressions\":
     []\r\n                },\r\n                \"ExpressionAnchor\": {\r\n                    \"x\":
-    272.0,\r\n                    \"y\": 224.0\r\n                },\r\n                \"Position\":
-    {\r\n                    \"xMin\": 207.0,\r\n                    \"yMin\": 216.0,\r\n
-    \                   \"xMax\": 272.0,\r\n                    \"yMax\": 232.0\r\n
+    432.0,\r\n                    \"y\": 176.0\r\n                },\r\n                \"Position\":
+    {\r\n                    \"xMin\": 432.0,\r\n                    \"yMin\": 168.0,\r\n
+    \                   \"xMax\": 497.0,\r\n                    \"yMax\": 184.0\r\n
     \               },\r\n                \"From\": 0,\r\n                \"To\":
     1\r\n            }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorTransition,
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
