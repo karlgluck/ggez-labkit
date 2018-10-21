@@ -30,10 +30,5 @@ namespace GGEZ.Labkit
 {
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class CanBeNullAttribute : Attribute
-    {
-        public static bool IsAppliedTo(FieldInfo fieldInfo)
-        {
-            return fieldInfo.IsDefined(typeof(CanBeNullAttribute), true);
-        }
-    }
+    { }
 }

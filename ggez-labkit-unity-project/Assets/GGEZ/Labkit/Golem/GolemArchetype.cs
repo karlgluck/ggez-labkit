@@ -158,7 +158,7 @@ namespace GGEZ.Labkit
                                 {
                                     Type = AssignmentType.AspectGolem,
                                     TargetIndex = aspectIndex,
-                                    TargetFieldName = fieldName,
+                                    TargetMemberName = fieldName,
                                 });
                                 break;
 
@@ -169,7 +169,7 @@ namespace GGEZ.Labkit
                                 {
                                     Type = AssignmentType.AspectAspect,
                                     TargetIndex = aspectIndex,
-                                    TargetFieldName = fieldName,
+                                    TargetMemberName = fieldName,
                                 });
                                 break;
 
@@ -183,7 +183,7 @@ namespace GGEZ.Labkit
                                     {
                                         Name = variableRef.Name,
                                         TargetIndex = aspectIndex,
-                                        TargetFieldName = fieldName,
+                                        TargetMemberName = fieldName,
                                     };
 
                                     if (variableRef.IsExternal)
@@ -207,7 +207,7 @@ namespace GGEZ.Labkit
                                         {
                                             Type = AssignmentType.AspectDummyVariable,
                                             TargetIndex = aspectIndex,
-                                            TargetFieldName = fieldName,
+                                            TargetMemberName = fieldName,
                                         });
                                     }
                                 }
@@ -226,7 +226,7 @@ namespace GGEZ.Labkit
                                         Type = AssignmentType.AspectSetting,
                                         Name = setting,
                                         TargetIndex = aspectIndex,
-                                        TargetFieldName = fieldName,
+                                        TargetMemberName = fieldName,
                                     });
                                 }
                                 break;

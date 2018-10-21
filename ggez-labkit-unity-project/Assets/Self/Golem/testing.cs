@@ -16,11 +16,9 @@ namespace GGEZ.Labkit
 {
     public class AddFloat : Cell
     {
-        [In]
-        public StructRegister<float> Input;
+        public StructRegister<float> Input { get; set; }
 
-        [Out]
-        public StructRegister<float> Output;
+        public StructRegister<float> Output { get; set; }
 
         public float Amount;
 
@@ -32,8 +30,7 @@ namespace GGEZ.Labkit
 
     public class DebugLogFloat : Cell
     {
-        [In]
-        public StructRegister<float> Input;
+        public StructRegister<float> Input { get; set; }
 
         public override void Update()
         {
@@ -294,22 +291,9 @@ public class PositionAspect : GGEZ.Labkit.Aspect
 // }
 
 
-public class SetObjectNameToTime : Script
-{
-    [GGEZ.FullSerializer.fsIgnore]
-    public GameObject GameObject;
-
-    public override void OnUpdate()
-    {
-        GameObject.name = Time.time.ToString();
-    }
-}
-
-
 public class SetVariableToTime : Script
 {
-    [Out]
-    public StructVariable<float> Variable;
+    public StructVariable<float> Variable { get; set; }
 
     public float Multiplier;
 

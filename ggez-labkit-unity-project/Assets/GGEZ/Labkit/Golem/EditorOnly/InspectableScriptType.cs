@@ -42,50 +42,34 @@ namespace GGEZ.Labkit
     public class InspectableScriptType
     {
         public readonly string Name;
-        public readonly Field[] Fields;
-        public readonly Output[] Outputs;
+        public readonly Member[] Members;
 
-        public struct Field
+        public struct Member
         {
             public readonly InspectableType Type;
             public readonly Type SpecificType;
             public readonly FieldInfo FieldInfo;
+            public readonly PropertyInfo PropertyInfo;
             public readonly bool WantSetting;
             public readonly bool CanBeNull;
-            public readonly bool IsOutput;
+            public readonly bool IsVariable;
 
-            public Field(InspectableType type, Type targetType, FieldInfo fieldInfo, bool wantsSetting, bool canBeNull, bool isOutput)
+            public Member(InspectableType type, Type targetType, FieldInfo fieldInfo, PropertyInfo propertyInfo, bool wantsSetting, bool canBeNull, bool isVariable)
             {
                 Type = type;
                 SpecificType = targetType;
                 FieldInfo = fieldInfo;
+                PropertyInfo = propertyInfo;
                 WantSetting = wantsSetting;
                 CanBeNull = canBeNull;
-                IsOutput = isOutput;
+                IsVariable = isVariable;
             }
         }
 
-        public struct Output
-        {
-            public string Name { get { return Field.Name; } }
-            public Type Type { get { return Field.FieldType; } }
-            public readonly FieldInfo Field;
-            public readonly Vector2 PortCenterFromTopRight;
-            public readonly bool CanBeNull;
-
-            public Output(FieldInfo field, Vector2 portCenterFromTopRight, bool canBeNull)
-            {
-                Field = field;
-                PortCenterFromTopRight = portCenterFromTopRight;
-                CanBeNull = canBeNull;
-            }
-        }
-
-        public InspectableScriptType(string name, Field[] fields, Output[] outputs)
+        public InspectableScriptType(string name, Member[] members)
         {
             Name = name;
-            Fields = fields;
-            Outputs = outputs;
+            Members = members;
         }
 
         private static Dictionary<Type, InspectableScriptType> s_typeToInspectableType = new Dictionary<Type, InspectableScriptType>();
@@ -99,38 +83,59 @@ namespace GGEZ.Labkit
                 return retval;
             }
 
-            FieldInfo[] fields = scriptType.GetFields(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
-            var returnedFields = new Field[fields.Length];
+            MemberInfo[] members = scriptType.GetMembers(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public);
+            var returnedMembers = new Member[members.Length];
             int j = 0;
-            List<Output> outputs = new List<Output>();
-            for (int i = 0; i < fields.Length; ++i)
+            for (int i = 0; i < members.Length; ++i)
             {
-                #warning these really shouldn't be assertions since the coder can mess this up and it doesn't really matter
-                Debug.Assert(!fields[i].IsDefined(typeof(InAttribute), true));
+                Type specificType;
+                bool isVariable;
+                PropertyInfo property;
+                FieldInfo field;
 
-                InspectableType inspectableType = InspectableTypeExt.GetInspectableTypeOf(fields[i].FieldType);
+                switch (members[i].MemberType)
+                {
+                    case MemberTypes.Property:
+
+                        property = scriptType.GetProperty(members[i].Name);
+                        if (!typeof(IVariable).IsAssignableFrom(property.PropertyType))
+                            break;
+
+                        field = null;
+                        specificType = property.PropertyType;
+                        isVariable = true;
+
+                        goto AddMember;
+                    
+                    case MemberTypes.Field:
+
+                        field = scriptType.GetField(members[i].Name);
+                        if (typeof(IVariable).IsAssignableFrom(field.FieldType))
+                        {
+                            Debug.LogError("Script " + scriptType.Name + " has field " + field.Name + " that must be a property");
+                            break;
+                        }
+
+                        property = null;
+                        specificType = field.FieldType;
+                        isVariable = false;
+
+                        goto AddMember;
+                }
+
+                continue;
+            AddMember:
+
+                InspectableType inspectableType = InspectableTypeExt.GetInspectableTypeOf(specificType);
                 if (inspectableType == InspectableType.Invalid)
-                {
                     continue;
-                }
 
-                bool canBeNull = fields[i].IsDefined(typeof(CanBeNullAttribute), true);
-                bool isOutput = fields[i].IsDefined(typeof(OutAttribute), true);
-
-                if (isOutput)
-                {
-                    Debug.Assert(typeof(IVariable).IsAssignableFrom(fields[i].FieldType));
-                    var portCenter = new Vector2(-GolemEditorUtility.GridSize + GolemEditorUtility.NodeLeftRightMargin, EditorGUIUtility.singleLineHeight * (0.5f + i));
-                    #warning make this into an array
-                    outputs.Add(new Output(fields[i], portCenter, canBeNull));
-                }
-
-                bool wantsSetting = fields[i].IsDefined(typeof(SettingAttribute), true);
-                Type specificType = InspectableTypeExt.GetSpecificType(inspectableType, fields[i]);
-                returnedFields[j++] = new Field(inspectableType, specificType, fields[i], wantsSetting, canBeNull, isOutput);
+                bool canBeNull = members[i].IsDefined(typeof(CanBeNullAttribute), true);
+                bool wantsSetting = members[i].IsDefined(typeof(SettingAttribute), true);
+                returnedMembers[j++] = new Member(inspectableType, specificType, field, property, wantsSetting, canBeNull, isVariable);
             }
 
-            retval = new InspectableScriptType(scriptType.Name, returnedFields, outputs.ToArray());
+            retval = new InspectableScriptType(scriptType.Name, returnedMembers);
             s_typeToInspectableType.Add(scriptType, retval);
             return retval;
         }

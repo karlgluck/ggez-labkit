@@ -44,19 +44,15 @@ namespace GGEZ.Labkit
     {
         public struct Input
         {
-            [Obsolete("This is just a field of Field, so make it a getter")]
-            public readonly string Name;
-            [Obsolete("This is just a field of Field, so make it a getter")]
-            public readonly Type Type;
-            public readonly FieldInfo Field;
+            public string Name { get { return Property.Name; } }
+            public Type Type { get { return Property.PropertyType; } }
+            public readonly PropertyInfo Property;
             public readonly Vector2 PortCenterFromTopLeft;
             public readonly bool CanBeNull;
 
-            public Input(string name, Type type, FieldInfo field, Vector2 portCenterFromTopLeft, bool canBeNull)
+            public Input(PropertyInfo property, Vector2 portCenterFromTopLeft, bool canBeNull)
             {
-                Name = name;
-                Type = type;
-                Field = field;
+                Property = property;
                 PortCenterFromTopLeft = portCenterFromTopLeft;
                 CanBeNull = canBeNull;
             }
@@ -64,19 +60,15 @@ namespace GGEZ.Labkit
 
         public struct Output
         {
-            [Obsolete("This is just a field of Field, so make it a getter")]
-            public readonly string Name;
-            [Obsolete("This is just a field of Field, so make it a getter")]
-            public readonly Type Type;
-            public readonly FieldInfo Field;
+            public string Name { get { return Property.Name; } }
+            public Type Type { get { return Property.PropertyType; } }
+            public readonly PropertyInfo Property;
             public readonly Vector2 PortCenterFromTopRight;
             public readonly bool CanBeNull;
 
-            public Output(string name, Type type, FieldInfo field, Vector2 portCenterFromTopRight, bool canBeNull)
+            public Output(PropertyInfo property, Vector2 portCenterFromTopRight, bool canBeNull)
             {
-                Name = name;
-                Type = type;
-                Field = field;
+                Property = property;
                 PortCenterFromTopRight = portCenterFromTopRight;
                 CanBeNull = canBeNull;
             }
@@ -148,24 +140,24 @@ namespace GGEZ.Labkit
                 return retval;
             }
 
-            var inputs = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => f.IsDefined(typeof(InAttribute), false)).ToArray();
+            var inputs = cellType.GetProperties(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public)
+                                 .Where((f) => f.Name.Equals("Input") || f.Name.EndsWith("In")).ToArray();
             var returnedInputs = new Input[inputs.Length];
             for (int i = 0; i < inputs.Length; ++i)
             {
-                var inAttribute = inputs[i].GetCustomAttributes(typeof(InAttribute), false)[0] as InAttribute;
                 var portCenter = new Vector2(GolemEditorUtility.GridSize - GolemEditorUtility.NodeLeftRightMargin, EditorGUIUtility.singleLineHeight * (0.5f + i));
-                bool canBeNull = CanBeNullAttribute.IsAppliedTo(inputs[i]);
-                returnedInputs[i] = new Input(inputs[i].Name, inputs[i].FieldType, inputs[i], portCenter, canBeNull);
+                bool canBeNull = inputs[i].IsDefined(typeof(CanBeNullAttribute), true);
+                returnedInputs[i] = new Input(inputs[i], portCenter, canBeNull);
             }
 
-            var outputs = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => f.IsDefined(typeof(OutAttribute), false)).ToArray();
+            var outputs = cellType.GetProperties(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public)
+                                  .Where((f) => f.Name.Equals("Output") || f.Name.EndsWith("Out")).ToArray();
             var returnedOutputs = new Output[outputs.Length];
             for (int i = 0; i < outputs.Length; ++i)
             {
-                var outAttribute = outputs[i].GetCustomAttributes(typeof(OutAttribute), false)[0] as OutAttribute;
                 var portCenter = new Vector2(-GolemEditorUtility.GridSize + GolemEditorUtility.NodeLeftRightMargin, EditorGUIUtility.singleLineHeight * (0.5f + i));
-                bool canBeNull = CanBeNullAttribute.IsAppliedTo(outputs[i]);
-                returnedOutputs[i] = new Output(outputs[i].Name, outputs[i].FieldType, outputs[i], portCenter, canBeNull);
+                bool canBeNull = outputs[i].IsDefined(typeof(CanBeNullAttribute), true);
+                returnedOutputs[i] = new Output(outputs[i], portCenter, canBeNull);
             }
 
             var fields = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => !f.IsDefined(typeof(InAttribute), false) && !f.IsDefined(typeof(OutAttribute), false)).ToArray();
@@ -191,13 +183,6 @@ namespace GGEZ.Labkit
             return retval;
         }
 
-        public static bool CanConnect(InspectableCellType readCell, int outputIndex, InspectableCellType writeCell, int inputIndex)
-        {
-            Type writeType = writeCell.Inputs[inputIndex].Type;
-            Type readType = readCell.Outputs[outputIndex].Type;
-
-            return readType.Equals(writeType);
-        }
     }
 
 }

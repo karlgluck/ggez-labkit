@@ -59,7 +59,6 @@ namespace GGEZ.Labkit
         CellVariable,                   // Find [TargetFieldName] on cell [TargetIndex] and assign it to variable [Name], creating that variable if necessary
         CellVariableOrNull,             // The variable [Name] or null
         CellVariableOrDummy,            // The variable [Name] or a newly allocated variable
-        CellRegisterVariable,           // The variable created for register [RegisterIndex]
         CellInputVariableRegisterOrNull,  // The register for variable [Name] or null
         CellInputVariableRegisterOrDummy, // The register for variable [Name] or the global read-only register
         CellInputRegister,              // The register [RegisterIndex] from this Component
@@ -81,20 +80,32 @@ namespace GGEZ.Labkit
         public string Name;
         public int RegisterIndex;
         public int TargetIndex;
-        public string TargetFieldName;
+        public string TargetMemberName;
 
         private static readonly Dictionary<string, IVariable> s_emptyVariables = new Dictionary<string, IVariable>();
 
         public FieldInfo GetObjectFieldInfo(Array array, out object target, out FieldInfo fieldInfo)
         {
             target = array.GetValue(TargetIndex);
-            fieldInfo = target.GetType().GetField(TargetFieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            fieldInfo = target.GetType().GetField(TargetMemberName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             return fieldInfo;
+        }
+
+        public PropertyInfo GetObjectPropertyInfo(Array array, out object target, out PropertyInfo propertyInfo)
+        {
+            target = array.GetValue(TargetIndex);
+            propertyInfo = target.GetType().GetProperty(TargetMemberName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            return propertyInfo;
         }
 
         public FieldInfo GetFieldInfo(object target)
         {
-            return target.GetType().GetField(TargetFieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            return target.GetType().GetField(TargetMemberName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+        }
+
+        public PropertyInfo GetPropertyInfo(object target)
+        {
+            return target.GetType().GetProperty(TargetMemberName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
         }
 
         public static void Assign(Golem golem, Assignment[] assignments, Dictionary<string, IVariable> variables, GolemComponentRuntimeData component, IRegister[] registers)
@@ -117,6 +128,7 @@ namespace GGEZ.Labkit
         {
             object target;
             FieldInfo fieldInfo;
+            PropertyInfo propertyInfo;
 
             #warning If we assign and unassign a register, cell listeners still remain! We need to remove these!
 
@@ -134,20 +146,19 @@ namespace GGEZ.Labkit
                 case AssignmentType.CellAspect:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
                 case AssignmentType.ScriptAspect:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
 #warning variables being defined by aspects is out of date; aspects should just give a nice view and the variables provide defaults
-                case AssignmentType.AspectVariable: assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
-                case AssignmentType.CellVariable:   assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
-                case AssignmentType.ScriptVariable: assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
+                case AssignmentType.AspectVariable: assignment.GetObjectPropertyInfo(golem.Aspects,     out target, out propertyInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, propertyInfo.PropertyType), null); break;
+                case AssignmentType.CellVariable:   assignment.GetObjectPropertyInfo(component.Cells,   out target, out propertyInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, propertyInfo.PropertyType), null); break;
+                case AssignmentType.ScriptVariable: assignment.GetObjectPropertyInfo(component.Scripts, out target, out propertyInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, propertyInfo.PropertyType), null); break;
 
-                case AssignmentType.AspectVariableOrNull:   assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, GetVariableOrNull(variables, assignment.Name)); break;
-                case AssignmentType.CellVariableOrNull:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetVariableOrNull(variables, assignment.Name)); break;
-                case AssignmentType.ScriptVariableOrNull:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetVariableOrNull(variables, assignment.Name)); break;
+                case AssignmentType.AspectVariableOrNull:   assignment.GetObjectPropertyInfo(golem.Aspects,     out target, out propertyInfo).SetValue(target, GetVariableOrNull(variables, assignment.Name), null); break;
+                case AssignmentType.CellVariableOrNull:     assignment.GetObjectPropertyInfo(component.Cells,   out target, out propertyInfo).SetValue(target, GetVariableOrNull(variables, assignment.Name), null); break;
+                case AssignmentType.ScriptVariableOrNull:   assignment.GetObjectPropertyInfo(component.Scripts, out target, out propertyInfo).SetValue(target, GetVariableOrNull(variables, assignment.Name), null); break;
 
-                case AssignmentType.AspectVariableOrDummy:   assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, GetVariableOrDummy(variables, assignment.Name, fieldInfo.FieldType)); break;
-                case AssignmentType.CellVariableOrDummy:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetVariableOrDummy(variables, assignment.Name, fieldInfo.FieldType)); break;
-                case AssignmentType.ScriptVariableOrDummy:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetVariableOrDummy(variables, assignment.Name, fieldInfo.FieldType)); break;
+                case AssignmentType.AspectVariableOrDummy:   assignment.GetObjectPropertyInfo(golem.Aspects,     out target, out propertyInfo).SetValue(target, GetVariableOrDummy(variables, assignment.Name, propertyInfo.PropertyType), null); break;
+                case AssignmentType.CellVariableOrDummy:     assignment.GetObjectPropertyInfo(component.Cells,   out target, out propertyInfo).SetValue(target, GetVariableOrDummy(variables, assignment.Name, propertyInfo.PropertyType), null); break;
+                case AssignmentType.ScriptVariableOrDummy:   assignment.GetObjectPropertyInfo(component.Scripts, out target, out propertyInfo).SetValue(target, GetVariableOrDummy(variables, assignment.Name, propertyInfo.PropertyType), null); break;
 
-                case AssignmentType.CellRegisterVariable:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetOrCreateRegisterVariable(assignment.RegisterIndex, registers, ref registerVariables)); break;
-                case AssignmentType.ScriptRegisterVariable:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetOrCreateRegisterVariable(assignment.RegisterIndex, registers, ref registerVariables)); break;
+                case AssignmentType.ScriptRegisterVariable:   assignment.GetObjectPropertyInfo(component.Scripts, out target, out propertyInfo).SetValue(target, GetOrCreateRegisterVariable(assignment.RegisterIndex, registers, ref registerVariables), null); break;
 
                 case AssignmentType.CellInputVariableRegisterOrNull:
                     {

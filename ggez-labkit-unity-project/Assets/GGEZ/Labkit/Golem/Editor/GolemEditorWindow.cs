@@ -568,7 +568,7 @@ namespace GGEZ.Labkit
                                     Event.current.Use();
                                     _shouldScroll = false;
 
-                                    _createWire = CreateWire.Input(editorCell, inputs[i].Field, portPosition.center);
+                                    _createWire = CreateWire.Input(editorCell, inputs[i].Property, portPosition.center);
 
                                     Repaint();
                                 }
@@ -578,14 +578,14 @@ namespace GGEZ.Labkit
                             case EventType.MouseDrag:
                                 if (_createWire.Enabled && portPosition.Contains(Event.current.mousePosition))
                                 {
-                                    _createWire.HoverEndInput(editorCell, inputs[i].Field, portPosition.center);
+                                    _createWire.HoverEndInput(editorCell, inputs[i].Property, portPosition.center);
                                     GUIUtility.hotControl = id;
                                 }
                                 break;
 
                             case EventType.Repaint:
                                 GUI.SetNextControlName(id.ToString());
-                                GolemEditorSkin.Current.InputLabelStyle.Draw(labelPosition, new GUIContent(inputs[i].Name, inputs[i].Field.FieldType.Name), false, false, on, focused);
+                                GolemEditorSkin.Current.InputLabelStyle.Draw(labelPosition, new GUIContent(inputs[i].Name, inputs[i].Type.Name), false, false, on, focused);
                                 GolemEditorSkin.Current.PortStyle.Draw(portPosition, false, false, on, focused);
                                 GolemEditorUtility.SetWireWritePoints(inputs[i].Name, editorCell.InputWires, portPosition.center);
                                 break;
@@ -634,7 +634,7 @@ namespace GGEZ.Labkit
                                     Event.current.Use();
                                     _shouldScroll = false;
 
-                                    _createWire = CreateWire.Output(editorCell, outputs[i].Field, portPosition.center);
+                                    _createWire = CreateWire.Output(editorCell, outputs[i].Property, portPosition.center);
 
                                     Repaint();
                                 }
@@ -644,7 +644,7 @@ namespace GGEZ.Labkit
                             case EventType.MouseDrag:
                                 if (_createWire.Enabled && portPosition.Contains(Event.current.mousePosition))
                                 {
-                                    _createWire.HoverEndOutput(editorCell, outputs[i].Field, portPosition.center);
+                                    _createWire.HoverEndOutput(editorCell, outputs[i].Property, portPosition.center);
                                     GUIUtility.hotControl = id;
                                 }
                                 break;
@@ -654,7 +654,7 @@ namespace GGEZ.Labkit
 
                             case EventType.Repaint:
                                 GUI.SetNextControlName(id.ToString());
-                                GolemEditorSkin.Current.OutputLabelStyle.Draw(labelPosition, new GUIContent(outputs[i].Name, outputs[i].Field.FieldType.Name), false, false, on, focused);
+                                GolemEditorSkin.Current.OutputLabelStyle.Draw(labelPosition, new GUIContent(outputs[i].Name, outputs[i].Type.Name), false, false, on, focused);
                                 GolemEditorSkin.Current.PortStyle.Draw(portPosition, false, false, on, focused);
                                 GolemEditorUtility.SetWireReadPoints(outputs[i].Name, editorCell.OutputWires, portPosition.center);
                                 break;
@@ -883,13 +883,16 @@ namespace GGEZ.Labkit
                     //-------------------------------
                     // Script Fields
                     //-------------------------------
-                    var fields = inspectableType.Fields;
+                    var fields = inspectableType.Members;
                     for (int j = 0; j < fields.Length; ++j)
                     {
                         var field = fields[j];
 
-                        if (fields[j].IsOutput)
+                        if (fields[j].IsVariable)
                         {
+                            Debug.Assert(fields[j].FieldInfo == null);
+                            Debug.Assert(fields[j].PropertyInfo != null);
+
                             int id = GUIUtility.GetControlID(FocusType.Passive);
                             GUI.SetNextControlName(id.ToString());
                             Rect labelPosition = EditorGUILayout.GetControlRect();
@@ -932,7 +935,7 @@ namespace GGEZ.Labkit
                                         GUI.FocusControl(id.ToString());
                                         Event.current.Use();
                                         _shouldScroll = false;
-                                        _createWire = CreateWire.Output(editorScript, field.FieldInfo, portCenter);
+                                        _createWire = CreateWire.Output(editorScript, field.PropertyInfo, portCenter);
                                         Repaint();
                                     }
                                     break;
@@ -941,7 +944,7 @@ namespace GGEZ.Labkit
                                 case EventType.MouseDrag:
                                     if (_createWire.Enabled && portPosition.Contains(Event.current.mousePosition))
                                     {
-                                        _createWire.HoverEndOutput(editorScript, field.FieldInfo, portCenter);
+                                        _createWire.HoverEndOutput(editorScript, field.PropertyInfo, portCenter);
                                         GUIUtility.hotControl = id;
                                     }
                                     break;
@@ -951,7 +954,7 @@ namespace GGEZ.Labkit
 
                                 case EventType.Repaint:
                                     GolemEditorSkin.Current.PortStyle.Draw(portPosition, false, false, fieldOn, fieldFocused);
-                                    GolemEditorUtility.SetWireReadPoints(field.FieldInfo.Name, editorScript.OutputWires, portCenter);
+                                    GolemEditorUtility.SetWireReadPoints(field.PropertyInfo.Name, editorScript.OutputWires, portCenter);
                                     break;
                             }
                         }
@@ -1705,7 +1708,7 @@ namespace GGEZ.Labkit
         internal struct CreateWire
         {
             public readonly object StartObject;
-            public readonly FieldInfo StartField;
+            public readonly PropertyInfo StartProperty;
             public readonly bool StartIsInput;
             public bool StartIsOutput { get { return !StartIsInput; } }
             public Vector2 StartPoint;
@@ -1718,13 +1721,13 @@ namespace GGEZ.Labkit
             public bool Valid;
 
             public object EndObject;
-            public FieldInfo EndField;
+            public PropertyInfo EndProperty;
             public Vector2 EndPoint;
 
-            private CreateWire(object startObject, FieldInfo startField, Vector2 startPoint, bool input)
+            private CreateWire(object startObject, PropertyInfo startProperty, Vector2 startPoint, bool input)
             {
                 StartObject = startObject;
-                StartField = startField;
+                StartProperty = startProperty;
                 StartPoint = startPoint;
                 StartIsInput = input;
 
@@ -1734,46 +1737,47 @@ namespace GGEZ.Labkit
                 Valid = false;
 
                 EndObject = null;
-                EndField = null;
+                EndProperty = null;
                 EndPoint = Vector2.zero;
             }
 
-            public static CreateWire Input(IGraphObjectWithInputs startObject, FieldInfo startField, Vector2 startPoint)
+            public static CreateWire Input(IGraphObjectWithInputs startObject, PropertyInfo startProperty, Vector2 startPoint)
             {
                 #warning make sure that there isn't an input on this field already
-                return new CreateWire(startObject, startField, GUIUtility.GUIToScreenPoint(startPoint), true);
+                return new CreateWire(startObject, startProperty, GUIUtility.GUIToScreenPoint(startPoint), true);
             }
 
-            public static CreateWire Output(IGraphObjectWithOutputs startObject, FieldInfo startField, Vector2 startPoint)
+            public static CreateWire Output(IGraphObjectWithOutputs startObject, PropertyInfo startProperty, Vector2 startPoint)
             {
-                return new CreateWire(startObject, startField, GUIUtility.GUIToScreenPoint(startPoint), false);
+                return new CreateWire(startObject, startProperty, GUIUtility.GUIToScreenPoint(startPoint), false);
             }
 
-            public void HoverEndInput(IGraphObjectWithInputs endObject, FieldInfo endField, Vector2 endPoint)
+            public void HoverEndInput(IGraphObjectWithInputs endObject, PropertyInfo endProperty, Vector2 endPoint)
             {
                 HasEnd = true;
                 Valid =
                     StartIsOutput
                 && !object.ReferenceEquals(StartObject, endObject)
-                && (endField == null || StartField == null || object.Equals(endField.FieldType.GetGenericArguments()[0], StartField.FieldType.GetGenericArguments()[0]));
+                #warning check types in a better way
+                && (endProperty == null || StartProperty == null || object.Equals(endProperty.PropertyType.GetGenericArguments()[0], StartProperty.PropertyType.GetGenericArguments()[0]));
                 #warning make sure that no wire already exists
 
                 EndObject = endObject;
-                EndField = endField;
+                EndProperty = endProperty;
                 EndPoint = GUIUtility.GUIToScreenPoint(endPoint);
             }
 
-            public void HoverEndOutput(IGraphObjectWithOutputs endObject, FieldInfo endField, Vector2 endPoint)
+            public void HoverEndOutput(IGraphObjectWithOutputs endObject, PropertyInfo endProperty, Vector2 endPoint)
             {
                 HasEnd = true;
                 Valid =
                     StartIsInput
                 && !object.ReferenceEquals(StartObject, endObject)
-                && (endField == null || StartField == null || object.Equals(endField.FieldType.GetGenericArguments()[0], StartField.FieldType.GetGenericArguments()[0]));
+                && (endProperty == null || StartProperty == null || object.Equals(endProperty.PropertyType.GetGenericArguments()[0], StartProperty.PropertyType.GetGenericArguments()[0]));
                 #warning make sure that no wire already exists
 
                 EndObject = endObject;
-                EndField = endField;
+                EndProperty = endProperty;
                 EndPoint = GUIUtility.GUIToScreenPoint(endPoint);
             }
 
@@ -1791,9 +1795,9 @@ namespace GGEZ.Labkit
                     wire = new EditorWire()
                     {
                         ReadObject = EndObject as IGraphObjectWithOutputs,
-                        ReadField = EndField == null ? null : EndField.Name,
+                        ReadField = EndProperty == null ? null : EndProperty.Name,
                         WriteObject = StartObject as IGraphObjectWithInputs,
-                        WriteField = StartField == null ? null : StartField.Name,
+                        WriteField = StartProperty == null ? null : StartProperty.Name,
                     };
                 }
                 else
@@ -1801,9 +1805,9 @@ namespace GGEZ.Labkit
                     wire = new EditorWire()
                     {
                         ReadObject = StartObject as IGraphObjectWithOutputs,
-                        ReadField = StartField == null ? null : StartField.Name,
+                        ReadField = StartProperty == null ? null : StartProperty.Name,
                         WriteObject = EndObject as IGraphObjectWithInputs,
-                        WriteField = EndField == null ? null : EndField.Name,
+                        WriteField = EndProperty == null ? null : EndProperty.Name,
                     };
                 }
                 return wire;

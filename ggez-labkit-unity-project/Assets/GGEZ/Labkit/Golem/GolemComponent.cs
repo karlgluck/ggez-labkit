@@ -236,13 +236,12 @@ namespace GGEZ.Labkit
                             //  * Variables
                             //-------------------------------------------------
                             {
-                                InspectableScriptType.Field[] fields = inspectableScriptType.Fields;
-                                for (int i = 0; i < fields.Length; ++i)
+                                InspectableScriptType.Member[] members = inspectableScriptType.Members;
+                                for (int i = 0; i < members.Length; ++i)
                                 {
-                                    InspectableScriptType.Field field = fields[i];
-                                    string fieldName = field.FieldInfo.Name;
+                                    InspectableScriptType.Member member = members[i];
 
-                                    switch (field.Type)
+                                    switch (member.Type)
                                     {
 
                                     //-------------------------------------------------
@@ -252,7 +251,7 @@ namespace GGEZ.Labkit
                                         {
                                             Type = AssignmentType.ScriptGolem,
                                             TargetIndex = scriptIndex,
-                                            TargetFieldName = fieldName,
+                                            TargetMemberName = member.FieldInfo.Name,
                                         });
                                         break;
 
@@ -263,7 +262,7 @@ namespace GGEZ.Labkit
                                         {
                                             Type = AssignmentType.ScriptAspect,
                                             TargetIndex = scriptIndex,
-                                            TargetFieldName = fieldName,
+                                            TargetMemberName = member.FieldInfo.Name,
                                         });
                                         break;
 
@@ -271,18 +270,18 @@ namespace GGEZ.Labkit
                                     case InspectableType.Variable:
                                     //-------------------------------------------------
                                         VariableRef variableRef;
-                                        if (editorScript.FieldsUsingVariables.TryGetValue(fieldName, out variableRef) && variableRef.IsValid)
+                                        if (editorScript.FieldsUsingVariables.TryGetValue(member.PropertyInfo.Name, out variableRef) && variableRef.IsValid)
                                         {
                                             var assignment = new Assignment()
                                             {
                                                 Name = variableRef.Name,
                                                 TargetIndex = scriptIndex,
-                                                TargetFieldName = fieldName,
+                                                TargetMemberName = member.PropertyInfo.Name,
                                             };
 
                                             if (variableRef.IsExternal)
                                             {
-                                                assignment.Type = field.CanBeNull
+                                                assignment.Type = member.CanBeNull
                                                         ? AssignmentType.ScriptVariableOrNull
                                                         : AssignmentType.ScriptVariableOrDummy;
                                                 externalAssignments.MultiAdd(variableRef.Relationship, assignment);
@@ -295,13 +294,13 @@ namespace GGEZ.Labkit
                                         }
                                         else
                                         {
-                                            if (!field.CanBeNull && !editorScript.HasOutputWire(field.FieldInfo.Name))
+                                            if (!member.CanBeNull && !editorScript.HasOutputWire(member.FieldInfo.Name))
                                             {
                                                 assignments.Add(new Assignment()
                                                 {
                                                     Type = AssignmentType.ScriptDummyVariable,
                                                     TargetIndex = scriptIndex,
-                                                    TargetFieldName = fieldName,
+                                                    TargetMemberName = member.PropertyInfo.Name,
                                                 });
                                             }
                                         }
@@ -311,16 +310,16 @@ namespace GGEZ.Labkit
                                     default:
                                     //-------------------------------------------------
                                         string setting;
-                                        if (editorScript.FieldsUsingSettings.TryGetValue(fieldName, out setting))
+                                        if (editorScript.FieldsUsingSettings.TryGetValue(member.FieldInfo.Name, out setting))
                                         {
-                                            Debug.Assert(InspectableTypeExt.CanUseSetting(field.Type));
+                                            Debug.Assert(InspectableTypeExt.CanUseSetting(member.Type));
 
                                             assignments.Add(new Assignment()
                                             {
                                                 Type = AssignmentType.ScriptSetting,
                                                 Name = setting,
                                                 TargetIndex = scriptIndex,
-                                                TargetFieldName = fieldName,
+                                                TargetMemberName = member.FieldInfo.Name,
                                             });
                                         }
                                         break;
@@ -630,7 +629,7 @@ namespace GGEZ.Labkit
                                 {
                                     Type = AssignmentType.CellGolem,
                                     TargetIndex = cellIndex,
-                                    TargetFieldName = fieldName,
+                                    TargetMemberName = fieldName,
                                 });
                                 break;
 
@@ -641,7 +640,7 @@ namespace GGEZ.Labkit
                                 {
                                     Type = AssignmentType.CellAspect,
                                     TargetIndex = cellIndex,
-                                    TargetFieldName = fieldName,
+                                    TargetMemberName = fieldName,
                                 });
                                 break;
 
@@ -655,7 +654,7 @@ namespace GGEZ.Labkit
                                     {
                                         Name = variableRef.Name,
                                         TargetIndex = cellIndex,
-                                        TargetFieldName = fieldName,
+                                        TargetMemberName = fieldName,
                                     };
 
                                     if (variableRef.IsExternal)
@@ -679,7 +678,7 @@ namespace GGEZ.Labkit
                                         {
                                             Type = AssignmentType.CellDummyVariable,
                                             TargetIndex = cellIndex,
-                                            TargetFieldName = fieldName,
+                                            TargetMemberName = fieldName,
                                         });
                                     }
                                 }
@@ -698,7 +697,7 @@ namespace GGEZ.Labkit
                                         Type = AssignmentType.CellSetting,
                                         Name = setting,
                                         TargetIndex = cellIndex,
-                                        TargetFieldName = fieldName,
+                                        TargetMemberName = fieldName,
                                     });
                                 }
                                 break;
@@ -735,7 +734,7 @@ namespace GGEZ.Labkit
                                         Type = AssignmentType.CellInputRegister,
                                         RegisterIndex = (int)registerPtr,
                                         TargetIndex = cellIndex,
-                                        TargetFieldName = wire.WriteField,
+                                        TargetMemberName = wire.WriteField,
                                     });
                                 }
                                 else if (wire.ReadVariableInputRegister != null)
@@ -749,7 +748,7 @@ namespace GGEZ.Labkit
                                                 : AssignmentType.CellInputVariableRegisterOrDummy,
                                         Name = variable.Name,
                                         TargetIndex = cellIndex,
-                                        TargetFieldName = wire.WriteField,
+                                        TargetMemberName = wire.WriteField,
                                     };
 
                                     if (variable.IsExternal)
@@ -782,7 +781,7 @@ namespace GGEZ.Labkit
                                                         : AssignmentType.CellInputVariableRegisterOrDummy,
                                                     Name = variableRef.Name,
                                                     TargetIndex = cellIndex,
-                                                    TargetFieldName = wire.WriteField,
+                                                    TargetMemberName = wire.WriteField,
                                                 });
                                             }
                                             else
@@ -794,7 +793,7 @@ namespace GGEZ.Labkit
                                                         : AssignmentType.CellInputVariableRegisterOrDummy,
                                                     Name = variableRef.Name,
                                                     TargetIndex = cellIndex,
-                                                    TargetFieldName = wire.WriteField,
+                                                    TargetMemberName = wire.WriteField,
                                                 });
                                             }
                                         }
@@ -823,7 +822,7 @@ namespace GGEZ.Labkit
                                                     Type = AssignmentType.ScriptRegisterVariable,
                                                     RegisterIndex = (int)registerIndex,
                                                     TargetIndex = (int)wire.ReadScript.CompiledIndex,
-                                                    TargetFieldName = wire.ReadField,
+                                                    TargetMemberName = wire.ReadField,
                                                 });
                                             }
 
@@ -832,7 +831,7 @@ namespace GGEZ.Labkit
                                                 Type = AssignmentType.CellInputRegister,
                                                 RegisterIndex = (int)registerIndex,
                                                 TargetIndex = cellIndex,
-                                                TargetFieldName = wire.WriteField,
+                                                TargetMemberName = wire.WriteField,
                                             });
                                         }
                                     }
@@ -848,7 +847,7 @@ namespace GGEZ.Labkit
                                 {
                                     Type = AssignmentType.CellDummyInputRegister,
                                     TargetIndex = cellIndex,
-                                    TargetFieldName = input.Name,
+                                    TargetMemberName = input.Name,
                                 });
                             }
                         }
@@ -889,7 +888,7 @@ namespace GGEZ.Labkit
                                     Type = AssignmentType.CellOutputRegister,
                                     RegisterIndex = (int)registerIndex,
                                     TargetIndex = cellIndex,
-                                    TargetFieldName = output.Name,
+                                    TargetMemberName = output.Name,
                                 });
 
                                 for (int j = 0; j < wires.Count; ++j)
@@ -905,7 +904,7 @@ namespace GGEZ.Labkit
                                 {
                                     Type = AssignmentType.CellDummyOutputRegister,
                                     TargetIndex = cellIndex,
-                                    TargetFieldName = output.Name,
+                                    TargetMemberName = output.Name,
                                 });
 
                             }
