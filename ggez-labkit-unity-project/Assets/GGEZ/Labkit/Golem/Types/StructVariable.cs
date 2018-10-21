@@ -29,7 +29,7 @@ namespace GGEZ.Labkit
 {
 
     [GGEZ.FullSerializer.fsIgnore]
-    public sealed class StructVariable<T> : SingleValueVariable<T> where T : struct, IEquatable<T>
+    public sealed class StructVariable<T> : UnaryVariable<T> where T : struct, IEquatable<T>
     {
         /// <summary>The backing register for this variable</summary>
         private StructRegister<T> _register;
@@ -52,15 +52,12 @@ namespace GGEZ.Labkit
         }
 
         /// <summary>Create a variable with a new backing register</summary>
-        public StructVariable()
-        {
-            _register = new StructRegister<T>();
-        }
+        public StructVariable() : this(null) {}
 
         /// <summary>Create a variable for the given backing register</summary>
         public StructVariable(StructRegister<T> register)
         {
-            _register = register;
+            _register = register ?? new StructRegister<T>();
         }
         
         /// <summary>The backing register for this variable</summary>

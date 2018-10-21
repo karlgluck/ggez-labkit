@@ -43,7 +43,7 @@ namespace GGEZ.Labkit
 
         private static CellPriorityQueue _changedCells = new CellPriorityQueue();
 
-        private List<CollectionRegister> _changedCollectionRegisters = new List<CollectionRegister>();
+        private List<ICollectionRegister> _changedCollectionRegisters = new List<ICollectionRegister>();
 
         private List<List<Transition>> _activeTransitions = new List<List<Transition>>();
 
@@ -240,7 +240,7 @@ namespace GGEZ.Labkit
             Instance._changedVariables.Add(variable);
         }
 
-        public static void QueueForCollectionRegisterPhase(CollectionRegister register)
+        public static void QueueForCollectionRegisterPhase(ICollectionRegister register)
         {
 
         #if UNITY_EDITOR

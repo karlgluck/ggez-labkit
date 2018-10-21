@@ -331,7 +331,7 @@ namespace GGEZ.Labkit
 
                 case InspectableType.Variable:
                     #warning this is weird because elsewhere a Variable is actually a reference to somewhere
-                    ISingleValueVariable singleValueVariable = value as ISingleValueVariable;
+                    IUntypedUnaryVariable singleValueVariable = value as IUntypedUnaryVariable;
                     if (singleValueVariable != null)
                     {
                         Type valueType = singleValueVariable.ValueType;

@@ -25,31 +25,37 @@
 
 using System;
 using System.Collections.Generic;
+using Variables = System.Collections.Generic.Dictionary<string, GGEZ.Labkit.Variable>;
+using VariablesSet = System.Collections.Generic.HashSet<System.Collections.Generic.Dictionary<string, GGEZ.Labkit.Variable>>;
+
 
 namespace GGEZ.Labkit
 {
     [GGEZ.FullSerializer.fsIgnore]
-    public sealed class HashSetVariable<T> : CollectionVariable<T>
+    public sealed class VariablesSetVariable : CollectionVariable<Variables>
     {
-        private HashSetRegister<T> _register;
+        /// <summary>The backing register for this variable</summary>
+        private VariablesSetRegister _register;
 
-        private HashSet<T> _added = new HashSet<T>();
-        private HashSet<T> _removed = new HashSet<T>();
+        // Values to send to the register
+        private VariablesSet _added = new VariablesSet(VariablesSetRegister.EqualityComparer);
+        private VariablesSet _removed = new VariablesSet(VariablesSetRegister.EqualityComparer);
 
-        protected override ICollection<T> VariableAddedCollection { get { return _added; } }
-        protected override ICollection<T> VariableRemovedCollection { get { return _removed; } }
+        public VariablesSet Values { get { return _register.Values; } }
+        public VariablesSet Added { get { return _register.Added; } }
+        public VariablesSet Removed { get { return _register.Removed; } }
+        
+        protected override ICollection<Variables> VariableAddedCollection { get { return _added; } }
+        protected override ICollection<Variables> VariableRemovedCollection { get { return _removed; } }
 
-        public HashSet<T> Values { get { return _register.Values; } }
-        public HashSet<T> Added { get { return _register.Added; } }
-        public HashSet<T> Removed { get { return _register.Removed; } }
+        public VariablesSetVariable() : this(null) { }
 
-        public HashSetVariable() : this(null) { }
-
-        public HashSetVariable(HashSetRegister<T> register)
+        public VariablesSetVariable(VariablesSetRegister register)
         {
-            _register = register ?? new HashSetRegister<T>();
+            _register = register ?? new VariablesSetRegister();
         }
 
+        /// <summary>The backing register for this variable</summary>
         public override Register GetRegister()
         {
             return _register;

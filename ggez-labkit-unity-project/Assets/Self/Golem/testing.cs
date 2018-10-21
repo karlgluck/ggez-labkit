@@ -76,7 +76,7 @@ public class JoystickAspect : Aspect
     public bool JoystickTouch;
     public bool RawActionButtonInput;
 
-    [Variable("ShowJoystick", "Whether the joystick is displayed on screen")]
+    [Tooltip("Whether the joystick is displayed on screen")]
     public StructVariable<bool> Show;
 
     // private StructVariable<bool> _show;
@@ -94,13 +94,13 @@ public class FishingRodAspect : GGEZ.Labkit.Aspect
 
 public class PositionAspect : GGEZ.Labkit.Aspect
 {
-    [Variable("X", "The location of this object in 3d space")]
+    [Tooltip("The location of this object in 3d space")]
     public StructVariable<float> X;
 
-    [Variable("Y", "The location of this object in 3d space")]
+    [Tooltip("The location of this object in 3d space")]
     public StructVariable<float> Y;
 
-    [Variable("Z", "The location of this object in 3d space")]
+    [Tooltip("The location of this object in 3d space")]
     public StructVariable<float> Z;
 }
 

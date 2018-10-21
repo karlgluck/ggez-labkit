@@ -28,7 +28,7 @@ using System;
 namespace GGEZ.Labkit
 {
     [GGEZ.FullSerializer.fsIgnore]
-    public sealed class ClassVariable<T> : SingleValueVariable<T> where T : class
+    public sealed class ClassVariable<T> : UnaryVariable<T> where T : class
     {
         /// <summary>The backing register for this variable</summary>
         private ClassRegister<T> _register;
@@ -51,15 +51,12 @@ namespace GGEZ.Labkit
         }
 
         /// <summary>Create a variable with a new backing register</summary>
-        public ClassVariable()
-        {
-            _register = new ClassRegister<T>();
-        }
+        public ClassVariable() : this(null) {}
 
         /// <summary>Create a variable for the given backing register</summary>
         public ClassVariable(ClassRegister<T> register)
         {
-            _register = register;
+            _register = register ?? new ClassRegister<T>();
         }
         
         /// <summary>The backing register for this variable</summary>

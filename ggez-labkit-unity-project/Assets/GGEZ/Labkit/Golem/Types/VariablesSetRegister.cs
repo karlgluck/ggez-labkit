@@ -26,56 +26,44 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using Variables = System.Collections.Generic.Dictionary<string, GGEZ.Labkit.Variable>;
+using VariablesSet = System.Collections.Generic.HashSet<System.Collections.Generic.Dictionary<string, GGEZ.Labkit.Variable>>;
 
 namespace GGEZ.Labkit
 {
     [GGEZ.FullSerializer.fsIgnore]
-    public sealed class HashSetRegister<T> : CollectionRegister<T>
+    public sealed class VariablesSetRegister : CollectionRegister<Variables>
     {
-        private HashSet<T> _values = new HashSet<T>();
-        private HashSet<T> _added = new HashSet<T>();
-        private HashSet<T> _removed = new HashSet<T>();
+        private VariablesSet _values = new VariablesSet(EqualityComparer);
+        private VariablesSet _added = new VariablesSet(EqualityComparer);
+        private VariablesSet _removed = new VariablesSet(EqualityComparer);
 
-        public HashSet<T> Values { get { return _values; } }
-        public HashSet<T> Added { get { return _added; } }
-        public HashSet<T> Removed { get { return _removed; } }
+        public VariablesSet Values { get { return _values; } }
+        public VariablesSet Added { get { return _added; } }
+        public VariablesSet Removed { get { return _removed; } }
 
-        protected override ICollection<T> ValuesCollection { get { return _values; } }
-        protected override ICollection<T> AddedCollection { get { return _added; } }
-        protected override ICollection<T> RemovedCollection { get { return _removed; } }
+        protected override ICollection<Variables> ValuesCollection { get { return _values; } }
+        protected override ICollection<Variables> AddedCollection { get { return _added; } }
+        protected override ICollection<Variables> RemovedCollection { get { return _removed; } }
 
         public override Variable CreateVariable()
         {
             #warning TODO make sure only up to 1 variable is ever created for each register
-            return new HashSetVariable<T>(this);
+            return new VariablesSetVariable(this);
         }
-
-        public override string ToString()
+        
+        public static readonly IEqualityComparer<Variables> EqualityComparer = new VariablesSetEqualityComparer();
+        private sealed class VariablesSetEqualityComparer : IEqualityComparer<Variables>
         {
-            string retval = "HashSet {";
-            string separator = "";
-            foreach (T value in _values)
+            public bool Equals(Variables a, Variables b)
             {
-                retval += separator + value.ToString();
-                separator = ", ";
+                return object.ReferenceEquals(a, b);
             }
-            retval += "} = <prev> + {";
-            separator = "";
-            foreach (T value in _added)
-            {
-                retval += separator + value.ToString();
-                separator = ", ";
-            }
-            retval += "} - {";
-            separator = "";
-            foreach (T value in _removed)
-            {
-                retval += separator + value.ToString();
-                separator = ", ";
-            }
-            retval += "}";
-            return retval;
-        }
 
+            public int GetHashCode(Variables obj)
+            {
+                return obj.GetHashCode();
+            }
+        }
     }
 }
