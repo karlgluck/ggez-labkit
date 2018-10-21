@@ -888,7 +888,7 @@ namespace GGEZ.Labkit
                     {
                         var field = fields[j];
 
-                        if (fields[j].IsOutput)
+                        if (fields[j].IsVariable)
                         {
                             int id = GUIUtility.GetControlID(FocusType.Passive);
                             GUI.SetNextControlName(id.ToString());

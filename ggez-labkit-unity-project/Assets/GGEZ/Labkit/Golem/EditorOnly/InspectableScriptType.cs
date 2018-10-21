@@ -51,16 +51,16 @@ namespace GGEZ.Labkit
             public readonly FieldInfo FieldInfo;
             public readonly bool WantSetting;
             public readonly bool CanBeNull;
-            public readonly bool IsOutput;
+            public readonly bool IsVariable;
 
-            public Field(InspectableType type, Type targetType, FieldInfo fieldInfo, bool wantsSetting, bool canBeNull, bool isOutput)
+            public Field(InspectableType type, Type targetType, FieldInfo fieldInfo, bool wantsSetting, bool canBeNull, bool isVariable)
             {
                 Type = type;
                 SpecificType = targetType;
                 FieldInfo = fieldInfo;
                 WantSetting = wantsSetting;
                 CanBeNull = canBeNull;
-                IsOutput = isOutput;
+                IsVariable = isVariable;
             }
         }
 
@@ -86,9 +86,6 @@ namespace GGEZ.Labkit
             int j = 0;
             for (int i = 0; i < fields.Length; ++i)
             {
-                #warning these really shouldn't be assertions since the coder can mess this up and it doesn't really matter
-                Debug.Assert(!fields[i].IsDefined(typeof(InAttribute), true));
-
                 InspectableType inspectableType = InspectableTypeExt.GetInspectableTypeOf(fields[i].FieldType);
                 if (inspectableType == InspectableType.Invalid)
                 {
@@ -96,11 +93,11 @@ namespace GGEZ.Labkit
                 }
 
                 bool canBeNull = fields[i].IsDefined(typeof(CanBeNullAttribute), true);
-                bool isOutput = fields[i].IsDefined(typeof(OutAttribute), true);
+                bool isVariable = typeof(IVariable).IsAssignableFrom(fields[i].FieldType);
 
                 bool wantsSetting = fields[i].IsDefined(typeof(SettingAttribute), true);
                 Type specificType = InspectableTypeExt.GetSpecificType(inspectableType, fields[i]);
-                returnedFields[j++] = new Field(inspectableType, specificType, fields[i], wantsSetting, canBeNull, isOutput);
+                returnedFields[j++] = new Field(inspectableType, specificType, fields[i], wantsSetting, canBeNull, isVariable);
             }
 
             retval = new InspectableScriptType(scriptType.Name, returnedFields);
