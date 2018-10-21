@@ -98,9 +98,6 @@ namespace GGEZ.Labkit
                 int j = 0;
                 for (int i = 0; i < fields.Length; ++i)
                 {
-                    Debug.Assert(!fields[i].FieldType.IsDefined(typeof(InAttribute), false));
-                    Debug.Assert(!fields[i].FieldType.IsDefined(typeof(OutAttribute), false));
-
                     var inspectableType = InspectableTypeExt.GetInspectableTypeOf(fields[i].FieldType);
                     if (inspectableType != InspectableType.Invalid)
                     {

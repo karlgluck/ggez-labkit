@@ -176,7 +176,7 @@ namespace GGEZ.Labkit
                 returnedOutputs[i] = new Output(label, outputs[i], canBeNull);
             }
 
-            var fields = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => !f.IsDefined(typeof(InAttribute), false) && !f.IsDefined(typeof(OutAttribute), false)).ToArray();
+            var fields = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Except(inputs).Except(outputs).ToArray();
             var returnedFields = new Field[fields.Length];
             {
                 int j = 0;

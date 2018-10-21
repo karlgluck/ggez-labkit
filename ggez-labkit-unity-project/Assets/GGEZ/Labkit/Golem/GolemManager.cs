@@ -241,6 +241,11 @@ namespace GGEZ.Labkit
             Instance._changedCollectionRegisters.Add(register);
         }
 
+        public static void UpdateCellNextFrame(Cell cell)
+        {
+            _changedCells.Add(cell);
+        }
+
         public static void AddChangedCellInputs(IList<Cell> cells)
         {
             for (int i = 0; i < cells.Count; ++i)

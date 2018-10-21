@@ -32,21 +32,10 @@ namespace GGEZ.Labkit
 {
 
     //-------------------------------------------------------------------------
-    // Attributes used when writing cells
-    //-------------------------------------------------------------------------
-
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
-    public class InAttribute : Attribute
-    { }
-
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
-    public class OutAttribute : Attribute
-    { }
-
-    //-------------------------------------------------------------------------
     // Register pointers for inputs and outputs
     //-------------------------------------------------------------------------
-    [fsSerializeEnumAsInteger] public enum RegisterPtr : int { Invalid = int.MaxValue }
+    [fsSerializeEnumAsInteger]
+    public enum RegisterPtr : int { Invalid = int.MaxValue }
 
     /// <summary>
     /// Provides access to a variable in a Cell or Script.

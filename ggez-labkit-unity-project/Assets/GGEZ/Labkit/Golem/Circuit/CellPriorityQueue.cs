@@ -37,6 +37,7 @@ namespace GGEZ.Labkit
 public class CellPriorityQueue
 {
     private List<Cell> _cells = new List<Cell>();
+    private List<Cell> _cellsNextFrame = new List<Cell>();
 
     private int _lastReturnedCellSequencer = int.MinValue;
 
@@ -59,6 +60,11 @@ public class CellPriorityQueue
         {
             // All cells have been processed, so reset the sequencer for next frame
             _lastReturnedCellSequencer = int.MinValue;
+
+            // Swap in the list of cells that need to be updated next frame
+            List<Cell> swap = _cells;
+            _cells = _cellsNextFrame;
+            _cellsNextFrame = swap;
 
             // Return nothing
             next = null;
@@ -114,27 +120,39 @@ public class CellPriorityQueue
     /// </summary>
     public void Add(Cell cell)
     {
+        List<Cell> cells;
+        
+        // Check if a cell is trying to dirty itself so it gets processed next frame
+        if (cell.Sequencer == _lastReturnedCellSequencer)
+        {
+            cells = _cellsNextFrame;
+        }
+        else
+        {
+            // Add to the current frame
+            cells = _cells;
 
-        // Due to the variable update phase and that every cell created has a higher
-        // sequence value than all those that came before it, it is normally never
-        // possible that a cell with a higher priority than the last returned value
-        // is added. However, in debug mode, this is verified.
-        Debug.Assert(cell.Sequencer > _lastReturnedCellSequencer);
+            // Due to the variable update phase and that every cell created has a higher
+            // sequence value than all those that came before it, it is normally never
+            // possible that a cell with a higher priority than the last returned value
+            // is added. However, in debug mode, this is verified.
+            Debug.Assert(cell.Sequencer > _lastReturnedCellSequencer);
+        }
 
         // Add the new cell in the slot with lowest priority
-        _cells.Add(cell);
+        cells.Add(cell);
 
         // Bubble the child up the binary heap
-        int childIndex = _cells.Count - 1;
+        int childIndex = cells.Count - 1;
         while (childIndex > 0)
         {
             int parentIndex = (childIndex - 1) / 2;
-            if (_cells[childIndex].Sequencer >= _cells[parentIndex].Sequencer)
+            if (cells[childIndex].Sequencer >= cells[parentIndex].Sequencer)
                 break;
 
-            Cell swap = _cells[childIndex];
-            _cells[childIndex] = _cells[parentIndex];
-            _cells[parentIndex] = swap;
+            Cell swap = cells[childIndex];
+            cells[childIndex] = cells[parentIndex];
+            cells[parentIndex] = swap;
 
             childIndex = parentIndex;
         }

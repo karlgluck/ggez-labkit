@@ -16,10 +16,8 @@ namespace GGEZ.Labkit
 {
     public class AddFloat : Cell
     {
-        [In]
         public StructRegister<float> Input;
 
-        [Out]
         public StructRegister<float> Output;
 
         public float Amount;
@@ -30,9 +28,26 @@ namespace GGEZ.Labkit
         }
     }
 
+    public class Damp : Cell
+    {
+        public StructRegister<float> Input;
+
+        public StructRegister<float> Output;
+
+        public float Smoothing;
+
+        public override void Update()
+        {
+            Output.Value = Util.Damp(Output.Value, Input.Value, Smoothing, Time.smoothDeltaTime);
+            if (!Mathf.Approximately(Output.Value, Input.Value))
+            {
+                GolemManager.UpdateCellNextFrame(this);
+            }
+        }
+    }
+
     public class DebugLogFloat : Cell
     {
-        [In]
         public StructRegister<float> Input;
 
         public override void Update()
@@ -308,7 +323,6 @@ public class SetObjectNameToTime : Script
 
 public class SetVariableToTime : Script
 {
-    [Out]
     public StructVariable<float> Variable;
 
     public float Multiplier;
