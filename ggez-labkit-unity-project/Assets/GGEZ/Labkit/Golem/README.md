@@ -90,6 +90,9 @@ This is not strictly necessary for outputs. However, keeping inputs and outputs 
 
 There are several ways this could be done and the choice is largely a matter of style. This was chosen because it reinforces the nature of the register each time it is used, which should help avoid bugs and it minimizes extra typing in an editor with autocomplete.
 
+## Circuits can write variables without violating order-independence
+
+The fact that this is possible has tripped me up a few times and I keep thinking I have to do something special to fix it, so I thought I'd just write down the conclusion. Circuits writing variables is fine because of the variable phase. Even though circuits queue cells for processing, writing a variable does not immediately cause the cells that read the variable to be processed; hence, a cell is able to write a variable during iteration of the dirty-cell priority queue without causing issues like having a cell be evaluated multiple times in one frame.
 
 
 # Future Plans
@@ -104,7 +107,7 @@ It's got a built-in node editor. That's why I didn't spend too long getting all 
 
 ## Network Variable Replication
 
-One of the cool things about variables only changing on frame boundaries and having control of that from within Golem itself is that this naturally makes replication easy. Explore this!
+One of the cool things about update order independence, variables only changing on frame boundaries and knowing all external variables from within Golem itself is that it is a natural fit for automatic replication. Mix that with messages basically being RPCs and away we go!
 
 # Ideas
 

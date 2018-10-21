@@ -36,7 +36,21 @@ namespace GGEZ.Labkit
     {
         private List<Golem> _livingGolems = new List<Golem>();
 
-        private static GolemManager s_instance;
+        #warning TODO do we need to weak reference the golem pool?
+        private Dictionary<int, List<Golem>> _golemPool = new Dictionary<int, List<Golem>>();
+
+        private List<IVariable> _changedVariables = new List<IVariable>();
+
+        private static CellPriorityQueue _changedCells = new CellPriorityQueue();
+
+        private List<ICollectionRegister> _changedCollectionRegisters = new List<ICollectionRegister>();
+
+        private static Stack<bool> _stackForProcessingTransitions = new Stack<bool>();
+
+        private List<List<Transition>> _activeTransitions = new List<List<Transition>>();
+
+        private List<List<Transition>> _activeTransitionsCache = new List<List<Transition>>();
+
         private static GolemManager Instance
         {
             get
@@ -51,17 +65,7 @@ namespace GGEZ.Labkit
                 return s_instance;
             }
         }
-
-        void Update()
-        {
-            OnCircuitPhase();
-            OnProgramPhase();
-            OnChangedCollectionRollover();
-            OnVariableRollover();
-        }
-
-        #warning TODO do we need to weak reference the golem pool?
-        private Dictionary<int, List<Golem>> _golemPool = new Dictionary<int, List<Golem>>();
+        private static GolemManager s_instance;
 
         public static Golem AcquireGolem(Golem prefab)
         {
@@ -92,7 +96,7 @@ namespace GGEZ.Labkit
         public static void ReleaseGolem(Golem golem)
         {
             var archetype = golem.Archetype;
-            DoAssignments(golem, archetype.Assignments, null, null, null);
+            Assignment.Assign(golem, archetype.Assignments, null, null, null);
             for (int i = 0; i < archetype.Components.Length; ++i)
             {
                 var from = archetype.Components[i];
@@ -100,7 +104,7 @@ namespace GGEZ.Labkit
 
                 foreach (var kvp in from.ExternalAssignments)
                 {
-                    DoAssignments(golem, kvp.Value, null, to, null);
+                    Assignment.Assign(golem, kvp.Value, null, to, null);
                 }
             }
 
@@ -135,7 +139,7 @@ namespace GGEZ.Labkit
             }
 
             // Assign UnityObjects and settings to aspects
-            DoAssignments(golem, archetype.Assignments, golem.Variables, null, null);
+            Assignment.Assign(golem, archetype.Assignments, golem.Variables, null, null);
 
             // Create data for all the components
             golem.Components = new GolemComponentRuntimeData[archetype.Components.Length];
@@ -175,12 +179,12 @@ namespace GGEZ.Labkit
             #endif
 
                 // Assign UnityObjects, variables, registers, settings
-                DoAssignments(golem, from.Assignments, golem.Variables, to, registers);
+                Assignment.Assign(golem, from.Assignments, golem.Variables, to, registers);
 
                 // Reset external references
                 foreach (var kvp in from.ExternalAssignments)
                 {
-                    DoAssignments(golem, kvp.Value, null, to, null);
+                    Assignment.Assign(golem, kvp.Value, null, to, null);
                 }
 
                 // Initialize the cells
@@ -206,7 +210,7 @@ namespace GGEZ.Labkit
 
             if (archetype.ExternalAssignments.TryGetValue(relationship, out assignments))
             {
-                DoAssignments(golem, assignments, variables, null, null);
+                Assignment.Assign(golem, assignments, variables, null, null);
             }
 
             for (int i = 0; i < archetype.Components.Length; ++i)
@@ -214,388 +218,45 @@ namespace GGEZ.Labkit
                 var component = archetype.Components[i];
                 if (component.ExternalAssignments.TryGetValue(relationship, out assignments))
                 {
-                    DoAssignments(golem, assignments, variables, golem.Components[i], null);
+                    Assignment.Assign(golem, assignments, variables, golem.Components[i], null);
                 }
             }
         }
 
-        private static readonly Dictionary<string, IVariable> s_emptyVariables = new Dictionary<string, IVariable>();
-
-        private static void DoAssignments(Golem golem, Assignment[] assignments, Dictionary<string, IVariable> variables, GolemComponentRuntimeData component, IRegister[] registers)
-        {
-            variables = variables ?? s_emptyVariables;
-
-            IVariable[] registerVariables = null;
-            for (int assignmentIndex = 0; assignmentIndex < assignments.Length; ++assignmentIndex)
-            {
-                Assignment assignment = assignments[assignmentIndex];
-
-                object target;
-                FieldInfo fieldInfo;
-
-                #warning If we assign and unassign a register, cell listeners still remain! We need to remove these!
-
-                switch (assignment.Type)
-                {
-                    case AssignmentType.AspectGolem:  assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem); break;
-                    case AssignmentType.CellGolem:    assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem); break;
-                    case AssignmentType.ScriptGolem:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem); break;
-
-                    case AssignmentType.AspectSetting:  assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem.Settings.Get(assignment.Name, fieldInfo.FieldType)); break;
-                    case AssignmentType.CellSetting:    assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.Settings.Get(assignment.Name, fieldInfo.FieldType)); break;
-                    case AssignmentType.ScriptSetting:  assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem.Settings.Get(assignment.Name, fieldInfo.FieldType)); break;
-
-                    case AssignmentType.AspectAspect:   assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
-                    case AssignmentType.CellAspect:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
-                    case AssignmentType.ScriptAspect:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
-#warning variables being defined by aspects is out of date; aspects should just give a nice view and the variables provide defaults
-                    case AssignmentType.AspectVariable: assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
-                    case AssignmentType.CellVariable:   assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
-                    case AssignmentType.ScriptVariable: assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
-
-                    case AssignmentType.AspectVariableOrNull:   assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, GetVariableOrNull(variables, assignment.Name)); break;
-                    case AssignmentType.CellVariableOrNull:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetVariableOrNull(variables, assignment.Name)); break;
-                    case AssignmentType.ScriptVariableOrNull:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetVariableOrNull(variables, assignment.Name)); break;
-
-                    case AssignmentType.AspectVariableOrDummy:   assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, GetVariableOrDummy(variables, assignment.Name, fieldInfo.FieldType)); break;
-                    case AssignmentType.CellVariableOrDummy:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetVariableOrDummy(variables, assignment.Name, fieldInfo.FieldType)); break;
-                    case AssignmentType.ScriptVariableOrDummy:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetVariableOrDummy(variables, assignment.Name, fieldInfo.FieldType)); break;
-
-                    case AssignmentType.CellRegisterVariable:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetOrCreateRegisterVariable(assignment.RegisterIndex, registers, ref registerVariables)); break;
-                    case AssignmentType.ScriptRegisterVariable:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetOrCreateRegisterVariable(assignment.RegisterIndex, registers, ref registerVariables)); break;
-
-                    case AssignmentType.CellInputVariableRegisterOrNull:
-                        {
-                            Cell targetCell = component.Cells[assignment.TargetIndex];
-                            fieldInfo = assignment.GetFieldInfo(targetCell);
-                            {
-                                IRegister oldRegister = fieldInfo.GetValue(targetCell) as IRegister;
-                                if (oldRegister != null)
-                                {
-                                    oldRegister.RemoveListener(targetCell);
-                                }
-                            }
-                            {
-                                IRegister register = GetVariableRegisterOrNull(variables, assignment.Name);
-                                if (register != null)
-                                {
-                                    register.AddListener(targetCell);
-                                }
-                                fieldInfo.SetValue(targetCell, register);
-                            }
-                        }
-                        break;
-
-                    case AssignmentType.CellInputVariableRegisterOrDummy:
-                        {
-                            Cell targetCell = component.Cells[assignment.TargetIndex];
-                            fieldInfo = assignment.GetFieldInfo(targetCell);
-                            {
-                                IRegister oldRegister = fieldInfo.GetValue(targetCell) as IRegister;
-                                if (oldRegister != null)
-                                {
-                                    oldRegister.RemoveListener(targetCell);
-                                }
-                            }
-                            {
-                                IRegister register = GetVariableRegisterOrNull(variables, assignment.Name);
-                                if (register == null)
-                                {
-                                    register = GetReadonlyRegister(fieldInfo.FieldType);
-                                }
-                                else
-                                {
-                                    register.AddListener(targetCell);
-                                }
-                                fieldInfo.SetValue(targetCell, register);
-                            }
-                        }
-                        break;
-
-                    case AssignmentType.CellInputRegister:
-                        {
-                            #warning we only need to update straight cell input registers when the golem is brand new
-
-                            Cell targetCell = component.Cells[assignment.TargetIndex];
-                            fieldInfo = assignment.GetFieldInfo(targetCell);
-                            {
-                                IRegister oldRegister = fieldInfo.GetValue(targetCell) as IRegister;
-                                if (oldRegister != null)
-                                {
-                                    oldRegister.RemoveListener(targetCell);
-                                }
-                            }
-                            {
-                                IRegister register = registers[assignment.RegisterIndex];
-                                register.AddListener(targetCell);
-                                fieldInfo.SetValue(targetCell, register);
-                            }
-                        }
-                        break;
-
-                    case AssignmentType.CellOutputRegister:         assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, registers[assignment.RegisterIndex]); break;
-                    case AssignmentType.CellDummyInputRegister:     assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetReadonlyRegister(fieldInfo.FieldType)); break;
-                    case AssignmentType.CellDummyOutputRegister:    assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetWriteonlyRegister(fieldInfo.FieldType)); break;
-                    case AssignmentType.CellDummyVariable:          assignment.GetObjectFieldInfo(component.Cells, out target, out fieldInfo).SetValue(target, GetWriteonlyRegister(fieldInfo.FieldType)); break;
-                    case AssignmentType.ScriptDummyVariable:        assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetDummyVariable(fieldInfo.FieldType)); break;
-                    case AssignmentType.AspectDummyVariable:        assignment.GetObjectFieldInfo(golem.Aspects, out target, out fieldInfo).SetValue(target, GetDummyVariable(fieldInfo.FieldType)); break;
-                }
-            }
-        }
-
-        private static IVariable GetVariableOrNull(Dictionary<string, IVariable> variables, string name)
-        {
-            IVariable variable;
-            variables.TryGetValue(name, out variable);
-            return variable;
-        }
-
-        private static IVariable GetOrCreateVariable(Dictionary<string, IVariable> variables, string name, Type type)
-        {
-            Debug.Assert(typeof(IVariable).IsAssignableFrom(type));
-            IVariable variable;
-            if (!variables.TryGetValue(name, out variable))
-            {
-                variable = Activator.CreateInstance(type) as IVariable;
-                variables.Add(name, variable);
-            }
-            Debug.Assert(variable != null);
-            return variable;
-        }
-
-        private static IVariable GetOrCreateRegisterVariable(int index, IRegister[] registers, ref IVariable[] registerVariables)
-        {
-            Debug.Assert(registers != null);
-            if (registerVariables == null)
-            {
-                registerVariables = new IVariable[registers.Length];
-            }
-            IVariable variable = registerVariables[index];
-            if (registerVariables[index] == null)
-            {
-                variable = registers[index].CreateVariable();
-                registerVariables[index] = variable;
-            }
-            return variable;
-        }
-
-        private static IVariable GetVariableOrDummy(Dictionary<string, IVariable> variables, string name, Type type)
-        {
-            Debug.Assert(typeof(IVariable).IsAssignableFrom(type));
-            IVariable variable;
-            if (!variables.TryGetValue(name, out variable))
-            {
-                variable = Activator.CreateInstance(type) as IVariable;
-            }
-            Debug.Assert(variable != null);
-            return variable;
-        }
-
-        private static IRegister GetVariableRegisterOrNull(Dictionary<string, IVariable> variables, string name)
-        {
-            IVariable variable;
-
-            if (variables.TryGetValue(name, out variable))
-            {
-                return variable.GetRegister();
-            }
-
-            return null;
-        }
-
-        private class Defaults
-        {
-            public IRegister InputRegister, OutputRegister;
-            public IVariable InputVariable, OutputVariable;
-        }
-
-        private static Defaults GetDefaultsForType(Type fieldType)
-        {
-            Defaults value;
-
-            if (!_defaults.TryGetValue(fieldType, out value))
-            {
-                value = new Defaults();
-
-                if (typeof(IVariable).IsAssignableFrom(fieldType))
-                {
-                    value.InputVariable = Activator.CreateInstance(fieldType) as IVariable;
-                    value.InputRegister = value.InputVariable.GetRegister();
-                    value.OutputRegister = value.InputRegister.Clone();
-                    value.OutputVariable = value.OutputRegister.CreateVariable();
-                }
-                else
-                {
-                    value.InputRegister = Activator.CreateInstance(fieldType) as IRegister;
-                    value.OutputRegister = value.InputRegister.Clone();
-                    value.InputVariable = value.InputRegister.CreateVariable();
-                    value.OutputVariable = value.OutputRegister.CreateVariable();
-                }
-
-                _defaults.Add(value.InputRegister.GetType(), value);
-                _defaults.Add(value.InputVariable.GetType(), value);
-            }
-
-            return value;
-        }
-
-        private static Dictionary<Type, Defaults> _defaults = new Dictionary<Type, Defaults>();
-
-        /// <summary></summary>
-        private static IRegister GetReadonlyRegister(Type fieldType)
-        {
-            Debug.Assert(typeof(IRegister).IsAssignableFrom(fieldType));
-            return GetDefaultsForType(fieldType).InputRegister;
-        }
-
-        /// <summary></summary>
-        private static IRegister GetWriteonlyRegister(Type fieldType)
-        {
-            Debug.Assert(typeof(IRegister).IsAssignableFrom(fieldType));
-            return GetDefaultsForType(fieldType).OutputRegister;
-        }
-
-        /// <summary></summary>
-        private static IVariable GetReadonlyVariable(Type fieldType)
-        {
-            Debug.Assert(typeof(IVariable).IsAssignableFrom(fieldType));
-            return GetDefaultsForType(fieldType).InputVariable;
-        }
-
-        /// <summary></summary>
-        private static IVariable GetWriteonlyVariable(Type fieldType)
-        {
-            Debug.Assert(typeof(IVariable).IsAssignableFrom(fieldType));
-            return GetDefaultsForType(fieldType).OutputVariable;
-        }
-
-        private static IVariable GetDummyVariable(Type fieldType)
-        {
-            Debug.Assert(typeof(IVariable).IsAssignableFrom(fieldType));
-            IVariable instance = Activator.CreateInstance(fieldType) as IVariable;
-            Debug.Assert(instance != null);
-            Debug.Assert(instance.GetRegister() != null);
-            return instance;
-        }
-
-        private List<IVariable> _changedVariables = new List<IVariable>();
         public static void AddChangedVariable(IVariable variable)
         {
             Instance._changedVariables.Add(variable);
         }
 
-        private List<ICollectionRegister> _changedCollectionRegisters = new List<ICollectionRegister>();
         public static void AddChangedCollectionRegister(ICollectionRegister register)
         {
             Instance._changedCollectionRegisters.Add(register);
         }
 
-        public void OnChangedCollectionRollover()
-        {
-            for (int i = 0; i < _changedCollectionRegisters.Count; ++i)
-            {
-                _changedCollectionRegisters[i].OnCollectionRegisterUpdate();
-            }
-            _changedCollectionRegisters.Clear();
-        }
-
-        private List<Cell> _changedCells = new List<Cell>();
-
-        private int _currentCircuitPhaseCellSequencer = 0;
-        private List<Cell> _changedCellsBeforeSequencer = new List<Cell>();
-
         public static void AddChangedCellInputs(IList<Cell> cells)
         {
             for (int i = 0; i < cells.Count; ++i)
             {
-                Cell cell = cells[i];
-                int sequenceDifference = cell.Sequencer - Instance._currentCircuitPhaseCellSequencer;
-                if (sequenceDifference > 0)
-                {
-                    Instance._changedCells.Add(cell);
-                }
-                else if (sequenceDifference < 0)
-                {
-                    #warning Can this still happen if we only update once per frame and don't allow cells to write variables?
-                    Debug.Assert(false, "I'm like 99.6% sure this shouldn't be able to happen");
-                    Instance._changedCellsBeforeSequencer.Add(cell);
-                }
+                _changedCells.Add(cells[i]);
             }
         }
 
-        public void OnVariableRollover()
+        private void Update()
         {
-            // go through all changed variables and push their changes so that cells are queued
-            for (int i = 0; i < _changedVariables.Count; ++i)
-            {
-                _changedVariables[i].OnEndProgramPhase();
-            }
-            _changedVariables.Clear();
+            CircuitPhase();
+            ProgramPhase();
+            CollectionRegisterPhase();
+            VariableRolloverPhase();
         }
 
-        public void OnCircuitPhase()
+        private void CircuitPhase()
         {
-            Debug.LogErrorFormat("OnCircuitPhase is REALLY REALLY TERRIBLY BAD, it sorts the list of cells every cell! Make this into a priority queue!");
-
-            Debug.Assert(_changedCellsBeforeSequencer.Count == 0);
-
-            int lastSequencer = -1; // used to deduplicate the list
-            int sentinel = 999999;
-            while (_changedCells.Count > 0 && --sentinel > 0)
-            {
-                _changedCells.Sort((Cell lhs, Cell rhs) => lhs.Sequencer - rhs.Sequencer);
-                Debug.Assert(_changedCells[0].Sequencer >= lastSequencer);
-
-                _currentCircuitPhaseCellSequencer = _changedCells[0].Sequencer;
-                if (_changedCells[0].Sequencer > lastSequencer)
-                {
-                    _changedCells[0].Update();
-                }
-
-                // Don't go backward in sequence--cells dirtied with a lower sequence
-                // are handled next-frame, since we already processed the cells' circuit
-                // and there is important change data in collection registers.
-                Debug.Assert(_changedCells[0].Sequencer >= _currentCircuitPhaseCellSequencer);
-
-                lastSequencer = _currentCircuitPhaseCellSequencer;
-                _changedCells.RemoveAt(0);
-            }
-
-            var swap = _changedCells;
-            _changedCells = _changedCellsBeforeSequencer;
-            _changedCellsBeforeSequencer = swap;
-            _currentCircuitPhaseCellSequencer = -1;
-
-            Debug.Assert(sentinel > 0);
+            Cell changedCell;
+            while (_changedCells.PopNext(out changedCell))
+                changedCell.Update();
         }
 
-        private static Stack<bool> _stackForProcessingTransitions = new Stack<bool>();
-        private static bool EvaluateTransitionExpression(Transition transition, bool[] triggers)
-        {
-            int triggerPtr = 0;
-            Stack<bool> evaluation = _stackForProcessingTransitions;
-            evaluation.Clear();
-            var expression = transition.Expression;
-            for (int k = 0; k < expression.Length; ++k)
-            {
-                switch (expression[k])
-                {
-                    case Transition.Operator.And: evaluation.Push(evaluation.Pop() & evaluation.Pop()); break;
-                    case Transition.Operator.Or: evaluation.Push(evaluation.Pop() | evaluation.Pop()); break;
-                    case Transition.Operator.Push: evaluation.Push(triggers[(int)transition.Triggers[triggerPtr++]]); break;
-                    case Transition.Operator.True: evaluation.Push(true); break;
-                    case Transition.Operator.False: evaluation.Push(false); break;
-                }
-            }
-            Debug.Assert(evaluation.Count == 1);
-            bool shouldTransition = evaluation.Pop();
-            return shouldTransition;
-        }
-
-        private List<List<Transition>> _activeTransitions = new List<List<Transition>>();
-        private List<List<Transition>> _activeTransitionsCache = new List<List<Transition>>();
-
-        private void OnProgramPhase()
+        private void ProgramPhase()
         {
             const int kMaxTransitionsPerFrame = 10;
 
@@ -610,33 +271,29 @@ namespace GGEZ.Labkit
                 // Transitions
                 //-----------------------------------
 
-                #warning TODO: each golem should be able to set a "wants transition" flag
+                #warning TODO: each golem should only be checked for transitions if a trigger has been set
 
                 // TODO: each golem should be able to set a "wants transition" flag
                 //       that can shortcut this check if no triggers are set
-                //       (and the last frame didn't use up all transitions)
+                //       (and the last frame didn't hit kMaxTransitionsPerFrame)
                 // even better: golems only exist in the list at all if they
                 //              need to process transitions
 
                 while (_activeTransitionsCache.Count < archetype.Components.Length)
-                {
                     _activeTransitionsCache.Add(new List<Transition>());
-                }
                 _activeTransitions.Clear();
                 _activeTransitions.AddRange(_activeTransitionsCache);
 
                 for (int sentinel = 0; sentinel < kMaxTransitionsPerFrame; ++sentinel)
                 {
-                    // Determine if any states want to transition
                     for (int componentIndex = 0; componentIndex < archetype.Components.Length; ++componentIndex)
                     {
                         var activeTransitions = _activeTransitions[componentIndex];
 
                         bool componentIsFinishedTransitioning = activeTransitions == null;
                         if (componentIsFinishedTransitioning)
-                        {
                             continue;
-                        }
+
                         activeTransitions.Clear();
 
                         var archetypeComponent = archetype.Components[componentIndex];
@@ -662,9 +319,9 @@ namespace GGEZ.Labkit
                             Transition[] transitions;
                             if (layer.Transitions.TryGetValue(instanceComponent.LayerStates[layerIndex], out transitions))
                             {
-                                for (int i = 0; i < transitions.Length; ++i)
+                                for (int transitionIndex = 0; transitionIndex < transitions.Length; ++transitionIndex)
                                 {
-                                    Transition transition = transitions[i];
+                                    Transition transition = transitions[transitionIndex];
                                     if (EvaluateTransitionExpression(transition, triggers))
                                     {
                                         activeTransitions.Add(transition);
@@ -724,17 +381,16 @@ namespace GGEZ.Labkit
                         var archetypeComponent = archetype.Components[componentIndex];
                         var instanceComponent = golem.Components[componentIndex];
 
-                        for (int i = 0; i < activeTransitions.Count; ++i)
+                        for (int activeTransitionIndex = 0; activeTransitionIndex < activeTransitions.Count; ++activeTransitionIndex)
                         {
-                            var toState = (int)activeTransitions[i].ToState;
+                            int toState = (int)activeTransitions[activeTransitionIndex].ToState;
                             if (toState < 0 || toState >= archetypeComponent.States.Length)
-                            {
                                 continue;
-                            }
-                            var scriptsToTransitionTo = archetypeComponent.States[toState].Scripts;
-                            for (int j = 0; j < scriptsToTransitionTo.Length; ++j)
+
+                            var indicesOfScriptsToEnter = archetypeComponent.States[toState].Scripts;
+                            for (int j = 0; j < indicesOfScriptsToEnter.Length; ++j)
                             {
-                                int script = scriptsToTransitionTo[j];
+                                int script = indicesOfScriptsToEnter[j];
                                 instanceComponent.Scripts[script].OnEnter();
                             }
                         }
@@ -751,30 +407,67 @@ namespace GGEZ.Labkit
                 //-----------------------------------
                 // States
                 //-----------------------------------
-
                 for (int componentIndex = 0; componentIndex < archetype.Components.Length; ++componentIndex)
                 {
-                    var activeTransitions = _activeTransitions[componentIndex];
                     var archetypeComponent = archetype.Components[componentIndex];
                     var instanceComponent = golem.Components[componentIndex];
-                    for (int i = 0; i < archetypeComponent.Layers.Length; ++i)
+                    for (int layerIndex = 0; layerIndex < archetypeComponent.Layers.Length; ++layerIndex)
                     {
-                        int state = (int)instanceComponent.LayerStates[i];
-                        if (state < 0 || state >= archetypeComponent.States.Length)
-                        {
+                        int stateIndex = (int)instanceComponent.LayerStates[layerIndex];
+                        if (stateIndex < 0 || stateIndex >= archetypeComponent.States.Length)
                             continue;
-                        }
-                        var scriptsToUpdate = archetypeComponent.States[state].Scripts;
-                        for (int j = 0; j < scriptsToUpdate.Length; ++j)
+                            
+                        var indicesOfScriptsInState = archetypeComponent.States[stateIndex].Scripts;
+                        for (int i = 0; i < indicesOfScriptsInState.Length; ++i)
                         {
-                            int script = scriptsToUpdate[j];
-                            instanceComponent.Scripts[script].OnUpdate();
+                            int scriptIndex = indicesOfScriptsInState[i];
+                            instanceComponent.Scripts[scriptIndex].OnUpdate();
                         }
                     }
                 }
             }
         }
 
+
+        private void CollectionRegisterPhase()
+        {
+            for (int i = 0; i < _changedCollectionRegisters.Count; ++i)
+            {
+                _changedCollectionRegisters[i].OnCollectionRegisterUpdate();
+            }
+            _changedCollectionRegisters.Clear();
+        }
+
+        private void VariableRolloverPhase()
+        {
+            for (int i = 0; i < _changedVariables.Count; ++i)
+            {
+                _changedVariables[i].OnEndProgramPhase();
+            }
+            _changedVariables.Clear();
+        }
+
+        private static bool EvaluateTransitionExpression(Transition transition, bool[] triggers)
+        {
+            int triggerPtr = 0;
+            Stack<bool> evaluation = _stackForProcessingTransitions;
+            evaluation.Clear();
+            var expression = transition.Expression;
+            for (int k = 0; k < expression.Length; ++k)
+            {
+                switch (expression[k])
+                {
+                    case Transition.Operator.And: evaluation.Push(evaluation.Pop() & evaluation.Pop()); break;
+                    case Transition.Operator.Or: evaluation.Push(evaluation.Pop() | evaluation.Pop()); break;
+                    case Transition.Operator.Push: evaluation.Push(triggers[(int)transition.Triggers[triggerPtr++]]); break;
+                    case Transition.Operator.True: evaluation.Push(true); break;
+                    case Transition.Operator.False: evaluation.Push(false); break;
+                }
+            }
+            Debug.Assert(evaluation.Count == 1);
+            bool shouldTransition = evaluation.Pop();
+            return shouldTransition;
+        }
 
     }
 }

@@ -113,6 +113,49 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &229699042
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 229699044}
+  - component: {fileID: 229699043}
+  m_Layer: 0
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &229699043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 229699042}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34afa38a8fd60ea48a185c09a7d1303a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Archetype: {fileID: 1060531398}
+  SettingsObjectReferences: []
+  SettingsJson: '[]'
+--- !u!4 &229699044
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 229699042}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.019040585, y: 0, z: -0.018981934}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &322191693
 GameObject:
   m_ObjectHideFlags: 0
@@ -374,14 +417,14 @@ MonoBehaviour:
     \   },\r\n    \"EditorTransitions\": {\r\n        \"$content\": [\r\n            {\r\n
     \               \"Name\": \"Transition\",\r\n                \"Index\": 0,\r\n
     \               \"Expression\": {\r\n                    \"Type\": \"True\",\r\n
-    \                   \"Position\": {\r\n                        \"xMin\": 432.0,\r\n
-    \                       \"yMin\": 168.0,\r\n                        \"xMax\":
-    497.0,\r\n                        \"yMax\": 184.0\r\n                    },\r\n
+    \                   \"Position\": {\r\n                        \"xMin\": 400.0,\r\n
+    \                       \"yMin\": 200.0,\r\n                        \"xMax\":
+    465.0,\r\n                        \"yMax\": 216.0\r\n                    },\r\n
     \                   \"Trigger\": \"Next\",\r\n                    \"Subexpressions\":
     []\r\n                },\r\n                \"ExpressionAnchor\": {\r\n                    \"x\":
-    432.0,\r\n                    \"y\": 176.0\r\n                },\r\n                \"Position\":
-    {\r\n                    \"xMin\": 432.0,\r\n                    \"yMin\": 168.0,\r\n
-    \                   \"xMax\": 497.0,\r\n                    \"yMax\": 184.0\r\n
+    400.0,\r\n                    \"y\": 208.0\r\n                },\r\n                \"Position\":
+    {\r\n                    \"xMin\": 400.0,\r\n                    \"yMin\": 200.0,\r\n
+    \                   \"xMax\": 465.0,\r\n                    \"yMax\": 216.0\r\n
     \               },\r\n                \"From\": 0,\r\n                \"To\":
     1\r\n            }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorTransition,
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n

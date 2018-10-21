@@ -96,20 +96,20 @@ public class PositionAspect : GGEZ.Labkit.Aspect
 // }
 
 
-public class ACellWithManyIOs : Cell
-{
-    [In] public StructRegister<float> Input;
-    [In] public StructRegister<float> Input1;
-    [In] public StructRegister<float> Input2;
-    [In] public StructRegister<float> Input3;
-    [In] public StructRegister<float> Input4;
-    [In] public StructRegister<float> Input5;
-    [Out] public StructRegister<float> Output;
-    [Out] public StructRegister<float> Output1;
-    [Out] public StructRegister<float> Output2;
-    [Out] public StructRegister<float> Output3;
+// public class ACellWithManyIOs : Cell
+// {
+//     [In] public StructRegister<float> Input;
+//     [In] public StructRegister<float> Input1;
+//     [In] public StructRegister<float> Input2;
+//     [In] public StructRegister<float> Input3;
+//     [In] public StructRegister<float> Input4;
+//     [In] public StructRegister<float> Input5;
+//     [Out] public StructRegister<float> Output;
+//     [Out] public StructRegister<float> Output1;
+//     [Out] public StructRegister<float> Output2;
+//     [Out] public StructRegister<float> Output3;
 
-}
+// }
 
 
 // public class BoolInverterCell : Cell
@@ -229,35 +229,35 @@ public class ACellWithManyIOs : Cell
 
 
 
-public class SineWave : Cell
-{
-    public float Amplitude = 1f;
-    public float Frequency = 1f;
-    [Out]
-    public StructRegister<float> Output;
-    [Out]
-    public StructRegister<float> Output2x;
-    [Out]
-    public StructRegister<float> Output4x;
-    [Out]
-    public StructRegister<float> xOutput;
-    [Out]
-    public StructRegister<float> xOutput2x;
-    [Out]
-    public StructRegister<float> xOutput4x;
-    [Out]
-    public StructRegister<float> yOutput;
-    [Out]
-    public StructRegister<float> yOutput2x;
-    [Out]
-    public StructRegister<float> yOutput4x;
-    [Out]
-    public StructRegister<float> zOutput;
-    [Out]
-    public StructRegister<float> zOutput2x;
-    [Out]
-    public StructRegister<float> zOutput4x;
-}
+// public class SineWave : Cell
+// {
+//     public float Amplitude = 1f;
+//     public float Frequency = 1f;
+//     [Out]
+//     public StructRegister<float> Output;
+//     [Out]
+//     public StructRegister<float> Output2x;
+//     [Out]
+//     public StructRegister<float> Output4x;
+//     [Out]
+//     public StructRegister<float> xOutput;
+//     [Out]
+//     public StructRegister<float> xOutput2x;
+//     [Out]
+//     public StructRegister<float> xOutput4x;
+//     [Out]
+//     public StructRegister<float> yOutput;
+//     [Out]
+//     public StructRegister<float> yOutput2x;
+//     [Out]
+//     public StructRegister<float> yOutput4x;
+//     [Out]
+//     public StructRegister<float> zOutput;
+//     [Out]
+//     public StructRegister<float> zOutput2x;
+//     [Out]
+//     public StructRegister<float> zOutput4x;
+// }
 
 
 // public class Position : Cell
@@ -315,7 +315,6 @@ public class SetVariableToTime : Script
 
     public override void OnUpdate()
     {
-        Debug.Log("OnUpdate("+Time.time+")");
         Variable.Value = Time.time;
     }
 }

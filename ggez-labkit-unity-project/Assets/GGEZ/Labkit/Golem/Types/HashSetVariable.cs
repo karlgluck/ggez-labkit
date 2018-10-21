@@ -34,7 +34,7 @@ namespace GGEZ.Labkit
         /// <summary>The backing register for this variable</summary>
         private HashSetRegister<T> _register;
 
-        // Values to roll into the register
+        // Values to send to the register
         private HashSet<T> _added = new HashSet<T>();
         private HashSet<T> _removed = new HashSet<T>();
 
@@ -81,29 +81,35 @@ namespace GGEZ.Labkit
 
         public bool Add(T element)
         {
+            GolemManager.AddChangedVariable(this);
             _removed.Remove(element);
             return _added.Add(element);
         }
 
         public void Add(IEnumerable<T> elements)
         {
+            GolemManager.AddChangedVariable(this);
             foreach (T element in elements)
             {
-                Add(element);
+                _removed.Remove(element);
+                _added.Add(element);
             }
         }
 
         public bool Remove(T element)
         {
+            GolemManager.AddChangedVariable(this);
             _added.Remove(element);
             return _removed.Add(element);
         }
 
         public void Remove(IEnumerable<T> elements)
         {
+            GolemManager.AddChangedVariable(this);
             foreach (T element in elements)
             {
-                Remove(element);
+                _added.Remove(element);
+                _removed.Add(element);
             }
         }
 
