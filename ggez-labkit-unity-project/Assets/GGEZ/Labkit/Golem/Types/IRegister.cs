@@ -24,15 +24,43 @@
 // For more information, please refer to <http://unlicense.org/>
 
 using GGEZ.FullSerializer;
+using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
 
-    public interface IRegister
+    public abstract class Register
     {
-        IRegister Clone();
-        IVariable CreateVariable();
-        void AddListener(Cell cell);
-        void RemoveListener(Cell cell);
+        protected List<Cell> _listeners;
+
+        public abstract Variable CreateVariable();
+
+        public Register Clone()
+        {
+            return MemberwiseClone() as Register;
+        }
+
+        public void AddListener(Cell cell)
+        {
+            if (_listeners == null)
+            {
+                _listeners = new List<Cell>();
+            }
+            _listeners.Add(cell);
+        }
+
+        public void RemoveListener(Cell cell)
+        {
+            if (_listeners != null)
+            {
+                _listeners.Remove(cell);
+            }
+        }
+
+        /// <summary>Notifies listeners without updating the register's value</summary>
+        protected void NotifyListeners()
+        {
+            GolemManager.AddChangedCellInputs(_listeners);
+        }
     }
 }

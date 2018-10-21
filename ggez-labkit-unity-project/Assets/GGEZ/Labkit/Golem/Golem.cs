@@ -54,7 +54,7 @@ namespace GGEZ.Labkit
 
         /// All named variables for this golem
         [NonSerialized]
-        public Dictionary<string, IVariable> Variables;
+        public Dictionary<string, Variable> Variables;
 
         /// Local copy of each aspect from the archetype
         [NonSerialized]

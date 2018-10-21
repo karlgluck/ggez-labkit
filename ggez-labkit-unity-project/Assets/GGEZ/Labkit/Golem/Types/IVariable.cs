@@ -25,10 +25,24 @@
 
 namespace GGEZ.Labkit
 {
-    public interface IVariable
+    public abstract class Variable
     {
-        IRegister GetRegister();
-        void OnEndProgramPhase();
-        IVariable Clone();
+        public abstract Register GetRegister();
+        public abstract void OnVariableRolloverPhase();
+
+        public Variable Clone()
+        {
+            return MemberwiseClone() as Variable;
+        }
+
+        public override string ToString()
+        {
+            return GetRegister().ToString();
+        }
+
+        protected void QueueForRolloverPhase()
+        {
+            GolemManager.QueueForVariableRolloverPhase(this);
+        }
     }
 }

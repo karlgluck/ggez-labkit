@@ -252,7 +252,7 @@ namespace GGEZ.Labkit
                         }
                     }
 
-                    variable.InitialValue = GolemEditorUtility.EditorGUIField(position, variable.InspectableType, variable.Type, variable.InitialValue) as IVariable;
+                    variable.InitialValue = GolemEditorUtility.EditorGUIField(position, variable.InspectableType, variable.Type, variable.InitialValue) as Variable;
                 }
             }
 

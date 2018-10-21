@@ -334,9 +334,9 @@ namespace GGEZ.Labkit
                     ISingleValueVariable singleValueVariable = value as ISingleValueVariable;
                     if (singleValueVariable != null)
                     {
-                        Type valueType = singleValueVariable.GetValueType();
+                        Type valueType = singleValueVariable.ValueType;
                         InspectableType inspectableType = InspectableTypeExt.GetInspectableTypeOf(valueType);
-                        singleValueVariable.SetValue(EditorGUIField(position, inspectableType, valueType, singleValueVariable.GetValue()));
+                        singleValueVariable.UntypedValue = EditorGUIField(position, inspectableType, valueType, singleValueVariable.UntypedValue);
                     }
                     else
                     {
@@ -671,7 +671,7 @@ namespace GGEZ.Labkit
                         GUIContent content;
                         if (reference != null)
                         {
-                            IVariable variable;
+                            Variable variable;
                             if (reference.Name != null && !golemArchetype.Variables.TryGetValue(reference.Name, out variable))
                             {
                                 reference = new VariableRef(reference.Relationship, null);
@@ -859,7 +859,7 @@ namespace GGEZ.Labkit
                 Tooltip = "",
                 InspectableType = InspectableTypeExt.GetInspectableTypeOf(variableType),
                 Type = variableType,
-                InitialValue = Activator.CreateInstance(variableType) as IVariable,
+                InitialValue = Activator.CreateInstance(variableType) as Variable,
             });
             GolemEditorUtility.SetDropdownFieldValue(handle, newVariableName);
         }
@@ -1343,8 +1343,12 @@ namespace GGEZ.Labkit
 
         public static void GetEditorTransitionPoints(EditorState fromState, EditorState toState, bool hasReverse, out Vector2 from, out Vector2 to)
         {
-            var fromCenter = fromState.Position.center - Vector2.down * GolemEditorUtility.NodeTitleRectHeight * 0.5f;
-            var toCenter = toState.Position.center - Vector2.down * GolemEditorUtility.NodeTitleRectHeight * 0.5f;
+            var fromCenter = fromState.Position.center;
+            var toCenter = toState.Position.center;
+
+            Vector2 delta = (toCenter - fromCenter).normalized;
+            fromCenter = fromState.Position.PointInDirectionFromCenter(delta);
+            toCenter = toState.Position.PointInDirectionFromCenter(-delta);
 
             if (hasReverse)
             {

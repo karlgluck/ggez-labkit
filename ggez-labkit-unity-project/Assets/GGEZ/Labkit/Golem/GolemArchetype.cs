@@ -64,7 +64,7 @@ namespace GGEZ.Labkit
 
         /// <summary>Default values for all variables</summary>
         [NonSerialized]
-        public Dictionary<string, IVariable> Variables;
+        public Dictionary<string, Variable> Variables;
 
         /// <summary>Source of data for all the NonSerialized properties</summary>
         public string Json;
@@ -115,7 +115,7 @@ namespace GGEZ.Labkit
             {
                 // Variables
                 //--------------------------
-                Variables = new Dictionary<string, IVariable>();
+                Variables = new Dictionary<string, Variable>();
                 for (int i = 0; i < EditorVariables.Count; ++i)
                 {
                     var editorVariable = EditorVariables[i];
@@ -365,7 +365,7 @@ namespace GGEZ.Labkit
             InheritSettingsFrom = null;
             Assignments = new Assignment[0];
             ExternalAssignments = new Dictionary<string, Assignment[]>();
-            Variables = new Dictionary<string, IVariable>();
+            Variables = new Dictionary<string, Variable>();
             Json = "{}";
 
             EditorAspects = new List<EditorAspect>();
@@ -401,7 +401,7 @@ namespace GGEZ.Labkit
                 if (variable.InitialValue == null)
                 {
                     dirty = true;
-                    variable.InitialValue = Activator.CreateInstance(variable.Type) as IVariable;
+                    variable.InitialValue = Activator.CreateInstance(variable.Type) as Variable;
                     if (variable.InitialValue == null)
                     {
                         EditorVariables.RemoveAt(i);

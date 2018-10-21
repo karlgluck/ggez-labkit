@@ -59,7 +59,7 @@ namespace GGEZ.Labkit
         [Represents(typeof(Trigger), false)] TriggerRef,
         [Represents(typeof(Golem), false)] Golem,
         [Represents(typeof(Aspect), false)] Aspect,
-        [Represents(typeof(IVariable), false)] Variable,
+        [Represents(typeof(Variable), false)] Variable,
 
         #warning TODO: bounds, boundsint, AnimationCurve, double, Texture, Sprite, long, mask, object? RectInt, vector2int, vector4,
 

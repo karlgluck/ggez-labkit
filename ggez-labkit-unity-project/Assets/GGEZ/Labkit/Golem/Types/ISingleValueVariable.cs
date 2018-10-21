@@ -27,11 +27,23 @@ using System;
 
 namespace GGEZ.Labkit
 {
-    public interface ISingleValueVariable : IVariable
+    public interface ISingleValueVariable
     {
-        Type GetValueType();
-        object GetValue();
-        void SetValue(object value);
+        Type ValueType { get; }
+        object UntypedValue { get; set; }
+    }
+
+    public abstract class SingleValueVariable<T> : Variable, ISingleValueVariable
+    {
+        public Type ValueType { get { return typeof(T); } }
+
+        public abstract T Value { get; set; }
+
+        public object UntypedValue
+        {
+            get { return Value; }
+            set { Value = (T)value; }
+        }
     }
 
 }

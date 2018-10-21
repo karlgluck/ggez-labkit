@@ -94,6 +94,11 @@ There are several ways this could be done and the choice is largely a matter of 
 
 The fact that this is possible has tripped me up a few times and I keep thinking I have to do something special to fix it, so I thought I'd just write down the conclusion. Circuits writing variables is fine because of the variable phase. Even though circuits queue cells for processing, writing a variable does not immediately cause the cells that read the variable to be processed; hence, a cell is able to write a variable during iteration of the dirty-cell priority queue without causing issues like having a cell be evaluated multiple times in one frame.
 
+# Worklist
+
+ - [ ] Add the ability to edit registers' default values
+ - [ ] A layer's entry state's transitions should be parsed to grab the triggers that cause the state to wake. The trigger being set then queues the state for execution so that layers add zero execution cost when they are not being used.
+ - [ ] A layer's "any state" should be able to have scripts. This basically just creates a state that executes whenever a layer is active (not in the entry state)
 
 # Future Plans
 

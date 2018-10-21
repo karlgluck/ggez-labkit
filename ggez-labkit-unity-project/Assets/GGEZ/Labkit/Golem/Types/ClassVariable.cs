@@ -28,7 +28,7 @@ using System;
 namespace GGEZ.Labkit
 {
     [GGEZ.FullSerializer.fsIgnore]
-    public class ClassVariable<T> : ISingleValueVariable where T : class
+    public sealed class ClassVariable<T> : SingleValueVariable<T> where T : class
     {
         /// <summary>The backing register for this variable</summary>
         private ClassRegister<T> _register;
@@ -37,7 +37,7 @@ namespace GGEZ.Labkit
         private T _value;
 
         /// <summary>Returns the value of this variable at the end of the last frame</summary>
-        public T Value
+        public override T Value
         {
             get
             {
@@ -46,7 +46,7 @@ namespace GGEZ.Labkit
             set
             {
                 _value = value;
-                GolemManager.AddChangedVariable(this);
+                GolemManager.QueueForVariableRolloverPhase(this);
             }
         }
 
@@ -63,40 +63,16 @@ namespace GGEZ.Labkit
         }
         
         /// <summary>The backing register for this variable</summary>
-        public IRegister GetRegister()
+        public override Register GetRegister()
         {
             return _register;
         }
 
         /// <summary>Updates the value of the register that backs this variable</summary>
-        public void OnEndProgramPhase()
+        public override void OnVariableRolloverPhase()
         {
-            _register.ChangeValue(_value);
+            _register.Value = _value;
         }
 
-        public IVariable Clone()
-        {
-            return MemberwiseClone() as IVariable;
-        }
-
-        public Type GetValueType()
-        {
-            return typeof(T);
-        }
-
-        public object GetValue()
-        {
-            return _value;
-        }
-
-        public void SetValue(object value)
-        {
-            _value = (T)value;
-        }
-
-        public override string ToString()
-        {
-            return _register.ToString();
-        }
     }
 }

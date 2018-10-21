@@ -31,9 +31,11 @@ using GGEZ.FullSerializer;
 namespace GGEZ.Labkit
 {
 
-    public class Mirror : Cell
+    public class MirrorVariables : Cell
     {
-        
+        // public GolemPrefab Golem;
+
+        // public VariablesCollectionRegister Input;
     }
 
 }

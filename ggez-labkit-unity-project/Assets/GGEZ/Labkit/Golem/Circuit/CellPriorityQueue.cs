@@ -120,6 +120,8 @@ public class CellPriorityQueue
     /// </summary>
     public void Add(Cell cell)
     {
+        Debug.Assert(cell != null);
+
         List<Cell> cells;
         
         // Check if a cell is trying to dirty itself so it gets processed next frame

@@ -37,7 +37,7 @@ namespace GGEZ.Labkit
         public Cell[] Cells;
 
         [NonSerialized]
-        public IRegister[] Registers;
+        public Register[] Registers;
 
         [NonSerialized]
         public Layer[] Layers;
@@ -630,7 +630,7 @@ namespace GGEZ.Labkit
                 // Build mappings required by the wires. Registers store values
                 // on cell outputs. These registers then dirty other cells.
                 //---------------------------------------------------------
-                List<IRegister> registers = new List<IRegister>();
+                List<Register> registers = new List<Register>();
                 Dictionary<string, RegisterPtr> outputToRegister = new Dictionary<string, RegisterPtr>();
                 Dictionary<VariableRef, RegisterPtr> variablesThatWriteRegister = VariableRef.NewDictionary<RegisterPtr>();
 
@@ -857,8 +857,8 @@ namespace GGEZ.Labkit
                                                 outputToRegister.Add(registerKey, registerIndex);
                                                 InspectableCellType outputCellType = InspectableCellType.GetInspectableCellType(wire.WriteCell.Cell.GetType());
                                                 Type fieldType = outputCellType.GetInputType(wire.WriteField);
-                                                Debug.Assert(typeof(IRegister).IsAssignableFrom(fieldType));
-                                                IRegister register = Activator.CreateInstance(fieldType) as IRegister;
+                                                Debug.Assert(typeof(Register).IsAssignableFrom(fieldType));
+                                                Register register = Activator.CreateInstance(fieldType) as Register;
                                                 Debug.Assert(register != null);
                                                 registers.Add(register);
 
@@ -922,8 +922,8 @@ namespace GGEZ.Labkit
                                     registerIndex = (RegisterPtr)registers.Count;
                                     outputToRegister.Add(registerKey, registerIndex);
                                     Type fieldType = output.Type;
-                                    Debug.Assert(typeof(IRegister).IsAssignableFrom(fieldType));
-                                    IRegister register = Activator.CreateInstance(fieldType) as IRegister;
+                                    Debug.Assert(typeof(Register).IsAssignableFrom(fieldType));
+                                    Register register = Activator.CreateInstance(fieldType) as Register;
                                     Debug.Assert(register != null);
                                     registers.Add(register);
                                 }

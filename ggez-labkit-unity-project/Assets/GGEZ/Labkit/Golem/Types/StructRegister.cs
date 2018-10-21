@@ -29,7 +29,7 @@ using System.Collections.Generic;
 namespace GGEZ.Labkit
 {
     [GGEZ.FullSerializer.fsIgnore]
-    public class StructRegister<T> : IRegister where T : struct, IEquatable<T>
+    public sealed class StructRegister<T> : Register where T : struct, IEquatable<T>
     {
         private T _value;
 
@@ -38,54 +38,21 @@ namespace GGEZ.Labkit
         public T Value
         {
             get { return _value; }
-            set { ChangeValue(value); }
+            set
+            {
+                if (!_value.Equals(value))
+                {
+                    _value = value;
+                    NotifyListeners();
+                }
+            }
         }
 
-        public IRegister Clone ()
-        {
-            return MemberwiseClone() as IRegister;
-        }
-
-        public IVariable CreateVariable()
+        public override Variable CreateVariable()
         {
             #warning TODO make sure only up to 1 variable is ever created for each register
             return new StructVariable<T>(this);
         }
 
-        public override string ToString()
-        {
-            return _value.ToString();
-        }
-
-        public bool ChangeValue(T value)
-        {
-            if (_value.Equals(value))
-            {
-                return false;
-            }
-            _value = value;
-            if (_listeners != null)
-            {
-                GolemManager.AddChangedCellInputs(_listeners);
-            }
-            return true;
-        }
-
-        public void AddListener(Cell cell)
-        {
-            if (_listeners == null)
-            {
-                _listeners = new List<Cell>();
-            }
-            _listeners.Add(cell);
-        }
-
-        public void RemoveListener(Cell cell)
-        {
-            if (_listeners != null)
-            {
-                _listeners.Remove(cell);
-            }
-        }
     }
 }

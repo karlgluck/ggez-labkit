@@ -26,6 +26,7 @@
 using System;
 using UnityEngine;
 using GGEZ.FullSerializer;
+using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
@@ -58,5 +59,32 @@ namespace GGEZ.Labkit
         /// on the stack defines whether the transition is active.
         public Operator[] Expression;
         public Trigger[] Triggers;
+
+        /// <summary>
+        ///     Determine whether this transition should be taken.
+        /// </summary>
+        public bool Evaluate(bool[] triggers)
+        {
+            int triggerPtr = 0;
+            Stack<bool> evaluation = s_stackForProcessingTransitions;
+            evaluation.Clear();
+            for (int k = 0; k < Expression.Length; ++k)
+            {
+                switch (Expression[k])
+                {
+                    case Transition.Operator.And: evaluation.Push(evaluation.Pop() & evaluation.Pop()); break;
+                    case Transition.Operator.Or: evaluation.Push(evaluation.Pop() | evaluation.Pop()); break;
+                    case Transition.Operator.Push: evaluation.Push(triggers[(int)Triggers[triggerPtr++]]); break;
+                    case Transition.Operator.True: evaluation.Push(true); break;
+                    case Transition.Operator.False: evaluation.Push(false); break;
+                }
+            }
+            Debug.Assert(evaluation.Count == 1);
+            bool shouldTransition = evaluation.Pop();
+            return shouldTransition;
+        }
+
+        private static Stack<bool> s_stackForProcessingTransitions = new Stack<bool>();
+
     }
 }

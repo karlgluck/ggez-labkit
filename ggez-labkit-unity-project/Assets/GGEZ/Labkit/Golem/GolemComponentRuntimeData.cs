@@ -37,7 +37,7 @@ namespace GGEZ.Labkit
         public StateIndex[] LayerStates;
 
     #if UNITY_EDITOR
-        public IRegister[] Registers;
+        public Register[] Registers;
     #endif
     }
 

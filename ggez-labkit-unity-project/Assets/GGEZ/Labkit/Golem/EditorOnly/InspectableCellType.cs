@@ -162,7 +162,7 @@ namespace GGEZ.Labkit
                                  .Where((f) => f.Name.Equals("Input") || f.Name.EndsWith("In"))
                                  .Where((f) => 
                                     {
-                                        if (typeof(IRegister).IsAssignableFrom(f.FieldType)) return true;
+                                        if (typeof(Register).IsAssignableFrom(f.FieldType)) return true;
                                         Debug.LogError(cellType.Name + " field " + f.Name + " must derive from IRegister to be an input (it is a " + f.FieldType.Name + "). It is being treated as a field instead.");
                                         return false;
                                     })
@@ -179,7 +179,7 @@ namespace GGEZ.Labkit
                                   .Where((f) => f.Name.Equals("Output") || f.Name.EndsWith("Out"))
                                   .Where((f) => 
                                     {
-                                        if (typeof(IRegister).IsAssignableFrom(f.FieldType)) return true;
+                                        if (typeof(Register).IsAssignableFrom(f.FieldType)) return true;
                                         Debug.LogError(cellType.Name + " field " + f.Name + " must derive from IRegister to be an output (it is a " + f.FieldType.Name + "). It is being treated as a field instead.");
                                         return false;
                                     })
@@ -197,7 +197,7 @@ namespace GGEZ.Labkit
                                  .Except(outputs)
                                  .Where((f) => 
                                     {
-                                        if (!typeof(IRegister).IsAssignableFrom(f.FieldType)) return true;
+                                        if (!typeof(Register).IsAssignableFrom(f.FieldType)) return true;
                                         Debug.LogError(cellType.Name + " field " + f.Name + " derives from IRegister but is not named properly to be an input or output. It will not be available for wires or be editable.");
                                         return false;
                                     })

@@ -249,7 +249,7 @@ MonoBehaviour:
     \   },\r\n    \"Registers\": {\r\n        \"$content\": [\r\n            {\r\n
     \               \"$type\": \"GGEZ.Labkit.HashSetRegister`1[[System.Single, mscorlib,
     Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]\"\r\n            }\r\n
-    \       ],\r\n        \"$type\": \"GGEZ.Labkit.IRegister[]\"\r\n    },\r\n    \"Layers\":
+    \       ],\r\n        \"$type\": \"GGEZ.Labkit.Register[]\"\r\n    },\r\n    \"Layers\":
     {\r\n        \"$content\": [\r\n            {\r\n                \"States\": [\r\n
     \                   0,\r\n                    1\r\n                ],\r\n                \"FromAnyStateTransitions\":
     [\r\n                    {\r\n                        \"FromState\": -2,\r\n                        \"ToState\":
@@ -370,14 +370,14 @@ MonoBehaviour:
     \"Times\",\r\n                        \"WriteObject\": {\r\n                            \"$ref\":
     \"2\"\r\n                        },\r\n                        \"WriteField\":
     \"Input\",\r\n                        \"ReadPoint\": {\r\n                            \"x\":
-    -1275.0,\r\n                            \"y\": -2085.0\r\n                        },\r\n
+    -616.0,\r\n                            \"y\": -2073.0\r\n                        },\r\n
     \                       \"WritePoint\": {\r\n                            \"x\":
-    -1099.0,\r\n                            \"y\": -2115.0\r\n                        },\r\n
+    -552.0,\r\n                            \"y\": -2071.0\r\n                        },\r\n
     \                       \"Register\": 0,\r\n                        \"$id\": \"5\"\r\n
     \                   }\r\n                },\r\n                \"OutputWires\":
     {\r\n\r\n                },\r\n                \"Position\": {\r\n                    \"xMin\":
-    1056.0,\r\n                    \"yMin\": 848.0,\r\n                    \"xMax\":
-    1408.0,\r\n                    \"yMax\": 939.0\r\n                },\r\n                \"FieldsUsingSettings\":
+    944.0,\r\n                    \"yMin\": 880.0,\r\n                    \"xMax\":
+    1296.0,\r\n                    \"yMax\": 971.0\r\n                },\r\n                \"FieldsUsingSettings\":
     {\r\n\r\n                },\r\n                \"FieldsUsingVariables\": {\r\n\r\n
     \               },\r\n                \"$id\": \"2\"\r\n            }\r\n        ],\r\n
     \       \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorCell,
@@ -390,14 +390,14 @@ MonoBehaviour:
     \               \"Layer\": 0,\r\n                \"Index\": 0,\r\n                \"CompiledIndex\":
     2147483647,\r\n                \"SpecialState\": \"LayerEnter\",\r\n                \"Position\":
     {\r\n                    \"xMin\": 208.0,\r\n                    \"yMin\": 144.0,\r\n
-    \                   \"xMax\": 559.9999,\r\n                    \"yMax\": 211.0\r\n
+    \                   \"xMax\": 560.0,\r\n                    \"yMax\": 211.0\r\n
     \               },\r\n                \"Scripts\": [],\r\n                \"TransitionsIn\":
     [],\r\n                \"TransitionsOut\": [\r\n                    0\r\n                ]\r\n
     \           },\r\n            {\r\n                \"Name\": \"State\",\r\n                \"Layer\":
     0,\r\n                \"Index\": 1,\r\n                \"CompiledIndex\": 0,\r\n
     \               \"SpecialState\": \"Normal\",\r\n                \"Position\":
     {\r\n                    \"xMin\": 208.0,\r\n                    \"yMin\": 288.0,\r\n
-    \                   \"xMax\": 559.9999,\r\n                    \"yMax\": 461.0\r\n
+    \                   \"xMax\": 560.0,\r\n                    \"yMax\": 461.0\r\n
     \               },\r\n                \"Scripts\": [\r\n                    {\r\n
     \                       \"Enabled\": true,\r\n                        \"Script\":
     {\r\n                            \"Multiplier\": 0.0,\r\n                            \"$type\":
@@ -431,7 +431,7 @@ MonoBehaviour:
     2,\r\n                \"CompiledIndex\": 1,\r\n                \"SpecialState\":
     \"Normal\",\r\n                \"Position\": {\r\n                    \"xMin\":
     208.0,\r\n                    \"yMin\": 576.0,\r\n                    \"xMax\":
-    543.9999,\r\n                    \"yMax\": 695.0\r\n                },\r\n                \"Scripts\":
+    544.0,\r\n                    \"yMax\": 695.0\r\n                },\r\n                \"Scripts\":
     [\r\n                    {\r\n                        \"Enabled\": true,\r\n                        \"Script\":
     {\r\n                            \"Delay\": 3.0,\r\n                            \"Trigger\":
     \"Next\",\r\n                            \"Golem\": null,\r\n                            \"$type\":
@@ -465,7 +465,7 @@ MonoBehaviour:
     5,\r\n                \"CompiledIndex\": 2,\r\n                \"SpecialState\":
     \"Normal\",\r\n                \"Position\": {\r\n                    \"xMin\":
     240.0,\r\n                    \"yMin\": -32.0,\r\n                    \"xMax\":
-    575.9999,\r\n                    \"yMax\": 87.0\r\n                },\r\n                \"Scripts\":
+    576.0,\r\n                    \"yMax\": 87.0\r\n                },\r\n                \"Scripts\":
     [\r\n                    {\r\n                        \"Enabled\": true,\r\n                        \"Script\":
     {\r\n                            \"Golem\": null,\r\n                            \"Key\":
     \"G\",\r\n                            \"Trigger\": \"Last\",\r\n                            \"$type\":
@@ -483,8 +483,8 @@ MonoBehaviour:
     \           },\r\n            {\r\n                \"Name\": \"Enter\",\r\n                \"Layer\":
     2,\r\n                \"Index\": 6,\r\n                \"CompiledIndex\": 2147483647,\r\n
     \               \"SpecialState\": \"LayerEnter\",\r\n                \"Position\":
-    {\r\n                    \"xMin\": -48.0,\r\n                    \"yMin\": 848.0,\r\n
-    \                   \"xMax\": 304.0,\r\n                    \"yMax\": 915.0\r\n
+    {\r\n                    \"xMin\": 64.0,\r\n                    \"yMin\": 896.0,\r\n
+    \                   \"xMax\": 416.0,\r\n                    \"yMax\": 963.0\r\n
     \               },\r\n                \"Scripts\": [],\r\n                \"TransitionsIn\":
     [],\r\n                \"TransitionsOut\": [\r\n                    5\r\n                ]\r\n
     \           },\r\n            {\r\n                \"$ref\": \"13\"\r\n            }\r\n
@@ -549,13 +549,13 @@ MonoBehaviour:
     5\r\n            },\r\n            {\r\n                \"Name\": \"Transition\",\r\n
     \               \"Index\": 5,\r\n                \"Expression\": {\r\n                    \"Type\":
     \"True\",\r\n                    \"Position\": {\r\n                        \"xMin\":
-    367.0,\r\n                        \"yMin\": 824.0,\r\n                        \"xMax\":
-    432.0,\r\n                        \"yMax\": 840.0\r\n                    },\r\n
+    351.0,\r\n                        \"yMin\": 824.0,\r\n                        \"xMax\":
+    416.0,\r\n                        \"yMax\": 840.0\r\n                    },\r\n
     \                   \"Trigger\": \"Next\",\r\n                    \"Subexpressions\":
     []\r\n                },\r\n                \"ExpressionAnchor\": {\r\n                    \"x\":
-    432.0,\r\n                    \"y\": 832.0\r\n                },\r\n                \"Position\":
-    {\r\n                    \"xMin\": 367.0,\r\n                    \"yMin\": 824.0,\r\n
-    \                   \"xMax\": 432.0,\r\n                    \"yMax\": 840.0\r\n
+    416.0,\r\n                    \"y\": 832.0\r\n                },\r\n                \"Position\":
+    {\r\n                    \"xMin\": 351.0,\r\n                    \"yMin\": 824.0,\r\n
+    \                   \"xMax\": 416.0,\r\n                    \"yMax\": 840.0\r\n
     \               },\r\n                \"From\": 6,\r\n                \"To\":
     7\r\n            }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorTransition,
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
@@ -587,7 +587,7 @@ MonoBehaviour:
     \"System.Collections.Generic.List`1[[GGEZ.Labkit.Settings+Setting, Assembly-CSharp,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    },\r\n    \"Variables\":
     {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
-    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.IVariable,
+    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Variable,
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
     \   }\r\n}"
   EditorJson: "{\r\n    \"EditorAspects\": {\r\n        \"$content\": [],\r\n        \"$type\":

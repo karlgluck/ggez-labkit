@@ -30,24 +30,17 @@ using System.Collections.Generic;
 namespace GGEZ.Labkit
 {
     [GGEZ.FullSerializer.fsIgnore]
-    public class HashSetRegister<T> : ICollectionRegister
+    public sealed class HashSetRegister<T> : CollectionRegister
     {
         private HashSet<T> _values = new HashSet<T>();
         private HashSet<T> _added = new HashSet<T>();
         private HashSet<T> _removed = new HashSet<T>();
 
-        private List<Cell> _listeners;
-
         public HashSet<T> Values { get { return _values; } }
         public HashSet<T> Added { get { return _added; } }
         public HashSet<T> Removed { get { return _removed; } }
 
-        public IRegister Clone ()
-        {
-            return MemberwiseClone() as IRegister;
-        }
-
-        public IVariable CreateVariable()
+        public override Variable CreateVariable()
         {
             #warning TODO make sure only up to 1 variable is ever created for each register
             return new HashSetVariable<T>(this);
@@ -80,24 +73,7 @@ namespace GGEZ.Labkit
             return retval;
         }
 
-        public void AddListener(Cell cell)
-        {
-            if (_listeners == null)
-            {
-                _listeners = new List<Cell>();
-            }
-            _listeners.Add(cell);
-        }
-
-        public void RemoveListener(Cell cell)
-        {
-            if (_listeners != null)
-            {
-                _listeners.Remove(cell);
-            }
-        }
-
-        public void OnCollectionRegisterUpdate()
+        public override void OnCollectionRegisterPhase()
         {
             _added.Clear();
             _removed.Clear();
@@ -107,176 +83,75 @@ namespace GGEZ.Labkit
         {
             if (_values.Add(element))
             {
+                _removed.Remove(element);
 
-                if (_removed.Contains(element))
-                {
-                    _removed.Remove(element);
-                }
-
-                Debug.Assert(!_added.Contains(element));
-                _added.Add(element);
+                bool wasAdded = _added.Add(element);
+                Debug.Assert(wasAdded, "_values and _added are out of sync");
                 
-                GolemManager.AddChangedCollectionRegister(this);
-                if (_listeners != null)
-                    GolemManager.AddChangedCellInputs(_listeners);
+                NotifyListenersAndQueueForCollectionRegisterPhase();
                 return true;
             }
 
             return false;
         }
 
-        public void Add(IEnumerable<T> elements)
+        public void AddRange(IEnumerable<T> elements)
         {
+            bool anythingChanged = false;
+
             foreach (T element in elements)
             {
-                Add(element);
+                if (_values.Remove(element))
+                {
+                    _removed.Remove(element);
+
+                    bool wasAdded = _added.Add(element);
+                    Debug.Assert(wasAdded, "_values and _added are out of sync");
+
+                    anythingChanged = true;
+                }
             }
+
+            if (anythingChanged)
+                NotifyListenersAndQueueForCollectionRegisterPhase();
         }
 
         public bool Remove(T element)
         {
             if (_values.Remove(element))
             {
-                if (_added.Contains(element))
-                {
-                    _added.Remove(element);
-                }
+                _added.Remove(element);
 
-                Debug.Assert(!_removed.Contains(element));
-                _removed.Add(element);
+                bool wasRemoved = _removed.Add(element);
+                Debug.Assert(wasRemoved, "_values and _removed are out of sync");
                 
-                GolemManager.AddChangedCollectionRegister(this);
-                if (_listeners != null)
-                    GolemManager.AddChangedCellInputs(_listeners);
+                NotifyListenersAndQueueForCollectionRegisterPhase();
+
                 return true;
             }
 
             return false;
         }
 
-        public void Remove(IEnumerable<T> elements)
+        public void RemoveRange(IEnumerable<T> elements)
         {
+            bool anythingChanged = false;
+
             foreach (T element in elements)
             {
-                Remove(element);
+                if (_values.Remove(element))
+                {
+                    _added.Remove(element);
+
+                    bool wasRemoved = _removed.Add(element);
+                    Debug.Assert(wasRemoved, "_values and _removed are out of sync");
+
+                    anythingChanged = true;
+                }
             }
+
+            if (anythingChanged)
+                NotifyListenersAndQueueForCollectionRegisterPhase();
         }
     }
 }
-
-            // if (_listeners != null)
-            // {
-            //     GolemManager.AddChangedCellInputs(_listeners);
-            // }
-
-    // does this only live in variable space?
-
-    // public class HashSetVariable<T> : HasEndFrame
-    // {
-    //     public HashSet<T> Values { get { return _values; } }
-    //     public HashSet<T> Added { get { return _added; } }
-    //     public HashSet<T> Removed { get { return _removed; } }
-
-    //     private HashSet<T> _values = new HashSet<T>();
-    //     private HashSet<T> _added = new HashSet<T>();
-    //     private HashSet<T> _removed = new HashSet<T>();
-
-    //     // TODO: don't actually need to store NextFrameValues since it is === _values + _nextFrameAdded - _nextFrameRemoved
-    //     private HashSet<T> _nextFrameValues = new HashSet<T>();
-    //     private HashSet<T> _nextFrameAdded = new HashSet<T>();
-    //     private HashSet<T> _nextFrameRemoved = new HashSet<T>();
-
-    //     public bool Add(T element)
-    //     {
-    //         if (!_nextFrameValues.Add(element))
-    //         {
-    //             return false;
-    //         }
-
-    //         if (_values.Contains(element))
-    //         {
-    //             Debug.Assert(_nextFrameRemoved.Contains(element));
-    //             _nextFrameRemoved.Remove(element);
-    //         }
-    //         else
-    //         {
-    //             Debug.Assert(!_nextFrameAdded.Contains(element));
-    //             _nextFrameAdded.Add(element);
-    //         }
-
-    //         return true;
-    //     }
-
-    //     public void Add(IEnumerable<T> elements)
-    //     {
-    //         foreach (T element in elements)
-    //         {
-    //             Add(element);
-    //         }
-    //     }
-
-    //     public bool Remove(T element)
-    //     {
-    //         if (!_nextFrameValues.Remove(element))
-    //         {
-    //             return false;
-    //         }
-
-    //         if (_values.Contains(element))
-    //         {
-    //             Debug.Assert(!_nextFrameRemoved.Contains(element));
-    //             _nextFrameRemoved.Add(element);
-    //         }
-    //         else
-    //         {
-    //             Debug.Assert(_nextFrameAdded.Contains(element));
-    //             _nextFrameAdded.Remove(element);
-    //         }
-
-    //         return true;
-    //     }
-
-    //     public void Remove(IEnumerable<T> elements)
-    //     {
-    //         foreach (T element in elements)
-    //         {
-    //             Remove(element);
-    //         }
-    //     }
-
-
-    //     public void Set(IEnumerable<T> elements)
-    //     {
-    //         HashSet<T> toRemove = new HashSet<T>(_nextFrameValues);
-    //         toRemove.ExceptWith(elements);
-    //         foreach (T element in toRemove)
-    //         {
-    //             Remove(element);
-    //         }
-
-    //         foreach (T element in elements)
-    //         {
-    //             Add(element);
-    //         }
-    //     }
-
-    //     public void EndFrame()
-    //     {
-    //         _values.UnionWith(_nextFrameAdded);
-    //         _values.ExceptWith(_nextFrameRemoved);
-
-    //         {
-    //             _added.Clear();
-    //             var swap = _added;
-    //             _added = _nextFrameAdded;
-    //             _nextFrameAdded = swap;
-    //         }
-
-    //         {
-    //             _removed.Clear();
-    //             var swap = _removed;
-    //             _removed = _nextFrameRemoved;
-    //             _nextFrameRemoved = swap;
-    //         }
-    //     }
-    // }

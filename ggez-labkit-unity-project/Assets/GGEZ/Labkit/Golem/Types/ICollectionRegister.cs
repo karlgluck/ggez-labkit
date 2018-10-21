@@ -25,8 +25,15 @@
 
 namespace GGEZ.Labkit
 {
-    public interface ICollectionRegister : IRegister
+
+    public abstract class CollectionRegister : Register
     {
-        void OnCollectionRegisterUpdate();
+        public abstract void OnCollectionRegisterPhase();
+
+        protected void NotifyListenersAndQueueForCollectionRegisterPhase()
+        {
+            GolemManager.QueueForCollectionRegisterPhase(this);
+            NotifyListeners();
+        }
     }
 }

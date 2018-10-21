@@ -28,73 +28,28 @@ using System.Collections.Generic;
 namespace GGEZ.Labkit
 {
     [GGEZ.FullSerializer.fsIgnore]
-    public class ClassRegister<T> : IRegister where T : class
+    public sealed class ClassRegister<T> : Register where T : class
     {
         private T _value;
-
-        private List<Cell> _listeners;
 
         public T Value
         {
             get { return _value; }
-            set { ChangeValue(value); }
+            set
+            {
+                if (!object.Equals(_value, value))
+                {
+                    _value = value;
+                    NotifyListeners();
+                }
+            }
         }
 
-        public IRegister Clone ()
-        {
-            return MemberwiseClone() as IRegister;
-        }
-
-        public IVariable CreateVariable()
+        public override Variable CreateVariable()
         {
             #warning TODO make sure only up to 1 variable is ever created for each register
             return new ClassVariable<T>(this);
         }
 
-        public override string ToString()
-        {
-            return _value.ToString();
-        }
-
-        public bool ChangeValue(T value)
-        {
-            if (object.Equals(_value, value))
-            {
-                return false;
-            }
-            _value = value;
-            if (_listeners != null)
-            {
-                GolemManager.AddChangedCellInputs(_listeners);
-            }
-            return true;
-        }
-
-        /// <summary>Notifies listeners without updating the register's value</summary>
-        public void Signal()
-        {
-            if (_listeners != null)
-            {
-                GolemManager.AddChangedCellInputs(_listeners);
-            }
-        }
-
-
-        public void AddListener(Cell cell)
-        {
-            if (_listeners == null)
-            {
-                _listeners = new List<Cell>();
-            }
-            _listeners.Add(cell);
-        }
-
-        public void RemoveListener(Cell cell)
-        {
-            if (_listeners != null)
-            {
-                _listeners.Remove(cell);
-            }
-        }
     }
 }

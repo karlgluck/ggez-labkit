@@ -45,7 +45,7 @@ namespace GGEZ.Labkit
         public string Tooltip;
         public InspectableType InspectableType;
         public Type Type;
-        public IVariable InitialValue;
+        public Variable InitialValue;
 
         /// Aspect(s) that declare this variable. Recomputed each load so that
         /// variables removed from aspects (or variables from aspects removed

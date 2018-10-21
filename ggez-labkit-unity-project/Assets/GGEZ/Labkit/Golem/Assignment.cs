@@ -82,7 +82,7 @@ namespace GGEZ.Labkit
         public int TargetIndex;
         public string TargetFieldName;
 
-        private static readonly Dictionary<string, IVariable> s_emptyVariables = new Dictionary<string, IVariable>();
+        private static readonly Dictionary<string, Variable> s_emptyVariables = new Dictionary<string, Variable>();
 
         public FieldInfo GetObjectFieldInfo(Array array, out object target, out FieldInfo fieldInfo)
         {
@@ -96,11 +96,11 @@ namespace GGEZ.Labkit
             return target.GetType().GetField(TargetFieldName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
         }
 
-        public static void Assign(Golem golem, Assignment[] assignments, Dictionary<string, IVariable> variables, GolemComponentRuntimeData component, IRegister[] registers)
+        public static void Assign(Golem golem, Assignment[] assignments, Dictionary<string, Variable> variables, GolemComponentRuntimeData component, Register[] registers)
         {
             variables = variables ?? s_emptyVariables;
 
-            IVariable[] registerVariables = null;
+            Variable[] registerVariables = null;
             for (int assignmentIndex = 0; assignmentIndex < assignments.Length; ++assignmentIndex)
                 DoAssignment(golem, assignments[assignmentIndex], variables, component, registers, ref registerVariables);
         }
@@ -108,10 +108,10 @@ namespace GGEZ.Labkit
         private static void DoAssignment(
             Golem golem,
             Assignment assignment,
-            Dictionary<string, IVariable> variables,
+            Dictionary<string, Variable> variables,
             GolemComponentRuntimeData component,
-            IRegister[] registers,
-            ref IVariable[] registerVariables
+            Register[] registers,
+            ref Variable[] registerVariables
             )
         {
             object target;
@@ -150,14 +150,14 @@ namespace GGEZ.Labkit
                         Cell targetCell = component.Cells[assignment.TargetIndex];
                         fieldInfo = assignment.GetFieldInfo(targetCell);
                         {
-                            IRegister oldRegister = fieldInfo.GetValue(targetCell) as IRegister;
+                            Register oldRegister = fieldInfo.GetValue(targetCell) as Register;
                             if (oldRegister != null)
                             {
                                 oldRegister.RemoveListener(targetCell);
                             }
                         }
                         {
-                            IRegister register = GetVariableRegisterOrNull(variables, assignment.Name);
+                            Register register = GetVariableRegisterOrNull(variables, assignment.Name);
                             if (register != null)
                             {
                                 register.AddListener(targetCell);
@@ -172,14 +172,14 @@ namespace GGEZ.Labkit
                         Cell targetCell = component.Cells[assignment.TargetIndex];
                         fieldInfo = assignment.GetFieldInfo(targetCell);
                         {
-                            IRegister oldRegister = fieldInfo.GetValue(targetCell) as IRegister;
+                            Register oldRegister = fieldInfo.GetValue(targetCell) as Register;
                             if (oldRegister != null)
                             {
                                 oldRegister.RemoveListener(targetCell);
                             }
                         }
                         {
-                            IRegister register = GetVariableRegisterOrNull(variables, assignment.Name);
+                            Register register = GetVariableRegisterOrNull(variables, assignment.Name);
                             if (register == null)
                             {
                                 register = GetReadonlyRegister(fieldInfo.FieldType);
@@ -200,14 +200,14 @@ namespace GGEZ.Labkit
                         Cell targetCell = component.Cells[assignment.TargetIndex];
                         fieldInfo = assignment.GetFieldInfo(targetCell);
                         {
-                            IRegister oldRegister = fieldInfo.GetValue(targetCell) as IRegister;
+                            Register oldRegister = fieldInfo.GetValue(targetCell) as Register;
                             if (oldRegister != null)
                             {
                                 oldRegister.RemoveListener(targetCell);
                             }
                         }
                         {
-                            IRegister register = registers[assignment.RegisterIndex];
+                            Register register = registers[assignment.RegisterIndex];
                             register.AddListener(targetCell);
                             fieldInfo.SetValue(targetCell, register);
                         }
@@ -223,35 +223,35 @@ namespace GGEZ.Labkit
             }
         }
 
-        private static IVariable GetVariableOrNull(Dictionary<string, IVariable> variables, string name)
+        private static Variable GetVariableOrNull(Dictionary<string, Variable> variables, string name)
         {
-            IVariable variable;
+            Variable variable;
             variables.TryGetValue(name, out variable);
             return variable;
         }
 
-        private static IVariable GetLocalVariable(Dictionary<string, IVariable> variables, string name, Type type)
+        private static Variable GetLocalVariable(Dictionary<string, Variable> variables, string name, Type type)
         {
-            Debug.Assert(typeof(IVariable).IsAssignableFrom(type));
-            IVariable variable;
+            Debug.Assert(typeof(Variable).IsAssignableFrom(type));
+            Variable variable;
             if (!variables.TryGetValue(name, out variable))
             {
                 Debug.LogError("Local variable '" + name + "' of type " + type.Name + " does not exist!");
-                variable = Activator.CreateInstance(type) as IVariable;
+                variable = Activator.CreateInstance(type) as Variable;
                 variables.Add(name, variable);
             }
             Debug.Assert(variable != null);
             return variable;
         }
 
-        private static IVariable GetOrCreateRegisterVariable(int index, IRegister[] registers, ref IVariable[] registerVariables)
+        private static Variable GetOrCreateRegisterVariable(int index, Register[] registers, ref Variable[] registerVariables)
         {
             Debug.Assert(registers != null);
             if (registerVariables == null)
             {
-                registerVariables = new IVariable[registers.Length];
+                registerVariables = new Variable[registers.Length];
             }
-            IVariable variable = registerVariables[index];
+            Variable variable = registerVariables[index];
             if (registerVariables[index] == null)
             {
                 variable = registers[index].CreateVariable();
@@ -260,36 +260,31 @@ namespace GGEZ.Labkit
             return variable;
         }
 
-        private static IVariable GetVariableOrDummy(Dictionary<string, IVariable> variables, string name, Type type)
+        private static Variable GetVariableOrDummy(Dictionary<string, Variable> variables, string name, Type type)
         {
-            Debug.Assert(typeof(IVariable).IsAssignableFrom(type));
-            IVariable variable;
+            Debug.Assert(typeof(Variable).IsAssignableFrom(type));
+            Variable variable;
             if (!variables.TryGetValue(name, out variable))
             {
-                variable = Activator.CreateInstance(type) as IVariable;
+                variable = Activator.CreateInstance(type) as Variable;
             }
             Debug.Assert(variable != null);
             return variable;
         }
 
-        private static IRegister GetVariableRegisterOrNull(Dictionary<string, IVariable> variables, string name)
+        private static Register GetVariableRegisterOrNull(Dictionary<string, Variable> variables, string name)
         {
-            IVariable variable;
+            Variable variable;
 
-            if (variables.TryGetValue(name, out variable))
-            {
-                return variable.GetRegister();
-            }
-
-            return null;
+            return variables.TryGetValue(name, out variable) ? variable.GetRegister() : null;
         }
 
         private class Defaults
         {
-            public IRegister InputRegister;
-            public IRegister OutputRegister;
-            public IVariable InputVariable;
-            public IVariable OutputVariable;
+            public Register InputRegister;
+            public Register OutputRegister;
+            public Variable InputVariable;
+            public Variable OutputVariable;
 
             private static Dictionary<Type, Defaults> s_cache = new Dictionary<Type, Defaults>();
 
@@ -301,16 +296,16 @@ namespace GGEZ.Labkit
                 {
                     value = new Defaults();
 
-                    if (typeof(IVariable).IsAssignableFrom(fieldType))
+                    if (typeof(Variable).IsAssignableFrom(fieldType))
                     {
-                        value.InputVariable = Activator.CreateInstance(fieldType) as IVariable;
+                        value.InputVariable = Activator.CreateInstance(fieldType) as Variable;
                         value.InputRegister = value.InputVariable.GetRegister();
                         value.OutputRegister = value.InputRegister.Clone();
                         value.OutputVariable = value.OutputRegister.CreateVariable();
                     }
                     else
                     {
-                        value.InputRegister = Activator.CreateInstance(fieldType) as IRegister;
+                        value.InputRegister = Activator.CreateInstance(fieldType) as Register;
                         value.OutputRegister = value.InputRegister.Clone();
                         value.InputVariable = value.InputRegister.CreateVariable();
                         value.OutputVariable = value.OutputRegister.CreateVariable();
@@ -326,37 +321,37 @@ namespace GGEZ.Labkit
         }
 
         /// <summary></summary>
-        private static IRegister GetReadonlyRegister(Type fieldType)
+        private static Register GetReadonlyRegister(Type fieldType)
         {
-            Debug.Assert(typeof(IRegister).IsAssignableFrom(fieldType));
+            Debug.Assert(typeof(Register).IsAssignableFrom(fieldType));
             return Defaults.GetDefaultsForType(fieldType).InputRegister;
         }
 
         /// <summary></summary>
-        private static IRegister GetWriteonlyRegister(Type fieldType)
+        private static Register GetWriteonlyRegister(Type fieldType)
         {
-            Debug.Assert(typeof(IRegister).IsAssignableFrom(fieldType));
+            Debug.Assert(typeof(Register).IsAssignableFrom(fieldType));
             return Defaults.GetDefaultsForType(fieldType).OutputRegister;
         }
 
         /// <summary></summary>
-        private static IVariable GetReadonlyVariable(Type fieldType)
+        private static Variable GetReadonlyVariable(Type fieldType)
         {
-            Debug.Assert(typeof(IVariable).IsAssignableFrom(fieldType));
+            Debug.Assert(typeof(Variable).IsAssignableFrom(fieldType));
             return Defaults.GetDefaultsForType(fieldType).InputVariable;
         }
 
         /// <summary></summary>
-        private static IVariable GetWriteonlyVariable(Type fieldType)
+        private static Variable GetWriteonlyVariable(Type fieldType)
         {
-            Debug.Assert(typeof(IVariable).IsAssignableFrom(fieldType));
+            Debug.Assert(typeof(Variable).IsAssignableFrom(fieldType));
             return Defaults.GetDefaultsForType(fieldType).OutputVariable;
         }
 
-        private static IVariable GetDummyVariable(Type fieldType)
+        private static Variable GetDummyVariable(Type fieldType)
         {
-            Debug.Assert(typeof(IVariable).IsAssignableFrom(fieldType));
-            IVariable instance = Activator.CreateInstance(fieldType) as IVariable;
+            Debug.Assert(typeof(Variable).IsAssignableFrom(fieldType));
+            Variable instance = Activator.CreateInstance(fieldType) as Variable;
             Debug.Assert(instance != null);
             Debug.Assert(instance.GetRegister() != null);
             return instance;

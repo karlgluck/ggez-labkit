@@ -39,13 +39,11 @@ namespace GGEZ.Labkit
         #warning TODO do we need to weak reference the golem pool?
         private Dictionary<int, List<Golem>> _golemPool = new Dictionary<int, List<Golem>>();
 
-        private List<IVariable> _changedVariables = new List<IVariable>();
+        private List<Variable> _changedVariables = new List<Variable>();
 
         private static CellPriorityQueue _changedCells = new CellPriorityQueue();
 
-        private List<ICollectionRegister> _changedCollectionRegisters = new List<ICollectionRegister>();
-
-        private static Stack<bool> _stackForProcessingTransitions = new Stack<bool>();
+        private List<CollectionRegister> _changedCollectionRegisters = new List<CollectionRegister>();
 
         private List<List<Transition>> _activeTransitions = new List<List<Transition>>();
 
@@ -138,11 +136,11 @@ namespace GGEZ.Labkit
             }
 
             // Create variables
-            golem.Variables = new Dictionary<string, IVariable>();
+            golem.Variables = new Dictionary<string, Variable>();
             foreach (var kvp in golem.Archetype.Variables)
             {
-                IVariable clonedVariable = kvp.Value.Clone();
-                AddChangedVariable(clonedVariable);
+                Variable clonedVariable = kvp.Value.Clone();
+                QueueForVariableRolloverPhase(clonedVariable);
                 golem.Variables.Add(kvp.Key, clonedVariable);
             }
 
@@ -175,7 +173,7 @@ namespace GGEZ.Labkit
                     to.LayerStates[j] = GGEZ.Labkit.StateIndex.Idle;
                 }
 
-                IRegister[] registers = new IRegister[from.Registers.Length];
+                Register[] registers = new Register[from.Registers.Length];
                 for (int j = 0; j < from.Registers.Length; ++j)
                 {
                     registers[j] = from.Registers[j].Clone();
@@ -211,7 +209,7 @@ namespace GGEZ.Labkit
         }
 
         /// <summary>Attach external references to the given relationship target</summary>
-        public static void SetRelationship(Golem golem, string relationship, Dictionary<string, IVariable> variables)
+        public static void SetRelationship(Golem golem, string relationship, Dictionary<string, Variable> variables)
         {
             GolemArchetype archetype = golem.Archetype;
             Assignment[] assignments;
@@ -231,23 +229,45 @@ namespace GGEZ.Labkit
             }
         }
 
-        public static void AddChangedVariable(IVariable variable)
+        public static void QueueForVariableRolloverPhase(Variable variable)
         {
+
+        #if UNITY_EDITOR
+            if (!Application.isPlaying)
+                return;
+        #endif
+
             Instance._changedVariables.Add(variable);
         }
 
-        public static void AddChangedCollectionRegister(ICollectionRegister register)
+        public static void QueueForCollectionRegisterPhase(CollectionRegister register)
         {
+
+        #if UNITY_EDITOR
+            if (!Application.isPlaying)
+                return;
+        #endif
+
             Instance._changedCollectionRegisters.Add(register);
         }
 
         public static void UpdateCellNextFrame(Cell cell)
         {
+            Debug.Assert(Application.isPlaying);
             _changedCells.Add(cell);
         }
 
         public static void AddChangedCellInputs(IList<Cell> cells)
         {
+
+        #if UNITY_EDITOR
+            if (!Application.isPlaying)
+                return;
+        #endif
+
+            if (cells == null)
+                return;
+
             for (int i = 0; i < cells.Count; ++i)
             {
                 _changedCells.Add(cells[i]);
@@ -321,7 +341,7 @@ namespace GGEZ.Labkit
                             for (int i = 0; i < layer.FromAnyStateTransitions.Length; ++i)
                             {
                                 Transition transition = layer.FromAnyStateTransitions[i];
-                                if (EvaluateTransitionExpression(transition, triggers))
+                                if (transition.Evaluate(triggers))
                                 {
                                     activeTransitions.Add(transition);
                                     instanceComponent.LayerStates[layerIndex] = transition.ToState;
@@ -335,7 +355,7 @@ namespace GGEZ.Labkit
                                 for (int transitionIndex = 0; transitionIndex < transitions.Length; ++transitionIndex)
                                 {
                                     Transition transition = transitions[transitionIndex];
-                                    if (EvaluateTransitionExpression(transition, triggers))
+                                    if (transition.Evaluate(triggers))
                                     {
                                         activeTransitions.Add(transition);
                                         instanceComponent.LayerStates[layerIndex] = transition.ToState;
@@ -446,7 +466,7 @@ namespace GGEZ.Labkit
         {
             for (int i = 0; i < _changedCollectionRegisters.Count; ++i)
             {
-                _changedCollectionRegisters[i].OnCollectionRegisterUpdate();
+                _changedCollectionRegisters[i].OnCollectionRegisterPhase();
             }
             _changedCollectionRegisters.Clear();
         }
@@ -455,31 +475,9 @@ namespace GGEZ.Labkit
         {
             for (int i = 0; i < _changedVariables.Count; ++i)
             {
-                _changedVariables[i].OnEndProgramPhase();
+                _changedVariables[i].OnVariableRolloverPhase();
             }
             _changedVariables.Clear();
-        }
-
-        private static bool EvaluateTransitionExpression(Transition transition, bool[] triggers)
-        {
-            int triggerPtr = 0;
-            Stack<bool> evaluation = _stackForProcessingTransitions;
-            evaluation.Clear();
-            var expression = transition.Expression;
-            for (int k = 0; k < expression.Length; ++k)
-            {
-                switch (expression[k])
-                {
-                    case Transition.Operator.And: evaluation.Push(evaluation.Pop() & evaluation.Pop()); break;
-                    case Transition.Operator.Or: evaluation.Push(evaluation.Pop() | evaluation.Pop()); break;
-                    case Transition.Operator.Push: evaluation.Push(triggers[(int)transition.Triggers[triggerPtr++]]); break;
-                    case Transition.Operator.True: evaluation.Push(true); break;
-                    case Transition.Operator.False: evaluation.Push(false); break;
-                }
-            }
-            Debug.Assert(evaluation.Count == 1);
-            bool shouldTransition = evaluation.Pop();
-            return shouldTransition;
         }
 
     }

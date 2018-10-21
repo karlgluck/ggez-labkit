@@ -93,7 +93,7 @@ namespace GGEZ.Labkit
                 }
 
                 bool canBeNull = fields[i].IsDefined(typeof(CanBeNullAttribute), true);
-                bool isVariable = typeof(IVariable).IsAssignableFrom(fields[i].FieldType);
+                bool isVariable = typeof(Variable).IsAssignableFrom(fields[i].FieldType);
 
                 bool wantsSetting = fields[i].IsDefined(typeof(SettingAttribute), true);
                 Type specificType = InspectableTypeExt.GetSpecificType(inspectableType, fields[i]);

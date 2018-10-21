@@ -29,7 +29,7 @@ using System.Collections.Generic;
 namespace GGEZ.Labkit
 {
     [GGEZ.FullSerializer.fsIgnore]
-    public class HashSetVariable<T> : IVariable
+    public sealed class HashSetVariable<T> : Variable
     {
         /// <summary>The backing register for this variable</summary>
         private HashSetRegister<T> _register;
@@ -60,35 +60,30 @@ namespace GGEZ.Labkit
         }
 
         /// <summary>The backing register for this variable</summary>
-        public IRegister GetRegister()
+        public override Register GetRegister()
         {
             return _register;
         }
 
         /// <summary>Updates the value of the register that backs this variable</summary>
-        public void OnEndProgramPhase()
+        public override void OnVariableRolloverPhase()
         {
-            _register.Add(_added);
-            _register.Remove(_removed);
+            _register.AddRange(_added);
+            _register.RemoveRange(_removed);
             _added.Clear();
             _removed.Clear();
         }
 
-        public IVariable Clone()
-        {
-            return MemberwiseClone() as IVariable;
-        }
-
         public bool Add(T element)
         {
-            GolemManager.AddChangedVariable(this);
+            QueueForRolloverPhase();
             _removed.Remove(element);
             return _added.Add(element);
         }
 
-        public void Add(IEnumerable<T> elements)
+        public void AddRange(IEnumerable<T> elements)
         {
-            GolemManager.AddChangedVariable(this);
+            QueueForRolloverPhase();
             foreach (T element in elements)
             {
                 _removed.Remove(element);
@@ -98,24 +93,19 @@ namespace GGEZ.Labkit
 
         public bool Remove(T element)
         {
-            GolemManager.AddChangedVariable(this);
+            QueueForRolloverPhase();
             _added.Remove(element);
             return _removed.Add(element);
         }
 
-        public void Remove(IEnumerable<T> elements)
+        public void RemoveRange(IEnumerable<T> elements)
         {
-            GolemManager.AddChangedVariable(this);
+            QueueForRolloverPhase();
             foreach (T element in elements)
             {
                 _added.Remove(element);
                 _removed.Add(element);
             }
-        }
-
-        public override string ToString()
-        {
-            return _register.ToString();
         }
     }
 }

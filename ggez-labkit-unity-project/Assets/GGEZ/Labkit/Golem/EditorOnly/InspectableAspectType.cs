@@ -92,7 +92,7 @@ namespace GGEZ.Labkit
                 return retval;
             }
 
-            var fields = aspectType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where(f => !typeof(IVariable).IsAssignableFrom(f.FieldType)).ToArray();
+            var fields = aspectType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where(f => !typeof(Variable).IsAssignableFrom(f.FieldType)).ToArray();
             var returnedFields = new Field[fields.Length];
             {
                 int j = 0;
@@ -111,7 +111,7 @@ namespace GGEZ.Labkit
                 Array.Resize(ref returnedFields, j);
             }
 
-            var variables = aspectType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where(f => typeof(IVariable).IsAssignableFrom(f.FieldType)).ToArray();
+            var variables = aspectType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where(f => typeof(Variable).IsAssignableFrom(f.FieldType)).ToArray();
             var returnedVariables = new Variable[variables.Length];
             {
                 int j = 0;
