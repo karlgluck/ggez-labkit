@@ -849,7 +849,13 @@ namespace GGEZ.Labkit
             foreach (EditorState editorState in _states)
             {
                 bool selected = object.ReferenceEquals(_selection, editorState);
-                bool on = Application.isPlaying && _golem.Components[_golem.Archetype.EditorWindowSelectedComponent].LayerStates[(int)editorState.Layer] == editorState.CompiledIndex;
+                bool on = Application.isPlaying;
+                if (on)
+                {
+                    var layerStates = _golem.Components[_golem.Archetype.EditorWindowSelectedComponent].LayerStates;
+                    int layer = (int)editorState.Layer;
+                    on = layer >= 0 && layer < layerStates.Length && layerStates[(int)layer] == editorState.CompiledIndex;
+                }
 
                 Rect cellPosition = editorState.Position.MovedBy(_anchor);
                 if (Event.current.type == EventType.Repaint)

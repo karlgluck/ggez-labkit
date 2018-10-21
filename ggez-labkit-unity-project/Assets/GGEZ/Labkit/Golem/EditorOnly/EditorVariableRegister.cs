@@ -49,6 +49,7 @@ namespace GGEZ.Labkit
         {
             return OutputWires;
         }
+        
         public bool HasOutputWire()
         {
             return OutputWires.Count > 0;

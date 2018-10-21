@@ -40,15 +40,6 @@ namespace GGEZ.Labkit
             return MemberwiseClone() as Script;
         }
 
-        [Obsolete]
-        public virtual void Acquire(Golem golem) { }
-        [Obsolete]
-        public virtual void OnEnter(Golem golem) { }
-        [Obsolete]
-        public virtual void OnUpdate(Golem golem) { }
-        [Obsolete]
-        public virtual void OnExit(Golem golem) { }
-
         public virtual void Acquire() { }
         public virtual void OnEnter() { }
         public virtual void OnUpdate() { }

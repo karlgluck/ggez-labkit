@@ -473,7 +473,7 @@ namespace GGEZ.Labkit
             }
         }
 
-        public static Rect EditorGUILayoutGolemField(
+        public static void EditorGUILayoutGolemField(
                 InspectableType inspectableType,
                 Type specificType,
                 FieldInfo fieldInfo,
@@ -483,8 +483,11 @@ namespace GGEZ.Labkit
                 Golem golem
                 )
         {
+            // Golem and Aspect types are assigned automatically. Don't show them.
+            if (inspectableType == InspectableType.Golem || inspectableType == InspectableType.Aspect)
+                return;
+
             Rect position = EditorGUILayout.GetControlRect();
-            
             EditorGUIGolemField(
                     position,
                     inspectableType,
@@ -495,7 +498,6 @@ namespace GGEZ.Labkit
                     fieldsUsingVariables,
                     golem
                     );
-            return position;
         }
 
         public static void EditorGUIGolemField(

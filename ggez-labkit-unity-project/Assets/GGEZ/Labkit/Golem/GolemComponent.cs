@@ -173,12 +173,56 @@ namespace GGEZ.Labkit
                     worklist.Clear();
                 }
 
-                // Reassign layer indices to cells if any layers were removed
+                // Reassign layer indices to states if any layers were removed
                 for (int layerIndex = removedLayersAboveIndex; layerIndex < layersBuilder.Count; ++layerIndex)
                 {
                     foreach (var editorState in layersBuilder[layerIndex])
                     {
                         EditorStates[(int)editorState].Layer = (EditorLayerIndex)layerIndex;
+                    }
+                }
+
+                // Assign "Any State" states to layers so that transitions from them will be assigned
+                for (int editorStateIndex = 0; editorStateIndex < EditorStates.Count; ++editorStateIndex)
+                {
+                    var editorState = EditorStates[editorStateIndex];
+                    if (editorState.SpecialState != EditorSpecialStateType.LayerAny)
+                        continue;
+
+                    if (editorState.TransitionsIn.Count != 0)
+                        Debug.LogError("State " + editorState.Name + " has inputs and Any State states should not");
+                    
+                    var transitionsOut = editorState.TransitionsOut;
+                    
+                    // Get the first transition that connects to a valid layer
+                    EditorLayerIndex layerIndex = EditorLayerIndex.Invalid;
+                    int i = 0;
+                    while (layerIndex == EditorLayerIndex.Invalid && i < transitionsOut.Count)
+                    {
+                        layerIndex = EditorStates[(int)EditorTransitions[(int)transitionsOut[i]].To].Layer;
+                        ++i;
+                    }
+
+                    // Make sure all the rest of the transitions connect to the same layer
+                    while (i < transitionsOut.Count)
+                    {
+                        EditorLayerIndex otherLayerIndex = EditorStates[(int)transitionsOut[i]].Layer;
+                        if (otherLayerIndex != EditorLayerIndex.Invalid && otherLayerIndex != layerIndex)
+                        {
+                            Debug.LogError("State " + editorState.Name + " is connected to states from multiple layers and is being disabled");
+                            layerIndex = EditorLayerIndex.Invalid;
+                            break;
+                        }
+                        ++i;
+                    }
+
+                    #warning TODO: make sure that transitiosn don't go to other "any state" states or whatever
+
+                    // If a valid layer is found, make sure this state is in it
+                    if (layerIndex != EditorLayerIndex.Invalid)
+                    {
+                        editorState.Layer = layerIndex;
+                        layersBuilder[(int)layerIndex].Add(editorState.Index);
                     }
                 }
 

@@ -119,6 +119,8 @@ One of the cool things about update order independence, variables only changing 
 
 # Ideas
 
+ - Make sure that Any State states are checked for validity: have no inputs, don't output to multiple layers, don't have scripts, etc...
+
 Buncha crazy stuff down here... all WIP notes to myself
 
 

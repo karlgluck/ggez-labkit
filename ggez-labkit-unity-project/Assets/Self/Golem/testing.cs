@@ -319,53 +319,44 @@ public class SetVariableToTime : Script
     }
 }
 
-// public class SetVariableToTimeInState : Script
-// {
-//     public VariableRef Variable;
 
-//     private float _entryTime;
+public class TransitionAfterDelay : Script
+{
+    public float Delay;
+    public Trigger Trigger;
 
-//     public override void OnEnter(Golem entity)
-//     {
-//         _entryTime = Time.time;
-//     }
+    private float _exitTime;
 
-//     public override void OnUpdate(Golem entity)
-//     {
-//         entity.Write(Variable, Time.time - _entryTime);
-//     }
-// }
+    public Golem Golem;
 
-// public class AddDeltaTimeToVariable : Script
-// {
-//     [VariableType(typeof(float))]
-//     public VariableRef Variable;
+    public override void OnEnter()
+    {
+        _exitTime = Time.time + Delay;
+    }
 
-//     public override void OnUpdate(Golem entity)
-//     {
-//         float value = 0f;
-//         entity.Read(Variable, ref value);
-//         entity.Write(Variable, value + Time.smoothDeltaTime);
-//     }
-// }
+    public override void OnUpdate()
+    {
+        if (Time.time > _exitTime)
+        {
+            Golem.SetTrigger(Trigger);
+        }
+    }
+}
 
-// public class TransitionAfterDelay : Script
-// {
-//     public float Delay;
-//     public Trigger Trigger;
+public class OnKeySetTrigger : Script
+{
+    public Golem Golem;
 
-//     private float _exitTime;
+    public KeyCode Key;
 
-//     public override void OnEnter(Golem entity)
-//     {
-//         _exitTime = Time.time + Delay;
-//     }
+    public Trigger Trigger;
 
-//     public override void OnUpdate(Golem entity)
-//     {
-//         if (Time.time > _exitTime)
-//         {
-//             entity.SetTrigger(Trigger);
-//         }
-//     }
-// }
+    public override void OnUpdate()
+    {
+        if (Input.GetKeyDown(Key))
+        {
+            Debug.Log("SetTrigger " + Trigger);
+            Golem.SetTrigger(Trigger);
+        }
+    }
+}
