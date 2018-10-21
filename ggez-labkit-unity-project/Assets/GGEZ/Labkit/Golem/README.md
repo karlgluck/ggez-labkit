@@ -99,6 +99,8 @@ The fact that this is possible has tripped me up a few times and I keep thinking
  - [ ] Add the ability to edit registers' default values
  - [ ] A layer's entry state's transitions should be parsed to grab the triggers that cause the state to wake. The trigger being set then queues the state for execution so that layers add zero execution cost when they are not being used.
  - [ ] A layer's "any state" should be able to have scripts. This basically just creates a state that executes whenever a layer is active (not in the entry state)
+ - [ ] Add a "stream variable" type that works like a collection variable only it just tracks adds. This type can be used to create filters like LINQ. Maybe it just forwards an IEnumerator?
+ - [ ] Allow the archetype to hold UnityObject settings references to prefabs or prevent them from being added
 
 # Future Plans
 

@@ -48,6 +48,9 @@ namespace GGEZ.Labkit
         public virtual void Acquire()
         { }
 
+        public virtual void Release()
+        { }
+
         public virtual void Update()
         { }
 

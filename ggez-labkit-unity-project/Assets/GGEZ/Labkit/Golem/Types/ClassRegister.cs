@@ -51,5 +51,9 @@ namespace GGEZ.Labkit
             return new ClassVariable<T>(this);
         }
 
+        public override string ToString()
+        {
+            return _value.ToString();
+        }
     }
 }

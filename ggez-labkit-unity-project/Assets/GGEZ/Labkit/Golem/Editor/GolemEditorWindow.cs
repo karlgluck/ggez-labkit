@@ -1800,10 +1800,8 @@ namespace GGEZ.Labkit
                 HasEnd = true;
                 Valid =
                     StartIsOutput
-                && !object.ReferenceEquals(StartObject, endObject)
-                && (endField == null || StartField == null || object.Equals(endField.FieldType.GetGenericArguments()[0], StartField.FieldType.GetGenericArguments()[0]));
-                #warning make sure that no wire already exists
-
+                && GolemEditorUtility.CanConnect(StartObject as IGraphObjectWithOutputs, StartField, endObject, endField);
+                
                 EndObject = endObject;
                 EndField = endField;
                 EndPoint = GUIUtility.GUIToScreenPoint(endPoint);
@@ -1814,9 +1812,7 @@ namespace GGEZ.Labkit
                 HasEnd = true;
                 Valid =
                     StartIsInput
-                && !object.ReferenceEquals(StartObject, endObject)
-                && (endField == null || StartField == null || object.Equals(endField.FieldType.GetGenericArguments()[0], StartField.FieldType.GetGenericArguments()[0]));
-                #warning make sure that no wire already exists
+                && GolemEditorUtility.CanConnect(endObject, endField, StartObject as IGraphObjectWithInputs, StartField);
 
                 EndObject = endObject;
                 EndField = endField;

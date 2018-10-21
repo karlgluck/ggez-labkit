@@ -110,6 +110,16 @@ namespace GGEZ.Labkit
                 {
                     Assignment.Assign(golem, kvp.Value, null, to, null);
                 }
+                
+                for (int j = 0; j < to.Cells.Length; ++j)
+                {
+                    to.Cells[j].Release();
+                }
+
+                for (int j = 0; j < to.Scripts.Length; ++j)
+                {
+                    to.Scripts[j].Release();
+                }
             }
 
             golem.gameObject.SetActive(false);

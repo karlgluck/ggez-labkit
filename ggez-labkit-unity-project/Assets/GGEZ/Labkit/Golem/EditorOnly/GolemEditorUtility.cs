@@ -1571,6 +1571,33 @@ namespace GGEZ.Labkit
             }
         }
 
+        public static bool CanConnect(IGraphObjectWithOutputs outputObject, FieldInfo outputPort,
+                                      IGraphObjectWithInputs inputObject, FieldInfo inputPort)
+        {
+            if (outputObject == null || inputObject == null)
+                return false;
+                
+            if (object.ReferenceEquals(outputObject, inputObject))
+                return false;
+
+            # warning this is to handle variables of unknown type, maybe there's something better since we know this only happens for VariableRefs?
+            if (outputPort == null || inputPort == null)
+                return true;
+            
+            if (typeof(Register).IsAssignableFrom(outputPort.FieldType))
+            {
+                Debug.Assert(typeof(Register).IsAssignableFrom(inputPort.FieldType), "a non-register type is being used as an input");
+                return outputPort.FieldType.Equals(inputPort.FieldType);
+            }
+            
+            Debug.Assert(typeof(Variable).IsAssignableFrom(outputPort.FieldType), "a non-variable, non-register is being used as an output");
+
+            #warning clean up CanConnect to inspect variable->register mappings using an annotation
+
+            FieldInfo registerField = outputPort.FieldType.GetField("_register", BindingFlags.DeclaredOnly | BindingFlags.NonPublic | BindingFlags.Instance);
+            Debug.Assert(registerField != null, "type " + outputPort.FieldType.Name + " has no _register field so we can't tell what can connect to it");
+            return object.Equals(registerField.FieldType, inputPort.FieldType);
+        }
 
     }
 

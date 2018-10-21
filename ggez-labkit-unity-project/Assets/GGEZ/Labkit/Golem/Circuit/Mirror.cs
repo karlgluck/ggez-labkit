@@ -27,15 +27,98 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 using GGEZ.FullSerializer;
+using Variables = System.Collections.Generic.Dictionary<string, GGEZ.Labkit.Variable>;
+using VariablesSet = System.Collections.Generic.HashSet<System.Collections.Generic.Dictionary<string, GGEZ.Labkit.Variable>>;
+
+
+using System.Linq;
 
 namespace GGEZ.Labkit
 {
 
-    public class MirrorVariables : Cell
+    public class MirrorVariablesAsGolems : Cell
     {
-        // public GolemPrefab Golem;
+        public VariablesSetRegister Input;
+        private VariablesSetRegister _lastInput;
 
-        // public VariablesCollectionRegister Input;
+        [GGEZ.FullSerializer.fsIgnore]
+        public GameObject GolemPrefab;
+
+        [GGEZ.FullSerializer.fsIgnore]
+        public Transform Parent;
+
+        public string InputReferenceName;
+        public string OwnerReferenceName;
+
+        private Dictionary<Variables, Golem> Spawned = new Dictionary<Variables, Golem>(VariablesSetRegister.EqualityComparer);
+
+        public override void Release()
+        {
+            foreach (Golem golem in Spawned.Values)
+                GolemManager.ReleaseGolem(golem);
+
+            Spawned.Clear();
+        }
+
+        public override void Update()
+        {
+            if (object.ReferenceEquals(_lastInput, Input))
+            {
+                AcquireAll(Input.Added);
+                ReleaseAll(Input.Removed);
+            }
+            else
+            {
+                HashSet<Variables> toAdd = Input == null ? null : Input.Values;
+                if (_lastInput != null)
+                {
+                    // Release all previous values including those that were lost since last frame
+                    HashSet<Variables> toRelease = new HashSet<Variables>(_lastInput.Values, VariablesSetRegister.EqualityComparer);
+                    toRelease.UnionWith(_lastInput.Removed);
+
+                    // Don't release variables present in the new set, if it exists
+                    if (Input != null)
+                    {
+                        toRelease.ExceptWith(Input.Values);
+                        toAdd = new HashSet<Variables>(toAdd, VariablesSetRegister.EqualityComparer);
+                        toAdd.ExceptWith(toRelease);
+                    }
+
+                    ReleaseAll(toRelease);
+                }
+
+                if (toAdd != null)
+                {
+                    AcquireAll(toAdd);
+                }
+
+                _lastInput = Input;
+            }
+        }
+
+        private void AcquireAll(HashSet<Variables> variables)
+        {
+            Golem golemPrefab = GolemPrefab.GetComponent<Golem>();
+            foreach (Variables key in variables)
+            {
+                Golem golem = GolemManager.AcquireGolem(golemPrefab);
+                golem.transform.SetParent(Parent, false);
+                Spawned.Add(key, golem);
+            }
+        }
+
+        private void ReleaseAll(HashSet<Variables> variables)
+        {
+            foreach (Variables key in variables)
+            {
+                Golem golem;
+                if (Spawned.TryGetValue(key, out golem))
+                {
+                    GolemManager.ReleaseGolem(golem);
+                    Spawned.Remove(key);
+                }
+            }
+        }
     }
 
 }

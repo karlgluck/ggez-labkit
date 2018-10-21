@@ -25,6 +25,7 @@
 
 using System;
 using UnityEngine;
+using System.Reflection;
 using System.Collections.Generic;
 
 namespace GGEZ.Labkit
@@ -1152,19 +1153,14 @@ namespace GGEZ.Labkit
                 int inputCount = 0;
                 bool missingOutput = true;
                 bool checkTypes = true;
-                Type inputType = null, outputType = null;
+                FieldInfo readField = null, writeField = null;
 
                 if (wire.WriteCell != null)
                 {
                     missingOutput = false;
                     if (wire.WriteCell.Cell != null)
                     {
-                        var field = wire.WriteCell.Cell.GetType().GetField(wire.WriteField);
-                        if (field != null)
-                        {
-                            #warning we can't just blindly assume everything has a generic type argument that maps to the right type because we have collection register types
-                            outputType = field.FieldType.GetGenericArguments()[0];
-                        }
+                        writeField = wire.WriteCell.Cell.GetType().GetField(wire.WriteField);
                     }
                 }
                 if (wire.ReadCell != null)
@@ -1172,11 +1168,7 @@ namespace GGEZ.Labkit
                     ++inputCount;
                     if (wire.ReadCell.Cell != null)
                     {
-                        var field = wire.ReadCell.Cell.GetType().GetField(wire.ReadField);
-                        if (field != null)
-                        {
-                            inputType = field.FieldType.GetGenericArguments()[0];
-                        }
+                        readField = wire.ReadCell.Cell.GetType().GetField(wire.ReadField);
                     }
                 }
                 if (wire.ReadScript != null)
@@ -1184,11 +1176,7 @@ namespace GGEZ.Labkit
                     ++inputCount;
                     if (wire.ReadScript.Script != null)
                     {
-                        var field = wire.ReadScript.Script.GetType().GetField(wire.ReadField);
-                        if (field != null)
-                        {
-                            inputType = field.FieldType.GetGenericArguments()[0];
-                        }
+                        readField = wire.ReadScript.Script.GetType().GetField(wire.ReadField);
                     }
                 }
                 if (wire.ReadVariableInputRegister != null)
@@ -1197,7 +1185,7 @@ namespace GGEZ.Labkit
                     checkTypes = false;
                 }
 
-                bool typesDontMatch = checkTypes && !object.Equals(inputType, outputType);
+                bool typesDontMatch = checkTypes && readField == null || writeField == null || !GolemEditorUtility.CanConnect(wire.ReadObject, readField, wire.WriteObject, writeField);
 
                 if (inputCount != 1 || missingOutput || typesDontMatch)
                 {

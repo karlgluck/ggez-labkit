@@ -54,5 +54,9 @@ namespace GGEZ.Labkit
             return new StructVariable<T>(this);
         }
 
+        public override string ToString()
+        {
+            return _value.ToString();
+        }
     }
 }

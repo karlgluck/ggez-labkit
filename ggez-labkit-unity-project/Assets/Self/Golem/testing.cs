@@ -1,6 +1,9 @@
 using UnityEngine;
 using GGEZ.Labkit;
 using System.Linq;
+using System.Collections.Generic;
+using Variables = System.Collections.Generic.Dictionary<string, GGEZ.Labkit.Variable>;
+using VariablesSet = System.Collections.Generic.HashSet<System.Collections.Generic.Dictionary<string, GGEZ.Labkit.Variable>>;
 
 public enum Trigger
 {
@@ -308,6 +311,38 @@ public class PositionAspect : GGEZ.Labkit.Aspect
 //         entity.Set(Output, Input.GetKey(Key));
 //     }
 // }
+
+public class ClickCreatesVariables : Script
+{
+    public VariablesSetVariable Clicks;
+
+    public override void OnUpdate()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Variables variables = new Variables();
+            variables.Add("Point", StructVariable<Vector2>.For(Input.mousePosition));
+            Clicks.Add(variables);
+        }
+        if (Input.GetMouseButtonDown(1) && Clicks.Values.Count > 0)
+        {
+            Clicks.Remove(Clicks.Values.First());
+        }
+    }
+}
+
+public class DebugTextOnEnter : Script
+{
+    [GGEZ.FullSerializer.fsIgnore]
+    public Golem Golem;
+
+    public string Text;
+    
+    public override void OnEnter()
+    {
+        Debug.Log(Text, Golem);
+    }
+}
 
 
 public class SetObjectNameToTime : Script

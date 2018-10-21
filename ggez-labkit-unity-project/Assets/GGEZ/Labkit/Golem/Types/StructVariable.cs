@@ -54,6 +54,12 @@ namespace GGEZ.Labkit
         /// <summary>Create a variable with a new backing register</summary>
         public StructVariable() : this(null) {}
 
+        /// <summary>Create a variable with a new backing register and a default value</summary>
+        public StructVariable(T value) : this(null)
+        {
+            Value = value;
+        }
+
         /// <summary>Create a variable for the given backing register</summary>
         public StructVariable(StructRegister<T> register)
         {
@@ -72,5 +78,9 @@ namespace GGEZ.Labkit
             _register.Value = _value;
         }
 
+        public static StructVariable<T> For(T value)
+        {
+            return new StructVariable<T>(value);
+        }
     }
 }
