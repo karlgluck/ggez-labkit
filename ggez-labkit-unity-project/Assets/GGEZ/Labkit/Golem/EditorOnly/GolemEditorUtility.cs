@@ -331,12 +331,12 @@ namespace GGEZ.Labkit
 
                 case InspectableType.Variable:
                     #warning this is weird because elsewhere a Variable is actually a reference to somewhere
-                    IUntypedUnaryVariable singleValueVariable = value as IUntypedUnaryVariable;
-                    if (singleValueVariable != null)
+                    IUntypedUnaryVariable unaryVariable = value as IUntypedUnaryVariable;
+                    if (unaryVariable != null)
                     {
-                        Type valueType = singleValueVariable.ValueType;
+                        Type valueType = unaryVariable.ValueType;
                         InspectableType inspectableType = InspectableTypeExt.GetInspectableTypeOf(valueType);
-                        singleValueVariable.UntypedValue = EditorGUIField(position, inspectableType, valueType, singleValueVariable.UntypedValue);
+                        unaryVariable.UntypedValue = EditorGUIField(position, inspectableType, valueType, unaryVariable.UntypedValue);
                     }
                     else
                     {

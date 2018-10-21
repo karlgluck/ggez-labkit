@@ -875,11 +875,17 @@ namespace GGEZ.Labkit
                     GolemEditorSkin.Current.CellBodyStyle.Draw(clientPosition, false, false, false, false);
                 }
 
-                Rect clientRect = GolemEditorSkin.Current.CellBodyStyle.padding.Remove(clientPosition);
-                GUILayout.BeginArea(clientRect);
-                GUI.EndClip();
-                GUI.BeginClip(clientRect.ExpandedBy(0, EditorGUIUtility.singleLineHeight + GolemEditorSkin.Current.PortStyle.fixedWidth, 0f, 0f));
-                GUILayout.BeginVertical();
+                // Draw the client with a bigger size than the window and
+                // pad it using GUILayout.Space so that ports can be drawn.
+                // This also allows us to cleanly draw the lines between
+                // scripts from inside the scripts layout. Neat!
+                float portAreaWidth = EditorGUIUtility.singleLineHeight + GolemEditorSkin.Current.PortStyle.fixedWidth;
+                Rect clientRect = GolemEditorSkin.Current.CellBodyStyle.padding.Remove(clientPosition).ExpandedBy(portAreaWidth, portAreaWidth, 0f, 0f);
+
+                GUILayout.BeginArea(clientRect);    // Container for scripts + ports drawing
+                GUILayout.BeginHorizontal();        // Layout | left port area | scripts | right port area |
+                GUILayout.Space(portAreaWidth);     // Port area to the left of the script
+                GUILayout.BeginVertical();          // Script area inside the body
 
                 //-------------------------------
                 // State Scripts
@@ -890,7 +896,25 @@ namespace GGEZ.Labkit
                     var editorScript = editorScripts[i];
                     var inspectableType = GetInspectableScriptType(editorScript.Script.GetType());
 
+                    GUILayout.BeginVertical();
+                    GUILayout.Space(2f);
+                    GUILayout.BeginHorizontal();
+                    editorScript.Enabled = GUILayout.Toggle(editorScript.Enabled, GUIContent.none, GUILayout.MaxWidth(EditorGUIUtility.singleLineHeight));
+                    EditorGUI.BeginDisabledGroup(!editorScript.Enabled);
                     EditorGUILayout.LabelField(inspectableType.Name, EditorStyles.boldLabel);
+                    GUILayout.EndHorizontal();
+                    GUILayout.EndVertical();
+
+                    // Draw a little line between scripts
+                    if (i > 0)
+                    {
+                        Rect rect = GUILayoutUtility.GetLastRect();
+                        var style = GolemEditorSkin.Current.CellBodyStyle;
+                        rect.xMin -= style.padding.left;
+                        rect.xMax += style.padding.right;
+                        rect.height = 1f;
+                        EditorGUI.DrawRect(rect, Color.gray);
+                    }
 
                     //-------------------------------
                     // Script Fields
@@ -980,9 +1004,14 @@ namespace GGEZ.Labkit
                                     );
                         }
                     }
+                    
+                    EditorGUI.EndDisabledGroup();
+                    GUILayout.Space(2f);
                 }
 
                 GUILayout.EndVertical();
+                GUILayout.Space(portAreaWidth);
+                GUILayout.EndHorizontal();
                 if (Event.current.type == EventType.Repaint)
                 {
                     clientPosition.yMax = clientRect.yMin + GolemEditorSkin.Current.CellBodyStyle.padding.Add(GUILayoutUtility.GetLastRect()).height;

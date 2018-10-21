@@ -44,7 +44,6 @@ namespace GGEZ.Labkit
     //-------------------------------------------------------------------------
     public class EditorScript : IGraphObjectWithOutputs
     {
-        #warning Enabled flag isn't exposed in the editor
         public bool Enabled = true;
         public Script Script;
         /// <summary>The compiled index of the script</summary>
