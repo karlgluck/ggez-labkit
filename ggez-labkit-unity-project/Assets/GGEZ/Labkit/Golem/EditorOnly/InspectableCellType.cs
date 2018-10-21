@@ -44,33 +44,51 @@ namespace GGEZ.Labkit
     {
         public struct Input
         {
+            public readonly string Label;
             public string Name { get { return Field.Name; } }
             public Type Type { get { return Field.FieldType; } }
             public readonly FieldInfo Field;
-            public readonly Vector2 PortCenterFromTopLeft;
             public readonly bool CanBeNull;
 
-            public Input(FieldInfo field, Vector2 portCenterFromTopLeft, bool canBeNull)
+            public Input(string label, FieldInfo field, bool canBeNull)
             {
+                Label = label;
                 Field = field;
-                PortCenterFromTopLeft = portCenterFromTopLeft;
                 CanBeNull = canBeNull;
+            }
+
+            public static string NameToLabel(string name)
+            {
+                if (name.EndsWith("In"))
+                {
+                    return name.Substring(name.Length - 2);
+                }
+                return name;
             }
         }
 
         public struct Output
         {
+            public readonly string Label;
             public string Name { get { return Field.Name; } }
             public Type Type { get { return Field.FieldType; } }
             public readonly FieldInfo Field;
-            public readonly Vector2 PortCenterFromTopRight;
             public readonly bool CanBeNull;
 
-            public Output(FieldInfo field, Vector2 portCenterFromTopRight, bool canBeNull)
+            public Output(string label, FieldInfo field, bool canBeNull)
             {
+                Label = label;
                 Field = field;
-                PortCenterFromTopRight = portCenterFromTopRight;
                 CanBeNull = canBeNull;
+            }
+
+            public static string NameToLabel(string name)
+            {
+                if (name.EndsWith("Out"))
+                {
+                    return name.Substring(name.Length - 3);
+                }
+                return name;
             }
         }
 
@@ -140,22 +158,22 @@ namespace GGEZ.Labkit
                 return retval;
             }
 
-            var inputs = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => f.IsDefined(typeof(InAttribute), false)).ToArray();
+            var inputs = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => f.Name.Equals("Input") || f.Name.EndsWith("In")).ToArray();
             var returnedInputs = new Input[inputs.Length];
             for (int i = 0; i < inputs.Length; ++i)
             {
-                var portCenter = new Vector2(GolemEditorUtility.GridSize - GolemEditorUtility.NodeLeftRightMargin, EditorGUIUtility.singleLineHeight * (0.5f + i));
-                bool canBeNull = CanBeNullAttribute.IsAppliedTo(inputs[i]);
-                returnedInputs[i] = new Input(inputs[i], portCenter, canBeNull);
+                string label = Input.NameToLabel(inputs[i].Name);
+                bool canBeNull = inputs[i].IsDefined(typeof(CanBeNullAttribute), true);
+                returnedInputs[i] = new Input(label, inputs[i], canBeNull);
             }
 
-            var outputs = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => f.IsDefined(typeof(OutAttribute), false)).ToArray();
+            var outputs = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => f.Name.Equals("Output") || f.Name.EndsWith("Out")).ToArray();
             var returnedOutputs = new Output[outputs.Length];
             for (int i = 0; i < outputs.Length; ++i)
             {
-                var portCenter = new Vector2(-GolemEditorUtility.GridSize + GolemEditorUtility.NodeLeftRightMargin, EditorGUIUtility.singleLineHeight * (0.5f + i));
-                bool canBeNull = CanBeNullAttribute.IsAppliedTo(outputs[i]);
-                returnedOutputs[i] = new Output(outputs[i], portCenter, canBeNull);
+                string label = Output.NameToLabel(outputs[i].Name);
+                bool canBeNull = outputs[i].IsDefined(typeof(CanBeNullAttribute), true);
+                returnedOutputs[i] = new Output(label, outputs[i], canBeNull);
             }
 
             var fields = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => !f.IsDefined(typeof(InAttribute), false) && !f.IsDefined(typeof(OutAttribute), false)).ToArray();
@@ -181,13 +199,6 @@ namespace GGEZ.Labkit
             return retval;
         }
 
-        public static bool CanConnect(InspectableCellType readCell, int outputIndex, InspectableCellType writeCell, int inputIndex)
-        {
-            Type writeType = writeCell.Inputs[inputIndex].Type;
-            Type readType = readCell.Outputs[outputIndex].Type;
-
-            return readType.Equals(writeType);
-        }
     }
 
 }

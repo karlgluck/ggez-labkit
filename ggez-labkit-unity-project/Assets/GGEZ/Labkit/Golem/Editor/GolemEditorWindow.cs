@@ -585,7 +585,7 @@ namespace GGEZ.Labkit
 
                             case EventType.Repaint:
                                 GUI.SetNextControlName(id.ToString());
-                                GolemEditorSkin.Current.InputLabelStyle.Draw(labelPosition, new GUIContent(inputs[i].Name, inputs[i].Field.FieldType.Name), false, false, on, focused);
+                                GolemEditorSkin.Current.InputLabelStyle.Draw(labelPosition, new GUIContent(inputs[i].Label, inputs[i].Field.FieldType.Name), false, false, on, focused);
                                 GolemEditorSkin.Current.PortStyle.Draw(portPosition, false, false, on, focused);
                                 GolemEditorUtility.SetWireWritePoints(inputs[i].Name, editorCell.InputWires, portPosition.center);
                                 break;
@@ -654,7 +654,7 @@ namespace GGEZ.Labkit
 
                             case EventType.Repaint:
                                 GUI.SetNextControlName(id.ToString());
-                                GolemEditorSkin.Current.OutputLabelStyle.Draw(labelPosition, new GUIContent(outputs[i].Name, outputs[i].Field.FieldType.Name), false, false, on, focused);
+                                GolemEditorSkin.Current.OutputLabelStyle.Draw(labelPosition, new GUIContent(outputs[i].Label, outputs[i].Field.FieldType.Name), false, false, on, focused);
                                 GolemEditorSkin.Current.PortStyle.Draw(portPosition, false, false, on, focused);
                                 GolemEditorUtility.SetWireReadPoints(outputs[i].Name, editorCell.OutputWires, portPosition.center);
                                 break;

@@ -113,48 +113,48 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &229699042
+--- !u!1 &215882962
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 229699044}
-  - component: {fileID: 229699043}
+  - component: {fileID: 215882964}
+  - component: {fileID: 215882963}
   m_Layer: 0
-  m_Name: GameObject (1)
+  m_Name: GameObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &229699043
+--- !u!114 &215882963
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 229699042}
+  m_GameObject: {fileID: 215882962}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 34afa38a8fd60ea48a185c09a7d1303a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Archetype: {fileID: 1060531398}
+  Archetype: {fileID: 1963167877}
   SettingsObjectReferences: []
   SettingsJson: '[]'
---- !u!4 &229699044
+--- !u!4 &215882964
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 229699042}
+  m_GameObject: {fileID: 215882962}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.019040585, y: 0, z: -0.018981934}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &322191693
 GameObject:
@@ -233,84 +233,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &727003193
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 727003195}
-  - component: {fileID: 727003194}
-  m_Layer: 0
-  m_Name: GameObject
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &727003194
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 727003193}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34afa38a8fd60ea48a185c09a7d1303a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Archetype: {fileID: 1060531398}
-  SettingsObjectReferences: []
-  SettingsJson: '[]'
---- !u!4 &727003195
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 727003193}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.019040585, y: 0, z: -0.018981934}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1060531398
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a40c0070290a97447a0032ef1032d309, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Components:
-  - {fileID: 1863601564}
-  InheritSettingsFrom: {fileID: 0}
-  Json: "{\r\n    \"Aspects\": {\r\n        \"$content\": [],\r\n        \"$type\":
-    \"GGEZ.Labkit.Aspect[]\"\r\n    },\r\n    \"Assignments\": {\r\n        \"$content\":
-    [],\r\n        \"$type\": \"GGEZ.Labkit.Assignment[]\"\r\n    },\r\n    \"ExternalAssignments\":
-    {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
-    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[],
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   },\r\n    \"Settings\": {\r\n        \"$content\": [],\r\n        \"$type\":
-    \"System.Collections.Generic.List`1[[GGEZ.Labkit.Settings+Setting, Assembly-CSharp,
-    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    },\r\n    \"Variables\":
-    {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
-    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.IVariable,
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   }\r\n}"
-  EditorJson: "{\r\n    \"EditorAspects\": {\r\n        \"$content\": [],\r\n        \"$type\":
-    \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorAspect, Assembly-CSharp,
-    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    },\r\n    \"EditorVariables\":
-    {\r\n        \"$content\": [],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.GolemVariableEditorData,
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \   }\r\n}"
-  EditorWindowSelectedComponent: 0
---- !u!114 &1863601564
+--- !u!114 &1745897782
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -372,9 +295,9 @@ MonoBehaviour:
     \                               \"Name\": \"State\",\r\n                                \"Layer\":
     0,\r\n                                \"Index\": 1,\r\n                                \"CompiledIndex\":
     0,\r\n                                \"SpecialState\": \"Normal\",\r\n                                \"Position\":
-    {\r\n                                    \"xMin\": 160.0,\r\n                                    \"yMin\":
-    288.0,\r\n                                    \"xMax\": 512.0,\r\n                                    \"yMax\":
-    407.0\r\n                                },\r\n                                \"Scripts\":
+    {\r\n                                    \"xMin\": 208.0,\r\n                                    \"yMin\":
+    352.0,\r\n                                    \"xMax\": 560.0,\r\n                                    \"yMax\":
+    471.0\r\n                                },\r\n                                \"Scripts\":
     [\r\n                                    {\r\n                                        \"$ref\":
     \"6\"\r\n                                    }\r\n                                ],\r\n
     \                               \"TransitionsIn\": [\r\n                                    0\r\n
@@ -388,14 +311,14 @@ MonoBehaviour:
     \"Variable\",\r\n                        \"WriteObject\": {\r\n                            \"$ref\":
     \"2\"\r\n                        },\r\n                        \"WriteField\":
     \"Input\",\r\n                        \"ReadPoint\": {\r\n                            \"x\":
-    -1039.0,\r\n                            \"y\": -2103.0\r\n                        },\r\n
+    -991.0,\r\n                            \"y\": -2039.0\r\n                        },\r\n
     \                       \"WritePoint\": {\r\n                            \"x\":
-    -959.0,\r\n                            \"y\": -2101.0\r\n                        },\r\n
+    -895.0,\r\n                            \"y\": -2037.0\r\n                        },\r\n
     \                       \"Register\": 0,\r\n                        \"$id\": \"5\"\r\n
     \                   }\r\n                },\r\n                \"OutputWires\":
     {\r\n\r\n                },\r\n                \"Position\": {\r\n                    \"xMin\":
-    624.0,\r\n                    \"yMin\": 304.0,\r\n                    \"xMax\":
-    976.0,\r\n                    \"yMax\": 395.0\r\n                },\r\n                \"FieldsUsingSettings\":
+    688.0,\r\n                    \"yMin\": 368.0,\r\n                    \"xMax\":
+    1040.0,\r\n                    \"yMax\": 459.0\r\n                },\r\n                \"FieldsUsingSettings\":
     {\r\n\r\n                },\r\n                \"FieldsUsingVariables\": {\r\n\r\n
     \               },\r\n                \"$id\": \"2\"\r\n            }\r\n        ],\r\n
     \       \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorCell,
@@ -407,8 +330,8 @@ MonoBehaviour:
     {\r\n        \"$content\": [\r\n            {\r\n                \"Name\": \"Enter\",\r\n
     \               \"Layer\": 0,\r\n                \"Index\": 0,\r\n                \"CompiledIndex\":
     2147483647,\r\n                \"SpecialState\": \"LayerEnter\",\r\n                \"Position\":
-    {\r\n                    \"xMin\": 160.0,\r\n                    \"yMin\": 48.0,\r\n
-    \                   \"xMax\": 512.0,\r\n                    \"yMax\": 115.0\r\n
+    {\r\n                    \"xMin\": 208.0,\r\n                    \"yMin\": 144.0,\r\n
+    \                   \"xMax\": 560.0,\r\n                    \"yMax\": 211.0\r\n
     \               },\r\n                \"Scripts\": [],\r\n                \"TransitionsIn\":
     [],\r\n                \"TransitionsOut\": [\r\n                    0\r\n                ]\r\n
     \           },\r\n            {\r\n                \"$ref\": \"13\"\r\n            }\r\n
@@ -417,14 +340,14 @@ MonoBehaviour:
     \   },\r\n    \"EditorTransitions\": {\r\n        \"$content\": [\r\n            {\r\n
     \               \"Name\": \"Transition\",\r\n                \"Index\": 0,\r\n
     \               \"Expression\": {\r\n                    \"Type\": \"True\",\r\n
-    \                   \"Position\": {\r\n                        \"xMin\": 400.0,\r\n
-    \                       \"yMin\": 200.0,\r\n                        \"xMax\":
-    465.0,\r\n                        \"yMax\": 216.0\r\n                    },\r\n
+    \                   \"Position\": {\r\n                        \"xMin\": 448.0,\r\n
+    \                       \"yMin\": 280.0,\r\n                        \"xMax\":
+    513.0,\r\n                        \"yMax\": 296.0\r\n                    },\r\n
     \                   \"Trigger\": \"Next\",\r\n                    \"Subexpressions\":
     []\r\n                },\r\n                \"ExpressionAnchor\": {\r\n                    \"x\":
-    400.0,\r\n                    \"y\": 208.0\r\n                },\r\n                \"Position\":
-    {\r\n                    \"xMin\": 400.0,\r\n                    \"yMin\": 200.0,\r\n
-    \                   \"xMax\": 465.0,\r\n                    \"yMax\": 216.0\r\n
+    448.0,\r\n                    \"y\": 288.0\r\n                },\r\n                \"Position\":
+    {\r\n                    \"xMin\": 448.0,\r\n                    \"yMin\": 280.0,\r\n
+    \                   \"xMax\": 513.0,\r\n                    \"yMax\": 296.0\r\n
     \               },\r\n                \"From\": 0,\r\n                \"To\":
     1\r\n            }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorTransition,
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
@@ -432,6 +355,40 @@ MonoBehaviour:
     \       \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorVariableInputRegister,
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
     \   }\r\n}"
+--- !u!114 &1963167877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a40c0070290a97447a0032ef1032d309, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Components:
+  - {fileID: 1745897782}
+  InheritSettingsFrom: {fileID: 0}
+  Json: "{\r\n    \"Aspects\": {\r\n        \"$content\": [],\r\n        \"$type\":
+    \"GGEZ.Labkit.Aspect[]\"\r\n    },\r\n    \"Assignments\": {\r\n        \"$content\":
+    [],\r\n        \"$type\": \"GGEZ.Labkit.Assignment[]\"\r\n    },\r\n    \"ExternalAssignments\":
+    {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
+    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[],
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   },\r\n    \"Settings\": {\r\n        \"$content\": [],\r\n        \"$type\":
+    \"System.Collections.Generic.List`1[[GGEZ.Labkit.Settings+Setting, Assembly-CSharp,
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    },\r\n    \"Variables\":
+    {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
+    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.IVariable,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   }\r\n}"
+  EditorJson: "{\r\n    \"EditorAspects\": {\r\n        \"$content\": [],\r\n        \"$type\":
+    \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorAspect, Assembly-CSharp,
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n    },\r\n    \"EditorVariables\":
+    {\r\n        \"$content\": [],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.GolemVariableEditorData,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   }\r\n}"
+  EditorWindowSelectedComponent: 0
 --- !u!1 &2069607078
 GameObject:
   m_ObjectHideFlags: 0

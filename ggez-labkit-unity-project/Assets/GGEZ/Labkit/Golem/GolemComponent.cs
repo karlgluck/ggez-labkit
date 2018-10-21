@@ -289,7 +289,7 @@ namespace GGEZ.Labkit
                                             }
                                             else
                                             {
-                                                assignment.Type = AssignmentType.ScriptVariable;
+                                                assignment.Type = AssignmentType.ScriptLocalVariable;
                                                 assignments.Add(assignment);
                                             }
                                         }
@@ -667,7 +667,7 @@ namespace GGEZ.Labkit
                                     }
                                     else
                                     {
-                                        assignment.Type = AssignmentType.CellVariable;
+                                        assignment.Type = AssignmentType.CellLocalVariable;
                                         assignments.Add(assignment);
                                     }
                                 }

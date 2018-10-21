@@ -69,15 +69,21 @@ namespace GGEZ.Labkit
 
         public static Golem AcquireGolem(Golem prefab)
         {
-            Debug.Assert(!Application.isPlaying);
+            Debug.Assert(Application.isPlaying);
 
+        TryAgain:
             Golem golem;
             if (Instance._golemPool.MultiPop(prefab.Archetype.GetInstanceID(), out golem))
             {
-                // For now, don't handle the case of memory being cleaned up
-                Debug.Assert(golem != null);
-                OnAwake(golem);
-                golem.gameObject.SetActive(true);
+                // One situation where this can happen is if the golem is added to the pool then a new scene is loaded
+                if (golem == null)
+                    goto TryAgain;
+
+                // OnAwake(golem);
+                // golem.gameObject.SetActive(true);
+                Debug.Log("Golem pooling doesn't correctly wake up the old golem with blanked settings. Calling OnAwake isn't good enough because that recreates everything anyway.");
+                GameObject.Destroy(golem.gameObject);
+                goto TryAgain;
             }
             else
             {
@@ -95,6 +101,8 @@ namespace GGEZ.Labkit
 
         public static void ReleaseGolem(Golem golem)
         {
+            Debug.Assert(Application.isPlaying);
+
             var archetype = golem.Archetype;
             Assignment.Assign(golem, archetype.Assignments, null, null, null);
             for (int i = 0; i < archetype.Components.Length; ++i)

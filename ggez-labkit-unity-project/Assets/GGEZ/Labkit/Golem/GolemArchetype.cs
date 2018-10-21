@@ -195,7 +195,7 @@ namespace GGEZ.Labkit
                                     }
                                     else
                                     {
-                                        assignment.Type = AssignmentType.AspectVariable;
+                                        assignment.Type = AssignmentType.AspectLocalVariable;
                                         assignments.Add(assignment);
                                     }
                                 }

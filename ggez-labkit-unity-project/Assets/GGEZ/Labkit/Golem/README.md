@@ -77,11 +77,11 @@ Because:
 
 If scripts only write variables, changes leapfrog the Collection Register phase so that they'll be seen by cells (and scripts) on the next frame. Otherwise, circuits would be able to propagate changes to scripts correctly but the reverse would not be true. Doing this also removes the ambiguity of whether scripts can expect to share data with one another through registers by answering "no".
 
-## Registers and Variables must be properties not fields
+## Cells and scripts that care about collection registers / variables must implement change tracking themselves
 
-A cell can use an input collection register's `Added` / `Removed` sets to track changes in the input. However, the cell also needs to track changes in the entire collection itself, since those changes are reflected in neither the old nor the new collection register's `Added` / `Removed` sets. This can be done in a setter.
+A cell can use an input collection register's `Added` / `Removed` sets to track changes in the input. However, the cell also needs to track changes in the entire collection itself since those changes are reflected in neither the old nor the new collection register's `Added` / `Removed` sets.
 
-This is not strictly necessary for outputs. However, keeping inputs and outputs consistent seems correct.
+This could have been implemented by asking variables to be properties instead of fields so that a setter could be written to handle this case. At first glance, this seems like a clean solution since the setter would have access to both the old and new collections simultaneously. However, in practice, this still asks a cell to queue any changes it might make for later evaluation during `Update` in order to prevent out-of-order operations. I expect most users of collection registers will be more heavy-weight and need to manage complex state anyway, so adding the requirement that they also check for collection changes seems reasonable.
 
 ## Port direction is identified by name
 
@@ -100,6 +100,14 @@ The fact that this is possible has tripped me up a few times and I keep thinking
 ## Undo / Redo
 
 Involves making classes like `EditorCell`, `EditorState` and `EditorScript` into `ScriptableObject`s. Nice side-benefit is that Unity will then take care of serializing these things' references to each other, so we can back out the JSON serialization of the classes into just the user's runtime classes themselves.
+
+## Golem pooling
+
+To save memory and make creating/destroying golems cheap, they can be easily pooled. Much of the code is already there! Just need to test it.
+
+## ECS
+
+The structure of a Golem's cells and scripts shouldn't be too hard to modify to take advantage of Unity's new entity-component system. Cell and script instances already pretty much act like components with their behavior being defined by code in the archetype/component.
 
 ## Upgrade to the Unity 2018 Elements UI
 

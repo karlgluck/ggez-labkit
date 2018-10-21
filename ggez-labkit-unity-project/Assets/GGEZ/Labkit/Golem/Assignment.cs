@@ -39,10 +39,10 @@ namespace GGEZ.Labkit
         AspectGolem,                    // The Golem instance
         AspectSetting,                  // The setting [Name] from the archetype
         AspectAspect,                   // Aspect of the target field's type or null
-        [Obsolete]
-        AspectVariable,                 // Find [TargetFieldName] on aspect [TargetIndex] and assign it to variable [Name], creating that variable if necessary
-        AspectVariableOrNull,           // The existing variable [Name] or null
-        AspectVariableOrDummy,          // The existing variable [Name] or a newly allocated variable
+
+        AspectLocalVariable,            // The variable [Name]
+        AspectVariableOrNull,           // The variable [Name] or null
+        AspectVariableOrDummy,          // The variable [Name] or a newly allocated variable
         AspectDummyVariable,            // Newly allocated variable
 
         // Used in GolemComponent:
@@ -55,11 +55,10 @@ namespace GGEZ.Labkit
 
         CellAspect,                     // Aspect of the target field's type or null
         ScriptAspect,                   // Aspect of the target field's type or null
-[Obsolete]
-        CellVariable,                   // Find [TargetFieldName] on cell [TargetIndex] and assign it to variable [Name], creating that variable if necessary
+
+        CellLocalVariable,              // The variable [Name]
         CellVariableOrNull,             // The variable [Name] or null
         CellVariableOrDummy,            // The variable [Name] or a newly allocated variable
-        CellRegisterVariable,           // The variable created for register [RegisterIndex]
         CellInputVariableRegisterOrNull,  // The register for variable [Name] or null
         CellInputVariableRegisterOrDummy, // The register for variable [Name] or the global read-only register
         CellInputRegister,              // The register [RegisterIndex] from this Component
@@ -67,8 +66,8 @@ namespace GGEZ.Labkit
         CellDummyInputRegister,         // Global read-only register
         CellDummyOutputRegister,        // Global write-only register
         CellDummyVariable,              // Newly allocated variable
-[Obsolete]
-        ScriptVariable,                 // Find [TargetFieldName] on script [TargetIndex] and assign it to variable [Name], creating that variable if necessary
+
+        ScriptLocalVariable,            // The variable [Name]
         ScriptVariableOrNull,           // The variable [Name] or null
         ScriptVariableOrDummy,          // The variable [Name] or a newly allocated variable
         ScriptRegisterVariable,         // The variable created for register [RegisterIndex]
@@ -118,8 +117,6 @@ namespace GGEZ.Labkit
             object target;
             FieldInfo fieldInfo;
 
-            #warning If we assign and unassign a register, cell listeners still remain! We need to remove these!
-
             switch (assignment.Type)
             {
                 case AssignmentType.AspectGolem:  assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem); break;
@@ -133,10 +130,10 @@ namespace GGEZ.Labkit
                 case AssignmentType.AspectAspect:   assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
                 case AssignmentType.CellAspect:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
                 case AssignmentType.ScriptAspect:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, golem.GetAspect(fieldInfo.FieldType)); break;
-#warning variables being defined by aspects is out of date; aspects should just give a nice view and the variables provide defaults
-                case AssignmentType.AspectVariable: assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
-                case AssignmentType.CellVariable:   assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
-                case AssignmentType.ScriptVariable: assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetOrCreateVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
+
+                case AssignmentType.AspectLocalVariable: assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, GetLocalVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
+                case AssignmentType.CellLocalVariable:   assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetLocalVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
+                case AssignmentType.ScriptLocalVariable: assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetLocalVariable(variables, assignment.Name, fieldInfo.FieldType)); break;
 
                 case AssignmentType.AspectVariableOrNull:   assignment.GetObjectFieldInfo(golem.Aspects,     out target, out fieldInfo).SetValue(target, GetVariableOrNull(variables, assignment.Name)); break;
                 case AssignmentType.CellVariableOrNull:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetVariableOrNull(variables, assignment.Name)); break;
@@ -146,7 +143,6 @@ namespace GGEZ.Labkit
                 case AssignmentType.CellVariableOrDummy:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetVariableOrDummy(variables, assignment.Name, fieldInfo.FieldType)); break;
                 case AssignmentType.ScriptVariableOrDummy:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetVariableOrDummy(variables, assignment.Name, fieldInfo.FieldType)); break;
 
-                case AssignmentType.CellRegisterVariable:     assignment.GetObjectFieldInfo(component.Cells,   out target, out fieldInfo).SetValue(target, GetOrCreateRegisterVariable(assignment.RegisterIndex, registers, ref registerVariables)); break;
                 case AssignmentType.ScriptRegisterVariable:   assignment.GetObjectFieldInfo(component.Scripts, out target, out fieldInfo).SetValue(target, GetOrCreateRegisterVariable(assignment.RegisterIndex, registers, ref registerVariables)); break;
 
                 case AssignmentType.CellInputVariableRegisterOrNull:
@@ -199,7 +195,7 @@ namespace GGEZ.Labkit
 
                 case AssignmentType.CellInputRegister:
                     {
-                        #warning we only need to update straight cell input registers when the golem is brand new
+                        #warning we only need to update cell input registers when the golem is brand new
 
                         Cell targetCell = component.Cells[assignment.TargetIndex];
                         fieldInfo = assignment.GetFieldInfo(targetCell);
@@ -234,12 +230,13 @@ namespace GGEZ.Labkit
             return variable;
         }
 
-        private static IVariable GetOrCreateVariable(Dictionary<string, IVariable> variables, string name, Type type)
+        private static IVariable GetLocalVariable(Dictionary<string, IVariable> variables, string name, Type type)
         {
             Debug.Assert(typeof(IVariable).IsAssignableFrom(type));
             IVariable variable;
             if (!variables.TryGetValue(name, out variable))
             {
+                Debug.LogError("Local variable '" + name + "' of type " + type.Name + " does not exist!");
                 variable = Activator.CreateInstance(type) as IVariable;
                 variables.Add(name, variable);
             }
