@@ -23,26 +23,12 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
+using System.Collections.Generic;
+
 namespace GGEZ.Labkit
 {
-    public abstract class Variable : IVariableRolloverPhaseListener
+    public interface ICollectionRegisterPhaseListener
     {
-        public abstract Register GetRegister();
-        public abstract void OnVariableRolloverPhase();
-
-        public Variable Clone()
-        {
-            return MemberwiseClone() as Variable;
-        }
-
-        public override string ToString()
-        {
-            return GetRegister().ToString();
-        }
-
-        protected void QueueForRolloverPhase()
-        {
-            GolemManager.QueueForVariableRolloverPhase(this);
-        }
+        void OnCollectionRegisterPhase();
     }
 }

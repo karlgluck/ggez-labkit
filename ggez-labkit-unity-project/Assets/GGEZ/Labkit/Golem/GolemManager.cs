@@ -39,11 +39,9 @@ namespace GGEZ.Labkit
         #warning TODO do we need to weak reference the golem pool?
         private Dictionary<int, List<Golem>> _golemPool = new Dictionary<int, List<Golem>>();
 
-        private List<Variable> _changedVariables = new List<Variable>();
-
         private static CellPriorityQueue _changedCells = new CellPriorityQueue();
-
-        private List<ICollectionRegister> _changedCollectionRegisters = new List<ICollectionRegister>();
+        private List<ICollectionRegisterPhaseListener> _collectionRegisterPhaseListeners = new List<ICollectionRegisterPhaseListener>();
+        private List<IVariableRolloverPhaseListener> _variableRolloverPhaseListeners = new List<IVariableRolloverPhaseListener>();
 
         private List<List<Transition>> _activeTransitions = new List<List<Transition>>();
 
@@ -229,7 +227,7 @@ namespace GGEZ.Labkit
             }
         }
 
-        public static void QueueForVariableRolloverPhase(Variable variable)
+        public static void QueueForVariableRolloverPhase(IVariableRolloverPhaseListener listener)
         {
 
         #if UNITY_EDITOR
@@ -237,10 +235,10 @@ namespace GGEZ.Labkit
                 return;
         #endif
 
-            Instance._changedVariables.Add(variable);
+            Instance._variableRolloverPhaseListeners.Add(listener);
         }
 
-        public static void QueueForCollectionRegisterPhase(ICollectionRegister register)
+        public static void QueueForCollectionRegisterPhase(ICollectionRegisterPhaseListener listener)
         {
 
         #if UNITY_EDITOR
@@ -248,7 +246,7 @@ namespace GGEZ.Labkit
                 return;
         #endif
 
-            Instance._changedCollectionRegisters.Add(register);
+            Instance._collectionRegisterPhaseListeners.Add(listener);
         }
 
         public static void UpdateCellNextFrame(Cell cell)
@@ -464,20 +462,28 @@ namespace GGEZ.Labkit
 
         private void CollectionRegisterPhase()
         {
-            for (int i = 0; i < _changedCollectionRegisters.Count; ++i)
-            {
-                _changedCollectionRegisters[i].OnCollectionRegisterPhase();
-            }
-            _changedCollectionRegisters.Clear();
+            int end = _collectionRegisterPhaseListeners.Count;
+
+            for (int i = 0; i < end; ++i)
+                _collectionRegisterPhaseListeners[i].OnCollectionRegisterPhase();
+
+            if (end == _collectionRegisterPhaseListeners.Count)
+                _collectionRegisterPhaseListeners.Clear();
+            else
+                _collectionRegisterPhaseListeners.RemoveRange(0, end);
         }
 
         private void VariableRolloverPhase()
         {
-            for (int i = 0; i < _changedVariables.Count; ++i)
-            {
-                _changedVariables[i].OnVariableRolloverPhase();
-            }
-            _changedVariables.Clear();
+            int end = _variableRolloverPhaseListeners.Count;
+
+            for (int i = 0; i < end; ++i)
+                _variableRolloverPhaseListeners[i].OnVariableRolloverPhase();
+
+            if (end == _variableRolloverPhaseListeners.Count)
+                _variableRolloverPhaseListeners.Clear();
+            else
+                _variableRolloverPhaseListeners.RemoveRange(0, end);
         }
 
     }

@@ -195,8 +195,6 @@ namespace GGEZ.Labkit
 
                 case AssignmentType.CellInputRegister:
                     {
-                        #warning we only need to update cell input registers when the golem is brand new
-
                         Cell targetCell = component.Cells[assignment.TargetIndex];
                         fieldInfo = assignment.GetFieldInfo(targetCell);
                         {

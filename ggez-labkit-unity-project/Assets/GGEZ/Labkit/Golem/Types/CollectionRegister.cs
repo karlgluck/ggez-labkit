@@ -27,12 +27,7 @@ using System.Collections.Generic;
 
 namespace GGEZ.Labkit
 {
-    public interface ICollectionRegister
-    {
-        void OnCollectionRegisterPhase();
-    }
-
-    public abstract class CollectionRegister<T> : Register, ICollectionRegister
+    public abstract class CollectionRegister<T> : Register, ICollectionRegisterPhaseListener
     {
         protected abstract ICollection<T> ValuesCollection { get; }
         protected abstract ICollection<T> AddedCollection { get; }
