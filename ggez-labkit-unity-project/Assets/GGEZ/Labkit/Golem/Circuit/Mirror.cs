@@ -31,44 +31,9 @@ using GGEZ.FullSerializer;
 namespace GGEZ.Labkit
 {
 
-    //-------------------------------------------------------------------------
-    // Cell
-    //-------------------------------------------------------------------------
-    public class Cell : IEquatable<Cell>
+    public class Mirror : Cell
     {
-        private static int s_nextSequencer = 1;
-
-        // This is a globally unique sequencing value used to organize cells into a priority queue
-        // It is in the order of cells in a single golem, and unique between golems
-        /// <remarks>Could use the high bits of this sequencer to distinguish
-        /// cells of different golems so that they can be parallelized.</remarks>
-        [fsIgnore]
-        public int Sequencer { get; private set; }
-
-        public virtual void Acquire()
-        { }
-
-        public virtual void Update()
-        { }
-
-        public Cell Clone(int sequencer)
-        {
-            Cell cell = MemberwiseClone() as Cell;
-            cell.Sequencer = sequencer;
-            return cell;
-        }
-
-        public Cell Clone()
-        {
-            Cell cell = MemberwiseClone() as Cell;
-            cell.Sequencer = s_nextSequencer++;
-            return cell;
-        }
-
-        public bool Equals(Cell other)
-        {
-            return object.ReferenceEquals(this, other);
-        }
+        
     }
 
 }

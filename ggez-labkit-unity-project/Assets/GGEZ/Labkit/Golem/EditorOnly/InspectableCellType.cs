@@ -158,7 +158,15 @@ namespace GGEZ.Labkit
                 return retval;
             }
 
-            var inputs = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => f.Name.Equals("Input") || f.Name.EndsWith("In")).ToArray();
+            var inputs = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public)
+                                 .Where((f) => f.Name.Equals("Input") || f.Name.EndsWith("In"))
+                                 .Where((f) => 
+                                    {
+                                        if (typeof(IRegister).IsAssignableFrom(f.FieldType)) return true;
+                                        Debug.LogError(cellType.Name + " field " + f.Name + " must derive from IRegister to be an input (it is a " + f.FieldType.Name + "). It is being treated as a field instead.");
+                                        return false;
+                                    })
+                                 .ToArray();
             var returnedInputs = new Input[inputs.Length];
             for (int i = 0; i < inputs.Length; ++i)
             {
@@ -167,7 +175,15 @@ namespace GGEZ.Labkit
                 returnedInputs[i] = new Input(label, inputs[i], canBeNull);
             }
 
-            var outputs = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Where((f) => f.Name.Equals("Output") || f.Name.EndsWith("Out")).ToArray();
+            var outputs = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public)
+                                  .Where((f) => f.Name.Equals("Output") || f.Name.EndsWith("Out"))
+                                  .Where((f) => 
+                                    {
+                                        if (typeof(IRegister).IsAssignableFrom(f.FieldType)) return true;
+                                        Debug.LogError(cellType.Name + " field " + f.Name + " must derive from IRegister to be an output (it is a " + f.FieldType.Name + "). It is being treated as a field instead.");
+                                        return false;
+                                    })
+                                  .ToArray();
             var returnedOutputs = new Output[outputs.Length];
             for (int i = 0; i < outputs.Length; ++i)
             {
@@ -176,7 +192,16 @@ namespace GGEZ.Labkit
                 returnedOutputs[i] = new Output(label, outputs[i], canBeNull);
             }
 
-            var fields = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public).Except(inputs).Except(outputs).ToArray();
+            var fields = cellType.GetFields(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public)
+                                 .Except(inputs)
+                                 .Except(outputs)
+                                 .Where((f) => 
+                                    {
+                                        if (!typeof(IRegister).IsAssignableFrom(f.FieldType)) return true;
+                                        Debug.LogError(cellType.Name + " field " + f.Name + " derives from IRegister but is not named properly to be an input or output. It will not be available for wires or be editable.");
+                                        return false;
+                                    })
+                                 .ToArray();
             var returnedFields = new Field[fields.Length];
             {
                 int j = 0;

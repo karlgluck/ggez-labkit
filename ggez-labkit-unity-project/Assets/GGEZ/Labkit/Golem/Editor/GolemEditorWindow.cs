@@ -435,6 +435,12 @@ namespace GGEZ.Labkit
                         DeleteEditorState(editorStateSelection);
                     }
 
+                    var editorCellSelection = _selection as EditorCell;
+                    if (editorCellSelection != null)
+                    {
+                        DeleteEditorCell(editorCellSelection);
+                    }
+
                     Repaint();
                     _shouldWrite = true;
                     _selection = null;
@@ -1493,9 +1499,8 @@ namespace GGEZ.Labkit
             _shouldWrite = true;
         }
 
-        private void DeleteEditorCellMenuFunction(object editorCellParam)
+        private void DeleteEditorCell(EditorCell editorCell)
         {
-            var editorCell = editorCellParam as EditorCell;
             foreach (var input in editorCell.GetAllInputWires())
             {
                 input.ReadObject.RemoveOutputWire(input);
@@ -1508,6 +1513,12 @@ namespace GGEZ.Labkit
             }
             _cells.Remove(editorCell);
             _shouldWrite = true;
+            Repaint();
+        }
+
+        private void DeleteEditorCellMenuFunction(object editorCellParam)
+        {
+            DeleteEditorCell(editorCellParam as EditorCell);
         }
 
         private void SetTransitionExpressionType(object exprTypeTrigger)

@@ -117,6 +117,8 @@ namespace GGEZ.Labkit
                 _added.Add(element);
                 
                 GolemManager.AddChangedCollectionRegister(this);
+                if (_listeners != null)
+                    GolemManager.AddChangedCellInputs(_listeners);
                 return true;
             }
 
@@ -144,6 +146,8 @@ namespace GGEZ.Labkit
                 _removed.Add(element);
                 
                 GolemManager.AddChangedCollectionRegister(this);
+                if (_listeners != null)
+                    GolemManager.AddChangedCellInputs(_listeners);
                 return true;
             }
 

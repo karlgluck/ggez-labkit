@@ -1,5 +1,6 @@
 using UnityEngine;
 using GGEZ.Labkit;
+using System.Linq;
 
 public enum Trigger
 {
@@ -369,8 +370,46 @@ public class OnKeySetTrigger : Script
     {
         if (Input.GetKeyDown(Key))
         {
-            Debug.Log("SetTrigger " + Trigger);
             Golem.SetTrigger(Trigger);
         }
     }
+}
+
+public class CollectionTester : Script
+{
+    public HashSetVariable<float> Times;
+
+    public KeyCode AddKey;
+    public KeyCode RemoveKey;
+
+    public override void OnUpdate()
+    {
+        if (Input.GetKeyDown(AddKey) || (Input.GetKey(AddKey) && Input.GetKeyDown(RemoveKey)))
+        {
+            for (int i = Random.Range(1, 5); i >= 0; --i)
+            {
+                Times.Add(Random.value);
+            }
+        }
+        if (Input.GetKeyDown(RemoveKey) || (Input.GetKey(RemoveKey) && Input.GetKeyDown(AddKey)))
+        {
+            var array = Times.Values.ToArray();
+            GGEZ.RandomExt.Shuffle(GGEZ.RandomExt.UnityRandom, array);
+            for (int i = Mathf.Min(array.Length-1, Random.Range(1, 5)); i >= 0 && Times.Values.Count > 0; --i)
+            {
+                Times.Remove(array[i]);
+            }
+        }
+    }
+}
+
+public class DebugMirror : Cell
+{
+    public HashSetRegister<float> Input;
+
+    public override void Update()
+    {
+        Debug.Log(Input);
+    }
+
 }

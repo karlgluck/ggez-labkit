@@ -93,7 +93,7 @@ namespace GGEZ.Labkit
         }
 
         // Use this equality comparer when using a VariableRef as a dictionary key
-        public readonly static IEqualityComparer<VariableRef> EqualityComparer = new VariableRefEqualityComparer();
+        public static readonly IEqualityComparer<VariableRef> EqualityComparer = new VariableRefEqualityComparer();
         private sealed class VariableRefEqualityComparer : IEqualityComparer<VariableRef>
         {
             public bool Equals(VariableRef a, VariableRef b)

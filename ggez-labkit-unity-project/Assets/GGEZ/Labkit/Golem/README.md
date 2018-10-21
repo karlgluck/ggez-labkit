@@ -123,7 +123,11 @@ One of the cool things about update order independence, variables only changing 
 
 Buncha crazy stuff down here... all WIP notes to myself
 
-
+Stylistic choices:
+ - When to make a function check null => no-op vs. requiring the caller to only call with valid arguments
+ - When to use an interface vs. an abstract class
+        => DRY
+        => multiple interfaces
 
 
  - as simple to use and extend as possible
