@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using System.Reflection;
+using GGEZ;
+#warning todo unify namespaces for ggez
 using GGEZ.FullSerializer;
 using UnityObject = UnityEngine.Object;
 
@@ -35,7 +37,7 @@ namespace GGEZ.Labkit
 
     public sealed class Golem : MonoBehaviour, ISerializationCallbackReceiver
     {
-        [SerializeField, HideInInspector]
+        [SerializeField]
         public GolemArchetype Archetype;
 
         /// <summary>Golem-local settings used for prefab Unity Object references and individual overrides.</summary>
@@ -102,7 +104,6 @@ namespace GGEZ.Labkit
 
         public void OnBeforeSerialize()
         {
-
             SettingsObjectReferences.Clear();
             var serializer = Serialization.GetSerializer(SettingsObjectReferences);
             fsData data;
@@ -114,7 +115,6 @@ namespace GGEZ.Labkit
 
         public void OnAfterDeserialize()
         {
-
             var serializer = Serialization.GetSerializer(SettingsObjectReferences);
             fsData data;
             fsResult result;
@@ -142,6 +142,7 @@ namespace GGEZ.Labkit
 
         void Reset()
         {
+            Debug.Log("Reset", this);
             Archetype = ScriptableObject.CreateInstance<GolemArchetype>();
             Settings = new Settings(this, Archetype);
             SettingsObjectReferences = new List<UnityObject>();
@@ -152,8 +153,10 @@ namespace GGEZ.Labkit
             Triggers = null;
         }
 
+#if UNITY_EDITOR
         void OnValidate()
         {
+            // Archetype = ObjectExt.ValidateOwnedScriptableObject<GolemArchetype>(this, Archetype);
             Archetype = Archetype ?? ScriptableObject.CreateInstance<GolemArchetype>();
             Settings = Settings ?? new Settings(this, Archetype);
 
@@ -167,5 +170,7 @@ namespace GGEZ.Labkit
             //     Triggers = null;
             // }
         }
+#endif
+
     }
 }

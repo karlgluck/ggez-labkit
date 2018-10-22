@@ -448,3 +448,14 @@ public class DebugMirror : Cell
     }
 
 }
+
+public class DebugLogVector2 : Cell
+{
+    public StructRegister<Vector2> Input;
+
+    public override void Update()
+    {
+        Debug.Log(Input);
+    }
+
+}

@@ -94,7 +94,6 @@ namespace GGEZ.Labkit
                     break;
 
                 case PrefabType.Prefab:
-                case PrefabType.ModelPrefabInstance:
                 case PrefabType.DisconnectedPrefabInstance:
 
                     // This archetype lives in the prefab
@@ -667,71 +666,10 @@ namespace GGEZ.Labkit
                         left.xMax = left.xMin + leftSize;
                         right.xMin = left.xMax;
 
-                        string variableName = null;
-                        GUIContent content;
-                        if (reference != null)
-                        {
-                            Variable variable;
-                            if (reference.Name != null && !golemArchetype.Variables.TryGetValue(reference.Name, out variable))
-                            {
-                                reference = new VariableRef(reference.Relationship, null);
-                            }
-                            variableName = reference.Name;
-                        }
+                        string relationship = EditorGUI.TextField(left, reference == null ? "" : (reference.Relationship ?? ""));
+                        string variableName = EditorGUI.TextField(right, reference == null ? "" : (reference.Name ?? ""));
 
-                        if (string.IsNullOrEmpty(reference.Name))
-                        {
-                            content = GolemEditorUtility.NoVariableErrorGUIContent;
-                        }
-                        else
-                        {
-                            content = new GUIContent(reference.Name);
-                        }
-
-                        if (DropdownField(right, content, ref variableName))
-                        {
-                            #warning todo selecting a variable dropdown is pretty generic and copied from Variable case
-
-                            GenericMenu menu = new GenericMenu();
-                            var variables = golemArchetype.EditorVariables;
-                            int variablesAdded = 0;
-                            ActiveDropdownFieldHandle handle = GetActiveDropdownFieldHandle();
-
-                            menu.AddItem(
-                                new GUIContent("New Variable..."),
-                                false,
-                                SetDropdownFieldValueToNewVariable,
-                                new object[]{ handle, golemArchetype, specificType }
-                                );
-
-                            if (variables.Count > 0)
-                            {
-                                menu.AddSeparator("");
-                            }
-
-                            for (int i = 0; i < variables.Count; ++i)
-                            {
-                                var variable = variables[i];
-
-                                #warning TODO consider specific type when the field has an output wire
-                                // if (!specificType.IsAssignableFrom(variable.Type))
-                                // {
-                                //     continue;
-                                // }
-
-                                ++variablesAdded;
-                                menu.AddItem(
-                                    new GUIContent(variable.Name),
-                                    variable.Name == variableName,
-                                    SetDropdownFieldValueMenuFunction2,
-                                    new object[]{ handle, variable.Name }
-                                    );
-                            }
-
-                            menu.DropDown(new Rect(right.position, Vector2.Scale(right.size, GUI.matrix.lossyScale)));
-                        }
-
-                        reference = new VariableRef(reference.Relationship, variableName);
+                        reference = new VariableRef(relationship, variableName);
                         value = reference;
 
                         break;
@@ -749,9 +687,7 @@ namespace GGEZ.Labkit
                         left.xMax = left.xMin + leftSize;
                         right.xMin = left.xMax;
 
-                        //reference.Relationship = (EntityRelationship)EditorGUI.EnumPopup(left, reference.Relationship);
-                        string relationship = null;
-
+                        string relationship = EditorGUI.TextField(left, reference == null ? "" : (reference.Relationship ?? ""));
                         string variableName = reference != null && golemArchetype.ContainsVariable(reference.Name, specificType) ? reference.Name : null;
 
                         GUIContent content;

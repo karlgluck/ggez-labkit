@@ -363,13 +363,6 @@ namespace GGEZ.Labkit
                 }
             }
 
-            // EditorGUILayout.Space();
-            // if (GUILayout.Button("Open Editor"))
-            // {
-            //     GolemEditorWindow.Open(_editable);
-            // }
-            // EditorGUILayout.Space();
-
             if (EditorGUI.EndChangeCheck())
             {
                 GolemEditorUtility.SetDirty(_golem);

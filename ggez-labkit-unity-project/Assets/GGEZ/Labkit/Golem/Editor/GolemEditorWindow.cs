@@ -289,11 +289,25 @@ namespace GGEZ.Labkit
         //-----------------------------------------------------
         private void OnGUI()
         {
+            if (_golem != null)
+            {
+                if (Selection.activeGameObject != null && Selection.activeGameObject.GetComponent<Golem>() != _golem)
+                    _golem = null;
+            }
+        
+            if (_golem != null)
+            {
+                if (_golem.Archetype.EditorWindowSelectedComponent >= _golem.Archetype.Components.Length)
+                    _golem = null;
+            }
+
             //-------------------------------------------------
             // Draw some placeholder text if no circuit is active
             //-------------------------------------------------
             if (_golem == null)
             {
+                _selection = null;
+
                 if (Selection.activeGameObject != null && Event.current.type == EventType.Layout)
                 {
                     _golem = Selection.activeGameObject.GetComponent<Golem>();
@@ -855,7 +869,7 @@ namespace GGEZ.Labkit
             foreach (EditorState editorState in _states)
             {
                 bool selected = object.ReferenceEquals(_selection, editorState);
-                bool on = Application.isPlaying;
+                bool on = Application.isPlaying && _golem.gameObject.scene.IsValid();
                 if (on)
                 {
                     var layerStates = _golem.Components[_golem.Archetype.EditorWindowSelectedComponent].LayerStates;
@@ -1379,7 +1393,7 @@ namespace GGEZ.Labkit
             var height = this.position.height;
             var width = this.position.width;
             GUILayout.BeginArea(new Rect(0, height - kStatusBarHeight, width, kStatusBarHeight));
-            if (Application.isPlaying)
+            if (Application.isPlaying && _golem.gameObject.scene.IsValid())
             {
                 EditorWire wire = _selection as EditorWire;
                 if (wire != null)

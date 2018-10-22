@@ -23,13 +23,19 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
+using System;
 using UnityEngine;
+using UnityObject = UnityEngine.Object;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace GGEZ
 {
     public static partial class ObjectExt
     {
-        public static Object FindByName(this Object[] self, string name)
+        public static UnityObject FindByName(this UnityObject[] self, string name)
         {
             for (int i = 0; i < self.Length; ++i)
             {
@@ -40,5 +46,37 @@ namespace GGEZ
             }
             return null;
         }
+
+// #if UNITY_EDITOR
+
+//         /// <summary>
+//         ///     Keeps a field referencing a ScriptableObject valid regardless
+//         ///     of whether the owning UnityObject is saved in a scene or a prefab.
+//         ///     Call this from OnValidate.
+//         /// </summary>
+//         public static T ValidateOwnedScriptableObject<T>(this UnityObject self, T scriptableObject) where T : ScriptableObject
+//         {
+//             if (scriptableObject == null)
+//             {
+//                 scriptableObject = ScriptableObject.CreateInstance<T>();
+//                 scriptableObject.name = typeof(T).Name;
+//             }
+
+//             UnityObject prefabAsset = PrefabUtility.GetCorrespondingObjectFromSource(self);
+//             UnityObject scriptableObjectPrefabAsset = PrefabUtility.GetCorrespondingObjectFromSource(scriptableObject);
+
+//             if (prefabAsset == scriptableObjectPrefabAsset)
+//                 return scriptableObject;
+
+//             if (scriptableObjectPrefabAsset != null)
+//                 scriptableObject = ScriptableObject.Instantiate(scriptableObject) as T;
+
+//             if (prefabAsset != null)
+//                 AssetDatabase.AddObjectToAsset(scriptableObject, AssetDatabase.GetAssetPath(prefabAsset));
+
+//             return scriptableObject;
+//         }
+
+// #endif
     }
 }

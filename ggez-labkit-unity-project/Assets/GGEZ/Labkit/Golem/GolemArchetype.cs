@@ -409,6 +409,17 @@ namespace GGEZ.Labkit
                 }
             }
 
+            if (EditorWindowSelectedComponent >= Components.Length)
+            {
+                EditorWindowSelectedComponent = Components.Length - 1;
+                dirty = true;
+            }
+            if (0 >= EditorWindowSelectedComponent)
+            {
+                EditorWindowSelectedComponent = 0;
+                dirty = true;
+            }
+
             if (dirty)
             {
                 GolemEditorUtility.SetDirty(this);

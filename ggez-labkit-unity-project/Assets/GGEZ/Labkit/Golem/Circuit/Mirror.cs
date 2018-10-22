@@ -38,6 +38,9 @@ namespace GGEZ.Labkit
 
     public class MirrorVariablesAsGolems : Cell
     {
+        [GGEZ.FullSerializer.fsIgnore]
+        public Golem Owner;
+
         public VariablesSetRegister Input;
         private VariablesSetRegister _lastInput;
 
@@ -47,8 +50,8 @@ namespace GGEZ.Labkit
         [GGEZ.FullSerializer.fsIgnore]
         public Transform Parent;
 
-        public string InputReferenceName;
-        public string OwnerReferenceName;
+        public string InputRelationship = "Subject";
+        public string OwnerRelationship = "Owner";
 
         private Dictionary<Variables, Golem> Spawned = new Dictionary<Variables, Golem>(VariablesSetRegister.EqualityComparer);
 
@@ -88,9 +91,7 @@ namespace GGEZ.Labkit
                 }
 
                 if (toAdd != null)
-                {
                     AcquireAll(toAdd);
-                }
 
                 _lastInput = Input;
             }
@@ -103,6 +104,8 @@ namespace GGEZ.Labkit
             {
                 Golem golem = GolemManager.AcquireGolem(golemPrefab);
                 golem.transform.SetParent(Parent, false);
+                GolemManager.SetRelationship(golem, OwnerRelationship, Owner.Variables);
+                GolemManager.SetRelationship(golem, InputRelationship, key);
                 Spawned.Add(key, golem);
             }
         }
