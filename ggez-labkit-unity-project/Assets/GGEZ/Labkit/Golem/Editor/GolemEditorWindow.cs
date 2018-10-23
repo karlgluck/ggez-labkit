@@ -346,6 +346,29 @@ namespace GGEZ.Labkit
             {
                 Read();
             }
+            
+            if (_golem.Archetype.Components.Length == 0)
+            {
+                GUILayout.BeginVertical();
+                GUILayout.FlexibleSpace();
+
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                GUILayout.Label("No components", EditorStyles.largeLabel);
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
+
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                GUILayout.Label("Click Add Component on the Golem", EditorStyles.miniLabel);
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
+
+                GUILayout.FlexibleSpace();
+                GUILayout.EndVertical();
+                
+                return;
+            }
 
             if (Event.current.type == EventType.ScrollWheel)
             {

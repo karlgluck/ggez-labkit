@@ -66,7 +66,6 @@ namespace GGEZ
             if (AssetDatabase.IsMainAsset(scriptableObject))
                 return;
 
-
             switch (PrefabUtility.GetPrefabType(self))
             {
                 case PrefabType.PrefabInstance:
@@ -74,11 +73,12 @@ namespace GGEZ
                     // Grab this object's prefab
                     UnityObject selfInPrefab = PrefabUtility.GetCorrespondingObjectFromSource(self);
 
-                    string selfPrefabAssetPath = AssetDatabase.GetAssetOrScenePath(selfInPrefab);
+                    string selfPrefabAssetPath = AssetDatabase.GetAssetPath(selfInPrefab);
 
                     // Copy the scriptable object when a prefab exists, 'self' has not explicitly
                     // modified this object field, and yet the object not parented to the prefab
                     string scriptableObjectAssetPath = AssetDatabase.GetAssetPath(scriptableObject);
+                    Debug.Log("Instance is " + scriptableObjectAssetPath + " prefab is " + selfPrefabAssetPath);
                     if (scriptableObjectAssetPath != selfPrefabAssetPath)
                     {
                         PropertyModification[] modifications = PrefabUtility.GetPropertyModifications(self);
@@ -124,6 +124,7 @@ namespace GGEZ
                 break;
 
             case PrefabType.None:
+                #warning TODO make this work for sub-assets
             case PrefabType.MissingPrefabInstance:
             case PrefabType.DisconnectedPrefabInstance:
                 {
@@ -146,8 +147,12 @@ namespace GGEZ
                 {
                     // If the asset being referenced isn't from this prefab, it means the prefab
                     // asset was duplicated. Create a copy for us and reassign our field's value.
+                    // Only do this is the original path is valid so that OnValidate and Reset can
+                    // create valid ScriptableObjects when a prefab is being created without causing
+                    // the data from the original to get wiped.
+                    string scriptableObjectAssetPath = AssetDatabase.GetAssetPath(scriptableObject);
                     string selfPrefabAssetPath = AssetDatabase.GetAssetPath(self);
-                    if (AssetDatabase.GetAssetPath(scriptableObject) != selfPrefabAssetPath)
+                    if (!string.IsNullOrEmpty(scriptableObjectAssetPath) && scriptableObjectAssetPath != selfPrefabAssetPath)
                     {
                         string oldName = scriptableObject.name;
                         scriptableObject = ScriptableObject.Instantiate(scriptableObject);
