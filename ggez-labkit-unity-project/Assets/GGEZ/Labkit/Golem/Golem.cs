@@ -104,6 +104,8 @@ namespace GGEZ.Labkit
 
         public void OnBeforeSerialize()
         {
+            GGEZ.ObjectExt.RelocateScriptableObjectField(this, "Archetype", ref Archetype);
+
             SettingsObjectReferences.Clear();
             var serializer = Serialization.GetSerializer(SettingsObjectReferences);
             fsData data;
@@ -120,7 +122,7 @@ namespace GGEZ.Labkit
             fsResult result;
 
             List<Settings.Setting> values = null;
-            
+
             result = fsJsonParser.Parse(SettingsJson, out data);
             if (result.Failed)
             {
@@ -134,7 +136,7 @@ namespace GGEZ.Labkit
                 Debug.LogError(result, this);
                 goto DeserializedSettings;
             }
-        
+
         DeserializedSettings:
             Settings = new Settings(this, Archetype, values);
 
@@ -156,7 +158,6 @@ namespace GGEZ.Labkit
 #if UNITY_EDITOR
         void OnValidate()
         {
-            // Archetype = ObjectExt.ValidateOwnedScriptableObject<GolemArchetype>(this, Archetype);
             Archetype = Archetype ?? ScriptableObject.CreateInstance<GolemArchetype>();
             Settings = Settings ?? new Settings(this, Archetype);
 
