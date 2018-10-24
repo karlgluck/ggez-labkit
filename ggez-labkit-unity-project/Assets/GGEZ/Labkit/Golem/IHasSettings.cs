@@ -33,6 +33,7 @@ namespace GGEZ.Labkit
     public interface IHasSettings
     {
         Settings Settings { get; }
+        IHasSettings InheritsSettingsFrom { get; }
     }
 
 }

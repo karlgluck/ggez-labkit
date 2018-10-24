@@ -2,7 +2,7 @@
 
 Golem accelerates game prototyping by erasing **glue code** from your game.
 
-**Glue code** is code that doesn't do much other than connect two (or more) systems to each other. An easy example is tying the `Hitpoints` and `MaxHitpoints` fields on a character to the UI bar floating above their head in-game. It's not hard code. We've all written it... but it's everywhere, it can quickly turn into spaghetti, and it's annoying to write over and over again. 
+**Glue code** is code that doesn't do much other than connect two (or more) systems to each other. An easy example is tying the `Hitpoints` and `MaxHitpoints` fields on a character to the UI bar floating above their head in-game. It's not hard code. We've all written it... but it's everywhere, it can quickly turn into spaghetti, and it's annoying to write over and over again.
 
 Golem fixes that! It gives you:
 
@@ -49,7 +49,7 @@ Because we need to maintain this phase order across all golems, the central `Gol
 
 ## Variables only change their value on a frame-boundary
 
-So that each golem's update can be mutually order-independent. It also tees 
+So that each golem's update can be mutually order-independent. It also tees
 
  * Golems running without modification quickly require no allocation and no reflection to execute. In particular, this means no boxing.
 
@@ -93,6 +93,14 @@ There are several ways this could be done and the choice is largely a matter of 
 ## Circuits can write variables without violating order-independence
 
 The fact that this is possible has tripped me up a few times and I keep thinking I have to do something special to fix it, so I thought I'd just write down the conclusion. Circuits writing variables is fine because of the variable phase. Even though circuits queue cells for processing, writing a variable does not immediately cause the cells that read the variable to be processed; hence, a cell is able to write a variable during iteration of the dirty-cell priority queue without causing issues like having a cell be evaluated multiple times in one frame.
+
+## Archetypes and Components must be assets
+
+Archetypes and Components are ScriptableObjects. A ScriptableObject field on a MonoBehaviour in a non-prefab GameObject that references an instance that is not an asset will be saved in the scene that contains the GameObject. It would seem intuitive, then, that creating a prefab from that GameObject would preserve those ScriptableObject fields in the serialized GameObject.
+
+This is not what happens. Instead, the prefab's version loses its references... kinda. In memory, until the next asset refresh, the prefab will either reference null, reference a valid object that Unity's overriden equality operator declares to be null, or will reference scene objects and show `Mismatched type` in the inspector. I've spent a long time trying to use reflection trickery combined with `ISerializationCallbackReceiver` and `OnValidate` to fix this behavior. I have come to the conclusion that until Unity supports this natively, using `ScriptableObject` as a non-asset is too fragile to be worth trying to support.
+
+So, the workflow must expose each Archetype and Component as assets.
 
 # Worklist
 

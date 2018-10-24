@@ -29,7 +29,9 @@ using System.Collections.Generic;
 using UnityObject = UnityEngine.Object;
 using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
 using GGEZ.FullSerializer;
+
 #if UNITY_EDITOR
+using UnityEditor;
 using System.Linq;
 #endif
 
@@ -41,32 +43,56 @@ namespace GGEZ.Labkit
     /// set of Components that it uses, then ties those together with Settings values,
     /// named References and relationship-based external Variables.
     /// </summary>
+    [CreateAssetMenu(menuName="GGEZ/Golem/Archetype")]
     public class GolemArchetype : ScriptableObject, ISerializationCallbackReceiver, IHasSettings
     {
-        /// <summary>Functional parts used by the golem</summary>
+        /// <summary>
+        ///     Functional parts used by the golem
+        /// </summary>
         public GolemComponent[] Components;
 
-        /// <summary>Groups of functionality used by this archetype</summary>
+        /// <summary>
+        ///     Groups of functionality used by this archetype
+        /// </summary>
         [NonSerialized]
         public Aspect[] Aspects;
 
         /// <summary>Values that get assigned to fields of aspects, cells and scripts</summary>
-        public Settings Settings { get; private set; }
+        [SerializeField]
+        private Settings _settings;
+        public Settings Settings { get { return _settings; } }
+
+        /// <summary>
+        ///     Settings asset that settings are inherited from
+        /// </summary>
         public SettingsAsset InheritSettingsFrom;
 
-        /// <summary>Assignments that map settings and local variables to aspect fields</summary>
+        /// <summary>
+        ///     Returns the settings asset that settings are inherited from
+        /// </summary>
+        public IHasSettings InheritsSettingsFrom { get { return InheritSettingsFrom; } }
+
+        /// <summary>
+        ///     Archetype Assignments apply settings and variables to aspect fields
+        /// </summary>
         [NonSerialized]
         public Assignment[] Assignments;
 
-        /// <summary>Assignments that map external variables to aspect fields</summary>
+        /// <summary>
+        ///     Assignments that map external variables to aspect fields
+        /// </summary>
         [NonSerialized]
         public Dictionary<string, Assignment[]> ExternalAssignments;
 
-        /// <summary>Default values for all variables</summary>
+        /// <summary>
+        ///     Default values for all variables
+        /// </summary>
         [NonSerialized]
         public Dictionary<string, Variable> Variables;
 
-        /// <summary>Source of data for all the NonSerialized properties</summary>
+        /// <summary>
+        ///     Source of data for all the NonSerialized properties
+        /// </summary>
         public string Json;
 
         //---------------------------------------------------------------------
@@ -76,7 +102,6 @@ namespace GGEZ.Labkit
 
         // Aspects
         //------------------
-        [NonSerialized]
         public List<EditorAspect> EditorAspects;
 
         // Variables
@@ -84,16 +109,22 @@ namespace GGEZ.Labkit
         [NonSerialized]
         public List<GolemVariableEditorData> EditorVariables;
 
-        /// <summary>Source of data for all NonSerialized editor-only properties</summary>
+        /// <summary>
+        ///     Source of data for all NonSerialized editor-only properties
+        /// </summary>
         public string EditorJson;
 
-        /// <summary>In the editor, which component is being displayed in the window</summary>
+        /// <summary>
+        ///     In the editor, which component is being displayed in the window
+        /// </summary>
         public int EditorWindowSelectedComponent;
 
     #endif
 
         public void OnBeforeSerialize()
         {
+            if (_settings != null)
+                _settings.Owner = this;
 
         #if UNITY_EDITOR
 
@@ -102,7 +133,6 @@ namespace GGEZ.Labkit
             {
                 Dictionary<string, object> serialized = new Dictionary<string, object>();
 
-                serialized["EditorAspects"] = EditorAspects;
                 serialized["EditorVariables"] = EditorVariables;
 
                 EditorJson = Serialization.SerializeDictionary(serialized);
@@ -150,7 +180,7 @@ namespace GGEZ.Labkit
 
                             switch (field.Type)
                             {
-                                
+
                             //-------------------------------------------------
                             case InspectableType.Golem:
                             //-------------------------------------------------
@@ -243,7 +273,7 @@ namespace GGEZ.Labkit
         #else
             Debug.LogError("GolemArchetype.OnBeforeSerialize should never be called at runtime!", this);
         #endif
-        
+
             // Save runtime data
             //-------------------------
             {
@@ -252,7 +282,6 @@ namespace GGEZ.Labkit
                 serialized["Aspects"] = Aspects;
                 serialized["Assignments"] = Assignments;
                 serialized["ExternalAssignments"] = ExternalAssignments;
-                serialized["Settings"] = Settings.Values;
                 serialized["Variables"] = Variables;
 
                 Json = Serialization.SerializeDictionary(serialized);
@@ -262,6 +291,8 @@ namespace GGEZ.Labkit
 
         public void OnAfterDeserialize()
         {
+            if (_settings != null)
+                _settings.Owner = this;
 
             {
                 var deserialized = Serialization.DeserializeDictionary(Json, null, this);
@@ -270,19 +301,12 @@ namespace GGEZ.Labkit
                 Serialization.ReadOrCreate(this, "Assignments", deserialized);
                 Serialization.ReadOrCreate(this, "ExternalAssignments", deserialized);
                 Serialization.ReadOrCreate(this, "Variables", deserialized);
-
-                Settings = new Settings(
-                        this,
-                        InheritSettingsFrom,
-                        Serialization.Read<List<Settings.Setting>>("Settings", deserialized)
-                        );
             }
 
         #if UNITY_EDITOR
             {
                 var deserialized = Serialization.DeserializeDictionary(EditorJson, null, this);
 
-                Serialization.ReadOrCreate(this, "EditorAspects", deserialized);
                 Serialization.ReadOrCreate(this, "EditorVariables", deserialized);
 
                 #warning handle the case where you change a field or variable or register's type and try to use data that loads the old type
@@ -309,7 +333,7 @@ namespace GGEZ.Labkit
             }
             return false;
         }
-    
+
         public void AddNewAspect(Aspect aspect)
         {
             if (aspect == null)
@@ -317,7 +341,7 @@ namespace GGEZ.Labkit
                 throw new ArgumentNullException("aspect");
             }
             var aspectType = aspect.GetType();
-            
+
             // Make sure this aspect doesn't already exist
             for (int i = 0; i < Aspects.Length; ++i)
             {
@@ -361,7 +385,7 @@ namespace GGEZ.Labkit
         {
             Components = new GolemComponent[0];
             Aspects = new Aspect[0];
-            Settings = new Settings(this);
+            _settings = new Settings(this);
             InheritSettingsFrom = null;
             Assignments = new Assignment[0];
             ExternalAssignments = new Dictionary<string, Assignment[]>();
@@ -375,11 +399,20 @@ namespace GGEZ.Labkit
 
         void OnValidate()
         {
+        #if UNITY_EDITOR
+            if (!AssetDatabase.IsMainAsset(this))
+            {
+                string cleanName = name.Replace("/", "_");
+                string path = AssetDatabase.GenerateUniqueAssetPath("Assets/" +  cleanName + "Archetype.asset");
+                AssetDatabase.CreateAsset(this, path);
+            }
+        #endif
+
             bool dirty = false;
 
-            if (Settings == null)
+            if (_settings == null)
             {
-                Settings = new Settings(this);
+                _settings = new Settings(this);
                 dirty = true;
             }
             if (EditorAspects == null)
@@ -394,7 +427,7 @@ namespace GGEZ.Labkit
             }
 
             dirty = DeduplicateComponents() || dirty;
-            
+
             for (int i = EditorVariables.Count - 1; i >= 0; --i)
             {
                 var variable = EditorVariables[i];

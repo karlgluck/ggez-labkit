@@ -37,28 +37,28 @@ namespace GGEZ.Labkit
     // SettingsAsset
     //-----------------------------------------------------------------------------
     [CreateAssetMenu(menuName = "GGEZ/Omnibus/Settings", fileName = "New Settings.asset")]
-    public class SettingsAsset : ScriptableObject, ISerializationCallbackReceiver, IHasSettings
+    public class SettingsAsset : ScriptableObject, IHasSettings
     {
-        //-----------------------------------------------------------------
-        // References
-        //-----------------------------------------------------------------
+
+        [SerializeField]
+        private Settings _settings;
+        public Settings Settings { get { return _settings; } }
+
+        /// <summary>
+        ///     Settings asset that settings are inherited from
+        /// </summary>
         [Tooltip("Another SettingsAsset to be queried if this one is missing a value")]
         public SettingsAsset InheritFrom;
 
-        //-----------------------------------------------------------------
-        // Serialized
-        //-----------------------------------------------------------------
-        public string Json = "{}";
-        public UnityObjectList References = new UnityObjectList();
+        /// <summary>
+        ///     Returns the settings asset that settings are inherited from
+        /// </summary>
+        public IHasSettings InheritsSettingsFrom { get { return InheritFrom; } }
 
-        //-----------------------------------------------------------------
-        // Runtime
-        //-----------------------------------------------------------------
-        public Settings Settings { get; private set; }
 
         void Reset()
         {
-            Settings = new Settings(this, InheritFrom);
+            _settings = new Settings(this);
         }
 
         void OnEnable()
@@ -66,53 +66,9 @@ namespace GGEZ.Labkit
             name = System.IO.Path.GetFileNameWithoutExtension(AssetDatabase.GetAssetPath(this));
         }
 
-        //-----------------------------------------------------
-        // OnBeforeSerialize
-        //-----------------------------------------------------
-        public void OnBeforeSerialize()
+        void OnValidate()
         {
-            References.Clear();
-            var serializer = Serialization.GetSerializer(References);
-            fsData data;
-            Dictionary<string, object> serialized = new Dictionary<string, object>();
-            serialized["Values"] = Settings.Values;
-            fsResult result = serializer.TrySerialize(typeof(Dictionary<string, object>), serialized, out data);
-            if (result.Failed)
-            {
-                Debug.LogError(result, this);
-                Json = "{}";
-            }
-            else
-            {
-                Json = fsJsonPrinter.CompressedJson(data);
-            }
-        }
-
-        //-----------------------------------------------------
-        // OnAfterDeserialize
-        //-----------------------------------------------------
-        public void OnAfterDeserialize()
-        {
-            var serializer = Serialization.GetSerializer(References);
-            Dictionary<string, object> deserialized = new Dictionary<string, object>();
-            fsData data = fsJsonParser.Parse(Json);
-            fsResult result = serializer.TryDeserialize(data, ref deserialized);
-            if (result.Failed)
-            {
-                Debug.LogError(result, this);
-                Settings = new Settings(this, InheritFrom);
-            }
-            else
-            {
-                if (deserialized.ContainsKey("Values"))
-                {
-                    Settings = new Settings(this, InheritFrom, deserialized["Values"] as List<Settings.Setting>);
-                }
-                else
-                {
-                    Settings = new Settings(this, InheritFrom);
-                }
-            }
+            _settings = _settings ?? new Settings(this);
         }
     }
 }

@@ -41,6 +41,9 @@ namespace GGEZ.Labkit
     {
         private Golem _golem;
 
+        private SerializedProperty _archetype;
+        private SerializedProperty _settings;
+
 
         //-----------------------------------------------------
         // OnEnable
@@ -55,7 +58,6 @@ namespace GGEZ.Labkit
         //-----------------------------------------------------
         public override void OnInspectorGUI()
         {
-
             //-------------------------------------------------
             // Settings
             //-------------------------------------------------
@@ -66,6 +68,50 @@ namespace GGEZ.Labkit
 
             EditorGUILayout.LabelField("Local Settings", EditorStyles.boldLabel);
             _golem.Settings.DoEditorGUILayout(true);
+
+            if (EditorGUI.EndChangeCheck())
+                GolemEditorUtility.SetDirty(_golem);
+
+            // if (_golem.Archetype == null)
+            {
+                _golem.Archetype = EditorGUILayout.ObjectField(_golem.Archetype, typeof(GolemArchetype), false) as GolemArchetype;
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                if (_golem.Archetype == null)
+                {
+                    if (GUILayout.Button("New"))
+                    {
+                        _golem.Archetype = ScriptableObject.CreateInstance<GolemArchetype>();
+                        string path = AssetDatabase.GenerateUniqueAssetPath(System.IO.Path.GetDirectoryName(AssetDatabase.GetAssetOrScenePath(_golem)) + "/New Archetype.asset");
+                        AssetDatabase.CreateAsset(_golem.Archetype, path);
+                    }
+                }
+                // else
+                {
+
+                    string archetypePath = _golem.Archetype == null ? null : AssetDatabase.GetAssetPath(_golem.Archetype);
+                    EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(archetypePath));
+                    if (GUILayout.Button("Relocate..."))
+                    {
+                        string assetName = System.IO.Path.GetFileNameWithoutExtension(archetypePath);
+                        string newPath = EditorUtility.SaveFilePanelInProject("Archetype", assetName, "asset", "Move Archetype Asset");
+                        if (!string.IsNullOrEmpty(newPath))
+                        {
+                            string result = AssetDatabase.MoveAsset(archetypePath, newPath);
+                            if (!string.IsNullOrEmpty(result))
+                                Debug.LogError(result, _golem);
+                        }
+                    }
+                    EditorGUI.EndDisabledGroup();
+                }
+
+                EditorUtility.SetDirty(_golem);
+                EditorGUILayout.EndHorizontal();
+                if (_golem.Archetype == null)
+                    return;
+            }
+
+            EditorGUI.BeginChangeCheck();
 
             EditorGUILayout.LabelField("Archetype Settings", EditorStyles.boldLabel);
             _golem.Archetype.Settings.DoEditorGUILayout(true);
@@ -84,9 +130,9 @@ namespace GGEZ.Labkit
                 {
                     EditorGUI.BeginChangeCheck();
                     current.DoEditorGUILayout(false);
-                    if (EditorGUI.EndChangeCheck() && current.SettingsOwner)
+                    if (EditorGUI.EndChangeCheck() && current.Owner != null)
                     {
-                        EditorUtility.SetDirty(current.SettingsOwner);
+                        EditorUtility.SetDirty(current.Owner);
                     }
                     current = current.Parent;
                 }
@@ -374,7 +420,7 @@ namespace GGEZ.Labkit
             if (advanced)
             {
                 EditorGUILayout.LabelField("Golem - Settings Json", EditorStyles.boldLabel);
-                EditorGUILayout.TextArea(_golem.SettingsJson);
+                EditorGUILayout.TextArea(_golem.Settings.Json);
 
                 EditorGUILayout.Space();
 

@@ -15,6 +15,7 @@ public class TestScriptableObject : ScriptableObject, ISerializationCallbackRece
     [ContextMenu("Add Object")]
     void AddObject()
     {
+        if (Objects == null) Objects = new TestScriptableObject[0];
         System.Array.Resize(ref Objects, Objects.Length+1);
         var newOne = ScriptableObject.CreateInstance<TestScriptableObject>();
         Objects[Objects.Length - 1] = newOne;

@@ -27,6 +27,7 @@ using System;
 using UnityEngine;
 using UnityObject = UnityEngine.Object;
 using UnityObjectList = System.Collections.Generic.List<UnityEngine.Object>;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -35,18 +36,33 @@ using UnityEditor;
 
 namespace GGEZ.Labkit
 {
+    [Serializable]
+    public sealed class FieldsUsingSettings : BaseUnitySerializableDictionary<string, string> { }
+
+    [Serializable]
+    public sealed class FieldsUsingVariables : BaseUnitySerializableDictionary<string, VariableRef> { }
+
+    [Serializable]
+    public sealed class SerializableAspect : BaseUnitySerializableClass<Aspect> { }
 
     //-------------------------------------------------------------------------
     // GolemAspectEditorData
     //-------------------------------------------------------------------------
+    [Serializable]
     public class EditorAspect
     {
-        public Aspect Aspect;
+        public Aspect Aspect { get { return _aspect.Get(); } set { _aspect.Set(value); } }
 
-        public Dictionary<string,string> FieldsUsingSettings = new Dictionary<string,string>();
-        public Dictionary<string,VariableRef> FieldsUsingVariables = new Dictionary<string,VariableRef>();
+        [SerializeField]
+        private SerializableAspect _aspect = new SerializableAspect();
 
-        /// <summary>State of the foldout for this aspect's properties in the inspector</summary>
+        public FieldsUsingSettings FieldsUsingSettings = new FieldsUsingSettings();
+
+        public FieldsUsingVariables FieldsUsingVariables = new FieldsUsingVariables();
+
+        /// <summary>
+        ///     State of the foldout for this aspect's properties in the inspector
+        /// </summary>
         public bool Foldout;
     }
 

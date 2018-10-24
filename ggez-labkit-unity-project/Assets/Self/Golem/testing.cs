@@ -337,7 +337,7 @@ public class DebugTextOnEnter : Script
     public Golem Golem;
 
     public string Text;
-    
+
     public override void OnEnter()
     {
         Debug.Log(Text, Golem);

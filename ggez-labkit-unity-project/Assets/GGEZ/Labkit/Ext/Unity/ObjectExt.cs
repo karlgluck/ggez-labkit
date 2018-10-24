@@ -167,6 +167,78 @@ namespace GGEZ
 
         }
 
+        public static void RelocateScriptableObjectArrayField<T>(this UnityObject self, string fieldName, ref T[] scriptableObjectArray) where T : ScriptableObject
+        {
+            // Ignore invalid references
+            if (scriptableObjectArray == null || Application.isPlaying)
+                return;
+
+            if (AssetDatabase.IsMainAsset(self) || AssetDatabase.IsSubAsset(self))
+            {
+                string selfAssetPath = AssetDatabase.GetAssetPath(self);
+
+                // Make sure all objects are members of this same object
+                bool createdCopy = false;
+                for (int i = 0; i < scriptableObjectArray.Length; ++i)
+                {
+                    T element = scriptableObjectArray[i];
+
+                    string elementAssetPath = AssetDatabase.GetAssetPath(element);
+
+                    if (elementAssetPath == selfAssetPath)
+                        continue;
+
+                    if (elementAssetPath != null)
+                    {
+                        if (!createdCopy)
+                        {
+                            T[] replacement = new T[scriptableObjectArray.Length];
+                            Array.Copy(scriptableObjectArray, replacement, scriptableObjectArray.Length);
+                            createdCopy = true;
+                            scriptableObjectArray = replacement;
+                        }
+
+                        string oldName = element.name;
+                        element = ScriptableObject.Instantiate(element);
+                        element.name = oldName + "(+)";
+                        scriptableObjectArray[i] = element;
+                    }
+
+                    AssetDatabase.AddObjectToAsset(element, selfAssetPath);
+                }
+            }
+            else if (PrefabUtility.GetPrefabType(self) == PrefabType.PrefabInstance)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                // Make sure all objects are locally instanced
+                bool createdCopy = false;
+                for (int i = 0; i < scriptableObjectArray.Length; ++i)
+                {
+                    T element = scriptableObjectArray[i];
+                    string elementAssetPath = AssetDatabase.GetAssetPath(element);
+                    if (elementAssetPath != null)
+                    {
+                        if (!createdCopy)
+                        {
+                            T[] replacement = new T[scriptableObjectArray.Length];
+                            Array.Copy(scriptableObjectArray, replacement, scriptableObjectArray.Length);
+                            createdCopy = true;
+                            scriptableObjectArray = replacement;
+                        }
+
+                        string oldName = element.name;
+                        element = ScriptableObject.Instantiate(element);
+                        element.name = oldName;
+                        scriptableObjectArray[i] = element;
+                    }
+                }
+            }
+
+        }
+
 
         // public static void RelocateScriptableObjectField<T>(this UnityObject self, string fieldName, ref T scriptableObject) where T : ScriptableObject
         // {

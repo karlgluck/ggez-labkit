@@ -28,29 +28,27 @@ using System;
 using UnityEngine;
 using System.Reflection;
 using GGEZ;
-#warning todo unify namespaces for ggez
-using GGEZ.FullSerializer;
 using UnityObject = UnityEngine.Object;
 
 namespace GGEZ.Labkit
 {
-
-    public sealed class Golem : MonoBehaviour, ISerializationCallbackReceiver
+    public sealed class Golem : MonoBehaviour, ISerializationCallbackReceiver, IHasSettings
     {
         [SerializeField]
         public GolemArchetype Archetype;
 
-        /// <summary>Golem-local settings used for prefab Unity Object references and individual overrides.</summary>
-        public Settings Settings;
-
-        /// <summary>Object references the settings use</summary>
-        /// <remarks>Stored on the Golem so that these references are updated by Unity on Instantiate</remarks>
         [SerializeField]
-        public List<UnityObject> SettingsObjectReferences;
+        private Settings _settings;
 
-        /// <summary>Source data for golem-local settings</summary>
-        [SerializeField, HideInInspector]
-        public string SettingsJson;
+        /// <summary>
+        ///     Golem-local settings used for prefab Unity Object references and individual overrides.
+        /// </summary>
+        public Settings Settings { get; private set; }
+
+        /// <summary>
+        ///     Gets the Archetype's settings
+        /// </summary>
+        public IHasSettings InheritsSettingsFrom { get { return Archetype; } }
 
     #region Runtime
 
@@ -104,51 +102,18 @@ namespace GGEZ.Labkit
 
         public void OnBeforeSerialize()
         {
-            GGEZ.ObjectExt.RelocateScriptableObjectField(this, "Archetype", ref Archetype);
-
-            SettingsObjectReferences.Clear();
-            var serializer = Serialization.GetSerializer(SettingsObjectReferences);
-            fsData data;
-            #warning TODO give the settings a dirty flag so we aren't constantly reserializing in OnBeforeSerialize
-            serializer.TrySerialize(Settings.Values, out data);
-            SettingsJson = fsJsonPrinter.PrettyJson(data);
 
         }
 
         public void OnAfterDeserialize()
         {
-            var serializer = Serialization.GetSerializer(SettingsObjectReferences);
-            fsData data;
-            fsResult result;
-
-            List<Settings.Setting> values = null;
-
-            result = fsJsonParser.Parse(SettingsJson, out data);
-            if (result.Failed)
-            {
-                Debug.LogError(result, this);
-                goto DeserializedSettings;
-            }
-
-            result = serializer.TryDeserialize(data, ref values);
-            if (result.Failed)
-            {
-                Debug.LogError(result, this);
-                goto DeserializedSettings;
-            }
-
-        DeserializedSettings:
-            Settings = new Settings(this, Archetype, values);
 
         }
 
         void Reset()
         {
-            Debug.Log("Reset", this);
-            Archetype = ScriptableObject.CreateInstance<GolemArchetype>();
-            Settings = new Settings(this, Archetype);
-            SettingsObjectReferences = new List<UnityObject>();
-            SettingsJson = "[]";
+            Archetype = null;
+            Settings = new Settings(this);
             Variables = null;
             Aspects = null;
             Components = null;
@@ -158,8 +123,12 @@ namespace GGEZ.Labkit
 #if UNITY_EDITOR
         void OnValidate()
         {
-            Archetype = Archetype ?? ScriptableObject.CreateInstance<GolemArchetype>();
-            Settings = Settings ?? new Settings(this, Archetype);
+            Settings = Settings ?? new Settings(this);
+
+            if (Settings != null)
+            {
+                Settings.Owner = this;
+            }
 
             #warning do something to make sure runtime variables/etc aren't used until deserialization
 
