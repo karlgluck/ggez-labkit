@@ -219,9 +219,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Archetype: {fileID: 11400000, guid: 9252b657b76b443ac92b58651ae6f9ad, type: 2}
   _settings:
-    Owner: {fileID: 0}
-    SettingsObjectReferences: []
-    Json: '[]'
+    Owner: {fileID: 1714730703}
+    SettingsObjectReferences:
+    - {fileID: 1714730704}
+    Json: "[\n    {\n        \"Type\": \"UnityEngine.Transform\",\n        \"Name\":
+      \"4de26744-8a23-4c68-9deb-f626a6d6cc77\",\n        \"Value\": {\n            \"$unity\":
+      0\n        }\n    }\n]"
 --- !u!4 &1714730704
 Transform:
   m_ObjectHideFlags: 0

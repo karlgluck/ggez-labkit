@@ -55,13 +55,14 @@ namespace GGEZ.Labkit
     /// I chose (2) even though it is a little ugly and requires more work
     /// because it is flexible to users needs and won't cause bugs.
     /// </remarks>
+    [Serializable]
     public class VariableRef
     {
         /// <summary>Key to use to look up a variable</summary>
-        public readonly string Name;
+        public string Name;
 
         /// <remarks>Null/empty for a local variable</remarks>
-        public readonly string Relationship;
+        public string Relationship;
 
         public VariableRef(string relationship, string name)
         {

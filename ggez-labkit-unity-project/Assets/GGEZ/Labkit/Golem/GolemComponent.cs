@@ -192,9 +192,9 @@ namespace GGEZ.Labkit
 
                     if (editorState.TransitionsIn.Count != 0)
                         Debug.LogError("State " + editorState.Name + " has inputs and Any State states should not");
-                    
+
                     var transitionsOut = editorState.TransitionsOut;
-                    
+
                     // Get the first transition that connects to a valid layer
                     EditorLayerIndex layerIndex = EditorLayerIndex.Invalid;
                     int i = 0;
@@ -316,7 +316,7 @@ namespace GGEZ.Labkit
                                     case InspectableType.Variable:
                                     //-------------------------------------------------
                                         VariableRef variableRef;
-                                        if (editorScript.FieldsUsingVariables.TryGetValue(fieldName, out variableRef) && variableRef.IsValid)
+                                        if (editorScript.FieldsUsingVariables.TryGetValue(fieldName, out variableRef) && variableRef != null && variableRef.IsValid)
                                         {
                                             var assignment = new Assignment()
                                             {
@@ -694,7 +694,7 @@ namespace GGEZ.Labkit
                             case InspectableType.Variable:
                             //-------------------------------------------------
                                 VariableRef variableRef;
-                                if (editorCell.FieldsUsingVariables.TryGetValue(fieldName, out variableRef) && variableRef.IsValid)
+                                if (editorCell.FieldsUsingVariables.TryGetValue(fieldName, out variableRef) && variableRef != null && variableRef.IsValid)
                                 {
                                     var assignment = new Assignment()
                                     {
@@ -813,7 +813,7 @@ namespace GGEZ.Labkit
 
                                         VariableRef variableRef;
                                         #warning need to add a "GetValidVariableRef(wire.ReadField, FieldsUsingVariables, out variableRef)" command and use it everywhere, or prevent invalid variable refs from being stored in the array
-                                        if (wire.ReadScript.FieldsUsingVariables.TryGetValue(wire.ReadField, out variableRef) && variableRef.IsValid)
+                                        if (wire.ReadScript.FieldsUsingVariables.TryGetValue(wire.ReadField, out variableRef) && variableRef != null && variableRef.IsValid)
                                         {
                                             var writeCellType = InspectableCellType.GetInspectableCellType(wire.WriteCell.Cell.GetType());
                                             bool canBeNull = writeCellType.GetInputCanBeNull(wire.WriteField);

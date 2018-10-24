@@ -56,8 +56,14 @@ namespace GGEZ.Labkit
         [SerializeField]
         private SerializableAspect _aspect = new SerializableAspect();
 
+        /// <summary>
+        ///     Fields of the aspect that are mapped to setting values
+        /// </summary>
         public FieldsUsingSettings FieldsUsingSettings = new FieldsUsingSettings();
 
+        /// <summary>
+        ///     Fields of the aspect that are mapped to variable values
+        /// </summary>
         public FieldsUsingVariables FieldsUsingVariables = new FieldsUsingVariables();
 
         /// <summary>

@@ -138,8 +138,6 @@ namespace GGEZ.Labkit
                 }
             }
 
-            EditorGUI.BeginChangeCheck();
-
             //-------------------------------------------------
             // Aspects
             //-------------------------------------------------
@@ -183,6 +181,8 @@ namespace GGEZ.Labkit
             //-------------------------------------------------
             // Aspects
             //-------------------------------------------------
+            EditorGUI.BeginChangeCheck();
+
             if (EditorApplication.isPlaying && !_golem.gameObject.IsPrefab())
             {
                 var aspects = _golem.Aspects;
@@ -242,6 +242,11 @@ namespace GGEZ.Labkit
                     EditorGUI.indentLevel--;
                 }
             }
+
+            if (EditorGUI.EndChangeCheck())
+                EditorUtility.SetDirty(_golem.Archetype);
+
+            EditorGUI.BeginChangeCheck();
 
             //-------------------------------------------------
             // Variables

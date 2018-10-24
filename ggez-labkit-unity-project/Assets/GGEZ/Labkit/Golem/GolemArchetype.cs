@@ -207,7 +207,7 @@ namespace GGEZ.Labkit
                             case InspectableType.Variable:
                             //-------------------------------------------------
                                 VariableRef variableRef;
-                                if (editorAspect.FieldsUsingVariables.TryGetValue(fieldName, out variableRef) && variableRef.IsValid)
+                                if (editorAspect.FieldsUsingVariables.TryGetValue(fieldName, out variableRef) && variableRef != null && variableRef.IsValid)
                                 {
                                     var assignment = new Assignment()
                                     {

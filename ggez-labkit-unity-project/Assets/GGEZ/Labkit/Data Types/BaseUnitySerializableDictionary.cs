@@ -47,6 +47,7 @@ namespace GGEZ.Labkit
         private Dictionary<TKey, TValue> _dictionary = new Dictionary<TKey, TValue>();
 
         private bool _dirty = true;
+
         private bool _canEverBeClean = true;
 
         [SerializeField, HideInInspector]
@@ -77,6 +78,7 @@ namespace GGEZ.Labkit
             {
                 _keys[index] = kvp.Key;
                 _values[index] = kvp.Value;
+                ++index;
             }
 
             _dirty = _canEverBeClean;
@@ -155,6 +157,7 @@ namespace GGEZ.Labkit
         public static implicit operator Dictionary<TKey, TValue>(BaseUnitySerializableDictionary<TKey, TValue> self)
         {
             self._canEverBeClean = false;
+            self._dirty = true;
             return self._dictionary;
         }
     }

@@ -32,6 +32,8 @@ using UnityObject = UnityEngine.Object;
 
 namespace GGEZ.Labkit
 {
+#warning a Golem should be able to have multiple Archetypes -- why not? Why limit it to just 1? There's nothing wrong. Different archetypes don't share variables but that's fine.
+
     public sealed class Golem : MonoBehaviour, ISerializationCallbackReceiver, IHasSettings
     {
         [SerializeField]
@@ -43,7 +45,7 @@ namespace GGEZ.Labkit
         /// <summary>
         ///     Golem-local settings used for prefab Unity Object references and individual overrides.
         /// </summary>
-        public Settings Settings { get; private set; }
+        public Settings Settings { get { return _settings; } }
 
         /// <summary>
         ///     Gets the Archetype's settings
@@ -113,7 +115,7 @@ namespace GGEZ.Labkit
         void Reset()
         {
             Archetype = null;
-            Settings = new Settings(this);
+            _settings = new Settings(this);
             Variables = null;
             Aspects = null;
             Components = null;
@@ -123,12 +125,8 @@ namespace GGEZ.Labkit
 #if UNITY_EDITOR
         void OnValidate()
         {
-            Settings = Settings ?? new Settings(this);
-
-            if (Settings != null)
-            {
-                Settings.Owner = this;
-            }
+            _settings = _settings ?? new Settings(this);
+            _settings.Owner = this;
 
             #warning do something to make sure runtime variables/etc aren't used until deserialization
 

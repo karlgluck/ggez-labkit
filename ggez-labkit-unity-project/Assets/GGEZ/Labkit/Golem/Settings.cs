@@ -100,6 +100,18 @@ namespace GGEZ.Labkit
             fsData data;
             serializer.TrySerialize(Values, out data);
             Json = fsJsonPrinter.PrettyJson(data);
+
+            if (!CanReferenceSceneObjects)
+            {
+                for (int i = 0; i < SettingsObjectReferences.Count; ++i)
+                {
+                    if (!string.IsNullOrEmpty(AssetDatabase.GetAssetPath(SettingsObjectReferences[i])))
+                    {
+                        Debug.LogWarning("TODO: make sure the check on not serializing asset references into Settings actually doesn't break deserialization; this warning is from code that hasn't been tested but should work, remove if it does!");
+                        SettingsObjectReferences[i] = null;
+                    }
+                }
+            }
         }
 
         public void OnAfterDeserialize()

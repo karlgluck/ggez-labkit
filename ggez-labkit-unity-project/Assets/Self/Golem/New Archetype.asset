@@ -18,25 +18,26 @@ MonoBehaviour:
     SettingsObjectReferences: []
     Json: "[\n    {\n        \"Type\": \"System.Boolean\",\n        \"Name\": \"91bee74d-d327-4a1b-9756-5b15fb04e518\",\n
       \       \"Value\": {\n            \"$content\": false,\n            \"$type\":
-      \"System.Boolean\"\n        }\n    }\n]"
+      \"System.Boolean\"\n        }\n    },\n    {\n        \"Type\": \"System.Single\",\n
+      \       \"Name\": \"fdfeab34-aecb-4931-8c13-dc38c274e01e\",\n        \"Value\":
+      {\n            \"$content\": 0.0,\n            \"$type\": \"System.Single\"\n
+      \       }\n    }\n]"
   InheritSettingsFrom: {fileID: 0}
   Json: "{\n    \"Aspects\": {\n        \"$content\": [\n            {\n                \"joystickRoot\":
-    {\n\n                },\n                \"joystick\": null,\n                \"DeadZone\":
-    5.0,\n                \"Limit\": 155.0,\n                \"AngleThreshold\": 55.0,\n
+    null,\n                \"joystick\": null,\n                \"DeadZone\": 5.0,\n
+    \               \"Limit\": 155.0,\n                \"AngleThreshold\": 55.0,\n
     \               \"JoystickActive\": false,\n                \"JoystickURDL\":
     0,\n                \"JoystickDirection\": 0.0,\n                \"JoystickTouch\":
     false,\n                \"RawActionButtonInput\": false,\n                \"$type\":
     \"JoystickAspect\"\n            }\n        ],\n        \"$type\": \"GGEZ.Labkit.Aspect[]\"\n
     \   },\n    \"Assignments\": {\n        \"$content\": [\n            {\n                \"Type\":
-    \"AspectSetting\",\n                \"Name\": \"New Type Setting\",\n                \"RegisterIndex\":
+    \"AspectSetting\",\n                \"Name\": null,\n                \"RegisterIndex\":
     0,\n                \"TargetIndex\": 0,\n                \"TargetFieldName\":
     \"joystickRoot\"\n            },\n            {\n                \"Type\": \"AspectSetting\",\n
     \               \"Name\": null,\n                \"RegisterIndex\": 0,\n                \"TargetIndex\":
     0,\n                \"TargetFieldName\": \"joystick\"\n            },\n            {\n
-    \               \"Type\": \"AspectSetting\",\n                \"Name\": \"91bee74d-d327-4a1b-9756-5b15fb04e518\",\n
-    \               \"RegisterIndex\": 0,\n                \"TargetIndex\": 0,\n                \"TargetFieldName\":
-    \"JoystickActive\"\n            },\n            {\n                \"Type\": \"AspectDummyVariable\",\n
-    \               \"Name\": null,\n                \"RegisterIndex\": 0,\n                \"TargetIndex\":
+    \               \"Type\": \"AspectDummyVariable\",\n                \"Name\":
+    null,\n                \"RegisterIndex\": 0,\n                \"TargetIndex\":
     0,\n                \"TargetFieldName\": \"Show\"\n            }\n        ],\n
     \       \"$type\": \"GGEZ.Labkit.Assignment[]\"\n    },\n    \"ExternalAssignments\":
     {\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
@@ -47,20 +48,21 @@ MonoBehaviour:
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    }\n}"
   EditorAspects:
   - _aspect:
-      _json: '{"joystickRoot":{},"joystick":null,"DeadZone":5.0,"Limit":155.0,"AngleThreshold":55.0,"JoystickActive":false,"JoystickURDL":0,"JoystickDirection":0.0,"JoystickTouch":false,"RawActionButtonInput":false,"$type":"JoystickAspect"}'
+      _json: '{"joystickRoot":null,"joystick":null,"DeadZone":5.0,"Limit":155.0,"AngleThreshold":55.0,"JoystickActive":false,"JoystickURDL":0,"JoystickDirection":0.0,"JoystickTouch":false,"RawActionButtonInput":false,"$type":"JoystickAspect"}'
     FieldsUsingSettings:
       _keys:
-      - JoystickActive
-      - 
-      - 
+      - joystickRoot
+      - joystick
       _values:
-      - 91bee74d-d327-4a1b-9756-5b15fb04e518
       - 
       - 
     FieldsUsingVariables:
       _keys:
       - Show
-    Foldout: 0
+      _values:
+      - Name: 
+        Relationship: 
+    Foldout: 1
   EditorJson: "{\n    \"EditorVariables\": {\n        \"$content\": [],\n        \"$type\":
     \"System.Collections.Generic.List`1[[GGEZ.Labkit.GolemVariableEditorData, Assembly-CSharp,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    }\n}"
