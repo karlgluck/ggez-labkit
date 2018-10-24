@@ -9,19 +9,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a40c0070290a97447a0032ef1032d309, type: 3}
-  m_Name: New Archetype
+  m_Name: test arch
   m_EditorClassIdentifier: 
   Components:
   - {fileID: 11400000, guid: 067b00fc1da1c4054bec15e7f10968dc, type: 2}
   _settings:
     Owner: {fileID: 11400000}
     SettingsObjectReferences: []
-    Json: "[\n    {\n        \"Type\": \"System.Boolean\",\n        \"Name\": \"91bee74d-d327-4a1b-9756-5b15fb04e518\",\n
-      \       \"Value\": {\n            \"$content\": false,\n            \"$type\":
-      \"System.Boolean\"\n        }\n    },\n    {\n        \"Type\": \"System.Single\",\n
-      \       \"Name\": \"fdfeab34-aecb-4931-8c13-dc38c274e01e\",\n        \"Value\":
-      {\n            \"$content\": 0.0,\n            \"$type\": \"System.Single\"\n
-      \       }\n    }\n]"
+    Json: '[]'
   InheritSettingsFrom: {fileID: 0}
   Json: "{\n    \"Aspects\": {\n        \"$content\": [\n            {\n                \"joystickRoot\":
     null,\n                \"joystick\": null,\n                \"DeadZone\": 5.0,\n
@@ -31,10 +26,10 @@ MonoBehaviour:
     false,\n                \"RawActionButtonInput\": false,\n                \"$type\":
     \"JoystickAspect\"\n            }\n        ],\n        \"$type\": \"GGEZ.Labkit.Aspect[]\"\n
     \   },\n    \"Assignments\": {\n        \"$content\": [\n            {\n                \"Type\":
-    \"AspectSetting\",\n                \"Name\": null,\n                \"RegisterIndex\":
+    \"AspectSetting\",\n                \"Name\": \"\",\n                \"RegisterIndex\":
     0,\n                \"TargetIndex\": 0,\n                \"TargetFieldName\":
     \"joystickRoot\"\n            },\n            {\n                \"Type\": \"AspectSetting\",\n
-    \               \"Name\": null,\n                \"RegisterIndex\": 0,\n                \"TargetIndex\":
+    \               \"Name\": \"\",\n                \"RegisterIndex\": 0,\n                \"TargetIndex\":
     0,\n                \"TargetFieldName\": \"joystick\"\n            },\n            {\n
     \               \"Type\": \"AspectDummyVariable\",\n                \"Name\":
     null,\n                \"RegisterIndex\": 0,\n                \"TargetIndex\":
@@ -62,7 +57,7 @@ MonoBehaviour:
       _values:
       - Name: 
         Relationship: 
-    Foldout: 1
+    Foldout: 0
   EditorJson: "{\n    \"EditorVariables\": {\n        \"$content\": [],\n        \"$type\":
     \"System.Collections.Generic.List`1[[GGEZ.Labkit.GolemVariableEditorData, Assembly-CSharp,
     Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    }\n}"

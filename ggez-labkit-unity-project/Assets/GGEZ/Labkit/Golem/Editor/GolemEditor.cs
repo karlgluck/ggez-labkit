@@ -52,7 +52,7 @@ namespace GGEZ.Labkit
         {
             _golem = target as Golem;
         }
-
+bool fold;
         //-----------------------------------------------------
         // OnInspectorGUI
         //-----------------------------------------------------
@@ -64,17 +64,25 @@ namespace GGEZ.Labkit
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Settings", EditorStyles.boldLabel);
 
-            EditorGUI.BeginChangeCheck();
-
             EditorGUILayout.LabelField("Local Settings", EditorStyles.boldLabel);
             _golem.Settings.DoEditorGUILayout(true);
 
-            if (EditorGUI.EndChangeCheck())
-                GolemEditorUtility.SetDirty(_golem);
+            EditorGUILayout.Space();
+            var style = new GUIStyle(EditorStyles.foldout);
+            style.fontStyle = FontStyle.Bold;
+            // fold = EditorGUILayout.Foldout(fold, _golem.Archetype.name + "(Archetype)", style);
+
+            {
+                Rect rect = GUILayoutUtility.GetLastRect();
+                rect.xMin -= 50f;
+                rect.xMax += 50f;
+                rect.yMin = rect.yMax - 1;
+                EditorGUI.DrawRect(rect, Color.gray);
+            }
 
             // if (_golem.Archetype == null)
             {
-                _golem.Archetype = EditorGUILayout.ObjectField(_golem.Archetype, typeof(GolemArchetype), false) as GolemArchetype;
+                _golem.Archetype = EditorGUILayout.ObjectField("Archetype", _golem.Archetype, typeof(GolemArchetype), false) as GolemArchetype;
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
                 if (_golem.Archetype == null)
@@ -94,7 +102,7 @@ namespace GGEZ.Labkit
                     if (GUILayout.Button("Relocate..."))
                     {
                         string assetName = System.IO.Path.GetFileNameWithoutExtension(archetypePath);
-                        string newPath = EditorUtility.SaveFilePanelInProject("Archetype", assetName, "asset", "Move Archetype Asset");
+                        string newPath = EditorUtility.SaveFilePanelInProject("Archetype", assetName, "asset", "Move Archetype Asset", archetypePath);
                         if (!string.IsNullOrEmpty(newPath))
                         {
                             string result = AssetDatabase.MoveAsset(archetypePath, newPath);
@@ -105,21 +113,13 @@ namespace GGEZ.Labkit
                     EditorGUI.EndDisabledGroup();
                 }
 
-                EditorUtility.SetDirty(_golem);
                 EditorGUILayout.EndHorizontal();
                 if (_golem.Archetype == null)
                     return;
             }
 
-            EditorGUI.BeginChangeCheck();
-
             EditorGUILayout.LabelField("Archetype Settings", EditorStyles.boldLabel);
             _golem.Archetype.Settings.DoEditorGUILayout(true);
-
-            if (EditorGUI.EndChangeCheck())
-            {
-                GolemEditorUtility.SetDirty(_golem);
-            }
 
             // Settings Inheritance
             {
@@ -132,6 +132,7 @@ namespace GGEZ.Labkit
                     current.DoEditorGUILayout(false);
                     if (EditorGUI.EndChangeCheck() && current.Owner != null)
                     {
+                        Undo.RegisterCompleteObjectUndo(current.Owner, current.Owner.name + " Settings");
                         EditorUtility.SetDirty(current.Owner);
                     }
                     current = current.Parent;

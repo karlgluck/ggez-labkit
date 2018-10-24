@@ -797,6 +797,7 @@ namespace GGEZ.Labkit
                 Type = variableType,
                 InitialValue = Activator.CreateInstance(variableType) as Variable,
             });
+            EditorUtility.SetDirty(golemArchetype);
             GolemEditorUtility.SetDropdownFieldValue(handle, newVariableName);
         }
 

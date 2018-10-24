@@ -252,8 +252,14 @@ namespace GGEZ.Labkit
                 string labelControlName = i.ToString("000") + ":" + name;
                 GUI.SetNextControlName(labelControlName);
                 bool isSettingFocused = focusedControlName == labelControlName;
+                EditorGUI.BeginChangeCheck();
                 string newName = EditorGUI.DelayedTextField(labelRect, name, isSettingFocused ? EditorStyles.textField : EditorStyles.label);
                 object newValue = GolemEditorUtility.EditorGUIField(position, InspectableTypeExt.GetInspectableTypeOf(setting.Type), setting.Type, setting.Value);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Undo.RegisterCompleteObjectUndo(Owner, Owner.name + " Settings");
+                    EditorUtility.SetDirty(Owner);
+                }
                 setting.Value = newValue;
                 if (newName != name)
                 {
@@ -269,12 +275,14 @@ namespace GGEZ.Labkit
                 {
                     if (GUI.Button(rhsToolsRect, "!"))
                     {
+                        Undo.RegisterCompleteObjectUndo(Owner, Owner.name + " Settings");
                         setting.Type = newValue.GetType();
                     }
                 }
 
                 if (GUI.Button(lhsToolsRect, "X"))
                 {
+                    Undo.RegisterCompleteObjectUndo(Owner, Owner.name + " Settings");
                     Values.RemoveAt(i);
                     --i;
                 }
@@ -308,6 +316,7 @@ namespace GGEZ.Labkit
         /// </summary>
         public void Add(string name, Type type)
         {
+            Undo.RegisterCompleteObjectUndo(Owner, Owner.name + " Settings");
             object defaultValue = type.IsValueType ? Activator.CreateInstance(type) : null;
             Values.Add(
                 new Setting()
@@ -328,6 +337,7 @@ namespace GGEZ.Labkit
         /// <param>
         public void Add(string name, Type type, object value)
         {
+            Undo.RegisterCompleteObjectUndo(Owner, Owner.name + " Settings");
             type = type ?? (value == null ? typeof(object) : value.GetType());
             object defaultValue = type.IsValueType ? Activator.CreateInstance(type) : null;
             Values.Add(
@@ -342,7 +352,7 @@ namespace GGEZ.Labkit
 
         private void addSettingMenuCallback(object contextParam)
         {
-            Add("New " + typeof(Type).Name + " Setting", (Type)contextParam);
+            Add("New " + InspectableTypeExt.GetInspectableTypeOf(contextParam as Type).ToString() + " Setting", (Type)contextParam);
         }
 #endif
 
