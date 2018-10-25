@@ -123,6 +123,7 @@ namespace GGEZ.Labkit
         }
 
 #if UNITY_EDITOR
+
         void OnValidate()
         {
             _settings = _settings ?? new Settings(this);

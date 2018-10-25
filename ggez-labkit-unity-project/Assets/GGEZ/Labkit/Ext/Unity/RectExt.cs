@@ -243,5 +243,10 @@ namespace GGEZ
         {
             return new Rect(min.x, min.y, max.x - min.x, max.y - min.y);
         }
+
+        public static Rect GetEndSquare(this Rect self)
+        {
+            return Rect.MinMaxRect(self.xMax - self.width, self.yMin, self.xMax, self.yMax);
+        }
     }
 }

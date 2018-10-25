@@ -41,6 +41,8 @@ namespace GGEZ.Labkit
     {
         private Golem _golem;
 
+        private bool addArchetypeEnabled;
+
         private SerializedProperty _archetype;
         private SerializedProperty _settings;
 
@@ -52,33 +54,23 @@ namespace GGEZ.Labkit
         {
             _golem = target as Golem;
         }
-bool fold;
-        //-----------------------------------------------------
-        // OnInspectorGUI
-        //-----------------------------------------------------
+
         public override void OnInspectorGUI()
         {
-            //-------------------------------------------------
-            // Settings
-            //-------------------------------------------------
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("Settings", EditorStyles.boldLabel);
 
             EditorGUILayout.LabelField("Local Settings", EditorStyles.boldLabel);
             _golem.Settings.DoEditorGUILayout(true);
 
-            EditorGUILayout.Space();
             var style = new GUIStyle(EditorStyles.foldout);
             style.fontStyle = FontStyle.Bold;
-            // fold = EditorGUILayout.Foldout(fold, _golem.Archetype.name + "(Archetype)", style);
 
-            {
-                Rect rect = GUILayoutUtility.GetLastRect();
-                rect.xMin -= 50f;
-                rect.xMax += 50f;
-                rect.yMin = rect.yMax - 1;
-                EditorGUI.DrawRect(rect, Color.gray);
-            }
+            int archetypeCount = _golem.Archetype == null ? 0 : 1;
+            if (archetypeCount > 0)
+                ArchetypeGUI(_golem.Archetype);
+
+            GrayLine();
 
             // if (_golem.Archetype == null)
             {
@@ -118,14 +110,63 @@ bool fold;
                     return;
             }
 
-            EditorGUILayout.LabelField("Archetype Settings", EditorStyles.boldLabel);
-            _golem.Archetype.Settings.DoEditorGUILayout(true);
+            AdvancedGUI();
+        }
+
+        private void GrayLine()
+        {
+            EditorGUILayout.Space();
+            Rect rect = GUILayoutUtility.GetLastRect();
+            rect.xMin -= 50f;
+            rect.xMax += 50f;
+            rect.yMin = rect.yMax - 1;
+            EditorGUI.DrawRect(rect, Color.gray);
+        }
+
+        private void ArchetypeGUI(GolemArchetype archetype)
+        {
+            GrayLine();
+
+            {
+                string key = archetype.GetInstanceID().ToString() + ".Foldout";
+
+                GUIStyle style = new GUIStyle(EditorStyles.foldout);
+                style.fontStyle = FontStyle.Bold;
+
+                EditorGUILayout.BeginHorizontal();
+
+                // Foldout
+                bool showContents = EditorPrefs.GetBool(key, true);
+                showContents = EditorGUILayout.Foldout(showContents, _golem.Archetype.name + " (Archetype)", style);
+                EditorPrefs.SetBool(key, showContents);
+
+                GUILayout.FlexibleSpace();
+
+                // Settings button
+                GUIStyle style2 = new GUIStyle("Icon.Options");
+                style2.margin.top = 2;
+                if (EditorGUILayout.DropdownButton(GUIContent.none, FocusType.Keyboard, style2))
+                {
+                    GenericMenu menu = new GenericMenu();
+                    menu.AddItem(new GUIContent("Remove Archetype"), false, null);
+
+                    // for whatever reason, GetLastRect doesn't return a useful value here so we can't use DropDown
+                    menu.ShowAsContext();
+                }
+
+                EditorGUILayout.EndHorizontal();
+
+                if (!showContents)
+                    return;
+            }
+
+            archetype.Settings.DoEditorGUILayout(true);
 
             // Settings Inheritance
             {
                 EditorGUILayout.Space();
-                _golem.Archetype.InheritSettingsFrom = EditorGUILayout.ObjectField("Inherit From", _golem.Archetype.InheritSettingsFrom, typeof(SettingsAsset), false) as SettingsAsset;
-                Settings current = _golem.Archetype.Settings.Parent;
+                archetype.InheritSettingsFrom = EditorGUILayout.ObjectField("Inherit From", archetype.InheritSettingsFrom, typeof(SettingsAsset), false) as SettingsAsset;
+                Settings current = archetype.Settings.Parent;
                 while (current != null)
                 {
                     EditorGUI.BeginChangeCheck();
@@ -157,7 +198,7 @@ bool fold;
                     var aspectTypes = Assembly.GetAssembly(typeof(Aspect))
                         .GetTypes()
                         .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Aspect)))
-                        .Where(myType => !_golem.Archetype.EditorAspects.Any(existing => existing.Aspect.GetType() == myType))
+                        .Where(myType => !archetype.EditorAspects.Any(existing => existing.Aspect.GetType() == myType))
                         .ToList();
                     aspectTypes.Sort((a, b) => a.Name.CompareTo(b.Name));
                     if (aspectTypes.Count == 0)
@@ -169,7 +210,7 @@ bool fold;
                         menu.AddItem(
                             new GUIContent(ObjectNames.NicifyVariableName(type.Name)),
                             false,
-                            (object _type) => this.addAspectType((Type)_type),
+                            (object _type) => this.AddAspectType((Type)_type),
                             type
                             );
                     }
@@ -187,7 +228,7 @@ bool fold;
             if (EditorApplication.isPlaying && !_golem.gameObject.IsPrefab())
             {
                 var aspects = _golem.Aspects;
-                var editorAspects = _golem.Archetype.EditorAspects;
+                var editorAspects = archetype.EditorAspects;
                 for (int j = editorAspects.Count - 1; j >= 0; --j)
                 {
                     EditorAspect editorAspect = editorAspects[j];
@@ -199,7 +240,7 @@ bool fold;
             }
             else
             {
-                var editorAspects = _golem.Archetype.EditorAspects;
+                var editorAspects = archetype.EditorAspects;
                 for (int j = editorAspects.Count - 1; j >= 0; --j)
                 {
                     EditorAspect editorAspect = editorAspects[j];
@@ -214,7 +255,7 @@ bool fold;
                     {
                         if (GUI.Button(rhsToolsRect, "X"))
                         {
-                            _golem.Archetype.RemoveAspect(editorAspect);
+                            archetype.RemoveAspect(editorAspect);
                         }
                     }
                     if (!editorAspect.Foldout)
@@ -245,7 +286,7 @@ bool fold;
             }
 
             if (EditorGUI.EndChangeCheck())
-                EditorUtility.SetDirty(_golem.Archetype);
+                EditorUtility.SetDirty(archetype);
 
             EditorGUI.BeginChangeCheck();
 
@@ -257,7 +298,7 @@ bool fold;
             if (EditorApplication.isPlaying)
             {
                 var variables = _golem.Variables;
-                var editorVariables = _golem.Archetype.EditorVariables;
+                var editorVariables = archetype.EditorVariables;
 
                 for (int i = 0; i < editorVariables.Count; ++i)
                 {
@@ -275,7 +316,7 @@ bool fold;
             }
             else
             {
-                var editorVariables = _golem.Archetype.EditorVariables;
+                var editorVariables = archetype.EditorVariables;
 
                 string focusedControlName = GUI.GetNameOfFocusedControl();
 
@@ -317,7 +358,7 @@ bool fold;
             {
                 #warning TODO draw cell stats on golem at runtime
 
-                var components = _golem.Archetype.Components;
+                var components = archetype.Components;
                 for (int i = 0; i < components.Length; ++i)
                 {
                     if (components[i] == null)
@@ -326,19 +367,19 @@ bool fold;
                     }
                     if (GUILayout.Button(new GUIContent("Open Editor")))
                     {
-                        _golem.Archetype.EditorWindowSelectedComponent = i;
+                        archetype.EditorWindowSelectedComponent = i;
                         GolemEditorWindow.Open(_golem);
                     }
                 }
             }
             else
             {
-                var components = _golem.Archetype.Components;
+                var components = archetype.Components;
                 for (int i = 0; i < components.Length; ++i)
                 {
                     if (components[i] == null)
                     {
-                        _golem.Archetype.DeduplicateComponents();
+                        archetype.DeduplicateComponents();
                         --i;
                     }
 
@@ -373,20 +414,20 @@ bool fold;
 
                     if (GUILayout.Button(new GUIContent("Open Editor")))
                     {
-                        _golem.Archetype.EditorWindowSelectedComponent = i;
+                        archetype.EditorWindowSelectedComponent = i;
                         GolemEditorWindow.Open(_golem);
                     }
                     if (GUILayout.Button(new GUIContent("X")))
                     {
-                        if (_golem.Archetype.EditorWindowSelectedComponent >= i)
+                        if (archetype.EditorWindowSelectedComponent >= i)
                         {
-                            --_golem.Archetype.EditorWindowSelectedComponent;
+                            --archetype.EditorWindowSelectedComponent;
                         }
                         var list = new List<GolemComponent>(components);
                         list.RemoveAt(i);
                         components = list.ToArray();
                         --i;
-                        _golem.Archetype.Components = components.ToArray();
+                        archetype.Components = components.ToArray();
                     }
                     GUILayout.EndHorizontal();
                 }
@@ -419,7 +460,41 @@ bool fold;
             {
                 GolemEditorUtility.SetDirty(_golem);
             }
+        }
 
+        private void AddNewLocalComponentMenuFunction()
+        {
+            var components = _golem.Archetype.Components;
+            Array.Resize(ref components, components.Length + 1);
+            components[components.Length-1] = ScriptableObject.CreateInstance<GolemComponent>();
+            _golem.Archetype.Components = components;
+        }
+
+        private void AddAssetComponentMenuFunction(object guid)
+        {
+            var component = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath((string)guid)) as GolemComponent;
+            Debug.Assert(component != null);
+
+            var components = _golem.Archetype.Components;
+            Array.Resize(ref components, components.Length + 1);
+            components[components.Length-1] = component;
+            _golem.Archetype.Components = components;
+            _golem.Archetype.DeduplicateComponents();
+            GolemEditorUtility.SetDirtyArchetype(_golem);
+
+        }
+
+
+        private void AddAspectType(Type type)
+        {
+            Debug.Assert(typeof(Aspect).IsAssignableFrom(type));
+            _golem.Archetype.AddNewAspect(Activator.CreateInstance(type) as Aspect);
+            GolemEditorUtility.SetDirtyArchetype(_golem);
+        }
+
+
+        private void AdvancedGUI()
+        {
             EditorGUILayout.Space();
             bool advanced = EditorGUILayout.Foldout(EditorPrefs.GetBool("GolemEditorAdvancedFoldout"), "Advanced");
             EditorPrefs.SetBool("GolemEditorAdvancedFoldout", advanced);
@@ -453,38 +528,6 @@ bool fold;
 
                 }
             }
-
-
-        }
-
-        private void AddNewLocalComponentMenuFunction()
-        {
-            var components = _golem.Archetype.Components;
-            Array.Resize(ref components, components.Length + 1);
-            components[components.Length-1] = ScriptableObject.CreateInstance<GolemComponent>();
-            _golem.Archetype.Components = components;
-        }
-
-        private void AddAssetComponentMenuFunction(object guid)
-        {
-            var component = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath((string)guid)) as GolemComponent;
-            Debug.Assert(component != null);
-
-            var components = _golem.Archetype.Components;
-            Array.Resize(ref components, components.Length + 1);
-            components[components.Length-1] = component;
-            _golem.Archetype.Components = components;
-            _golem.Archetype.DeduplicateComponents();
-            GolemEditorUtility.SetDirtyArchetype(_golem);
-
-        }
-
-
-        private void addAspectType(Type type)
-        {
-            Debug.Assert(typeof(Aspect).IsAssignableFrom(type));
-            _golem.Archetype.AddNewAspect(Activator.CreateInstance(type) as Aspect);
-            GolemEditorUtility.SetDirtyArchetype(_golem);
         }
     }
 }

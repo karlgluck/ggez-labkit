@@ -34,7 +34,9 @@ using System.Reflection;
 
 namespace GGEZ.Labkit
 {
-
+    public abstract class UntypedBaseUnitySerializableDictionary
+    {
+    }
 
     /// <summary>
     ///     Derive a non-generic class from this class to allow Unity to serialize
@@ -42,7 +44,7 @@ namespace GGEZ.Labkit
     /// </summary>
     #warning TODO custom editor for BaseUnitySerializableDictionary types
     [Serializable]
-    public abstract class BaseUnitySerializableDictionary<TKey, TValue> : ISerializationCallbackReceiver, IEnumerable, IEnumerable<KeyValuePair<TKey, TValue>>
+    public abstract class BaseUnitySerializableDictionary<TKey, TValue> : UntypedBaseUnitySerializableDictionary, ISerializationCallbackReceiver, IEnumerable, IEnumerable<KeyValuePair<TKey, TValue>>
     {
         private Dictionary<TKey, TValue> _dictionary = new Dictionary<TKey, TValue>();
 
@@ -70,8 +72,54 @@ namespace GGEZ.Labkit
             if (!_dirty)
                 return;
 
-            _keys = new TKey[_dictionary.Count];
-            _values = new TValue[_dictionary.Count];
+            HashSet<TKey> keys = new HashSet<TKey>(_dictionary.Keys);
+
+            int writePointer = 0;
+
+            if (_keys != null && _values != null)
+            {
+                int copyLength = _dictionary.Count < _keys.Length ? _dictionary.Count : _keys.Length;
+                int readPointer = 0;
+
+                while (readPointer < copyLength)
+                {
+                    if (_dictionary.ContainsKey(_keys[readPointer]))
+                    {
+                        TKey key = _keys[readPointer];
+                        if (writePointer != readPointer)
+                        {
+                            _keys[writePointer] = key;
+                        }
+                        _values[writePointer] = _dictionary[key];
+                        ++writePointer;
+                        keys.Remove(key);
+                    }
+                    ++readPointer;
+                }
+            }
+
+            if (_keys == null)
+                _keys = new TKey[_dictionary.Count];
+
+            if (_values == null)
+                _values = new TValue[_dictionary.Count];
+
+            if (_keys.Length != _dictionary.Count)
+                Array.Resize(ref _keys, _dictionary.Count);
+
+            if (_values.Length != _dictionary.Count)
+                Array.Resize(ref _values, _dictionary.Count);
+
+            Debug.Assert(_dictionary.Count - writePointer == keys.Count);
+
+            IEnumerator<TKey> keyEnum = keys.GetEnumerator();
+            while (writePointer < _dictionary.Count && keyEnum.MoveNext())
+            {
+                TKey key = keyEnum.Current;
+                _keys[writePointer] = key;
+                _values[writePointer] = _dictionary[key];
+                ++writePointer;
+            }
 
             int index = 0;
             foreach (KeyValuePair<TKey, TValue> kvp in _dictionary)
@@ -107,7 +155,7 @@ namespace GGEZ.Labkit
             int end = _keys.Length;
             while (index < end)
             {
-                _dictionary.Add(_keys[index], _values[index]);
+                _dictionary[_keys[index]] = _values[index];
                 ++index;
             }
 
