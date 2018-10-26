@@ -99,6 +99,8 @@ namespace GGEZ.Labkit
         public void OnBeforeSerialize()
         {
             Values = Values ?? new List<Setting>();
+            SettingsObjectReferences = SettingsObjectReferences ?? new List<UnityObject>();
+
             SettingsObjectReferences.Clear();
             var serializer = Serialization.GetSerializer(SettingsObjectReferences);
             fsData data;

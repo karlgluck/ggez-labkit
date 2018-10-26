@@ -23,49 +23,27 @@
 //
 // For more information, please refer to <http://unlicense.org/>
 
+using System;
+
 namespace GGEZ.Labkit
 {
-    public abstract class Variable : IVariableRolloverPhaseListener
+    public abstract class UntypedUnaryRegister : Register
     {
-        public abstract Register GetRegister();
-        public abstract void OnVariableRolloverPhase();
-
-        public Variable Clone()
-        {
-            return MemberwiseClone() as Variable;
-        }
-
-        public override string ToString()
-        {
-            return GetRegister().ToString();
-        }
-
-        protected void QueueForRolloverPhase()
-        {
-            GolemManager.QueueForVariableRolloverPhase(this);
-        }
+        public abstract Type ValueType { get; }
+        public abstract object UntypedValue { get; set; }
     }
 
-    public sealed class NullVariable : Variable
+    public abstract class UnaryRegister<T> : UntypedUnaryRegister
     {
-        NullRegister _register;
+        public override Type ValueType { get { return typeof(T); } }
 
-        public NullVariable()
+        public override object UntypedValue
         {
-            _register = new NullRegister();
+            get { return Value; }
+            set { Value = (T)value; }
         }
 
-        public NullVariable(NullRegister register)
-        {
-            _register = register;
-        }
-
-        public override Register GetRegister()
-        {
-            return _register;
-        }
-
-        public override void OnVariableRolloverPhase()
-        { }
+        public abstract T Value { get; set; }
     }
+
 }

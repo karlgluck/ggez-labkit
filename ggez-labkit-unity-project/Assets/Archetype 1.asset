@@ -9,10 +9,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a40c0070290a97447a0032ef1032d309, type: 3}
-  m_Name: ClickGolemArchetype
+  m_Name: Archetype 1
   m_EditorClassIdentifier: 
-  Components:
-  - {fileID: 11400000, guid: a3d1aadd2f954423abc2e519a0540001, type: 2}
+  Components: []
   _settings:
     Owner: {fileID: 11400000}
     SettingsObjectReferences: []
@@ -22,10 +21,10 @@ MonoBehaviour:
     \"GGEZ.Labkit.Aspect[]\"\r\n    },\r\n    \"Assignments\": {\r\n        \"$content\":
     [],\r\n        \"$type\": \"GGEZ.Labkit.Assignment[]\"\r\n    },\r\n    \"ExternalAssignments\":
     {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
-    mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[],
+    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[],
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
     \   },\r\n    \"Variables\": {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
-    mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Variable,
+    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Variable,
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
     \   }\r\n}"
   EditorAspects: []

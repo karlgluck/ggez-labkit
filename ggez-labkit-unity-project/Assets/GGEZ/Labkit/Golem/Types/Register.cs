@@ -63,4 +63,13 @@ namespace GGEZ.Labkit
             GolemManager.AddChangedCellInputs(_listeners);
         }
     }
+
+    public sealed class NullRegister : Register
+    {
+        public override Variable CreateVariable()
+        {
+            return new NullVariable(this);
+        }
+
+    }
 }

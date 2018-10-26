@@ -296,17 +296,45 @@ namespace GGEZ.Labkit
 
                     if (typeof(Variable).IsAssignableFrom(fieldType))
                     {
-                        value.InputVariable = Activator.CreateInstance(fieldType) as Variable;
+                        if (fieldType.IsAbstract)
+                        {
+                            if (typeof(Variable).Equals(fieldType))
+                            {
+                                value.InputVariable = new NullVariable();
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException("unknown abstract variable type: " + fieldType.Name);
+                            }
+                        }
+                        else
+                        {
+                            value.InputVariable = Activator.CreateInstance(fieldType) as Variable;
+                        }
                         value.InputRegister = value.InputVariable.GetRegister();
                         value.OutputRegister = value.InputRegister.Clone();
                         value.OutputVariable = value.OutputRegister.CreateVariable();
                     }
-                    else
+                    else if (typeof(Register).IsAssignableFrom(fieldType))
                     {
-                        value.InputRegister = Activator.CreateInstance(fieldType) as Register;
+                        if (fieldType.IsAbstract)
+                        {
+                            if (typeof(Register).Equals(fieldType))
+                                value.InputRegister = new NullRegister();
+                            else
+                                throw new InvalidOperationException("unknown abstract register type: " + fieldType.Name);
+                        }
+                        else
+                        {
+                            value.InputRegister = Activator.CreateInstance(fieldType) as Register;
+                        }
                         value.OutputRegister = value.InputRegister.Clone();
                         value.InputVariable = value.InputRegister.CreateVariable();
                         value.OutputVariable = value.OutputRegister.CreateVariable();
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("type is not a register or variable: " + fieldType.Name);
                     }
 
                     s_cache.Add(value.InputRegister.GetType(), value);

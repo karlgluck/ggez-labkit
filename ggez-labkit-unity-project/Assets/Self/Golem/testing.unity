@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657838, g: 0.49641234, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -223,10 +223,11 @@ MonoBehaviour:
     SettingsObjectReferences:
     - {fileID: 1991062159261260, guid: 540a79313ed5d45e08b8dc96db639f2c, type: 2}
     - {fileID: 1714730704}
-    Json: "[\n    {\n        \"Type\": \"UnityEngine.GameObject\",\n        \"Name\":
-      \"OnClick\",\n        \"Value\": {\n            \"$unity\": 0\n        }\n    },\n
-      \   {\n        \"Type\": \"UnityEngine.Transform\",\n        \"Name\": \"Self\",\n
-      \       \"Value\": {\n            \"$unity\": 1\n        }\n    }\n]"
+    Json: "[\r\n    {\r\n        \"Type\": \"UnityEngine.GameObject\",\r\n        \"Name\":
+      \"OnClick\",\r\n        \"Value\": {\r\n            \"$unity\": 0\r\n        }\r\n
+      \   },\r\n    {\r\n        \"Type\": \"UnityEngine.Transform\",\r\n        \"Name\":
+      \"Self\",\r\n        \"Value\": {\r\n            \"$unity\": 1\r\n        }\r\n
+      \   }\r\n]"
 --- !u!4 &1714730704
 Transform:
   m_ObjectHideFlags: 0

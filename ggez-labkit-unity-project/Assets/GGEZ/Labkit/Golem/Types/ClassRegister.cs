@@ -28,11 +28,11 @@ using System.Collections.Generic;
 namespace GGEZ.Labkit
 {
     [GGEZ.FullSerializer.fsIgnore]
-    public sealed class ClassRegister<T> : Register where T : class
+    public sealed class ClassRegister<T> : UnaryRegister<T> where T : class
     {
         private T _value;
 
-        public T Value
+        public override T Value
         {
             get { return _value; }
             set

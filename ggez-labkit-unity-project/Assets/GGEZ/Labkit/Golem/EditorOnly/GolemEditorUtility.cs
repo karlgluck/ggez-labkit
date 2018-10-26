@@ -330,7 +330,7 @@ namespace GGEZ.Labkit
 
                 case InspectableType.Variable:
                     #warning this is weird because elsewhere a Variable is actually a reference to somewhere
-                    IUntypedUnaryVariable unaryVariable = value as IUntypedUnaryVariable;
+                    UntypedUnaryVariable unaryVariable = value as UntypedUnaryVariable;
                     if (unaryVariable != null)
                     {
                         Type valueType = unaryVariable.ValueType;
@@ -1539,7 +1539,7 @@ namespace GGEZ.Labkit
             if (typeof(Register).IsAssignableFrom(outputPort.FieldType))
             {
                 Debug.Assert(typeof(Register).IsAssignableFrom(inputPort.FieldType), "a non-register type is being used as an input");
-                return outputPort.FieldType.Equals(inputPort.FieldType);
+                return inputPort.FieldType.IsAssignableFrom(outputPort.FieldType);
             }
 
             Debug.Assert(typeof(Variable).IsAssignableFrom(outputPort.FieldType), "a non-variable, non-register is being used as an output");
@@ -1548,7 +1548,7 @@ namespace GGEZ.Labkit
 
             FieldInfo registerField = outputPort.FieldType.GetField("_register", BindingFlags.DeclaredOnly | BindingFlags.NonPublic | BindingFlags.Instance);
             Debug.Assert(registerField != null, "type " + outputPort.FieldType.Name + " has no _register field so we can't tell what can connect to it");
-            return object.Equals(registerField.FieldType, inputPort.FieldType);
+            return inputPort.FieldType.IsAssignableFrom(registerField.FieldType);
         }
 
     }

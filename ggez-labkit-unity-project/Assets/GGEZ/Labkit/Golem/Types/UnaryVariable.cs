@@ -27,23 +27,23 @@ using System;
 
 namespace GGEZ.Labkit
 {
-    public interface IUntypedUnaryVariable
+    public abstract class UntypedUnaryVariable : Variable
     {
-        Type ValueType { get; }
-        object UntypedValue { get; set; }
+        public abstract Type ValueType { get; }
+        public abstract object UntypedValue { get; set; }
     }
 
-    public abstract class UnaryVariable<T> : Variable, IUntypedUnaryVariable
+    public abstract class UnaryVariable<T> : UntypedUnaryVariable
     {
-        public Type ValueType { get { return typeof(T); } }
+        public override Type ValueType { get { return typeof(T); } }
 
-        public abstract T Value { get; set; }
-
-        public object UntypedValue
+        public override object UntypedValue
         {
             get { return Value; }
             set { Value = (T)value; }
         }
+
+        public abstract T Value { get; set; }
     }
 
 }

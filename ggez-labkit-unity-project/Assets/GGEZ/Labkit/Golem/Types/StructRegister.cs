@@ -29,13 +29,11 @@ using System.Collections.Generic;
 namespace GGEZ.Labkit
 {
     [GGEZ.FullSerializer.fsIgnore]
-    public sealed class StructRegister<T> : Register where T : struct, IEquatable<T>
+    public sealed class StructRegister<T> : UnaryRegister<T> where T : struct, IEquatable<T>
     {
         private T _value;
 
-        private List<Cell> _listeners;
-
-        public T Value
+        public override T Value
         {
             get { return _value; }
             set

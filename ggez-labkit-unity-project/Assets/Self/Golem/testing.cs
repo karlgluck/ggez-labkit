@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Variables = System.Collections.Generic.Dictionary<string, GGEZ.Labkit.Variable>;
 using VariablesSet = System.Collections.Generic.HashSet<System.Collections.Generic.Dictionary<string, GGEZ.Labkit.Variable>>;
+using System.Linq;
 
 public enum Trigger
 {
@@ -457,8 +458,8 @@ public class DebugLogVector2 : Cell
     {
         Debug.Log(Input);
     }
-
 }
+
 
 
 public class DebugLogBool : Cell
@@ -472,3 +473,204 @@ public class DebugLogBool : Cell
     }
 
 }
+
+public class DebugLog : Cell
+{
+    [CanBeNull]
+    public UntypedUnaryRegister aIn;
+    [CanBeNull]
+    public UntypedUnaryRegister bIn;
+    [CanBeNull]
+    public UntypedUnaryRegister cIn;
+    [CanBeNull]
+    public UntypedUnaryRegister dIn;
+    
+    public override void Update()
+    {
+        Debug.Log(aIn.UntypedValue);
+    }
+}
+
+// public class XDamp
+// {
+//     //[Input(typeof(float))]
+//     public string Input;
+
+//     //[Output(typeof(float))]
+//     public string Output;
+
+//     //[Setting(typeof(float))]
+//     public string Smoothing;
+
+//     public class ByrefT<T>
+//     {
+//         public T this[int index]
+//         {
+//             get { throw new System.NotImplementedException(); }
+//             set { throw new System.NotImplementedException(); }
+//         }
+//         // public static implicit operator T(ByrefT<T> self)
+//         // {
+//         //     throw new System.NotImplementedException();
+//         // }
+//     }
+
+//     public ByrefT<T> GetInput<T>(string nameVar) { return default(T); }
+//     public T[] GetAllInputs<T>(string nameVar) { return default(T); }
+//     public ByrefT<T> GetOutput<T>(string nameVar) { throw new System.NotImplementedException(); }
+//     public T GetSetting<T>(string nameVar) { return default(T); }
+
+//     public void Update()
+//     {//Update()
+//         GetOutput<float>(Output)[0] = GGEZ.Util.Damp(GetOutput<float>(Output)[0], GetInput<float>(Input)[0], GetSetting<float>(Smoothing), Time.smoothDeltaTime);
+//     }//Update()
+
+//     public void Average()
+//     {
+//         // find "GetInputLength<{type}>({name})" replace with 4
+//         // find "GetInput<float>(Input)[0]" replace with "register4_float"
+//         // find "GetAllInputs<float>(Input)" replace with "new float[] { register4_float, (this as IHasVariable_Idle).Idle }" (or call )
+
+//         float[] inputs = GetAllInputs<float>(Input);
+//         float sum = 0f;
+//         for (int i = 0; i < inputs.Length; ++i)
+//         {
+//             sum += inputs[i];
+//         }
+//         sum /= inputs.Length;
+//         GetOutput(Output)[0] = sum;
+
+
+//         float[] inputs = new float[] { register4_float, (this as IHasVariable_Idle).Idle };
+//         float sum = 0f;
+//         for (int i = 0; i < inputs.Length; ++i)
+//         {
+//             sum += inputs[i];
+//         }
+//         sum /= inputs.Length;
+//         register5_float = sum;
+
+//     }
+// }
+
+
+/*
+
+
+public class XDamp
+{
+    //[Input(typeof(float))]
+    public string Input;
+
+    //[Output(typeof(float))]
+    public string Output;
+
+    //[Setting(typeof(float))]
+    public string Smoothing;
+
+    public void Generate(GolemGeneratorContext context)
+    {
+        context.Add(
+            $@"
+            {Output} = GGEZ.Util.Damp({Output}, {Input}, {Smoothing}, Time.smoothDeltaTime);
+            "
+        );
+    }
+}
+
+
+public class GolemGeneratorContext
+{
+    HashSet<string> Properties;
+    HashSet<string> Interfaces;
+    HashSet<string> InterfaceDeclarations;
+    HashSet<string> VariableRolloverStatements;
+
+    public string GetRelationship(params string[] relationshipChain)
+    {
+        if (relationshipChain.Length == 0)
+            return "this";
+
+        string first = relationshipChain[0];
+
+        Properties.Add($@"public object {first} {{ get; set; }}");
+
+        Interfaces.Add($@"IHasRelationship_{first}");
+
+        InterfaceDeclarations.Add($@"public interface IHasRelationship_{first} {{ object {first} {{ get; set; }} }}");
+
+        string retval = $@"(this as IHasRelationship_{first}).{first}";
+
+        for (int i = 0; i < relationshipChain.Length; ++i)
+        {
+            string name = relationshipChain[i];
+            retval = "(" + retval + $" as IHasRelationship_{name}).?{name}";
+        }
+
+        return retval;
+    }
+
+    public string GetVariable(string type, string variable, params string[] relationshipChain)
+    {
+        Interfaces.Add($@"IHasVariable_{type}_{variable}");
+        InterfaceDeclarations.Add($@"public interface IHasVariable_{type}_{variable} {{ {type} {type}_{variable} {{ get; set; }} }}");
+
+        if (relationshipChain.Length == 0)
+        {
+            Properties.Add($@"private {type} _curr_{type}_{variable};");
+            Properties.Add($@"private {type} _next_{type}_{variable};");
+            Properties.Add($@"public {type} IHasVariable_{type}_{variable}.{type}_{variable} {{ get {{ return _curr_{type}_{variable}; }} set {{ _next_{type}_{variable} = value; }} }}");
+            VariableRolloverStatements.Add($@"_curr_{type}_{variable} = _next_{type}_{variable};");
+            //return $@"(this as IHasVariable_{type}_{variable}).{type}_{variable}";
+            return $@"{type}_{variable}";
+        }
+        else
+        {
+            return "(" + GetRelationship(relationshipChain) + $@" as IHasVariable_{type}_{variable}).?{type}_{variable}";
+        }
+    }
+
+    public string GetSetting()
+
+}
+
+public class XSetAnimatorLayerWeight
+{
+    //[Input(typeof(float))]
+    public string Weight;       // might get something like "((this as IHasRelationship_Owner).Owner as IHas_float_Idle).float_Idle" or "(this as IHas_float_Idle).float_Idle";
+
+    //[Setting(typeof(bool))]
+    public string InvertWeight;
+
+    //[Setting(typeof(string))]
+    public string LayerName;
+    
+    //[Setting(typeof(UnityEngine.Animator))]
+    public string Animator;
+
+    //[Local(typeof(int))]
+    private string _layerIndex;
+
+    //[Local(typeof(float))]
+    private float _lastWeight;
+
+    public void Generate(GolemGeneratorContext context)
+    {
+        context.AddCircuitAcquire(
+            $@"{_layerIndex} = {Animator}.GetLayerIndex({LayerName});",
+            $@"{_lastWeight} = float.MaxValue;"
+            );
+        context.AddCircuitUpdate(
+            $@"float weight = {Weight};",
+            $@"if (weight != {_lastWeight})",
+            $@"{{",
+            $@"    {_lastWeight} = weight;",
+            $@"    {Animator}.SetLayerWeight({_layerIndex}, {InvertWeight} ? (1f - weight) : weight);",
+            $@"}}"
+            );
+
+    }
+}
+
+
+ */

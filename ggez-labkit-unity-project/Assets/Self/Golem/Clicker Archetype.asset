@@ -16,36 +16,38 @@ MonoBehaviour:
   _settings:
     Owner: {fileID: 11400000}
     SettingsObjectReferences: []
-    Json: "[\n    {\n        \"Type\": \"System.String\",\n        \"Name\": \"Text
-      on Enter\",\n        \"Value\": {\n            \"$content\": \"This is the text
-      that gets printed!\",\n            \"$type\": \"System.String\"\n        }\n
-      \   }\n]"
+    Json: "[\r\n    {\r\n        \"Type\": \"System.String\",\r\n        \"Name\":
+      \"Text on Enter\",\r\n        \"Value\": {\r\n            \"$content\": \"This
+      is the text that gets printed!\",\r\n            \"$type\": \"System.String\"\r\n
+      \       }\r\n    }\r\n]"
   InheritSettingsFrom: {fileID: 0}
-  Json: "{\n    \"Aspects\": {\n        \"$content\": [\n            {\n                \"joystickRoot\":
-    null,\n                \"joystick\": null,\n                \"DeadZone\": 5.0,\n
-    \               \"Limit\": 155.0,\n                \"AngleThreshold\": 55.0,\n
-    \               \"JoystickActive\": false,\n                \"JoystickURDL\":
-    0,\n                \"JoystickDirection\": 0.0,\n                \"JoystickTouch\":
-    false,\n                \"RawActionButtonInput\": false,\n                \"$type\":
-    \"JoystickAspect\"\n            }\n        ],\n        \"$type\": \"GGEZ.Labkit.Aspect[]\"\n
-    \   },\n    \"Assignments\": {\n        \"$content\": [\n            {\n                \"Type\":
-    \"AspectSetting\",\n                \"Name\": null,\n                \"RegisterIndex\":
-    0,\n                \"TargetIndex\": 0,\n                \"TargetFieldName\":
-    \"joystickRoot\"\n            },\n            {\n                \"Type\": \"AspectSetting\",\n
-    \               \"Name\": null,\n                \"RegisterIndex\": 0,\n                \"TargetIndex\":
-    0,\n                \"TargetFieldName\": \"joystick\"\n            },\n            {\n
-    \               \"Type\": \"AspectLocalVariable\",\n                \"Name\":
-    \"ShowJoystick\",\n                \"RegisterIndex\": 0,\n                \"TargetIndex\":
-    0,\n                \"TargetFieldName\": \"Show\"\n            }\n        ],\n
-    \       \"$type\": \"GGEZ.Labkit.Assignment[]\"\n    },\n    \"ExternalAssignments\":
-    {\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
-    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[],
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    },\n
-    \   \"Variables\": {\n        \"ShowJoystick\": {\n            \"$type\": \"GGEZ.Labkit.StructVariable`1[[System.Boolean,
-    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]\"\n
-    \       },\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
-    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Variable,
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    }\n}"
+  Json: "{\r\n    \"Aspects\": {\r\n        \"$content\": [\r\n            {\r\n                \"joystickRoot\":
+    null,\r\n                \"joystick\": null,\r\n                \"DeadZone\":
+    5.0,\r\n                \"Limit\": 155.0,\r\n                \"AngleThreshold\":
+    55.0,\r\n                \"JoystickActive\": false,\r\n                \"JoystickURDL\":
+    0,\r\n                \"JoystickDirection\": 0.0,\r\n                \"JoystickTouch\":
+    false,\r\n                \"RawActionButtonInput\": false,\r\n                \"$type\":
+    \"JoystickAspect\"\r\n            }\r\n        ],\r\n        \"$type\": \"GGEZ.Labkit.Aspect[]\"\r\n
+    \   },\r\n    \"Assignments\": {\r\n        \"$content\": [\r\n            {\r\n
+    \               \"Type\": \"AspectSetting\",\r\n                \"Name\": null,\r\n
+    \               \"RegisterIndex\": 0,\r\n                \"TargetIndex\": 0,\r\n
+    \               \"TargetFieldName\": \"joystickRoot\"\r\n            },\r\n            {\r\n
+    \               \"Type\": \"AspectSetting\",\r\n                \"Name\": null,\r\n
+    \               \"RegisterIndex\": 0,\r\n                \"TargetIndex\": 0,\r\n
+    \               \"TargetFieldName\": \"joystick\"\r\n            },\r\n            {\r\n
+    \               \"Type\": \"AspectLocalVariable\",\r\n                \"Name\":
+    \"ShowJoystick\",\r\n                \"RegisterIndex\": 0,\r\n                \"TargetIndex\":
+    0,\r\n                \"TargetFieldName\": \"Show\"\r\n            }\r\n        ],\r\n
+    \       \"$type\": \"GGEZ.Labkit.Assignment[]\"\r\n    },\r\n    \"ExternalAssignments\":
+    {\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
+    mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[],
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   },\r\n    \"Variables\": {\r\n        \"ShowJoystick\": {\r\n            \"$type\":
+    \"GGEZ.Labkit.StructVariable`1[[System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral,
+    PublicKeyToken=b77a5c561934e089]]\"\r\n        },\r\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
+    mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Variable,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   }\r\n}"
   EditorAspects:
   - _aspect:
       _json: '{"joystickRoot":null,"joystick":null,"DeadZone":5.0,"Limit":155.0,"AngleThreshold":55.0,"JoystickActive":false,"JoystickURDL":0,"JoystickDirection":0.0,"JoystickTouch":false,"RawActionButtonInput":false,"$type":"JoystickAspect"}'
@@ -63,13 +65,14 @@ MonoBehaviour:
       - Name: ShowJoystick
         Relationship: 
     Foldout: 1
-  EditorJson: "{\n    \"EditorVariables\": {\n        \"$content\": [\n            {\n
-    \               \"Name\": \"ShowJoystick\",\n                \"Tooltip\": \"\",\n
-    \               \"InspectableType\": \"Variable\",\n                \"Type\":
-    \"GGEZ.Labkit.StructVariable`1[[System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral,
-    PublicKeyToken=b77a5c561934e089]]\",\n                \"InitialValue\": {\n                    \"$type\":
-    \"GGEZ.Labkit.StructVariable`1[[System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral,
-    PublicKeyToken=b77a5c561934e089]]\"\n                }\n            }\n        ],\n
-    \       \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.GolemVariableEditorData,
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    }\n}"
+  EditorJson: "{\r\n    \"EditorVariables\": {\r\n        \"$content\": [\r\n            {\r\n
+    \               \"Name\": \"ShowJoystick\",\r\n                \"Tooltip\": \"\",\r\n
+    \               \"InspectableType\": \"Variable\",\r\n                \"Type\":
+    \"GGEZ.Labkit.StructVariable`1[[System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral,
+    PublicKeyToken=b77a5c561934e089]]\",\r\n                \"InitialValue\": {\r\n
+    \                   \"$type\": \"GGEZ.Labkit.StructVariable`1[[System.Boolean,
+    mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]]\"\r\n
+    \               }\r\n            }\r\n        ],\r\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.GolemVariableEditorData,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \   }\r\n}"
   EditorWindowSelectedComponent: 0

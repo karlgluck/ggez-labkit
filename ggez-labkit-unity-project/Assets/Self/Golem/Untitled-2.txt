@@ -1,0 +1,9 @@
+
+
+
+                              state
+                           ------------
+                           |  script  |
+ variables --> precircuit --> script --> postcircuit --> outputs
+                           |  script  |
+                           ------------

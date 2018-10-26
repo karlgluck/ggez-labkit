@@ -296,7 +296,7 @@ namespace GGEZ.Labkit
 
                         EditorGUI.LabelField(labelRect, new GUIContent(name));
 
-                        IUntypedUnaryVariable untypedUnaryVariable = variable as IUntypedUnaryVariable;
+                        UntypedUnaryVariable untypedUnaryVariable = variable as UntypedUnaryVariable;
                         if (untypedUnaryVariable != null)
                         {
                             untypedUnaryVariable.UntypedValue = GolemEditorUtility.EditorGUIField(position, InspectableTypeExt.GetInspectableTypeOf(untypedUnaryVariable.ValueType), untypedUnaryVariable.ValueType, untypedUnaryVariable.UntypedValue);
