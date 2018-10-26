@@ -221,10 +221,12 @@ MonoBehaviour:
   _settings:
     Owner: {fileID: 1714730703}
     SettingsObjectReferences:
+    - {fileID: 1991062159261260, guid: 540a79313ed5d45e08b8dc96db639f2c, type: 2}
     - {fileID: 1714730704}
-    Json: "[\n    {\n        \"Type\": \"UnityEngine.Transform\",\n        \"Name\":
-      \"4de26744-8a23-4c68-9deb-f626a6d6cc77\",\n        \"Value\": {\n            \"$unity\":
-      0\n        }\n    }\n]"
+    Json: "[\n    {\n        \"Type\": \"UnityEngine.GameObject\",\n        \"Name\":
+      \"OnClick\",\n        \"Value\": {\n            \"$unity\": 0\n        }\n    },\n
+      \   {\n        \"Type\": \"UnityEngine.Transform\",\n        \"Name\": \"Self\",\n
+      \       \"Value\": {\n            \"$unity\": 1\n        }\n    }\n]"
 --- !u!4 &1714730704
 Transform:
   m_ObjectHideFlags: 0

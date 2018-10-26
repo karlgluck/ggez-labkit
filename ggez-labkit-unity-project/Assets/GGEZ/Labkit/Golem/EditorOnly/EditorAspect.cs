@@ -51,7 +51,17 @@ namespace GGEZ.Labkit
     [Serializable]
     public class EditorAspect
     {
-        public Aspect Aspect { get { return _aspect.Get(); } set { _aspect.Set(value); } }
+        public Aspect Aspect
+        {
+            get
+            {
+                return _aspect != null ? _aspect.Get() : null;
+            }
+            set
+            {
+                _aspect.Set(value);
+            }
+        }
 
         [SerializeField]
         private SerializableAspect _aspect = new SerializableAspect();

@@ -72,10 +72,10 @@ namespace GGEZ.Labkit
             _class = value;
         }
 
-        public static implicit operator T(BaseUnitySerializableClass<T> self)
-        {
-            return self._class;
-        }
+        // public static implicit operator T(BaseUnitySerializableClass<T> self)
+        // {
+        //     return self._class;
+        // }
 
         public void OnBeforeSerialize()
         {
@@ -96,6 +96,8 @@ namespace GGEZ.Labkit
             fsResult result;
 
             result = fsJsonParser.Parse(_json, out data);
+
+            _class = default(T);
 
             if (result.Succeeded)
                 result = Serializer.TryDeserialize(data, ref _class);

@@ -83,6 +83,7 @@ namespace GGEZ.Labkit
         /// <summary>Source of data for all the NonSerialized editor-only fields</summary>
         public string EditorJson;
 
+
     #endif
 
         public void OnBeforeSerialize()

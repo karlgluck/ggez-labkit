@@ -1,0 +1,146 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 586eb5b36413a544abf736664884d25c, type: 3}
+  m_Name: Click Golem Component
+  m_EditorClassIdentifier: 
+  Json: "{\n    \"Cells\": {\n        \"$content\": [\n            {\n                \"$type\":
+    \"DebugLogVector2\"\n            },\n            {\n                \"Text\":
+    \"Got ShowJoystick: \",\n                \"$type\": \"DebugLogBool\"\n            }\n
+    \       ],\n        \"$type\": \"GGEZ.Labkit.Cell[]\"\n    },\n    \"Registers\":
+    {\n        \"$content\": [],\n        \"$type\": \"GGEZ.Labkit.Register[]\"\n
+    \   },\n    \"Layers\": {\n        \"$content\": [\n            {\n                \"States\":
+    [\n                    0\n                ],\n                \"FromAnyStateTransitions\":
+    [],\n                \"Transitions\": [\n                    {\n                        \"Key\":
+    -1,\n                        \"Value\": [\n                            {\n                                \"FromState\":
+    -1,\n                                \"ToState\": 0,\n                                \"Expression\":
+    [\n                                    \"True\"\n                                ],\n
+    \                               \"Triggers\": []\n                            }\n
+    \                       ]\n                    }\n                ]\n            }\n
+    \       ],\n        \"$type\": \"GGEZ.Labkit.Layer[]\"\n    },\n    \"Scripts\":
+    {\n        \"$content\": [\n            {\n                \"Text\": \"Clicked!\",\n
+    \               \"$type\": \"DebugTextOnEnter\"\n            }\n        ],\n        \"$type\":
+    \"GGEZ.Labkit.Script[]\"\n    },\n    \"States\": {\n        \"$content\": [\n
+    \           {\n                \"Scripts\": [\n                    0\n                ]\n
+    \           }\n        ],\n        \"$type\": \"GGEZ.Labkit.State[]\"\n    },\n
+    \   \"Assignments\": {\n        \"$content\": [\n            {\n                \"Type\":
+    \"ScriptGolem\",\n                \"Name\": null,\n                \"RegisterIndex\":
+    0,\n                \"TargetIndex\": 0,\n                \"TargetFieldName\":
+    \"Golem\"\n            }\n        ],\n        \"$type\": \"GGEZ.Labkit.Assignment[]\"\n
+    \   },\n    \"ExternalAssignments\": {\n        \"Subject\": [\n            {\n
+    \               \"Type\": \"CellInputVariableRegisterOrDummy\",\n                \"Name\":
+    \"Point\",\n                \"RegisterIndex\": 0,\n                \"TargetIndex\":
+    0,\n                \"TargetFieldName\": \"Input\"\n            }\n        ],\n
+    \       \"Owner\": [\n            {\n                \"Type\": \"CellInputVariableRegisterOrDummy\",\n
+    \               \"Name\": \"ShowJoystick\",\n                \"RegisterIndex\":
+    0,\n                \"TargetIndex\": 1,\n                \"TargetFieldName\":
+    \"Input\"\n            }\n        ],\n        \"$type\": \"System.Collections.Generic.Dictionary`2[[System.String,
+    mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[GGEZ.Labkit.Assignment[],
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    }\n}"
+  EditorJson: "{\n    \"EditorCells\": {\n        \"$content\": [\n            {\n
+    \               \"Name\": \"DebugLogVector2\",\n                \"Index\": 0,\n
+    \               \"Cell\": {\n                    \"$type\": \"DebugLogVector2\"\n
+    \               },\n                \"InputWires\": {\n                    \"Input\":
+    {\n                        \"Index\": 0,\n                        \"ReadObject\":
+    {\n                            \"Variable\": {\n                                \"Name\":
+    \"Point\",\n                                \"Relationship\": \"Subject\"\n                            },\n
+    \                           \"Position\": {\n                                \"xMin\":
+    32.0,\n                                \"yMin\": 368.0,\n                                \"xMax\":
+    384.0,\n                                \"yMax\": 455.0\n                            },\n
+    \                           \"OutputWires\": [\n                                {\n
+    \                                   \"$ref\": \"5\"\n                                }\n
+    \                           ],\n                            \"$type\": \"GGEZ.Labkit.EditorVariableInputRegister\",\n
+    \                           \"$id\": \"6\"\n                        },\n                        \"ReadField\":
+    null,\n                        \"WriteObject\": {\n                            \"$ref\":
+    \"2\"\n                        },\n                        \"WriteField\": \"Input\",\n
+    \                       \"ReadPoint\": {\n                            \"x\": 319.0,\n
+    \                           \"y\": 250.0\n                        },\n                        \"WritePoint\":
+    {\n                            \"x\": 367.0,\n                            \"y\":
+    250.0\n                        },\n                        \"Register\": 0,\n
+    \                       \"$id\": \"5\"\n                    }\n                },\n
+    \               \"OutputWires\": {\n\n                },\n                \"Position\":
+    {\n                    \"xMin\": 464.0,\n                    \"yMin\": 368.0,\n
+    \                   \"xMax\": 816.0001,\n                    \"yMax\": 459.0\n
+    \               },\n                \"FieldsUsingSettings\": {\n\n                },\n
+    \               \"FieldsUsingVariables\": {\n\n                },\n                \"$id\":
+    \"2\"\n            },\n            {\n                \"Name\": \"DebugLogBool\",\n
+    \               \"Index\": 1,\n                \"Cell\": {\n                    \"Text\":
+    \"Got ShowJoystick: \",\n                    \"$type\": \"DebugLogBool\"\n                },\n
+    \               \"InputWires\": {\n                    \"Input\": {\n                        \"Index\":
+    1,\n                        \"ReadObject\": {\n                            \"Variable\":
+    {\n                                \"Name\": \"ShowJoystick\",\n                                \"Relationship\":
+    \"Owner\"\n                            },\n                            \"Position\":
+    {\n                                \"xMin\": 32.0,\n                                \"yMin\":
+    496.0,\n                                \"xMax\": 384.0,\n                                \"yMax\":
+    583.0\n                            },\n                            \"OutputWires\":
+    [\n                                {\n                                    \"$ref\":
+    \"15\"\n                                }\n                            ],\n                            \"$type\":
+    \"GGEZ.Labkit.EditorVariableInputRegister\",\n                            \"$id\":
+    \"16\"\n                        },\n                        \"ReadField\": null,\n
+    \                       \"WriteObject\": {\n                            \"$ref\":
+    \"12\"\n                        },\n                        \"WriteField\": \"Input\",\n
+    \                       \"ReadPoint\": {\n                            \"x\": 319.0,\n
+    \                           \"y\": 378.0\n                        },\n                        \"WritePoint\":
+    {\n                            \"x\": 383.0,\n                            \"y\":
+    378.0\n                        },\n                        \"Register\": 0,\n
+    \                       \"$id\": \"15\"\n                    }\n                },\n
+    \               \"OutputWires\": {\n\n                },\n                \"Position\":
+    {\n                    \"xMin\": 480.0,\n                    \"yMin\": 496.0,\n
+    \                   \"xMax\": 832.0,\n                    \"yMax\": 603.0\n                },\n
+    \               \"FieldsUsingSettings\": {\n\n                },\n                \"FieldsUsingVariables\":
+    {\n\n                },\n                \"$id\": \"12\"\n            }\n        ],\n
+    \       \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorCell,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    },\n
+    \   \"EditorWires\": {\n        \"$content\": [\n            {\n                \"$ref\":
+    \"5\"\n            },\n            {\n                \"$ref\": \"15\"\n            }\n
+    \       ],\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorWire,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    },\n
+    \   \"EditorStates\": {\n        \"$content\": [\n            {\n                \"Name\":
+    \"Enter\",\n                \"Layer\": 0,\n                \"Index\": 0,\n                \"CompiledIndex\":
+    2147483647,\n                \"SpecialState\": \"LayerEnter\",\n                \"Position\":
+    {\n                    \"xMin\": 32.0,\n                    \"yMin\": 96.0,\n
+    \                   \"xMax\": 384.0,\n                    \"yMax\": 163.0\n                },\n
+    \               \"Scripts\": [],\n                \"TransitionsIn\": [],\n                \"TransitionsOut\":
+    [\n                    0\n                ]\n            },\n            {\n                \"Name\":
+    \"State\",\n                \"Layer\": 0,\n                \"Index\": 1,\n                \"CompiledIndex\":
+    0,\n                \"SpecialState\": \"Normal\",\n                \"Position\":
+    {\n                    \"xMin\": 32.0,\n                    \"yMin\": 240.0,\n
+    \                   \"xMax\": 384.0,\n                    \"yMax\": 345.0\n                },\n
+    \               \"Scripts\": [\n                    {\n                        \"Enabled\":
+    true,\n                        \"Script\": {\n                            \"Text\":
+    \"Clicked!\",\n                            \"$type\": \"DebugTextOnEnter\"\n                        },\n
+    \                       \"CompiledIndex\": 0,\n                        \"FieldsUsingSettings\":
+    {\n\n                        },\n                        \"FieldsUsingVariables\":
+    {\n\n                        },\n                        \"OutputWires\": {\n\n
+    \                       },\n                        \"State\": {\n                            \"$ref\":
+    \"28\"\n                        },\n                        \"Position\": {\n
+    \                           \"xMin\": 0.0,\n                            \"yMin\":
+    0.0,\n                            \"xMax\": 0.0,\n                            \"yMax\":
+    0.0\n                        }\n                    }\n                ],\n                \"TransitionsIn\":
+    [\n                    0\n                ],\n                \"TransitionsOut\":
+    [],\n                \"$id\": \"28\"\n            }\n        ],\n        \"$type\":
+    \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorState, Assembly-CSharp,
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    },\n    \"EditorTransitions\":
+    {\n        \"$content\": [\n            {\n                \"Name\": \"Transition\",\n
+    \               \"Index\": 0,\n                \"Expression\": {\n                    \"Type\":
+    \"True\",\n                    \"Position\": {\n                        \"xMin\":
+    288.0,\n                        \"yMin\": 200.0,\n                        \"xMax\":
+    353.0,\n                        \"yMax\": 216.0\n                    },\n                    \"Trigger\":
+    \"Next\",\n                    \"Subexpressions\": []\n                },\n                \"ExpressionAnchor\":
+    {\n                    \"x\": 288.0,\n                    \"y\": 208.0\n                },\n
+    \               \"Position\": {\n                    \"xMin\": 288.0,\n                    \"yMin\":
+    200.0,\n                    \"xMax\": 353.0,\n                    \"yMax\": 216.0\n
+    \               },\n                \"From\": 0,\n                \"To\": 1\n
+    \           }\n        ],\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorTransition,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    },\n
+    \   \"EditorVariableInputRegisters\": {\n        \"$content\": [\n            {\n
+    \               \"$ref\": \"6\"\n            },\n            {\n                \"$ref\":
+    \"16\"\n            }\n        ],\n        \"$type\": \"System.Collections.Generic.List`1[[GGEZ.Labkit.EditorVariableInputRegister,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\n    }\n}"

@@ -58,21 +58,8 @@ namespace GGEZ.Labkit
         public override void OnInspectorGUI()
         {
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Settings", EditorStyles.boldLabel);
-
-            EditorGUILayout.LabelField("Local Settings", EditorStyles.boldLabel);
             _golem.Settings.DoEditorGUILayout(true);
 
-            var style = new GUIStyle(EditorStyles.foldout);
-            style.fontStyle = FontStyle.Bold;
-
-            int archetypeCount = _golem.Archetype == null ? 0 : 1;
-            if (archetypeCount > 0)
-                ArchetypeGUI(_golem.Archetype);
-
-            GrayLine();
-
-            // if (_golem.Archetype == null)
             {
                 _golem.Archetype = EditorGUILayout.ObjectField("Archetype", _golem.Archetype, typeof(GolemArchetype), false) as GolemArchetype;
                 EditorGUILayout.BeginHorizontal();
@@ -86,29 +73,18 @@ namespace GGEZ.Labkit
                         AssetDatabase.CreateAsset(_golem.Archetype, path);
                     }
                 }
-                // else
-                {
-
-                    string archetypePath = _golem.Archetype == null ? null : AssetDatabase.GetAssetPath(_golem.Archetype);
-                    EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(archetypePath));
-                    if (GUILayout.Button("Relocate..."))
-                    {
-                        string assetName = System.IO.Path.GetFileNameWithoutExtension(archetypePath);
-                        string newPath = EditorUtility.SaveFilePanelInProject("Archetype", assetName, "asset", "Move Archetype Asset", archetypePath);
-                        if (!string.IsNullOrEmpty(newPath))
-                        {
-                            string result = AssetDatabase.MoveAsset(archetypePath, newPath);
-                            if (!string.IsNullOrEmpty(result))
-                                Debug.LogError(result, _golem);
-                        }
-                    }
-                    EditorGUI.EndDisabledGroup();
-                }
 
                 EditorGUILayout.EndHorizontal();
                 if (_golem.Archetype == null)
                     return;
             }
+
+
+            int archetypeCount = _golem.Archetype == null ? 0 : 1;
+            if (archetypeCount > 0)
+                ArchetypeGUI(_golem.Archetype);
+
+            // GrayLine();
 
             AdvancedGUI();
         }
@@ -143,12 +119,27 @@ namespace GGEZ.Labkit
                 GUILayout.FlexibleSpace();
 
                 // Settings button
-                GUIStyle style2 = new GUIStyle("Icon.Options");
-                style2.margin.top = 2;
-                if (EditorGUILayout.DropdownButton(GUIContent.none, FocusType.Keyboard, style2))
+                if (EditorGUILayout.DropdownButton(GUIContent.none, FocusType.Keyboard, GolemEditorUtility.SettingsButtonStyle))
                 {
                     GenericMenu menu = new GenericMenu();
                     menu.AddItem(new GUIContent("Remove Archetype"), false, null);
+                    menu.AddItem(
+                        new GUIContent("Relocate"),
+                        false,
+                        (arg) =>
+                        {
+                            string archetypePath = AssetDatabase.GetAssetPath((UnityObject)arg);
+                            string assetName = System.IO.Path.GetFileNameWithoutExtension(archetypePath);
+                            string newPath = EditorUtility.SaveFilePanelInProject("Archetype", assetName, "asset", "Move Archetype Asset", archetypePath);
+                            if (!string.IsNullOrEmpty(newPath))
+                            {
+                                string result = AssetDatabase.MoveAsset(archetypePath, newPath);
+                                if (!string.IsNullOrEmpty(result))
+                                    Debug.LogError(result, _golem);
+                            }
+                        },
+                        _golem.Archetype
+                        );
 
                     // for whatever reason, GetLastRect doesn't return a useful value here so we can't use DropDown
                     menu.ShowAsContext();
@@ -162,37 +153,22 @@ namespace GGEZ.Labkit
 
             archetype.Settings.DoEditorGUILayout(true);
 
-            // Settings Inheritance
-            {
-                EditorGUILayout.Space();
-                archetype.InheritSettingsFrom = EditorGUILayout.ObjectField("Inherit From", archetype.InheritSettingsFrom, typeof(SettingsAsset), false) as SettingsAsset;
-                Settings current = archetype.Settings.Parent;
-                while (current != null)
-                {
-                    EditorGUI.BeginChangeCheck();
-                    current.DoEditorGUILayout(false);
-                    if (EditorGUI.EndChangeCheck() && current.Owner != null)
-                    {
-                        Undo.RegisterCompleteObjectUndo(current.Owner, current.Owner.name + " Settings");
-                        EditorUtility.SetDirty(current.Owner);
-                    }
-                    current = current.Parent;
-                }
-            }
+            archetype.InheritSettingsFrom = EditorGUILayout.ObjectField(new GUIContent(" Inherit From", EditorGUIUtility.FindTexture("FilterByType")), archetype.InheritSettingsFrom, typeof(SettingsAsset), false) as SettingsAsset;
 
             //-------------------------------------------------
             // Aspects
             //-------------------------------------------------
-            EditorGUILayout.LabelField("Aspects", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+            EditorGUILayout.BeginHorizontal((GUIStyle)"Toolbar");
+            EditorGUILayout.LabelField(new GUIContent(" Aspects", EditorGUIUtility.FindTexture("cs Script Icon")));
+
+            GUILayout.FlexibleSpace();
 
             // Dropdown for adding an aspect of a new type
             EditorGUI.BeginDisabledGroup(EditorApplication.isPlaying);
             {
-                var labelRect = EditorGUILayout.GetControlRect();
-                var dropdownRect = new Rect(labelRect);
-                dropdownRect.xMin += EditorGUIUtility.labelWidth;
-                labelRect.xMax = dropdownRect.xMin;
-                if (EditorGUI.DropdownButton(dropdownRect, new GUIContent("New Aspect..."), FocusType.Passive))
+                var dropdownRect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight, EditorStyles.toolbarDropDown, GUILayout.Width(38f));
+                if (EditorGUI.DropdownButton(dropdownRect, new GUIContent("New"), FocusType.Passive, EditorStyles.toolbarDropDown))
                 {
                     var menu = new GenericMenu();
                     var aspectTypes = Assembly.GetAssembly(typeof(Aspect))
@@ -219,6 +195,7 @@ namespace GGEZ.Labkit
                 }
             }
             EditorGUI.EndDisabledGroup();
+            EditorGUILayout.EndHorizontal();
 
             //-------------------------------------------------
             // Aspects
@@ -247,21 +224,24 @@ namespace GGEZ.Labkit
                     var inspectableAspectType = InspectableAspectType.GetInspectableAspectType(editorAspect.Aspect.GetType());
 
                     EditorGUILayout.Space();
-                    Rect foldoutRect = EditorGUILayout.GetControlRect();
-                    Rect rhsToolsRect = foldoutRect;
-                    foldoutRect.xMax = foldoutRect.xMax - EditorGUIUtility.singleLineHeight;
-                    rhsToolsRect.xMin = foldoutRect.xMax;
-                    editorAspect.Foldout = EditorGUI.Foldout(foldoutRect, editorAspect.Foldout, inspectableAspectType.Name);
+
+                    EditorGUILayout.BeginHorizontal();
+
+                    editorAspect.Foldout = EditorGUILayout.Foldout(editorAspect.Foldout, new GUIContent(" " + inspectableAspectType.Name,  EditorGUIUtility.FindTexture("cs Script Icon")));
+
+                    var settingsRect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight, GolemEditorUtility.SettingsButtonStyle, GUILayout.Width(16f));
+                    if (GUI.Button(settingsRect, "", GolemEditorUtility.SettingsButtonStyle))
                     {
-                        if (GUI.Button(rhsToolsRect, "X"))
-                        {
-                            archetype.RemoveAspect(editorAspect);
-                        }
+                        GenericMenu menu = new GenericMenu();
+                        menu.AddItem(new GUIContent("Remove"), false, (arg) => archetype.RemoveAspect((EditorAspect)arg), editorAspect);
+                        menu.DropDown(settingsRect);
                     }
+
+                    EditorGUILayout.EndHorizontal();
+
                     if (!editorAspect.Foldout)
-                    {
                         continue;
-                    }
+
                     EditorGUI.indentLevel++;
 
                     // Fields
@@ -294,24 +274,38 @@ namespace GGEZ.Labkit
             // Variables
             //-------------------------------------------------
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField(new GUIContent("Variables"), EditorStyles.boldLabel);
+            EditorGUILayout.BeginHorizontal((GUIStyle)"Toolbar");
+            EditorGUILayout.LabelField(new GUIContent(" Variables", EditorGUIUtility.FindTexture("CloudConnect")));
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
             if (EditorApplication.isPlaying)
             {
                 var variables = _golem.Variables;
-                var editorVariables = archetype.EditorVariables;
 
-                for (int i = 0; i < editorVariables.Count; ++i)
+                if (variables != null)
                 {
-                    var editorVariable = editorVariables[i];
-                    var variable = variables[editorVariable.Name];
+                    foreach (var kvp in variables)
+                    {
+                        string name = kvp.Key;
+                        Variable variable = kvp.Value;
 
-                    var labelRect = EditorGUILayout.GetControlRect();
-                    var position = new Rect(labelRect);
-                    position.xMin += EditorGUIUtility.labelWidth;
-                    labelRect.xMax = position.xMin;
+                        var labelRect = EditorGUILayout.GetControlRect();
+                        var position = new Rect(labelRect);
+                        position.xMin += EditorGUIUtility.labelWidth;
+                        labelRect.xMax = position.xMin;
 
-                    EditorGUI.LabelField(labelRect, new GUIContent(editorVariable.Name, editorVariable.Tooltip));
-                    GolemEditorUtility.EditorGUIField(position, editorVariable.InspectableType, editorVariable.Type, variable);
+                        EditorGUI.LabelField(labelRect, new GUIContent(name));
+
+                        IUntypedUnaryVariable untypedUnaryVariable = variable as IUntypedUnaryVariable;
+                        if (untypedUnaryVariable != null)
+                        {
+                            untypedUnaryVariable.UntypedValue = GolemEditorUtility.EditorGUIField(position, InspectableTypeExt.GetInspectableTypeOf(untypedUnaryVariable.ValueType), untypedUnaryVariable.ValueType, untypedUnaryVariable.UntypedValue);
+                        }
+                        else
+                        {
+                            EditorGUI.LabelField(position, variable.GetType().Name);
+                        }
+                    }
                 }
             }
             else
@@ -353,7 +347,29 @@ namespace GGEZ.Labkit
             // Components
             //-------------------------------------------------
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField(new GUIContent("Components"), EditorStyles.boldLabel);
+            EditorGUILayout.BeginHorizontal((GUIStyle)"Toolbar");
+            EditorGUILayout.LabelField(new GUIContent(" Components", EditorGUIUtility.FindTexture("FolderFavorite Icon")));
+
+            GUILayout.FlexibleSpace();
+
+            // Dropdown for adding an aspect of a new type
+            EditorGUI.BeginDisabledGroup(EditorApplication.isPlaying);
+            {
+                var dropdownRect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight, EditorStyles.toolbarDropDown, GUILayout.Width(38f));
+                if (EditorGUI.DropdownButton(dropdownRect, new GUIContent("New"), FocusType.Passive, EditorStyles.toolbarDropDown))
+                {
+                    GenericMenu menu = new GenericMenu();
+                    menu.AddItem(
+                        new GUIContent("New Component"),
+                        false,
+                        AddNewLocalComponentMenuFunction
+                        );
+                    menu.DropDown(dropdownRect);
+                }
+            }
+            EditorGUI.EndDisabledGroup();
+            EditorGUILayout.EndHorizontal();
+
             if (EditorApplication.isPlaying)
             {
                 #warning TODO draw cell stats on golem at runtime
@@ -377,83 +393,66 @@ namespace GGEZ.Labkit
                 var components = archetype.Components;
                 for (int i = 0; i < components.Length; ++i)
                 {
+                    var component = components[i];
                     if (components[i] == null)
                     {
                         archetype.DeduplicateComponents();
                         --i;
                     }
 
-                    GUILayout.BeginHorizontal();
+                    EditorGUILayout.Space();
 
-                    if (AssetDatabase.IsMainAsset(components[i]))
-                    {
-                        // this is an on-disk component
-                        if (GUILayout.Button(new GUIContent("Ping"), GUILayout.Width(20f)))
-                        {
-                            EditorGUIUtility.PingObject(components[i]);
-                        }
-                        if (GUILayout.Button(new GUIContent("Copy to Embedded")))
-                        {
-                            components[i] = ScriptableObject.Instantiate(components[i]);
-                            GUI.changed = true;
-                        }
-                    }
-                    else
-                    {
-                        // this is a local component
-                        if (GUILayout.Button(new GUIContent("Extract to Asset")))
-                        {
-                            string directory = System.IO.Path.GetDirectoryName(AssetDatabase.GetAssetOrScenePath(_golem));
-                            string path = AssetDatabase.GenerateUniqueAssetPath(System.IO.Path.Combine(directory, "Extracted Golem Component.asset"));
-                            AssetDatabase.CreateAsset(components[i], path);
-                            EditorGUIUtility.PingObject(components[i]);
-                            GUI.changed = true;
-                        }
-                    }
+                    EditorGUILayout.BeginHorizontal();
 
+                    bool foldout = archetype.EditorWindowSelectedComponent == i;
+                    foldout = EditorGUILayout.Foldout(foldout, new GUIContent(" " + component.name,  EditorGUIUtility.FindTexture("Favorite Icon")));
 
-                    if (GUILayout.Button(new GUIContent("Open Editor")))
+                    if (GUILayout.Button("Open", EditorStyles.miniButton, GUILayout.MaxWidth(36f)))
                     {
-                        archetype.EditorWindowSelectedComponent = i;
+                        foldout = true;
                         GolemEditorWindow.Open(_golem);
                     }
-                    if (GUILayout.Button(new GUIContent("X")))
+
+                    if (foldout)
                     {
-                        if (archetype.EditorWindowSelectedComponent >= i)
-                        {
-                            --archetype.EditorWindowSelectedComponent;
-                        }
-                        var list = new List<GolemComponent>(components);
-                        list.RemoveAt(i);
-                        components = list.ToArray();
-                        --i;
-                        archetype.Components = components.ToArray();
+                        archetype.EditorWindowSelectedComponent = i;
                     }
-                    GUILayout.EndHorizontal();
+
+                    var settingsRect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight, GolemEditorUtility.SettingsButtonStyle, GUILayout.Width(16f));
+                    if (GUI.Button(settingsRect, "", GolemEditorUtility.SettingsButtonStyle))
+                    {
+                        GenericMenu menu = new GenericMenu();
+                        menu.AddItem(
+                            new GUIContent("Remove"),
+                            false,
+                            (arg) =>
+                            {
+                                Undo.RegisterCompleteObjectUndo(archetype, "Remove Component");
+                                int index = (int)arg;
+                                if (archetype.EditorWindowSelectedComponent >= index)
+                                {
+                                    --archetype.EditorWindowSelectedComponent;
+                                }
+                                var list = new List<GolemComponent>(components);
+                                list.RemoveAt(index);
+                                components = list.ToArray();
+                                archetype.Components = components.ToArray();
+                            },
+                            i);
+                        menu.DropDown(settingsRect);
+                    }
+
+                    EditorGUILayout.EndHorizontal();
+
+                    if (!foldout)
+                        continue;
+
+                    EditorGUI.BeginDisabledGroup(true);
+                    EditorGUILayout.ObjectField("Component", component, typeof(GolemComponent), false);
+                    EditorGUI.EndDisabledGroup();
+
                 }
 
-                Rect rect = EditorGUILayout.GetControlRect();
-                if (EditorGUI.DropdownButton(rect, new GUIContent("Add Component..."), FocusType.Keyboard))
-                {
-                    GenericMenu menu = new GenericMenu();
-
-                    menu.AddItem(new GUIContent("New Local Component"), false, AddNewLocalComponentMenuFunction);
-                    menu.AddSeparator("");
-
-                    string[] assetGuids = AssetDatabase.FindAssets("t:" + typeof(GolemComponent).Name);
-                    for (int i = 0; i < assetGuids.Length; ++i)
-                    {
-                        string path = AssetDatabase.GUIDToAssetPath(assetGuids[i]);
-                        menu.AddItem(new GUIContent(path), false, AddAssetComponentMenuFunction, assetGuids[i]);
-                    }
-
-                    if (assetGuids.Length == 0)
-                    {
-                        menu.AddDisabledItem(new GUIContent("No Components in Assets"));
-                    }
-
-                    menu.DropDown(rect);
-                }
             }
 
             if (EditorGUI.EndChangeCheck())
@@ -466,7 +465,10 @@ namespace GGEZ.Labkit
         {
             var components = _golem.Archetype.Components;
             Array.Resize(ref components, components.Length + 1);
-            components[components.Length-1] = ScriptableObject.CreateInstance<GolemComponent>();
+            GolemComponent instance = ScriptableObject.CreateInstance<GolemComponent>();
+            components[components.Length-1] = instance;
+            string path = AssetDatabase.GenerateUniqueAssetPath(System.IO.Path.GetDirectoryName(AssetDatabase.GetAssetPath(_golem.Archetype)) + "/New Golem Component.asset");
+            AssetDatabase.CreateAsset(instance, path);
             _golem.Archetype.Components = components;
         }
 

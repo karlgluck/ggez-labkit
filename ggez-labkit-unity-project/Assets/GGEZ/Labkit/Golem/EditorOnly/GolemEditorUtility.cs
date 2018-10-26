@@ -238,19 +238,19 @@ namespace GGEZ.Labkit
         /// <param name="content">Content for the button.</param>
         /// <param name="value">Current value. Returned unless changed by the menu.</param>
         /// <returns>True if the button was clicked</returns>
-        public static bool DropdownField<T>(Rect position, GUIContent content, ref T value)
+        public static bool DropdownField<T>(Rect position, GUIContent content, ref T value, GUIStyle style)
         {
             object objectValue = value;
-            bool retval = DropdownField(position, content, ref objectValue);
+            bool retval = DropdownField(position, content, ref objectValue, style);
             value = (T)objectValue;
             return retval;
         }
 
-        public static bool DropdownField(Rect position, GUIContent content, ref object value)
+        public static bool DropdownField(Rect position, GUIContent content, ref object value, GUIStyle style)
         {
             #warning TODO rewrite this with GUIUtility.GetStateObject to leverage Unity's internal support for control-fixed state info
             var controlId = GUIUtility.GetControlID(FocusType.Keyboard);
-            if (EditorGUI.DropdownButton(position, content, FocusType.Keyboard, EditorStyles.popup))
+            if (EditorGUI.DropdownButton(position, content, FocusType.Keyboard, style ?? EditorStyles.popup))
             {
                 ++s_activeDropdownHandle;
                 s_hasActiveDropdown = true;
@@ -356,7 +356,7 @@ namespace GGEZ.Labkit
                             var gameObject = value as GameObject ?? (component != null ? component.gameObject : null);
 
                             EditorGUI.BeginDisabledGroup(gameObject == null);
-                            if (DropdownField(lhsToolsRect, new GUIContent(""), ref value))
+                            if (DropdownField(lhsToolsRect, new GUIContent(""), ref value, (GUIStyle)"minibutton"))
                             {
                                 GenericMenu menu = new GenericMenu();
 
@@ -562,7 +562,7 @@ namespace GGEZ.Labkit
                 {
                     EditorGUI.DropdownButton(valueRect, TypeNotSetErrorGUIContent, FocusType.Keyboard);
                 }
-                else if (GolemEditorUtility.DropdownField(valueRect, setting == null ? GolemEditorUtility.NoSettingGUIContent : new GUIContent(setting), ref setting))
+                else if (GolemEditorUtility.DropdownField(valueRect, setting == null ? GolemEditorUtility.NoSettingGUIContent : new GUIContent(setting), ref setting, null))
                 {
                     GenericMenu menu = new GenericMenu();
 
@@ -713,7 +713,7 @@ namespace GGEZ.Labkit
                             content = new GUIContent(reference.Name);
                         }
 
-                        if (DropdownField(right, content, ref variableName))
+                        if (DropdownField(right, content, ref variableName, null))
                         {
                             GenericMenu menu = new GenericMenu();
                             var variables = golemArchetype.EditorVariables;
@@ -930,6 +930,21 @@ namespace GGEZ.Labkit
                     s_settingToggleStyle = new GUIStyle(EditorStyles.toggle);
                 }
                 return s_settingToggleStyle;
+            }
+        }
+
+        private static GUIStyle s_settingsButtonStyle;
+
+        public static GUIStyle SettingsButtonStyle
+        {
+            get
+            {
+                if (s_settingsButtonStyle == null)
+                {
+                    s_settingsButtonStyle = new GUIStyle("Icon.Options");
+                    s_settingsButtonStyle.margin.top = 2;
+                }
+                return s_settingsButtonStyle;
             }
         }
 

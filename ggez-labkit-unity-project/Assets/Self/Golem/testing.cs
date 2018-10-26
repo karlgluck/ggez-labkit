@@ -459,3 +459,16 @@ public class DebugLogVector2 : Cell
     }
 
 }
+
+
+public class DebugLogBool : Cell
+{
+    public string Text;
+    public StructRegister<bool> Input;
+
+    public override void Update()
+    {
+        Debug.Log(Text + " " + Input);
+    }
+
+}

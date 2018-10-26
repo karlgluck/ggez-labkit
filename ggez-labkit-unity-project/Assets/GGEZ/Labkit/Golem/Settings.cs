@@ -32,6 +32,10 @@ using SettingsDictionary = System.Collections.Generic.Dictionary<string, object>
 #warning todo unify namespaces for ggez
 using GGEZ.FullSerializer;
 
+#if UNITY_EDITOR
+using UnityEditorInternal;
+#endif
+
 namespace GGEZ.Labkit
 {
     /// <summary>
@@ -217,9 +221,58 @@ namespace GGEZ.Labkit
 
 #if UNITY_EDITOR
         private bool _foldout;
+        private string _searchText;
 
         public void DoEditorGUILayout(bool isFocused)
         {
+            EditorGUILayout.Space();
+
+            {
+                EditorGUILayout.BeginHorizontal((GUIStyle)"Toolbar");
+                EditorGUILayout.LabelField(new GUIContent(" Settings", EditorGUIUtility.FindTexture("FilterByType")));
+
+                GUILayout.FlexibleSpace();
+
+                // Allow filtering
+                _searchText = EditorGUILayout.TextField(_searchText, (GUIStyle)"ToolbarSeachTextField");
+                if (GUILayout.Button("", string.IsNullOrEmpty(_searchText) ? (GUIStyle)"ToolbarSeachCancelButtonEmpty" : (GUIStyle)"ToolbarSeachCancelButton"))
+                {
+                    // Clear search
+                    GUI.FocusControl("");
+                    GUIUtility.hotControl = 0;
+                    _searchText = null;
+                }
+                var dropdownRect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight, EditorStyles.toolbarDropDown, GUILayout.Width(38f));
+                if (EditorGUI.DropdownButton(dropdownRect, new GUIContent("New"), FocusType.Keyboard, EditorStyles.toolbarDropDown))
+                {
+                    // Clear search
+                    GUI.FocusControl("");
+                    GUIUtility.hotControl = 0;
+                    _searchText = null;
+
+                    // Offer options for a new setting
+                    GenericMenu menu = new GenericMenu();
+                    var enumNames = Enum.GetNames(typeof(InspectableType));
+                    var enumValues = Enum.GetValues(typeof(InspectableType));
+                    for (int i = 0; i < enumNames.Length; ++i)
+                    {
+                        var value = (InspectableType)enumValues.GetValue(i);
+                        #warning TODO: InspectableType should have a "can be a setting" type
+                        if (value == InspectableType.VariableRef
+                        || value == InspectableType.Enum || value == InspectableType.TriggerRef
+                        || value == InspectableType.Invalid || value == InspectableType.Golem
+                        || value == InspectableType.Aspect || value == InspectableType.Variable)
+                        {
+                            continue;
+                        }
+                        menu.AddItem(new GUIContent(enumNames[i]), false, addSettingMenuCallback, InspectableTypeExt.GetRepresentedType(value));
+                    }
+                    menu.DropDown(dropdownRect);
+                }
+
+                EditorGUILayout.EndHorizontal();
+            }
+
             if (!isFocused)
             {
                 _foldout = EditorGUILayout.Foldout(_foldout, Name);
@@ -229,86 +282,94 @@ namespace GGEZ.Labkit
                 }
             }
 
+            EditorGUILayout.BeginVertical();
+
             string focusedControlName = GUI.GetNameOfFocusedControl();
 
             for (int i = 0; i < Values.Count; ++i)
             {
                 Setting setting = Values[i];
+                if (!string.IsNullOrEmpty(_searchText) && !setting.Name.Contains(_searchText))
+                    continue;
 
-                var labelRect = EditorGUILayout.GetControlRect();
-                var position = new Rect(labelRect);
-                position.xMin += EditorGUIUtility.labelWidth;
-                labelRect.xMax = position.xMin;
+                int id = GUIUtility.GetControlID(FocusType.Keyboard);
+                GUI.SetNextControlName(id.ToString());
+                bool isSelected = focusedControlName == id.ToString();
+                Rect rect = EditorGUILayout.BeginHorizontal();
+                if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
+                {
+                    GUI.FocusControl(id.ToString());
+                }
 
-                Rect lhsToolsRect = labelRect;
-                labelRect.xMin = labelRect.xMin + EditorGUIUtility.singleLineHeight;
-                lhsToolsRect.xMax = labelRect.xMin;
-
-                Rect rhsToolsRect = labelRect;
-                labelRect.xMax = labelRect.xMax - EditorGUIUtility.singleLineHeight;
-                rhsToolsRect.xMin = labelRect.xMax;
+                EditorGUI.BeginChangeCheck();
 
                 string name = setting.Name;
-                string labelControlName = i.ToString("000") + ":" + name;
-                GUI.SetNextControlName(labelControlName);
-                bool isSettingFocused = focusedControlName == labelControlName;
-                EditorGUI.BeginChangeCheck();
-                string newName = EditorGUI.DelayedTextField(labelRect, name, isSettingFocused ? EditorStyles.textField : EditorStyles.label);
-                object newValue = GolemEditorUtility.EditorGUIField(position, InspectableTypeExt.GetInspectableTypeOf(setting.Type), setting.Type, setting.Value);
+                string newName = EditorGUILayout.DelayedTextField(name, isFocused ? EditorStyles.textField : EditorStyles.label);
+
+                GUILayout.FlexibleSpace();
+
+                object value = setting.Value;
+                GenericMenu menu = null;
+                if (GUILayout.Button("", GolemEditorUtility.SettingsButtonStyle))
+                {
+                    menu = new GenericMenu();
+                }
+
+                Rect position = EditorGUILayout.GetControlRect();
+                object newValue = GolemEditorUtility.EditorGUIField(position, InspectableTypeExt.GetInspectableTypeOf(setting.Type), setting.Type, value);
+
                 if (EditorGUI.EndChangeCheck())
                 {
                     Undo.RegisterCompleteObjectUndo(Owner, Owner.name + " Settings");
                     EditorUtility.SetDirty(Owner);
                 }
+
                 setting.Value = newValue;
                 if (newName != name)
                 {
                     #warning TODO update everything that references a setting when the name changes
                     setting.Name = newName;
-                    if (isSettingFocused)
-                    {
+                    if (isFocused)
                         GUI.FocusControl(null);
-                    }
                 }
 
-                if (newValue != null && newValue.GetType().IsSubclassOf(setting.Type))
+                if (menu != null)
                 {
-                    if (GUI.Button(rhsToolsRect, "!"))
+                    if (value != null && value.GetType().IsSubclassOf(setting.Type))
                     {
-                        Undo.RegisterCompleteObjectUndo(Owner, Owner.name + " Settings");
-                        setting.Type = newValue.GetType();
+                        menu.AddItem(
+                            new GUIContent("Become " + value.GetType().Name),
+                            false,
+                            (object arg) =>
+                            {
+                                Undo.RegisterCompleteObjectUndo(Owner, Owner.name + " Settings");
+                                Values[(int)arg].Type = Values[(int)arg].Value.GetType();
+                            },
+                            i
+                        );
+                        menu.AddSeparator("");
                     }
+
+                    menu.AddItem(
+                        new GUIContent("Delete"),
+                        false,
+                        (object arg) =>
+                        {
+                            int index = (int)arg;
+                            Undo.RegisterCompleteObjectUndo(Owner, Owner.name + " Settings");
+                            Values.RemoveAt(index);
+                        },
+                        i
+                        );
+
+                    menu.ShowAsContext();
                 }
 
-                if (GUI.Button(lhsToolsRect, "X"))
-                {
-                    Undo.RegisterCompleteObjectUndo(Owner, Owner.name + " Settings");
-                    Values.RemoveAt(i);
-                    --i;
-                }
+                EditorGUILayout.EndHorizontal();
             }
 
-            Rect controlRect = EditorGUILayout.GetControlRect();
-            if (EditorGUI.DropdownButton(controlRect, new GUIContent("+"), FocusType.Keyboard))
-            {
-                GenericMenu menu = new GenericMenu();
-                var enumNames = Enum.GetNames(typeof(InspectableType));
-                var enumValues = Enum.GetValues(typeof(InspectableType));
-                for (int i = 0; i < enumNames.Length; ++i)
-                {
-                    var value = (InspectableType)enumValues.GetValue(i);
-                    #warning TODO: InspectableType should have a "can be a setting" type
-                    if (value == InspectableType.VariableRef
-                     || value == InspectableType.Enum || value == InspectableType.TriggerRef
-                      || value == InspectableType.Invalid || value == InspectableType.Golem
-                      || value == InspectableType.Aspect || value == InspectableType.Variable)
-                    {
-                        continue;
-                    }
-                    menu.AddItem(new GUIContent(enumNames[i]), false, addSettingMenuCallback, InspectableTypeExt.GetRepresentedType(value));
-                }
-                menu.DropDown(controlRect);
-            }
+            EditorGUILayout.EndVertical();
+            EditorGUILayout.Space();
         }
 
         /// <summary>
