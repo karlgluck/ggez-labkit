@@ -105,56 +105,5 @@ namespace System.Linq
         }
 
 
-        /// <summary>
-        /// Reorganizes the input such that the output is in descending tree order. For
-        /// any element E at index i in the returned list, each element that depends on E
-        /// will be at index j > i.
-        /// </summary>
-        /// <param name="self">Elements to sort</param>
-        /// <param name="dependenciesOf">Function that maps any element in the input to its immediate dependencies.</param>
-        public static IEnumerable<T> SortByDependencies<T>(
-                this IEnumerable<T> self,
-                System.Func<T, IEnumerable<T>> dependenciesOf
-                )
-        {
-            var sorted = new List<T>();
-            var visited = new HashSet<T>();
-            var worklist = new Stack<T>();
-
-            foreach (var inputItem in self)
-            {
-                if (sorted.Contains(inputItem))
-                {
-                    continue;
-                }
-                worklist.Push(inputItem);
-                while (worklist.Count > 0)
-                {
-                    var item = worklist.Pop();
-                    if (!visited.Contains(item))
-                    {
-                        visited.Add(item);
-                        worklist.Push(item);
-                        var dependencies = dependenciesOf(item);
-                        if (dependencies != null)
-                        {
-                            foreach (var dependency in dependencies)
-                            {
-                                worklist.Push(dependency);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (worklist.Contains(item))
-                        {
-                            throw new System.InvalidOperationException("cyclic dependency");
-                        }
-                        sorted.Add(item);
-                    }
-                }
-            }
-            return sorted;
-        }
     }
 }
